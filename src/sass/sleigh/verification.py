@@ -23,7 +23,7 @@ class VerificationPolicy:
         return self.opcode_strength.get(row["opcode"], self.default_strength)
 
 
-POLICY = VerificationPolicy()
+POLICY = VerificationPolicy(opcode_strength={"HMMA": "exhaustive"})
 SUPPORTED = frozenset(("native", "primitive"))
 
 

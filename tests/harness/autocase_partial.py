@@ -20,7 +20,7 @@ ROWS = {
     'HADD2': 'F32 widening; negative zero register operand where required',
     'HFMA2': 'ordinary register factors plus literal half lanes; default literal-move row',
     'HFMA2.MMA': 'ordinary register factors plus literal half lanes; default literal-move row',
-    'HMMA': 'direct F16/F32 form and UPp=UPT where present',
+    'HMMA': 'direct F16/TF32 inputs and F32 accumulators',
 }
 
 
@@ -28,8 +28,6 @@ def operands(k, form, arch=None):
     """Fixed operand fields, applied before reference inputs are constructed."""
     op = k.mnemonic
     fields = {}
-    if op == 'HMMA' and 'UPp' in k.operand_types:
-        fields['UPp'] = 'UPT'
     predicates = ('UPu',) if op == 'UFLO' else ('Pu', 'Pv', 'Pq')
     if op in {'FLO', 'UFLO', 'R2UR', 'IADD', 'VABSDIFF4', 'VIMNMX'} | {
             'LD', 'LDL', 'LDS', 'ST', 'STG', 'STL', 'STS'}:

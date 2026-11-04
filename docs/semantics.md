@@ -47,11 +47,15 @@ Reading notes:
   (`memory.py`), runtime-executed operations (`runtime.py`); UP2UR is in `integer.py`, HFMA2.MMA in `floating.py`.
 - `atomic.py` supplies integer atomic updates, floating atomic ADD, and ordinary SC fences;
   `asynchronous.py` supplies copy issue, commit, and wait effects; `matrix.py` supplies
-  unexpanded 16-bit M88/MT88 matrix loads and direct HMMA.16816 F16/F32 arithmetic
-  (2026-11-04). Matrix arithmetic is defined over values; only lane access is a primitive.
+  unexpanded 16-bit M88/MT88 matrix loads and direct HMMA F16/16816 and
+  TF32/1684/1688 arithmetic with F32 accumulators, including source negation and
+  accumulator predicates (2026-11-04). Matrix arithmetic is defined over values;
+  only lane access is a primitive. The SM89 TF32 alignment floor comes from
+  local hardware; other architectures' grouping, precision and floor are inferred
+  from published tensor-core models. See `docs/hardware-facts.md`.
   Unsupported selectors retain opaque fallbacks; the form inventory in
   `research/additional-opcodes/inventory-current.json` separates these from evidence.
-- Compiler traces (2026-11-04): ptxas 13.0.88 compiles the six retained opcode
+- Compiler traces (2026-11-04): ptxas 13.0.88 compiles the eight retained opcode
   probes on SM80/86/89/90/100/103/120 with PTX 9.0. SM75 compiles four; the
   selected dense matrix shape and async-copy probes require SM80. That compiler
   does not recognize SM101 or SM107. Generated sources, commands, hashes,
@@ -133,7 +137,8 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   - `primitive_names` and `cxx.Lower.lazy`, since an expansion may hold a runtime primitive.
 - SLEIGH retains selected expensive definitions as shared subtables. Their argument
   constructors preserve class constraints and fields determining operand spans.
-  HMMA products/sums and atomic floating ADD use caller-written internal argument
+  HMMA products/sums/fragments, scalar half/BF16 FMA, selected F64-to-half narrowing
+  and atomic floating ADD use caller-written internal argument
   registers, followed by an explicit build and an immediate result copy. Each call
   has a distinct forwarding operand because SLEIGH rejects duplicate builds of
   one operand. Nested definitions use separate argument registers.

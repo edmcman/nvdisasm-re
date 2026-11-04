@@ -12,19 +12,28 @@ def load(memory, addresses, lane, matrices=1, transpose=False, offset=0, uniform
     return out
 
 
-def tensor_block(a, b, c, extra):
+def tensor_block(a, b, c, extra, source="F16", minimum_exponent=-133, negate=(False, False)):
     from fractions import Fraction
     from sass.semantics.fp import softfloat
     terms, infinities = [], set()
     for x, y in zip(a, b):
-        kx, sx, vx = softfloat.unpack(x, 16)
-        ky, sy, vy = softfloat.unpack(y, 16)
+        if source == "TF32": x, y = x & 0xffffe000, y & 0xffffe000
+        width, fraction, bias = (16, 10, 15) if source == "F16" else (32, 23, 127)
+        kx, sx, vx = softfloat.unpack(x, width)
+        ky, sy, vy = softfloat.unpack(y, width)
+        if negate[0]:
+            sx ^= 1
+            if vx is not None: vx = -vx
+        if negate[1]:
+            sy ^= 1
+            if vy is not None: vy = -vy
         if "nan" in (kx, ky) or (kx, ky) in (("zero", "inf"), ("inf", "zero")):
             return 0x7fffffff
         if "inf" in (kx, ky):
             infinities.add(sx ^ sy)
         elif vx and vy:
-            exponent = max(x >> 10 & 31, 1) + max(y >> 10 & 31, 1) - 30
+            mask = (1 << (width - fraction - 1)) - 1
+            exponent = max(x >> fraction & mask, 1) + max(y >> fraction & mask, 1) - 2 * bias
             terms.append((vx * vy, exponent))
     kind, sign, value = softfloat.unpack(c, 32)
     match kind:
@@ -34,27 +43,40 @@ def tensor_block(a, b, c, extra):
     if len(infinities) > 1: return 0x7fffffff
     if infinities: return next(iter(infinities)) << 31 | 0x7f800000
     if not terms: return 0
-    quantum = Fraction(2) ** (max(e for _, e in terms) - 23 - extra)
+    exponent = max(e for _, e in terms)
+    if source == "TF32": exponent = max(exponent, minimum_exponent)
+    quantum = Fraction(2) ** (exponent - 23 - extra)
     aligned = sum((-1 if v < 0 else 1) * (abs(v) // quantum) for v, _ in terms)
-    return softfloat.pack(aligned * quantum, 32, "RZ")
+    if abs(aligned * quantum) >= Fraction(2) ** 128:
+        return (int(aligned < 0) << 31) | 0x7f800000
+    result = softfloat.pack(aligned * quantum, 32, "RZ")
+    return result if result & 0x7fffffff else 0
 
 
-def hmma(groups, lane, arch):
-    a, b = [[0] * 16 for _ in range(16)], [[0] * 8 for _ in range(16)]
+def hmma(groups, lane, arch, source="F16", count=16, accumulate=True, negate=(False, False)):
+    a, b = [[0] * count for _ in range(16)], [[0] * 8 for _ in range(count)]
     for owner in range(32):
         row, thread = divmod(owner, 4)
         for word, value in enumerate(groups["Ra"][owner]):
-            r, k = row + 8 * (word % 2), thread * 2 + 8 * (word // 2)
-            a[r][k:k + 2] = [value & 65535, value >> 16]
+            if source == "F16":
+                r, k = row + 8 * (word % 2), thread * 2 + 8 * (word // 2)
+                a[r][k:k + 2] = [value & 65535, value >> 16]
+            else:
+                a[row + 8 * (word % 2)][thread + 4 * (word // 2)] = value
         for word, value in enumerate(groups["Rb"][owner]):
-            for n in (0, 1):
-                b[thread * 2 + 8 * word + n][row] = value >> (n * 16) & 65535
-    block, extra = (8, 1) if int(arch[2:]) < 90 else (16, 2)
+            if source == "F16":
+                for n in (0, 1):
+                    b[thread * 2 + 8 * word + n][row] = value >> (n * 16) & 65535
+            else:
+                b[thread + 4 * word][row] = value
+    block, extra = ((8 if source == "F16" else 4), 1) if int(arch[2:]) < 90 else (count, 2)
     out = []
     for j, c in enumerate(groups["Rc"][lane]):
+        if not accumulate: c = 0
         row, column = lane // 4 + 8 * (j // 2), lane % 4 * 2 + j % 2
-        for start in range(0, 16, block):
+        for start in range(0, count, block):
             c = tensor_block(a[row][start:start + block],
-                             [b[k][column] for k in range(start, start + block)], c, extra)
+                             [b[k][column] for k in range(start, start + block)], c, extra, source,
+                             -132 if arch == "SM89" else -133, negate)
         out.append(c)
     return out

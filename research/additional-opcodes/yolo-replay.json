@@ -1,7 +1,7 @@
 {
  "summary": {
-  "pass": 201,
-  "blocked": 113
+  "pass": 249,
+  "blocked": 65
  },
  "launches": [
   {
@@ -20,7 +20,7 @@
    "architecture": "SM86",
    "threads": 12288,
    "status": "pass",
-   "seconds": 1.4588216920019477,
+   "seconds": 1.6843063970009098,
    "executed": {
     "IMAD": 101,
     "LOP3": 44,
@@ -75,7 +75,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.9122050410005613,
+   "seconds": 1.548066426999867,
    "executed": {
     "IMAD": 218,
     "FFMA": 192,
@@ -130,7 +130,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.6097314049984561,
+   "seconds": 0.5517190509999637,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -161,7 +161,7 @@
    "threads": 2048,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.659852280994528
+   "seconds": 0.4203536470013205
   },
   {
    "id": 4,
@@ -187,7 +187,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 1.5185073120010202,
+   "seconds": 0.8278509049996501,
    "executed": {
     "IMAD": 232,
     "FFMA": 192,
@@ -242,7 +242,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.6969739609994576,
+   "seconds": 0.42383972799871117,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -273,17 +273,84 @@
    "threads": 1024,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.036142391996691
+   "seconds": 0.021766770994872786
   },
   {
    "id": 7,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "24f1e1426b9032b3dc4528a2b3f28be23877783dd7d44d1f311ee6462ad9d3de",
+     "actual_sha256": "24f1e1426b9032b3dc4528a2b3f28be23877783dd7d44d1f311ee6462ad9d3de"
+    },
+    {
+     "address": 129058589376512,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a",
+     "actual_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a"
+    }
+   ],
    "architecture": "SM80",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 2.669635856000241
+   "status": "pass",
+   "seconds": 14.464318661994184,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 8,
@@ -309,7 +376,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.6992810719966656,
+   "seconds": 0.18343465198995546,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -340,7 +407,7 @@
    "threads": 1024,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.07653971999388887
+   "seconds": 0.008789811996393837
   },
   {
    "id": 10,
@@ -366,7 +433,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 1.0451296079991153,
+   "seconds": 0.34568993900029454,
    "executed": {
     "MOV": 7,
     "IMAD": 120,
@@ -409,7 +476,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 1.0365038820018526,
+   "seconds": 0.6450481420033611,
    "executed": {
     "MOV": 22,
     "LDS": 123,
@@ -464,7 +531,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.30263277199992444,
+   "seconds": 0.17333197499101516,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -495,7 +562,7 @@
    "threads": 512,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.010507696999411564
+   "seconds": 0.00822395400609821
   },
   {
    "id": 14,
@@ -521,7 +588,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.24268309599574422,
+   "seconds": 0.207634402991971,
    "executed": {
     "MOV": 7,
     "IMAD": 120,
@@ -564,7 +631,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.19784742200135952,
+   "seconds": 0.17777819700131658,
    "executed": {
     "MOV": 22,
     "LDS": 123,
@@ -619,7 +686,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.18723607400170295,
+   "seconds": 0.17123721999814734,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -650,7 +717,7 @@
    "threads": 512,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.009230299001501407
+   "seconds": 0.008357262995559722
   },
   {
    "id": 18,
@@ -668,7 +735,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.1381476750029833,
+   "seconds": 0.125529529992491,
    "executed": {
     "MOV": 2,
     "LDG": 4,
@@ -701,7 +768,7 @@
    "architecture": "SM86",
    "threads": 3072,
    "status": "pass",
-   "seconds": 0.3431502810053644,
+   "seconds": 0.3160821700002998,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -728,12 +795,79 @@
   {
    "id": 20,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "273dd41ad93033e3fb6ae90d8e8e917ea84f7eb4e83856b099a3aa9e82983158",
+     "actual_sha256": "273dd41ad93033e3fb6ae90d8e8e917ea84f7eb4e83856b099a3aa9e82983158"
+    },
+    {
+     "address": 129058589376512,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a",
+     "actual_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a"
+    }
+   ],
    "architecture": "SM80",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.022441172994149383
+   "status": "pass",
+   "seconds": 0.3109016769885784,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 21,
@@ -759,7 +893,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.17212961299810559,
+   "seconds": 0.19160838400421198,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -790,7 +924,7 @@
    "threads": 1024,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.008572046004701406
+   "seconds": 0.009875971009023488
   },
   {
    "id": 23,
@@ -808,7 +942,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.22724281499540666,
+   "seconds": 0.2550355910061626,
    "executed": {
     "IMAD": 69,
     "LDG": 4,
@@ -858,7 +992,7 @@
    "architecture": "SM86",
    "threads": 16384,
    "status": "pass",
-   "seconds": 0.3153476699953899,
+   "seconds": 0.36763570600305684,
    "executed": {
     "IMAD": 45,
     "LDG": 4,
@@ -887,12 +1021,69 @@
   {
    "id": 25,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "4316f64e4ae5249c80e5d9cf18e2c840e0758421c740d71bfa7d266a23b63730",
+     "actual_sha256": "4316f64e4ae5249c80e5d9cf18e2c840e0758421c740d71bfa7d266a23b63730"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.6745346780007822
+   "status": "pass",
+   "seconds": 8.103869109007064,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 26,
@@ -918,7 +1109,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.49079420800262596,
+   "seconds": 0.1676481140020769,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -949,17 +1140,84 @@
    "threads": 512,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.0351299169997219
+   "seconds": 0.007757804996799678
   },
   {
    "id": 28,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "e987ab204e7a3a9c2fc4fa19ac01a364fa0a0b36f82943b73bf3669f6383c937",
+     "actual_sha256": "e987ab204e7a3a9c2fc4fa19ac01a364fa0a0b36f82943b73bf3669f6383c937"
+    },
+    {
+     "address": 129058589376512,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a",
+     "actual_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a"
+    }
+   ],
    "architecture": "SM80",
    "threads": 128,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.06932370599679416
+   "status": "pass",
+   "seconds": 0.24965359800262377,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 29,
@@ -985,7 +1243,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.6921915350030758,
+   "seconds": 0.16687038299278356,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -1016,7 +1274,7 @@
    "threads": 512,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.03536370999790961
+   "seconds": 0.007871456997236237
   },
   {
    "id": 31,
@@ -1042,7 +1300,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.8529633220023243,
+   "seconds": 0.20319927000673488,
    "executed": {
     "MOV": 7,
     "IMAD": 120,
@@ -1085,7 +1343,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.6702547339955345,
+   "seconds": 0.16152822300500702,
    "executed": {
     "MOV": 22,
     "LDS": 123,
@@ -1140,7 +1398,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.6457967140013352,
+   "seconds": 0.1595995930110803,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -1171,7 +1429,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.033842355995147955
+   "seconds": 0.0074965039966627955
   },
   {
    "id": 35,
@@ -1197,7 +1455,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.9748773360042833,
+   "seconds": 0.20280027099943254,
    "executed": {
     "MOV": 7,
     "IMAD": 120,
@@ -1240,7 +1498,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.6739507040038006,
+   "seconds": 0.15847957599908113,
    "executed": {
     "MOV": 22,
     "LDS": 123,
@@ -1295,7 +1553,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.8261345159990015,
+   "seconds": 0.1580993289971957,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -1326,7 +1584,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.0558432219986571
+   "seconds": 0.007517082005506381
   },
   {
    "id": 39,
@@ -1344,7 +1602,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.27907807099836646,
+   "seconds": 0.06848086998797953,
    "executed": {
     "MOV": 2,
     "LDG": 4,
@@ -1385,7 +1643,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.7585962229932193,
+   "seconds": 0.20214091500383802,
    "executed": {
     "MOV": 7,
     "IMAD": 120,
@@ -1428,7 +1686,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.5005750249983976,
+   "seconds": 0.16264204800245352,
    "executed": {
     "MOV": 22,
     "LDS": 123,
@@ -1483,7 +1741,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.38966286899812985,
+   "seconds": 0.15939935500500724,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -1514,7 +1772,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.02265106499544345
+   "seconds": 0.007567652995930985
   },
   {
    "id": 44,
@@ -1540,7 +1798,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.3586799430049723,
+   "seconds": 0.20401997400040273,
    "executed": {
     "MOV": 7,
     "IMAD": 120,
@@ -1583,7 +1841,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.24652833200525492,
+   "seconds": 0.1619538809900405,
    "executed": {
     "MOV": 22,
     "LDS": 123,
@@ -1638,7 +1896,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.23170299000048544,
+   "seconds": 0.15708096099842805,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -1669,7 +1927,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.010766305997094605
+   "seconds": 0.0074093130097026005
   },
   {
    "id": 48,
@@ -1687,7 +1945,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.09886411699699238,
+   "seconds": 0.06755636299203616,
    "executed": {
     "MOV": 2,
     "LDG": 4,
@@ -1720,7 +1978,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.14864900700194994,
+   "seconds": 0.09987047201138921,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -1747,12 +2005,79 @@
   {
    "id": 50,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "33d264eb147bb055e413513fee39946590181867aee5a4ae71a75e746b95f5d7",
+     "actual_sha256": "33d264eb147bb055e413513fee39946590181867aee5a4ae71a75e746b95f5d7"
+    },
+    {
+     "address": 129058589376512,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a",
+     "actual_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a"
+    }
+   ],
    "architecture": "SM80",
    "threads": 128,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.0233629110007314
+   "status": "pass",
+   "seconds": 0.274049315994489,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 51,
@@ -1778,7 +2103,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.22819847900245804,
+   "seconds": 0.1746395109948935,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -1809,7 +2134,7 @@
    "threads": 512,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.010519964002014603
+   "seconds": 0.008171791007043794
   },
   {
    "id": 53,
@@ -1827,7 +2152,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.12155011399590876,
+   "seconds": 0.0956948450038908,
    "executed": {
     "IMAD": 76,
     "LDG": 8,
@@ -1877,7 +2202,7 @@
    "architecture": "SM86",
    "threads": 65536,
    "status": "pass",
-   "seconds": 1.086100472995895,
+   "seconds": 1.1247275269997772,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -1906,12 +2231,69 @@
   {
    "id": 55,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "3742878f5b600767a5462ac6c3ac6a15d8e11f9984c6ba656ca7058d30dad6a8",
+     "actual_sha256": "3742878f5b600767a5462ac6c3ac6a15d8e11f9984c6ba656ca7058d30dad6a8"
+    }
+   ],
    "architecture": "SM86",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.018581704003736377
+   "status": "pass",
+   "seconds": 0.26774405800097156,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 56,
@@ -1937,7 +2319,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.18239927499962505,
+   "seconds": 0.18491504801204428,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -1968,17 +2350,84 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007882324993261136
+   "seconds": 0.009242846994311549
   },
   {
    "id": 58,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "eadb75a05a083c33178a67befc6f94ddad35b4d3e0a7c321bc9beef930390beb",
+     "actual_sha256": "eadb75a05a083c33178a67befc6f94ddad35b4d3e0a7c321bc9beef930390beb"
+    },
+    {
+     "address": 129058589376512,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a",
+     "actual_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a"
+    }
+   ],
    "architecture": "SM80",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.0181923199997982
+   "status": "pass",
+   "seconds": 0.3378732689889148,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 59,
@@ -2004,7 +2453,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.1800861640003859,
+   "seconds": 0.22360176900110673,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -2035,7 +2484,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007867453998187557
+   "seconds": 0.00949156099522952
   },
   {
    "id": 61,
@@ -2053,7 +2502,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.0880698780019884,
+   "seconds": 0.10083187099371571,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -2103,7 +2552,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 0.5193561780033633,
+   "seconds": 0.5924489940080093,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -2132,12 +2581,77 @@
   {
    "id": 63,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "44e512b8a48160536bfdc7246d9ab6499a1cb291a591c2ce2573fd0709f9119c",
+     "actual_sha256": "44e512b8a48160536bfdc7246d9ab6499a1cb291a591c2ce2573fd0709f9119c"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "30b544baca4f99495f07a5acc9b2a5a4abfe784062dc204a9bc932295bc27cf9",
+     "actual_sha256": "30b544baca4f99495f07a5acc9b2a5a4abfe784062dc204a9bc932295bc27cf9"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.07448927099903813
+   "status": "pass",
+   "seconds": 0.5680873889941722,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 64,
@@ -2171,7 +2685,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 1.0550764860017807,
+   "seconds": 0.357878934009932,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -2202,7 +2716,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.03195970800152281
+   "seconds": 0.016116622995468788
   },
   {
    "id": 66,
@@ -2228,7 +2742,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.7125024589986424,
+   "seconds": 0.27775157999712974,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -2278,7 +2792,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 2.052450196999416,
+   "seconds": 0.5803042000043206,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -2307,12 +2821,77 @@
   {
    "id": 68,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "57abb1e5ac1e66be5ac1c2c47152dae6699f8f15f899b604f9f075fb7fd1ea74",
+     "actual_sha256": "57abb1e5ac1e66be5ac1c2c47152dae6699f8f15f899b604f9f075fb7fd1ea74"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "5870eee200dbc67dfc34d986299fc3995931cfdb0a2d1b057c74d275dcd10108",
+     "actual_sha256": "5870eee200dbc67dfc34d986299fc3995931cfdb0a2d1b057c74d275dcd10108"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.0906026699958602
+   "status": "pass",
+   "seconds": 0.408290298000793,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 69,
@@ -2346,7 +2925,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 1.085950002001482,
+   "seconds": 0.315559883005335,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -2377,7 +2956,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.03493843599426327
+   "seconds": 0.007872497997595929
   },
   {
    "id": 71,
@@ -2395,7 +2974,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.26789127600204665,
+   "seconds": 0.07388671199441887,
    "executed": {
     "MOV": 2,
     "LDG": 4,
@@ -2428,7 +3007,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.2298164120002184,
+   "seconds": 0.09072268000454642,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -2478,7 +3057,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 0.8858859510000912,
+   "seconds": 0.49530942999990657,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -2507,12 +3086,69 @@
   {
    "id": 74,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "cd7d00803f406dbf7471974ef08cf98f978e12689632658d9ff0a9ef7cead20d",
+     "actual_sha256": "cd7d00803f406dbf7471974ef08cf98f978e12689632658d9ff0a9ef7cead20d"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.021207899997534696
+   "status": "pass",
+   "seconds": 0.22146738700394053,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 75,
@@ -2546,7 +3182,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.4094564090046333,
+   "seconds": 0.27482760399288964,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -2577,7 +3213,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.010541284995269962
+   "seconds": 0.007377572008408606
   },
   {
    "id": 77,
@@ -2603,7 +3239,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.22565201800171053,
+   "seconds": 0.17272665299242362,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -2653,7 +3289,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 0.6314243390006595,
+   "seconds": 0.46486442400782835,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -2682,12 +3318,69 @@
   {
    "id": 79,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "817a47e65f9b5c8616f01d3e50438c06e95937a43b5cceca08c137bbf975e12c",
+     "actual_sha256": "817a47e65f9b5c8616f01d3e50438c06e95937a43b5cceca08c137bbf975e12c"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.01770927799952915
+   "status": "pass",
+   "seconds": 0.20515971900022123,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 80,
@@ -2721,7 +3414,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.34775425599946175,
+   "seconds": 0.25797722600691486,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -2752,7 +3445,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.009697722001874354
+   "seconds": 0.007398014000500552
   },
   {
    "id": 82,
@@ -2778,7 +3471,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.191575715005456,
+   "seconds": 0.14661085300031118,
    "executed": {
     "MOV": 2,
     "LDG": 4,
@@ -2811,7 +3504,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.11349337299907347,
+   "seconds": 0.09492858199519105,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -2838,12 +3531,79 @@
   {
    "id": 84,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "4cb686105fe5fc2f0ad8863cdd3b27e37336a1f3cba080cab06ccde5c8e16868",
+     "actual_sha256": "4cb686105fe5fc2f0ad8863cdd3b27e37336a1f3cba080cab06ccde5c8e16868"
+    },
+    {
+     "address": 129058589376512,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a",
+     "actual_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a"
+    }
+   ],
    "architecture": "SM80",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.020991466000850778
+   "status": "pass",
+   "seconds": 0.30466387800697703,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 85,
@@ -2869,7 +3629,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.2070638310033246,
+   "seconds": 0.17153080299613066,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -2900,7 +3660,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.009030628003529273
+   "seconds": 0.007748667005216703
   },
   {
    "id": 87,
@@ -2926,7 +3686,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 1.7563368350020028,
+   "seconds": 0.8615040889999364,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -2968,7 +3728,7 @@
    "architecture": "SM86",
    "threads": 262144,
    "status": "pass",
-   "seconds": 5.63755119900452,
+   "seconds": 2.7528925990045536,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -2997,12 +3757,77 @@
   {
    "id": 89,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058465644544,
+     "size": 20971520,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "24871934b5cdf2899b4e55dbe0924269d4ccbd33313e41757a05a92d85db33d9",
+     "actual_sha256": "24871934b5cdf2899b4e55dbe0924269d4ccbd33313e41757a05a92d85db33d9"
+    },
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "182c3713c0064f5ae2d7dc0e9a3d02c83204d21ad6fa45de3bada624624a804f",
+     "actual_sha256": "182c3713c0064f5ae2d7dc0e9a3d02c83204d21ad6fa45de3bada624624a804f"
+    }
+   ],
    "architecture": "SM86",
    "threads": 1024,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.1915805629978422
+   "status": "pass",
+   "seconds": 1.6475686199992197,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 90,
@@ -3036,7 +3861,7 @@
    "architecture": "SM86",
    "threads": 16384,
    "status": "pass",
-   "seconds": 0.47165715099981753,
+   "seconds": 0.3050695960118901,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -3067,17 +3892,100 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.010045727001852356
+   "seconds": 0.007441260997438803
   },
   {
    "id": 92,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "e6eaa116a8097a99bfdfe5a29fed2ac8fb55febd9c81e20b842a8fa8a2f85ec5",
+     "actual_sha256": "e6eaa116a8097a99bfdfe5a29fed2ac8fb55febd9c81e20b842a8fa8a2f85ec5"
+    },
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "182c3713c0064f5ae2d7dc0e9a3d02c83204d21ad6fa45de3bada624624a804f",
+     "actual_sha256": "182c3713c0064f5ae2d7dc0e9a3d02c83204d21ad6fa45de3bada624624a804f"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "44a8cb176316c092606592ac4db6959c0c4fc65cd1d686f8445d2402e5109eba",
+     "actual_sha256": "44a8cb176316c092606592ac4db6959c0c4fc65cd1d686f8445d2402e5109eba"
+    },
+    {
+     "address": 129058589376512,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a",
+     "actual_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a"
+    }
+   ],
    "architecture": "SM80",
    "threads": 4096,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4EEvNT_6ParamsE thread 0 at 0x1c30: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.6035497979974025
+   "status": "pass",
+   "seconds": 4.955597745007253,
+   "executed": {
+    "MOV": 13,
+    "IMAD": 188,
+    "IADD3": 72,
+    "DEPBAR": 3,
+    "STS": 16,
+    "S2R": 6,
+    "ISETP": 52,
+    "SHFL": 1,
+    "BAR": 12,
+    "SHF": 38,
+    "LEA": 41,
+    "LDGSTS": 24,
+    "FSETP": 49,
+    "LDS": 32,
+    "R2P": 18,
+    "BSSY": 1,
+    "LOP3": 42,
+    "BRA": 8,
+    "FMUL": 32,
+    "R2UR": 1,
+    "FMNMX": 32,
+    "EXIT": 2,
+    "HMMA": 16,
+    "UMOV": 10,
+    "SEL": 10,
+    "CS2R": 15,
+    "LDGDEPBAR": 8,
+    "STG": 8,
+    "USHF": 9,
+    "ULEA": 4,
+    "ULOP3": 2,
+    "UIADD3": 18,
+    "LDSM": 6,
+    "UIMAD": 5,
+    "ULDC": 7,
+    "P2R": 4,
+    "UISETP": 2,
+    "BSYNC": 1,
+    "IMNMX": 1,
+    "PLOP3": 4,
+    "LDG": 2,
+    "USEL": 1
+   },
+   "executed_targets": {
+    "HMMA": 16,
+    "LDSM": 6,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 93,
@@ -3103,7 +4011,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.35502256600011606,
+   "seconds": 0.278702247000183,
    "executed": {
     "MOV": 20,
     "BRA": 10,
@@ -3159,7 +4067,7 @@
    "architecture": "SM86",
    "threads": 16384,
    "status": "pass",
-   "seconds": 0.36136948200146435,
+   "seconds": 0.30994359400938265,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -3190,7 +4098,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007951787003548816
+   "seconds": 0.007280058998730965
   },
   {
    "id": 96,
@@ -3208,7 +4116,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.09211241700540995,
+   "seconds": 0.0845614529971499,
    "executed": {
     "IMAD": 48,
     "LDG": 8,
@@ -3258,7 +4166,7 @@
    "architecture": "SM86",
    "threads": 131072,
    "status": "pass",
-   "seconds": 5.031577030000335,
+   "seconds": 4.781146359004197,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -3287,12 +4195,77 @@
   {
    "id": 98,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "1b18f449ce0fed96d18537ac3b07e42bb86e7cb95312160bc32e08fcb0cc6e8b",
+     "actual_sha256": "1b18f449ce0fed96d18537ac3b07e42bb86e7cb95312160bc32e08fcb0cc6e8b"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "c16612cc4a6ff3f15790195c4af14f82c240c03c996da1dca84f2bbf485ade73",
+     "actual_sha256": "c16612cc4a6ff3f15790195c4af14f82c240c03c996da1dca84f2bbf485ade73"
+    }
+   ],
    "architecture": "SM86",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.12005608700565062
+   "status": "pass",
+   "seconds": 3.619219503001659,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 99,
@@ -3326,7 +4299,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 1.0457416080025723,
+   "seconds": 1.135658623999916,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -3357,7 +4330,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x1230: MUFU approximation is unresolved for EX2",
-   "seconds": 0.023400474994559772
+   "seconds": 0.019037589998333715
   },
   {
    "id": 101,
@@ -3383,7 +4356,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.3583733129999018,
+   "seconds": 0.4894837200117763,
    "executed": {
     "IMAD": 48,
     "LDG": 8,
@@ -3433,7 +4406,7 @@
    "architecture": "SM86",
    "threads": 131072,
    "status": "pass",
-   "seconds": 2.4762935809994815,
+   "seconds": 5.338096141000278,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -3462,12 +4435,77 @@
   {
    "id": 103,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "594e028dc047f106e3f02f6e311d056a9195b679e8381d5a53ba34b55db59cd5",
+     "actual_sha256": "594e028dc047f106e3f02f6e311d056a9195b679e8381d5a53ba34b55db59cd5"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "aef2343afb0fc79cbddda01b1e4033e4856cde91a2f36e0d3ce03851dc658565",
+     "actual_sha256": "aef2343afb0fc79cbddda01b1e4033e4856cde91a2f36e0d3ce03851dc658565"
+    }
+   ],
    "architecture": "SM86",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.029019043999142013
+   "status": "pass",
+   "seconds": 2.5402382710017264,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 104,
@@ -3501,7 +4539,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.3272003930032952,
+   "seconds": 1.9168743629998062,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -3532,7 +4570,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x1230: MUFU approximation is unresolved for EX2",
-   "seconds": 0.008478278999973554
+   "seconds": 0.026018827004008926
   },
   {
    "id": 106,
@@ -3558,7 +4596,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.16497400299704168,
+   "seconds": 0.722640139007126,
    "executed": {
     "MOV": 4,
     "CS2R": 7,
@@ -3602,7 +4640,7 @@
    "architecture": "SM86",
    "threads": 384,
    "status": "pass",
-   "seconds": 0.19249707300332375,
+   "seconds": 1.3374946340045426,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -3629,12 +4667,87 @@
   {
    "id": 108,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058486616064,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "387e72602db9a308b360188d7d4fd3b4996048663d0254d83157176cd308abce",
+     "actual_sha256": "387e72602db9a308b360188d7d4fd3b4996048663d0254d83157176cd308abce"
+    },
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "6c53938c75e3def2c148f36f4a05a62ff1aca509e028a636a6684d242e4ffb5e",
+     "actual_sha256": "6c53938c75e3def2c148f36f4a05a62ff1aca509e028a636a6684d242e4ffb5e"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "f80fda9bcc2f1563654f5bd2e1e468c5698a8416ac9f185cf79d7112a06d0d0b",
+     "actual_sha256": "f80fda9bcc2f1563654f5bd2e1e468c5698a8416ac9f185cf79d7112a06d0d0b"
+    }
+   ],
    "architecture": "SM80",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.03033288000005996
+   "status": "pass",
+   "seconds": 5.390728553000372,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 109,
@@ -3668,7 +4781,7 @@
    "architecture": "SM86",
    "threads": 16384,
    "status": "pass",
-   "seconds": 0.32609995199891273,
+   "seconds": 2.0043560969934333,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -3699,17 +4812,92 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007776439000735991
+   "seconds": 0.07510884500516113
   },
   {
    "id": 111,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "6c53938c75e3def2c148f36f4a05a62ff1aca509e028a636a6684d242e4ffb5e",
+     "actual_sha256": "6c53938c75e3def2c148f36f4a05a62ff1aca509e028a636a6684d242e4ffb5e"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "7bef3891142c48c5c8bbaf4610643f90fcab30874666f60238897adc620dd09a",
+     "actual_sha256": "7bef3891142c48c5c8bbaf4610643f90fcab30874666f60238897adc620dd09a"
+    },
+    {
+     "address": 129058589376512,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a",
+     "actual_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a"
+    }
+   ],
    "architecture": "SM80",
    "threads": 2048,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4EEvNT_6ParamsE thread 0 at 0x1c30: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.042690558002504986
+   "status": "pass",
+   "seconds": 3.6459263500000816,
+   "executed": {
+    "MOV": 13,
+    "IMAD": 188,
+    "IADD3": 72,
+    "DEPBAR": 3,
+    "STS": 16,
+    "S2R": 6,
+    "ISETP": 52,
+    "SHFL": 1,
+    "BAR": 12,
+    "SHF": 38,
+    "LEA": 41,
+    "LDGSTS": 24,
+    "FSETP": 49,
+    "LDS": 32,
+    "R2P": 18,
+    "BSSY": 1,
+    "LOP3": 42,
+    "BRA": 8,
+    "FMUL": 32,
+    "R2UR": 1,
+    "FMNMX": 32,
+    "EXIT": 2,
+    "HMMA": 16,
+    "UMOV": 10,
+    "SEL": 10,
+    "CS2R": 15,
+    "LDGDEPBAR": 8,
+    "STG": 8,
+    "USHF": 9,
+    "ULEA": 4,
+    "ULOP3": 2,
+    "UIADD3": 18,
+    "LDSM": 6,
+    "UIMAD": 5,
+    "ULDC": 7,
+    "P2R": 4,
+    "UISETP": 2,
+    "BSYNC": 1,
+    "IMNMX": 1,
+    "PLOP3": 4,
+    "LDG": 2,
+    "USEL": 1
+   },
+   "executed_targets": {
+    "HMMA": 16,
+    "LDSM": 6,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 112,
@@ -3735,7 +4923,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.283783945000323,
+   "seconds": 0.5012292809988139,
    "executed": {
     "MOV": 20,
     "BRA": 10,
@@ -3783,7 +4971,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.6774804279993987,
+   "seconds": 0.43145359300251585,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -3814,7 +5002,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x1230: MUFU approximation is unresolved for EX2",
-   "seconds": 0.03592160299740499
+   "seconds": 0.020111502992222086
   },
   {
    "id": 115,
@@ -3840,7 +5028,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 1.1239900159998797,
+   "seconds": 0.6529452570102876,
    "executed": {
     "IMAD": 86,
     "F2I": 5,
@@ -3894,7 +5082,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.720462689998385,
+   "seconds": 0.38204532700183336,
    "executed": {
     "IMAD": 86,
     "F2I": 5,
@@ -3948,7 +5136,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.7013437429995975,
+   "seconds": 0.44553310101036914,
    "executed": {
     "IMAD": 86,
     "F2I": 5,
@@ -4010,7 +5198,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 1.1076198340015253,
+   "seconds": 0.7861984559858683,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -4037,12 +5225,87 @@
   {
    "id": 119,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058486616064,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "387e72602db9a308b360188d7d4fd3b4996048663d0254d83157176cd308abce",
+     "actual_sha256": "387e72602db9a308b360188d7d4fd3b4996048663d0254d83157176cd308abce"
+    },
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "04ca2909f735f079581ff8dc663e6b4b94df5bc445ec5ad77c48908fe8ce2aa6",
+     "actual_sha256": "04ca2909f735f079581ff8dc663e6b4b94df5bc445ec5ad77c48908fe8ce2aa6"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "6f764ef71c7fd2f8272ca82378a6c8eaac02d6afacdb61ad352f253f49ca557b",
+     "actual_sha256": "6f764ef71c7fd2f8272ca82378a6c8eaac02d6afacdb61ad352f253f49ca557b"
+    }
+   ],
    "architecture": "SM80",
    "threads": 4096,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4EEvNT_6ParamsE thread 0 at 0x1c30: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.259736107000208
+   "status": "pass",
+   "seconds": 2.707603279995965,
+   "executed": {
+    "MOV": 13,
+    "IMAD": 188,
+    "IADD3": 72,
+    "DEPBAR": 3,
+    "STS": 16,
+    "S2R": 6,
+    "ISETP": 52,
+    "SHFL": 1,
+    "BAR": 12,
+    "SHF": 38,
+    "LEA": 41,
+    "LDGSTS": 24,
+    "FSETP": 49,
+    "LDS": 32,
+    "R2P": 18,
+    "BSSY": 1,
+    "LOP3": 42,
+    "BRA": 8,
+    "FMUL": 32,
+    "R2UR": 1,
+    "FMNMX": 32,
+    "EXIT": 2,
+    "HMMA": 16,
+    "UMOV": 10,
+    "SEL": 10,
+    "CS2R": 15,
+    "LDGDEPBAR": 8,
+    "STG": 8,
+    "USHF": 9,
+    "ULEA": 4,
+    "ULOP3": 2,
+    "UIADD3": 18,
+    "LDSM": 6,
+    "UIMAD": 5,
+    "ULDC": 7,
+    "P2R": 4,
+    "UISETP": 2,
+    "BSYNC": 1,
+    "IMNMX": 1,
+    "PLOP3": 4,
+    "LDG": 2,
+    "USEL": 1
+   },
+   "executed_targets": {
+    "HMMA": 16,
+    "LDSM": 6,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 120,
@@ -4068,7 +5331,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.6966111920046387,
+   "seconds": 0.5644949059933424,
    "executed": {
     "MOV": 20,
     "BRA": 10,
@@ -4124,7 +5387,7 @@
    "architecture": "SM86",
    "threads": 16384,
    "status": "pass",
-   "seconds": 0.7601811649947194,
+   "seconds": 0.7385331320110708,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -4155,7 +5418,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.013855851000698749
+   "seconds": 0.01636152100400068
   },
   {
    "id": 123,
@@ -4173,7 +5436,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.20871120400261134,
+   "seconds": 0.2576017280080123,
    "executed": {
     "MOV": 12,
     "FMUL": 2,
@@ -4226,7 +5489,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.4827454770056647,
+   "seconds": 0.6460880850063404,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -4253,12 +5516,79 @@
   {
    "id": 125,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "2dc60a469acad44db799eda46c4f94b17da9c5130855a84c869196cbdfe1e655",
+     "actual_sha256": "2dc60a469acad44db799eda46c4f94b17da9c5130855a84c869196cbdfe1e655"
+    },
+    {
+     "address": 129058589376512,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a",
+     "actual_sha256": "9510c7c7036c27c4bcb738c2b8c7011d204a92a85e94e36dc55f2f5640115b4a"
+    }
+   ],
    "architecture": "SM80",
    "threads": 3072,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4EEvNT_6ParamsE thread 0 at 0x1c30: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.06998001000465592
+   "status": "pass",
+   "seconds": 0.9190956129896222,
+   "executed": {
+    "MOV": 13,
+    "IMAD": 188,
+    "IADD3": 72,
+    "DEPBAR": 3,
+    "STS": 16,
+    "S2R": 6,
+    "ISETP": 52,
+    "SHFL": 1,
+    "BAR": 12,
+    "SHF": 38,
+    "LEA": 41,
+    "LDGSTS": 24,
+    "FSETP": 49,
+    "LDS": 32,
+    "R2P": 18,
+    "BSSY": 1,
+    "LOP3": 42,
+    "BRA": 8,
+    "FMUL": 32,
+    "R2UR": 1,
+    "FMNMX": 32,
+    "EXIT": 2,
+    "HMMA": 16,
+    "UMOV": 10,
+    "SEL": 10,
+    "CS2R": 15,
+    "LDGDEPBAR": 8,
+    "STG": 8,
+    "USHF": 9,
+    "ULEA": 4,
+    "ULOP3": 2,
+    "UIADD3": 18,
+    "LDSM": 6,
+    "UIMAD": 5,
+    "ULDC": 7,
+    "P2R": 4,
+    "UISETP": 2,
+    "BSYNC": 1,
+    "IMNMX": 1,
+    "PLOP3": 4,
+    "LDG": 2,
+    "USEL": 1
+   },
+   "executed_targets": {
+    "HMMA": 16,
+    "LDSM": 6,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 126,
@@ -4276,7 +5606,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.11857926999800839,
+   "seconds": 0.17845081799896434,
    "executed": {
     "MOV": 23,
     "BRA": 11,
@@ -4324,7 +5654,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.23377355100092245,
+   "seconds": 0.3561940060026245,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -4355,7 +5685,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.010232278000330552
+   "seconds": 0.01566059800097719
   },
   {
    "id": 129,
@@ -4373,7 +5703,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.11503822899976512,
+   "seconds": 0.17379654799879063,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -4423,7 +5753,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 0.6162940410067677,
+   "seconds": 0.9662830790039152,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -4452,12 +5782,77 @@
   {
    "id": 131,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "526f3d1dcdfd9c43933734f7d7a3e19eb150b9dd95582095bf15c7d5f6fa888b",
+     "actual_sha256": "526f3d1dcdfd9c43933734f7d7a3e19eb150b9dd95582095bf15c7d5f6fa888b"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "ec9af4323f12d5330e01e363dc9557edf13d510910d347d2e8f0ae27e781ac98",
+     "actual_sha256": "ec9af4323f12d5330e01e363dc9557edf13d510910d347d2e8f0ae27e781ac98"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.024823382002068684
+   "status": "pass",
+   "seconds": 0.9879445520055015,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 132,
@@ -4491,7 +5886,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.32033358400076395,
+   "seconds": 0.7587370469991583,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -4522,7 +5917,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.008790446998318657
+   "seconds": 0.02276156999869272
   },
   {
    "id": 134,
@@ -4548,7 +5943,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.1989058440012741,
+   "seconds": 0.48733886500122026,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -4598,7 +5993,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 0.5359839019947685,
+   "seconds": 0.9957557870075107,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -4627,12 +6022,77 @@
   {
    "id": 136,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "b76d25eeefab95ccec835e0f7286397251f014b662a0e973af4f42c907cd9162",
+     "actual_sha256": "b76d25eeefab95ccec835e0f7286397251f014b662a0e973af4f42c907cd9162"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "b1c70432dcf1d690a0f75305ac683547e1b21bf7a5491904986d70705c402681",
+     "actual_sha256": "b1c70432dcf1d690a0f75305ac683547e1b21bf7a5491904986d70705c402681"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.02022872300585732
+   "status": "pass",
+   "seconds": 0.7349160700105131,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 137,
@@ -4666,7 +6126,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.2683516460019746,
+   "seconds": 0.5908161120023578,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -4697,7 +6157,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007752996003546286
+   "seconds": 0.017480242997407913
   },
   {
    "id": 139,
@@ -4723,7 +6183,7 @@
    "architecture": "SM86",
    "threads": 768,
    "status": "pass",
-   "seconds": 0.18527078899933258,
+   "seconds": 0.4153847749985289,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -4750,12 +6210,79 @@
   {
    "id": 140,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058488713216,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "201f5a73b54b36f364b08051ce7be322932808fa8d24c6aa856c3a21b18e5c3e",
+     "actual_sha256": "201f5a73b54b36f364b08051ce7be322932808fa8d24c6aa856c3a21b18e5c3e"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "6a277e09fb94f16d748543305dcd27fdd4f18cdd35460ad89fdfd6358bca9452",
+     "actual_sha256": "6a277e09fb94f16d748543305dcd27fdd4f18cdd35460ad89fdfd6358bca9452"
+    }
+   ],
    "architecture": "SM80",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.01813058500556508
+   "status": "pass",
+   "seconds": 0.644437156006461,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 141,
@@ -4781,7 +6308,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.17681723999703536,
+   "seconds": 0.38526699200156145,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -4812,7 +6339,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.008079671999439597
+   "seconds": 0.019361255996045657
   },
   {
    "id": 143,
@@ -4830,7 +6357,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.08670946199708851,
+   "seconds": 0.1975964169978397,
    "executed": {
     "MOV": 12,
     "FMUL": 2,
@@ -4875,7 +6402,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.2114030320008169,
+   "seconds": 0.45732886700716335,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -4902,12 +6429,79 @@
   {
    "id": 145,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058488713216,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "201f5a73b54b36f364b08051ce7be322932808fa8d24c6aa856c3a21b18e5c3e",
+     "actual_sha256": "201f5a73b54b36f364b08051ce7be322932808fa8d24c6aa856c3a21b18e5c3e"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "66437588d680d792af9c5161f1098589bf7b5994659c26b2d5da42f8a40c936f",
+     "actual_sha256": "66437588d680d792af9c5161f1098589bf7b5994659c26b2d5da42f8a40c936f"
+    }
+   ],
    "architecture": "SM80",
    "threads": 128,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.016127424998558126
+   "status": "pass",
+   "seconds": 0.5930024580011377,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 146,
@@ -4933,7 +6527,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.2590522059981595,
+   "seconds": 0.36046784499194473,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -4964,7 +6558,7 @@
    "threads": 512,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.03165533600258641
+   "seconds": 0.016751545001170598
   },
   {
    "id": 148,
@@ -4990,7 +6584,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.7913298999992548,
+   "seconds": 0.44515810899611097,
    "executed": {
     "MOV": 7,
     "IMAD": 120,
@@ -5033,7 +6627,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.6738751869997941,
+   "seconds": 0.376561124008731,
    "executed": {
     "MOV": 22,
     "LDS": 123,
@@ -5088,7 +6682,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.6273987470049178,
+   "seconds": 0.3592091500031529,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -5119,7 +6713,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.06342937299632467
+   "seconds": 0.01790198200615123
   },
   {
    "id": 152,
@@ -5145,7 +6739,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.9062002610007767,
+   "seconds": 0.4600921289966209,
    "executed": {
     "MOV": 7,
     "IMAD": 120,
@@ -5188,7 +6782,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.6633069359959336,
+   "seconds": 0.3549563929991564,
    "executed": {
     "MOV": 22,
     "LDS": 123,
@@ -5243,7 +6837,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.6874773870003992,
+   "seconds": 0.3279114769975422,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -5274,7 +6868,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.035154910998244304
+   "seconds": 0.015050464993692003
   },
   {
    "id": 156,
@@ -5300,7 +6894,7 @@
    "architecture": "SM86",
    "threads": 1536,
    "status": "pass",
-   "seconds": 0.7945615700009512,
+   "seconds": 0.4066698200040264,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -5327,12 +6921,79 @@
   {
    "id": 157,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058488713216,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "201f5a73b54b36f364b08051ce7be322932808fa8d24c6aa856c3a21b18e5c3e",
+     "actual_sha256": "201f5a73b54b36f364b08051ce7be322932808fa8d24c6aa856c3a21b18e5c3e"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "087638b226e8661f1d02bfe51f3f8f2334ad30bf91019f6b9ef55a8b22255fd3",
+     "actual_sha256": "087638b226e8661f1d02bfe51f3f8f2334ad30bf91019f6b9ef55a8b22255fd3"
+    }
+   ],
    "architecture": "SM80",
    "threads": 128,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.07175792400084902
+   "status": "pass",
+   "seconds": 0.6769470309955068,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 158,
@@ -5358,7 +7019,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.5239000660003512,
+   "seconds": 0.3436476969945943,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -5389,7 +7050,7 @@
    "threads": 512,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.023474309004086535
+   "seconds": 0.01553121600591112
   },
   {
    "id": 160,
@@ -5407,7 +7068,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.25335501200606814,
+   "seconds": 0.18807553600345273,
    "executed": {
     "IMAD": 76,
     "LDG": 8,
@@ -5457,7 +7118,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 1.1358969700013404,
+   "seconds": 1.0576552010024898,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -5486,12 +7147,77 @@
   {
    "id": 162,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "2a22ad8006ee70726f2adb316c0be95fdb835d30c336704b1c25fadbcc40806b",
+     "actual_sha256": "2a22ad8006ee70726f2adb316c0be95fdb835d30c336704b1c25fadbcc40806b"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "dfd79037591f799a1257e23fc5f0bd44d7c8e3b4269e1f10555155f181e2345d",
+     "actual_sha256": "dfd79037591f799a1257e23fc5f0bd44d7c8e3b4269e1f10555155f181e2345d"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.028100636998715345
+   "status": "pass",
+   "seconds": 0.8232056749984622,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 163,
@@ -5525,7 +7251,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.3697012779957731,
+   "seconds": 0.7845493130007526,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -5556,7 +7282,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.010208959000010509
+   "seconds": 0.023440026998287067
   },
   {
    "id": 165,
@@ -5582,7 +7308,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.24992054200265557,
+   "seconds": 0.4386602680024225,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -5609,12 +7335,79 @@
   {
    "id": 166,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058488713216,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "201f5a73b54b36f364b08051ce7be322932808fa8d24c6aa856c3a21b18e5c3e",
+     "actual_sha256": "201f5a73b54b36f364b08051ce7be322932808fa8d24c6aa856c3a21b18e5c3e"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "2f8aee76bbe705c952b5faeb6be7745b794ae026069f89827451cf429ece83ec",
+     "actual_sha256": "2f8aee76bbe705c952b5faeb6be7745b794ae026069f89827451cf429ece83ec"
+    }
+   ],
    "architecture": "SM80",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.024138581997249275
+   "status": "pass",
+   "seconds": 0.5865678120026132,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 167,
@@ -5640,7 +7433,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.23633904899907066,
+   "seconds": 0.33190933500009123,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -5671,7 +7464,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.009633106004912406
+   "seconds": 0.014743766994797625
   },
   {
    "id": 169,
@@ -5689,7 +7482,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.12981307500012917,
+   "seconds": 0.15626345601049252,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -5739,7 +7532,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 0.5712434349989053,
+   "seconds": 0.978582035008003,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -5768,12 +7561,77 @@
   {
    "id": 171,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "b5c216ffa8e800c9a06539edccfd2ce458491e9516785edac0a1a6a19b1a8973",
+     "actual_sha256": "b5c216ffa8e800c9a06539edccfd2ce458491e9516785edac0a1a6a19b1a8973"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "37b2fcf9d82c0ac3ab095616421ed8f4f86ebbe285eb9e28d62e874b0840a52a",
+     "actual_sha256": "37b2fcf9d82c0ac3ab095616421ed8f4f86ebbe285eb9e28d62e874b0840a52a"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.02324642399617005
+   "status": "pass",
+   "seconds": 0.6404374339908827,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 172,
@@ -5815,7 +7673,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.44442266700207256,
+   "seconds": 0.6909679539967328,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -5846,7 +7704,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.008620849999715574
+   "seconds": 0.013491596007952467
   },
   {
    "id": 174,
@@ -5872,7 +7730,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.20353185400017537,
+   "seconds": 0.3013252999953693,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -5922,7 +7780,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 0.47756461500102887,
+   "seconds": 1.0133123209961923,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -5951,12 +7809,77 @@
   {
    "id": 176,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "fcb7e3bee73764cb02ec67eb697cc0cc61e72eb4aca7ebee625808547e284588",
+     "actual_sha256": "fcb7e3bee73764cb02ec67eb697cc0cc61e72eb4aca7ebee625808547e284588"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "497e302596ccecdc0ae986ec6d98fca6a790ba47d0d02dba7780027bf4691408",
+     "actual_sha256": "497e302596ccecdc0ae986ec6d98fca6a790ba47d0d02dba7780027bf4691408"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.019136442999297287
+   "status": "pass",
+   "seconds": 0.65099857399764,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 177,
@@ -5990,7 +7913,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.25661970699729864,
+   "seconds": 0.4636754050006857,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -6021,7 +7944,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007344427998759784
+   "seconds": 0.01304422999965027
   },
   {
    "id": 179,
@@ -6047,7 +7970,7 @@
    "architecture": "SM86",
    "threads": 768,
    "status": "pass",
-   "seconds": 0.17893634700158145,
+   "seconds": 0.3239865270006703,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -6074,12 +7997,79 @@
   {
    "id": 180,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058488713216,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "201f5a73b54b36f364b08051ce7be322932808fa8d24c6aa856c3a21b18e5c3e",
+     "actual_sha256": "201f5a73b54b36f364b08051ce7be322932808fa8d24c6aa856c3a21b18e5c3e"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "a88d0499fd354a48fd7548c6ce21a3936e159152f6188aa4df34f5d883b8288a",
+     "actual_sha256": "a88d0499fd354a48fd7548c6ce21a3936e159152f6188aa4df34f5d883b8288a"
+    }
+   ],
    "architecture": "SM80",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.01755206500092754
+   "status": "pass",
+   "seconds": 0.5345539590052795,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 181,
@@ -6105,7 +8095,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.17157657599454978,
+   "seconds": 0.3040424049977446,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -6136,7 +8126,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007612243003677577
+   "seconds": 0.013835304009262472
   },
   {
    "id": 183,
@@ -6154,7 +8144,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.08612132099369774,
+   "seconds": 0.15133236300607678,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -6204,7 +8194,7 @@
    "architecture": "SM86",
    "threads": 131072,
    "status": "pass",
-   "seconds": 1.9383279719986604,
+   "seconds": 2.9092250850080745,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -6233,12 +8223,77 @@
   {
    "id": 185,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "6b8b36a67b60ee9088f6fce0479913da65b82bdfb13efa39b8af2deb28bd7b2c",
+     "actual_sha256": "6b8b36a67b60ee9088f6fce0479913da65b82bdfb13efa39b8af2deb28bd7b2c"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "e5e05c4696a3a9513b672a124daa13972d822a4fdc99908ad748f5464ed166a1",
+     "actual_sha256": "e5e05c4696a3a9513b672a124daa13972d822a4fdc99908ad748f5464ed166a1"
+    }
+   ],
    "architecture": "SM86",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.024448369003948756
+   "status": "pass",
+   "seconds": 0.885847184996237,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 186,
@@ -6264,7 +8319,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.16773114999523386,
+   "seconds": 0.24103471499984153,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -6295,7 +8350,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x1230: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007344108002143912
+   "seconds": 0.010449056993820705
   },
   {
    "id": 188,
@@ -6329,7 +8384,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.27076531700004125,
+   "seconds": 0.39223891800793353,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -6356,12 +8411,79 @@
   {
    "id": 189,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "898471934d8425f98c0d2ef4eb5ddab16f3747da33c0a796f9f7eac6401e456d",
+     "actual_sha256": "898471934d8425f98c0d2ef4eb5ddab16f3747da33c0a796f9f7eac6401e456d"
+    },
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "bb6a8767dcd76586b9007511e9afe3c5f1c9613e66f716bf6fee141cde849af9",
+     "actual_sha256": "bb6a8767dcd76586b9007511e9afe3c5f1c9613e66f716bf6fee141cde849af9"
+    }
+   ],
    "architecture": "SM80",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.021145756996702403
+   "status": "pass",
+   "seconds": 0.6906315429951064,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 190,
@@ -6395,7 +8517,7 @@
    "architecture": "SM86",
    "threads": 16384,
    "status": "pass",
-   "seconds": 0.31259202799992636,
+   "seconds": 0.4268534430011641,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -6426,7 +8548,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007290994995855726
+   "seconds": 0.009879363002255559
   },
   {
    "id": 192,
@@ -6444,7 +8566,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.08376199100166559,
+   "seconds": 0.11481134800123982,
    "executed": {
     "IMAD": 48,
     "LDG": 8,
@@ -6494,7 +8616,7 @@
    "architecture": "SM86",
    "threads": 131072,
    "status": "pass",
-   "seconds": 1.9278825569999753,
+   "seconds": 2.270221673999913,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -6523,12 +8645,77 @@
   {
    "id": 194,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "69b2019a71e0bd2a4fd457090c6e3f74009886dbf09fce4d4000a472228bca6e",
+     "actual_sha256": "69b2019a71e0bd2a4fd457090c6e3f74009886dbf09fce4d4000a472228bca6e"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "d4319e1be3b09d7f68f9e315a2b52040d1afdefc89ad046eec3e94443ddaffe7",
+     "actual_sha256": "d4319e1be3b09d7f68f9e315a2b52040d1afdefc89ad046eec3e94443ddaffe7"
+    }
+   ],
    "architecture": "SM86",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.024111429003824014
+   "status": "pass",
+   "seconds": 0.6191946909966646,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 195,
@@ -6554,7 +8741,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.1691093780027586,
+   "seconds": 0.17840304800483864,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -6585,7 +8772,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x1230: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007309982000151649
+   "seconds": 0.007977471002959646
   },
   {
    "id": 197,
@@ -6611,7 +8798,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.1642242090019863,
+   "seconds": 0.17975466699863318,
    "executed": {
     "IMAD": 48,
     "LDG": 8,
@@ -6661,7 +8848,7 @@
    "architecture": "SM86",
    "threads": 131072,
    "status": "pass",
-   "seconds": 1.939999281996279,
+   "seconds": 2.3227097850030987,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -6690,12 +8877,77 @@
   {
    "id": 199,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "4aaf48b72324797e09320d8e578d5b91bceb2b4c7c74f9eb5f0f3524a9e18112",
+     "actual_sha256": "4aaf48b72324797e09320d8e578d5b91bceb2b4c7c74f9eb5f0f3524a9e18112"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9a6160b6f1a30991bbcfc5308c0938dfe34d550d388bed66fd33aea7da5b7f35",
+     "actual_sha256": "9a6160b6f1a30991bbcfc5308c0938dfe34d550d388bed66fd33aea7da5b7f35"
+    }
+   ],
    "architecture": "SM86",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.02395501299906755
+   "status": "pass",
+   "seconds": 0.6012564089905936,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 200,
@@ -6721,7 +8973,7 @@
    "architecture": "SM86",
    "threads": 8192,
    "status": "pass",
-   "seconds": 0.1647970069971052,
+   "seconds": 0.17303857598744798,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -6752,7 +9004,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x1230: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007269880996318534
+   "seconds": 0.007480834989110008
   },
   {
    "id": 202,
@@ -6786,7 +9038,7 @@
    "architecture": "SM86",
    "threads": 384,
    "status": "pass",
-   "seconds": 0.26931291200162377,
+   "seconds": 0.27704054400965106,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -6813,12 +9065,87 @@
   {
    "id": 203,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "898471934d8425f98c0d2ef4eb5ddab16f3747da33c0a796f9f7eac6401e456d",
+     "actual_sha256": "898471934d8425f98c0d2ef4eb5ddab16f3747da33c0a796f9f7eac6401e456d"
+    },
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "c509a3a4601d5f99f5778a7aff9b13314f535d9c33aff5ef6ae00094ec0ad383",
+     "actual_sha256": "c509a3a4601d5f99f5778a7aff9b13314f535d9c33aff5ef6ae00094ec0ad383"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "7c1e2d775e0405053937f86943879d2b3a0d08daa77730dd028cd7593b711987",
+     "actual_sha256": "7c1e2d775e0405053937f86943879d2b3a0d08daa77730dd028cd7593b711987"
+    }
+   ],
    "architecture": "SM80",
    "threads": 512,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.027835401000629645
+   "status": "pass",
+   "seconds": 0.6613877360068727,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 204,
@@ -6852,7 +9179,7 @@
    "architecture": "SM86",
    "threads": 16384,
    "status": "pass",
-   "seconds": 0.3107451219984796,
+   "seconds": 0.44176478500594385,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -6883,7 +9210,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007338888994127046
+   "seconds": 0.018638843001099303
   },
   {
    "id": 206,
@@ -6901,7 +9228,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.08972777199960547,
+   "seconds": 0.366551758008427,
    "executed": {
     "IMAD": 76,
     "LDG": 8,
@@ -6951,7 +9278,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 0.4522223899984965,
+   "seconds": 1.7280578400095692,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -6980,12 +9307,69 @@
   {
    "id": 208,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9c09a13d714cd10ad26f42e25496824b81964fde09bf054e197158ed35219e95",
+     "actual_sha256": "9c09a13d714cd10ad26f42e25496824b81964fde09bf054e197158ed35219e95"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.012357567997241858
+   "status": "pass",
+   "seconds": 0.6442227749939775,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 209,
@@ -7011,7 +9395,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.16272085699893069,
+   "seconds": 0.4952456280007027,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -7042,7 +9426,7 @@
    "threads": 512,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007933755005069543
+   "seconds": 0.02190889700432308
   },
   {
    "id": 211,
@@ -7060,7 +9444,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.08807076799712377,
+   "seconds": 0.3079797380050877,
    "executed": {
     "IMAD": 76,
     "LDG": 8,
@@ -7110,7 +9494,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 0.4542957129960996,
+   "seconds": 1.9135909409960732,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -7139,12 +9523,69 @@
   {
    "id": 213,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "9c1f5c53b6e12c5f1e3d6d24bbf035f9a91b92dfc4177cb3c08424aa8218a2d9",
+     "actual_sha256": "9c1f5c53b6e12c5f1e3d6d24bbf035f9a91b92dfc4177cb3c08424aa8218a2d9"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.012249660001543816
+   "status": "pass",
+   "seconds": 0.8510570650105365,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 214,
@@ -7170,7 +9611,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.16299480500310892,
+   "seconds": 0.3689686360012274,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -7201,17 +9642,84 @@
    "threads": 512,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007537552999565378
+   "seconds": 0.017299949991866015
   },
   {
    "id": 216,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "898471934d8425f98c0d2ef4eb5ddab16f3747da33c0a796f9f7eac6401e456d",
+     "actual_sha256": "898471934d8425f98c0d2ef4eb5ddab16f3747da33c0a796f9f7eac6401e456d"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "e1aa224ec1d9cb0de79b3d0a6fe53660e937094294916441715f77bb30950ef1",
+     "actual_sha256": "e1aa224ec1d9cb0de79b3d0a6fe53660e937094294916441715f77bb30950ef1"
+    }
+   ],
    "architecture": "SM80",
    "threads": 128,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.015542839995760005
+   "status": "pass",
+   "seconds": 0.6759868400113191,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 217,
@@ -7245,7 +9753,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.44072038100421196,
+   "seconds": 1.2114225660043303,
    "executed": {
     "MOV": 13,
     "IMAD": 20,
@@ -7281,7 +9789,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.08842724699934479,
+   "seconds": 0.23384147000615485,
    "executed": {
     "IMAD": 76,
     "LDG": 8,
@@ -7331,7 +9839,7 @@
    "architecture": "SM86",
    "threads": 40960,
    "status": "pass",
-   "seconds": 0.5404332630059798,
+   "seconds": 0.973049449006794,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -7360,12 +9868,69 @@
   {
    "id": 220,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "b01c304c14d7c66f58ec15c69daf50eed48ffda6f6157dcf11bd561572d60868",
+     "actual_sha256": "b01c304c14d7c66f58ec15c69daf50eed48ffda6f6157dcf11bd561572d60868"
+    }
+   ],
    "architecture": "SM86",
    "threads": 384,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.015060750993143301
+   "status": "pass",
+   "seconds": 0.2478213739959756,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 221,
@@ -7391,7 +9956,7 @@
    "architecture": "SM86",
    "threads": 5120,
    "status": "pass",
-   "seconds": 0.17065835100220283,
+   "seconds": 0.18958786499570124,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -7422,7 +9987,7 @@
    "threads": 640,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.00788186499994481
+   "seconds": 0.008491856991895474
   },
   {
    "id": 223,
@@ -7440,7 +10005,7 @@
    "architecture": "SM86",
    "threads": 1536,
    "status": "pass",
-   "seconds": 0.09024120500544086,
+   "seconds": 0.09416680000140332,
    "executed": {
     "IMAD": 75,
     "LOP3": 3,
@@ -7490,7 +10055,7 @@
    "architecture": "SM86",
    "threads": 61440,
    "status": "pass",
-   "seconds": 0.7895913730026223,
+   "seconds": 2.474745460000122,
    "executed": {
     "IMAD": 51,
     "LOP3": 3,
@@ -7523,8 +10088,8 @@
    "architecture": "SM86",
    "threads": 1920,
    "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.0451045969966799
+   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 1536 at 0x3770: sass_opaque_YIELD (no family)",
+   "seconds": 1.7220886010036338
   },
   {
    "id": 226,
@@ -7550,7 +10115,7 @@
    "architecture": "SM86",
    "threads": 5120,
    "status": "pass",
-   "seconds": 0.169991814000241,
+   "seconds": 0.9137975750054466,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -7581,17 +10146,84 @@
    "threads": 640,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.0077952450010343455
+   "seconds": 0.03394808099255897
   },
   {
    "id": 228,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "898471934d8425f98c0d2ef4eb5ddab16f3747da33c0a796f9f7eac6401e456d",
+     "actual_sha256": "898471934d8425f98c0d2ef4eb5ddab16f3747da33c0a796f9f7eac6401e456d"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "4d51e7b24df4d545f87a4e0ddd2a21954759b06df61c20b8ef3298ff4ca4d3e2",
+     "actual_sha256": "4d51e7b24df4d545f87a4e0ddd2a21954759b06df61c20b8ef3298ff4ca4d3e2"
+    }
+   ],
    "architecture": "SM80",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.017334911004581954
+   "status": "pass",
+   "seconds": 1.5996126899990486,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 229,
@@ -7617,7 +10249,7 @@
    "architecture": "SM86",
    "threads": 2560,
    "status": "pass",
-   "seconds": 0.16637070599972503,
+   "seconds": 0.6294910099968547,
    "executed": {
     "MOV": 13,
     "IMAD": 20,
@@ -7669,7 +10301,7 @@
    "architecture": "SM86",
    "threads": 2560,
    "status": "pass",
-   "seconds": 0.29743896600120934,
+   "seconds": 0.5790808040037518,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -7709,7 +10341,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.08451110299938591,
+   "seconds": 0.14977603900479153,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -7759,7 +10391,7 @@
    "architecture": "SM86",
    "threads": 65536,
    "status": "pass",
-   "seconds": 2.48940585499804,
+   "seconds": 1.646665641994332,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -7788,12 +10420,77 @@
   {
    "id": 233,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "69ddcd644e5715029fff7a696de62dcffe3b038f3adbb2b4e7933fbb23f98eee",
+     "actual_sha256": "69ddcd644e5715029fff7a696de62dcffe3b038f3adbb2b4e7933fbb23f98eee"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "3001f0e28673bc806efced5fd88f5e6bfae16bbf514b334952f1e7c956033a0e",
+     "actual_sha256": "3001f0e28673bc806efced5fd88f5e6bfae16bbf514b334952f1e7c956033a0e"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.04273632499825908
+   "status": "pass",
+   "seconds": 0.5840746629983187,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 234,
@@ -7827,7 +10524,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.988819081998372,
+   "seconds": 0.35544354699959513,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -7858,7 +10555,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.04074804599804338
+   "seconds": 0.011704135991749354
   },
   {
    "id": 236,
@@ -7884,7 +10581,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.6229645670027821,
+   "seconds": 0.25247293000575155,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -7934,7 +10631,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 1.8950576100032777,
+   "seconds": 0.6580658469902119,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -7963,12 +10660,77 @@
   {
    "id": 238,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "7d9efa8a6023d55c60de941127d3c40025311bbac0dedbbf43f0eb904091654f",
+     "actual_sha256": "7d9efa8a6023d55c60de941127d3c40025311bbac0dedbbf43f0eb904091654f"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "71351a6d9c0c1aeba6d6fba6ecd3b130b1aa460a80383a55616dfa1337677f4d",
+     "actual_sha256": "71351a6d9c0c1aeba6d6fba6ecd3b130b1aa460a80383a55616dfa1337677f4d"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.08207732099981513
+   "status": "pass",
+   "seconds": 0.3819829709973419,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 239,
@@ -8002,7 +10764,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 1.0091774750035256,
+   "seconds": 0.27319923498725984,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -8033,17 +10795,84 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.0336865939971176
+   "seconds": 0.008064859997830354
   },
   {
    "id": 241,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "e30c2f25e4b32ed5d0ba23abb635d6e181b014432ce3f293e28523d83f9bbbed",
+     "actual_sha256": "e30c2f25e4b32ed5d0ba23abb635d6e181b014432ce3f293e28523d83f9bbbed"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "95cb60c8857ad992cede9d5726637affc9b16a1a718a913389d5365ae926ebcc",
+     "actual_sha256": "95cb60c8857ad992cede9d5726637affc9b16a1a718a913389d5365ae926ebcc"
+    }
+   ],
    "architecture": "SM80",
    "threads": 128,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.07191698800306767
+   "status": "pass",
+   "seconds": 0.7511028930020984,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 242,
@@ -8069,7 +10898,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.6224440749938367,
+   "seconds": 0.8290636879974045,
    "executed": {
     "MOV": 13,
     "IMAD": 20,
@@ -8105,7 +10934,7 @@
    "architecture": "SM86",
    "threads": 1024,
    "status": "pass",
-   "seconds": 0.33532016599929193,
+   "seconds": 0.7328864799928851,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -8155,7 +10984,7 @@
    "architecture": "SM86",
    "threads": 81920,
    "status": "pass",
-   "seconds": 2.692394489000435,
+   "seconds": 4.956432147999294,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -8184,12 +11013,77 @@
   {
    "id": 245,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "cb0f0ce4ee77cce34e6501c816ce9596fd09bca5f8fce3bd4287d8089495689b",
+     "actual_sha256": "cb0f0ce4ee77cce34e6501c816ce9596fd09bca5f8fce3bd4287d8089495689b"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "0659c310e017ce43a6f751bd239f1982cf21829b2bf217cc2259decd5c775c6c",
+     "actual_sha256": "0659c310e017ce43a6f751bd239f1982cf21829b2bf217cc2259decd5c775c6c"
+    }
+   ],
    "architecture": "SM86",
    "threads": 384,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.03139114299847279
+   "status": "pass",
+   "seconds": 1.4732017010101117,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 246,
@@ -8215,7 +11109,7 @@
    "architecture": "SM86",
    "threads": 5120,
    "status": "pass",
-   "seconds": 0.23390177699911874,
+   "seconds": 0.3307427940017078,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -8246,7 +11140,7 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.010890862002270296
+   "seconds": 0.014546450998750515
   },
   {
    "id": 248,
@@ -8272,7 +11166,7 @@
    "architecture": "SM86",
    "threads": 768,
    "status": "pass",
-   "seconds": 0.24228926099749515,
+   "seconds": 0.2938373389915796,
    "executed": {
     "IMAD": 51,
     "LOP3": 3,
@@ -8314,7 +11208,7 @@
    "architecture": "SM86",
    "threads": 61440,
    "status": "pass",
-   "seconds": 0.4469584559992654,
+   "seconds": 0.6521706749917939,
    "executed": {
     "IMAD": 51,
     "LOP3": 3,
@@ -8347,8 +11241,8 @@
    "architecture": "SM86",
    "threads": 1152,
    "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.03788051800074754
+   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 768 at 0x3770: sass_opaque_YIELD (no family)",
+   "seconds": 0.33221902399964165
   },
   {
    "id": 251,
@@ -8382,7 +11276,7 @@
    "architecture": "SM86",
    "threads": 5120,
    "status": "pass",
-   "seconds": 0.2629320949999965,
+   "seconds": 0.35586160099774133,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -8413,17 +11307,92 @@
    "threads": 256,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x240: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007563398998172488
+   "seconds": 0.010031565005192533
   },
   {
    "id": 253,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "291ba36798ede6f923b4469b8ea6707d4fc3e5d914d6c98dfc1d2e4b0156e731",
+     "actual_sha256": "291ba36798ede6f923b4469b8ea6707d4fc3e5d914d6c98dfc1d2e4b0156e731"
+    },
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "027649c54901632b066e891102f86c35ad2c6e7dc3270475e7e85ab4fa5f4490",
+     "actual_sha256": "027649c54901632b066e891102f86c35ad2c6e7dc3270475e7e85ab4fa5f4490"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "78b1f4811fa11992d185379fc01dfbd3a80894373bbfb0d2bed76424d6eecaef",
+     "actual_sha256": "78b1f4811fa11992d185379fc01dfbd3a80894373bbfb0d2bed76424d6eecaef"
+    }
+   ],
    "architecture": "SM80",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.02427412199904211
+   "status": "pass",
+   "seconds": 0.4966833800135646,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 254,
@@ -8449,7 +11418,7 @@
    "architecture": "SM86",
    "threads": 640,
    "status": "pass",
-   "seconds": 0.15674388900515623,
+   "seconds": 0.19468210299964994,
    "executed": {
     "MOV": 13,
     "IMAD": 20,
@@ -8501,7 +11470,7 @@
    "architecture": "SM86",
    "threads": 768,
    "status": "pass",
-   "seconds": 0.2751896109984955,
+   "seconds": 0.3425883900054032,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -8549,7 +11518,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.17442798899719492,
+   "seconds": 0.22213864300283603,
    "executed": {
     "IMAD": 48,
     "LDG": 8,
@@ -8599,7 +11568,7 @@
    "architecture": "SM86",
    "threads": 131072,
    "status": "pass",
-   "seconds": 1.9502111930050887,
+   "seconds": 2.171724604006158,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -8632,8 +11601,8 @@
    "architecture": "SM86",
    "threads": 3840,
    "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.10228385899972636
+   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 3584 at 0x3770: sass_opaque_YIELD (no family)",
+   "seconds": 0.8875931579968892
   },
   {
    "id": 259,
@@ -8659,7 +11628,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.16450036400055978,
+   "seconds": 0.1620081329892855,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -8690,7 +11659,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x1230: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007592836998810526
+   "seconds": 0.00772050600789953
   },
   {
    "id": 261,
@@ -8716,7 +11685,7 @@
    "architecture": "SM86",
    "threads": 512,
    "status": "pass",
-   "seconds": 0.1620903229995747,
+   "seconds": 0.16528800599917304,
    "executed": {
     "IMAD": 48,
     "LDG": 8,
@@ -8766,7 +11735,7 @@
    "architecture": "SM86",
    "threads": 32768,
    "status": "pass",
-   "seconds": 0.46382626600097865,
+   "seconds": 0.48142230200755876,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -8795,12 +11764,77 @@
   {
    "id": 263,
    "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "b8365f86b5d3c76970c1dc15ba0a688d60a5ad295bc6d097b71a5738327e2f3e",
+     "actual_sha256": "b8365f86b5d3c76970c1dc15ba0a688d60a5ad295bc6d097b71a5738327e2f3e"
+    },
+    {
+     "address": 129058495004672,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "f056ba374b80d3d0bf0445b19716b3722744af0c7e95fe25069a57619684913f",
+     "actual_sha256": "f056ba374b80d3d0bf0445b19716b3722744af0c7e95fe25069a57619684913f"
+    }
+   ],
    "architecture": "SM86",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.019865255999320652
+   "status": "pass",
+   "seconds": 0.34097074800229166,
+   "executed": {
+    "MOV": 9,
+    "IMAD": 294,
+    "ISETP": 172,
+    "IADD3": 46,
+    "UISETP": 18,
+    "FMNMX": 32,
+    "LEA": 17,
+    "LDC": 5,
+    "UIADD3": 17,
+    "LDS": 43,
+    "BRA": 13,
+    "LDG": 18,
+    "ULDC": 19,
+    "R2P": 6,
+    "S2UR": 4,
+    "SHF": 21,
+    "SEL": 34,
+    "FADD": 16,
+    "PLOP3": 11,
+    "LOP3": 38,
+    "STS": 17,
+    "CS2R": 12,
+    "STG": 16,
+    "UPLOP3": 2,
+    "BAR": 7,
+    "P2R": 11,
+    "UMOV": 12,
+    "HMMA": 32,
+    "LDGSTS": 24,
+    "LDSM": 27,
+    "EXIT": 1,
+    "FMUL": 16,
+    "UIMAD": 3,
+    "USEL": 4,
+    "S2R": 6,
+    "FSETP": 1,
+    "DEPBAR": 3,
+    "USHF": 1,
+    "LDGDEPBAR": 2,
+    "R2UR": 2
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 27,
+    "LDGSTS": 24,
+    "LDGDEPBAR": 2,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 264,
@@ -8826,7 +11860,7 @@
    "architecture": "SM86",
    "threads": 4096,
    "status": "pass",
-   "seconds": 0.15639577399997506,
+   "seconds": 0.16343947300629225,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -8857,17 +11891,84 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x1230: MUFU approximation is unresolved for EX2",
-   "seconds": 0.00733727899933001
+   "seconds": 0.007581727986689657
   },
   {
    "id": 266,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058490810368,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "291ba36798ede6f923b4469b8ea6707d4fc3e5d914d6c98dfc1d2e4b0156e731",
+     "actual_sha256": "291ba36798ede6f923b4469b8ea6707d4fc3e5d914d6c98dfc1d2e4b0156e731"
+    },
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "cb70c1346cc050744c992adf493df9f9e05dac64abcf3382156d292207ab7d24",
+     "actual_sha256": "cb70c1346cc050744c992adf493df9f9e05dac64abcf3382156d292207ab7d24"
+    }
+   ],
    "architecture": "SM80",
    "threads": 128,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.015367655003501568
+   "status": "pass",
+   "seconds": 0.2544020030036336,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 267,
@@ -8893,7 +11994,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.15009946400095941,
+   "seconds": 0.16011609599809162,
    "executed": {
     "MOV": 13,
     "IMAD": 20,
@@ -8937,7 +12038,7 @@
    "architecture": "SM86",
    "threads": 2048,
    "status": "pass",
-   "seconds": 0.8392456950023188,
+   "seconds": 1.5773226200108184,
    "executed": {
     "IMAD": 48,
     "LDG": 8,
@@ -8987,7 +12088,7 @@
    "architecture": "SM86",
    "threads": 163840,
    "status": "pass",
-   "seconds": 2.9087774340005126,
+   "seconds": 8.443230569988373,
    "executed": {
     "IMAD": 52,
     "LDG": 8,
@@ -9020,8 +12121,8 @@
    "architecture": "SM86",
    "threads": 5760,
    "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.20918798800266813
+   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 5376 at 0x3770: sass_opaque_YIELD (no family)",
+   "seconds": 1.8465611680003349
   },
   {
    "id": 271,
@@ -9047,7 +12148,7 @@
    "architecture": "SM86",
    "threads": 5120,
    "status": "pass",
-   "seconds": 0.15569281599891838,
+   "seconds": 0.2175569849932799,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -9078,7 +12179,7 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 64 at 0x1230: MUFU approximation is unresolved for EX2",
-   "seconds": 0.007178116997238249
+   "seconds": 0.010116568999364972
   },
   {
    "id": 273,
@@ -9104,7 +12205,7 @@
    "architecture": "SM86",
    "threads": 768,
    "status": "pass",
-   "seconds": 0.16228465500171296,
+   "seconds": 0.22037163301138207,
    "executed": {
     "IMAD": 47,
     "LOP3": 3,
@@ -9146,7 +12247,7 @@
    "architecture": "SM86",
    "threads": 61440,
    "status": "pass",
-   "seconds": 0.3449627019945183,
+   "seconds": 0.649610662003397,
    "executed": {
     "IMAD": 51,
     "LOP3": 3,
@@ -9179,8 +12280,8 @@
    "architecture": "SM86",
    "threads": 1152,
    "status": "blocked",
-   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 0 at 0x1e50: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.036021425999933854
+   "reason": "kernel sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn thread 768 at 0x3770: sass_opaque_YIELD (no family)",
+   "seconds": 0.302018265996594
   },
   {
    "id": 276,
@@ -9206,7 +12307,7 @@
    "architecture": "SM86",
    "threads": 5120,
    "status": "pass",
-   "seconds": 0.1601129549962934,
+   "seconds": 0.2031553580018226,
    "executed": {
     "IMAD": 12,
     "LDG": 5,
@@ -9237,17 +12338,76 @@
    "threads": 128,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 64 at 0x1230: MUFU approximation is unresolved for EX2",
-   "seconds": 0.0072800359994289465
+   "seconds": 0.0090163080021739
   },
   {
    "id": 278,
    "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
-   "comparisons": [],
+   "comparisons": [
+    {
+     "address": 129058492907520,
+     "size": 2097152,
+     "exact": true,
+     "differing_bytes": 0,
+     "expected_sha256": "808f694229f194a402192ae7d43c2a79912f7727cb0a1e9667161ff544280ea8",
+     "actual_sha256": "808f694229f194a402192ae7d43c2a79912f7727cb0a1e9667161ff544280ea8"
+    }
+   ],
    "architecture": "SM80",
    "threads": 256,
-   "status": "blocked",
-   "reason": "kernel _ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE thread 0 at 0x2000: sass_opaque_HMMA (HMMA 1688.TF32.F32: fragment/numerical model unresolved)",
-   "seconds": 0.010379458995885216
+   "status": "pass",
+   "seconds": 0.1982905079930788,
+   "executed": {
+    "MOV": 11,
+    "SHF": 39,
+    "PLOP3": 8,
+    "LOP3": 47,
+    "HMMA": 32,
+    "IMAD": 208,
+    "LDGDEPBAR": 8,
+    "FMUL": 32,
+    "S2R": 6,
+    "LEA": 35,
+    "UIADD3": 18,
+    "USHF": 10,
+    "LDSM": 10,
+    "LDS": 48,
+    "ISETP": 61,
+    "FMNMX": 32,
+    "IADD3": 115,
+    "R2P": 18,
+    "P2R": 4,
+    "CS2R": 16,
+    "ULDC": 11,
+    "LDGSTS": 48,
+    "BAR": 12,
+    "STG": 8,
+    "SEL": 10,
+    "DEPBAR": 3,
+    "BSYNC": 1,
+    "EXIT": 2,
+    "STS": 16,
+    "ULEA": 8,
+    "UISETP": 2,
+    "LDG": 2,
+    "UMOV": 10,
+    "S2UR": 1,
+    "ULOP3": 2,
+    "BRA": 7,
+    "UIMAD": 2,
+    "FSETP": 81,
+    "BSSY": 1,
+    "IMNMX": 1,
+    "SHFL": 1,
+    "R2UR": 1
+   },
+   "executed_targets": {
+    "HMMA": 32,
+    "LDSM": 10,
+    "LDGSTS": 48,
+    "LDGDEPBAR": 8,
+    "DEPBAR": 3
+   }
   },
   {
    "id": 279,
@@ -9273,7 +12433,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.14866852699924493,
+   "seconds": 0.17660510900896043,
    "executed": {
     "MOV": 13,
     "IMAD": 20,
@@ -9317,7 +12477,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.17204088399739703,
+   "seconds": 0.20212902800994925,
    "executed": {
     "IMAD": 104,
     "IADD3": 45,
@@ -9373,7 +12533,7 @@
    "architecture": "SM86",
    "threads": 6912,
    "status": "pass",
-   "seconds": 0.46623434600041946,
+   "seconds": 0.5401670660066884,
    "executed": {
     "IMAD": 76,
     "I2F": 2,
@@ -9413,7 +12573,7 @@
    "architecture": "SM86",
    "threads": 64,
    "status": "pass",
-   "seconds": 0.06942451299983077,
+   "seconds": 0.08372096800303552,
    "executed": {
     "IMAD": 3,
     "S2R": 2,
@@ -9443,7 +12603,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.10628253799950471,
+   "seconds": 0.13873317099933047,
    "executed": {
     "IMAD": 8,
     "IADD3": 3,
@@ -9478,7 +12638,7 @@
    "architecture": "SM86",
    "threads": 64,
    "status": "pass",
-   "seconds": 0.06372577799629653,
+   "seconds": 0.0755134189967066,
    "executed": {
     "IMAD": 3,
     "S2R": 2,
@@ -9508,7 +12668,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.06525112399685895,
+   "seconds": 0.0797332039946923,
    "executed": {
     "IMAD": 8,
     "IADD3": 3,
@@ -9543,7 +12703,7 @@
    "architecture": "SM86",
    "threads": 73728,
    "status": "pass",
-   "seconds": 0.27199760200164746,
+   "seconds": 0.34684013499645516,
    "executed": {
     "IMAD": 46,
     "IADD3": 21,
@@ -9581,7 +12741,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.0876103080008761,
+   "seconds": 0.10537981199740898,
    "executed": {
     "IMAD": 5,
     "ULDC": 1,
@@ -9610,7 +12770,7 @@
    "architecture": "SM86",
    "threads": 64,
    "status": "pass",
-   "seconds": 0.06483534399740165,
+   "seconds": 0.07593953800096642,
    "executed": {
     "IMAD": 3,
     "S2R": 2,
@@ -9640,7 +12800,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.06542245799937518,
+   "seconds": 0.0777078130049631,
    "executed": {
     "IMAD": 8,
     "IADD3": 3,
@@ -9675,7 +12835,7 @@
    "architecture": "SM86",
    "threads": 64,
    "status": "pass",
-   "seconds": 0.06368178000411717,
+   "seconds": 0.09016073300153948,
    "executed": {
     "IMAD": 3,
     "S2R": 2,
@@ -9705,7 +12865,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.06546466000145301,
+   "seconds": 0.10918687400408089,
    "executed": {
     "IMAD": 8,
     "IADD3": 3,
@@ -9740,7 +12900,7 @@
    "architecture": "SM86",
    "threads": 73728,
    "status": "pass",
-   "seconds": 0.208566219000204,
+   "seconds": 0.24739254600717686,
    "executed": {
     "IMAD": 46,
     "IADD3": 21,
@@ -9778,7 +12938,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.0638585190026788,
+   "seconds": 0.06968157600203995,
    "executed": {
     "IMAD": 5,
     "ULDC": 1,
@@ -9807,7 +12967,7 @@
    "architecture": "SM86",
    "threads": 64,
    "status": "pass",
-   "seconds": 0.06300024300435325,
+   "seconds": 0.08136597400880419,
    "executed": {
     "IMAD": 3,
     "S2R": 2,
@@ -9837,7 +12997,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.0654308180019143,
+   "seconds": 0.07398805000411812,
    "executed": {
     "IMAD": 8,
     "IADD3": 3,
@@ -9872,7 +13032,7 @@
    "architecture": "SM86",
    "threads": 64,
    "status": "pass",
-   "seconds": 0.06361554400064051,
+   "seconds": 0.0704089430073509,
    "executed": {
     "IMAD": 3,
     "S2R": 2,
@@ -9902,7 +13062,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.0658020699993358,
+   "seconds": 0.072544303999166,
    "executed": {
     "IMAD": 8,
     "IADD3": 3,
@@ -9937,7 +13097,7 @@
    "architecture": "SM86",
    "threads": 73728,
    "status": "pass",
-   "seconds": 0.2076902720000362,
+   "seconds": 0.22521932500239927,
    "executed": {
     "IMAD": 46,
     "IADD3": 21,
@@ -9975,7 +13135,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.06454199000290828,
+   "seconds": 0.06814456201391295,
    "executed": {
     "IMAD": 5,
     "ULDC": 1,
@@ -10020,7 +13180,7 @@
    "architecture": "SM86",
    "threads": 384,
    "status": "pass",
-   "seconds": 0.32765802899666596,
+   "seconds": 0.3655912740068743,
    "executed": {
     "IMAD": 45,
     "F2I": 1,
@@ -10068,7 +13228,7 @@
    "architecture": "SM86",
    "threads": 384,
    "status": "pass",
-   "seconds": 0.15348940599506022,
+   "seconds": 0.1733079380064737,
    "executed": {
     "IMAD": 45,
     "F2I": 1,
@@ -10116,7 +13276,7 @@
    "architecture": "SM86",
    "threads": 2688,
    "status": "pass",
-   "seconds": 0.32739548899553483,
+   "seconds": 0.3714066629909212,
    "executed": {
     "MOV": 13,
     "ISETP": 10,
@@ -10143,7 +13303,7 @@
    "threads": 336,
    "status": "blocked",
    "reason": "kernel _ZN2at6native43_GLOBAL__N__b6de9c8c_10_SoftMax_cu_9f978f6326cunn_SpatialSoftMaxForwardIfffiNS1_22SoftMaxForwardEpilogueEEEvPT1_PKT_T2_S9_S9_ thread 0 at 0x410: MUFU approximation is unresolved for EX2",
-   "seconds": 0.10692652299621841
+   "seconds": 0.12604373099748045
   },
   {
    "id": 304,
@@ -10153,7 +13313,7 @@
    "threads": 8448,
    "status": "blocked",
    "reason": "kernel _Z14gemvNSP_kernelIffffLi1ELi16ELi4ELi1024ELb0E18cublasGemvParamsExIi30cublasGemvTensorStridedBatchedIKfES3_S1_IfEfEEvT8_ thread 0 at 0x400: unsupported ordering in launch scope: LDG.E.STRONG.SYS R18, [R18.64]",
-   "seconds": 0.2555385640007444
+   "seconds": 0.30478103800851386
   },
   {
    "id": 305,
@@ -10179,7 +13339,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.14829087600082858,
+   "seconds": 0.44314324799051974,
    "executed": {
     "MOV": 13,
     "IMAD": 20,
@@ -10223,7 +13383,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.1476976609992562,
+   "seconds": 0.819441386993276,
    "executed": {
     "MOV": 13,
     "IMAD": 20,
@@ -10267,7 +13427,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.14386958900286118,
+   "seconds": 0.6237633209966589,
    "executed": {
     "MOV": 4,
     "CS2R": 7,
@@ -10303,7 +13463,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.1080523880009423,
+   "seconds": 0.4970232550112996,
    "executed": {
     "IMAD": 12,
     "MOV": 3,
@@ -10346,7 +13506,7 @@
    "architecture": "SM86",
    "threads": 128,
    "status": "pass",
-   "seconds": 0.14498790400102735,
+   "seconds": 0.7210250460047973,
    "executed": {
     "MOV": 4,
     "CS2R": 7,
@@ -10382,7 +13542,7 @@
    "architecture": "SM86",
    "threads": 73728,
    "status": "pass",
-   "seconds": 0.2070548260016949,
+   "seconds": 0.6418913980014622,
    "executed": {
     "IMAD": 46,
     "IADD3": 21,
@@ -10428,7 +13588,7 @@
    "architecture": "SM86",
    "threads": 256,
    "status": "pass",
-   "seconds": 0.3340342689989484,
+   "seconds": 1.4308598749921657,
    "executed": {
     "MOV": 13,
     "IMAD": 20,
@@ -10456,7 +13616,7 @@
    "threads": 896,
    "status": "blocked",
    "reason": "kernel _ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_19sigmoid_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE0_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_ thread 0 at 0x260: MUFU approximation is unresolved for EX2",
-   "seconds": 0.1596487819988397
+   "seconds": 0.6567014970059972
   },
   {
    "id": 313,
@@ -10490,7 +13650,7 @@
    "architecture": "SM86",
    "threads": 3584,
    "status": "pass",
-   "seconds": 0.28333363300043857,
+   "seconds": 1.3285042200004682,
    "executed": {
     "IMAD": 76,
     "I2F": 2,

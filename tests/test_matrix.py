@@ -47,16 +47,20 @@ def test_native_matrix_context(mode):
         assert all(found.read("R", int(name[1:]), 1) == value for name, value in case.expected.items())
 
 
-def arithmetic_cases(arch):
-    word = bytes.fromhex(encoding.encode(arch, "hmma_x8_", size="16816", srcfmt="F16", dstfmt="F32",
-                                        Ra=16, Rb=24, Rc=32, Rd=40))
+SHAPES = (("F16", "16816"), ("TF32", "1684"), ("TF32", "1688"))
+
+
+def arithmetic_cases(arch, source="F16", size="16816", controls=(0, 0, 0)):
+    flags = {key: value for key, value in zip(("Ra@negate", "Rb@negate", "UPp@not"), controls)
+             if key != "UPp@not" or "UPp" in encoding.klass(arch, "hmma_x8_").operand_types}
+    word = bytes.fromhex(encoding.encode(arch, "hmma_x8_", size=size, srcfmt=source, dstfmt="F32",
+                                        Ra=16, Rb=24, Rc=32, Rd=40, **flags))
     form = modifiers.settings(arch, pydecode.decode(arch, word))
     return autocases.generate(arch, "hmma_x8_", form, native=False, sample=100)
 
 
-@pytest.mark.parametrize("arch", ["SM80", "SM86", "SM89", "SM90", "SM100", "SM101", "SM103", "SM107", "SM120"])
-def test_tensor_arithmetic(arch):
-    selected = arithmetic_cases(arch)
+def assert_arithmetic(arch, source, size, controls=(0, 0, 0)):
+    selected = arithmetic_cases(arch, source, size, controls)
     semantics = {word: lifter.lift(arch, bytes.fromhex(word)) for word in {c.request["word"] for c in selected}}
     assert all(sem.status == "primitive" for sem in semantics.values())
     for case in selected:
@@ -65,9 +69,23 @@ def test_tensor_arithmetic(arch):
         assert all(found.read("R", int(name[1:]), 1) == value for name, value in case.expected.items()), case.hardware
 
 
+@pytest.mark.parametrize("arch", ["SM80", "SM86", "SM89", "SM90", "SM100", "SM101", "SM103", "SM107", "SM120"])
+@pytest.mark.parametrize("source,size", SHAPES)
+def test_tensor_arithmetic(arch, source, size):
+    assert_arithmetic(arch, source, size)
+
+
+@pytest.mark.parametrize("source,size", SHAPES)
+@pytest.mark.parametrize("controls", [(a, b, p) for a in (0, 1) for b in (0, 1) for p in (0, 1) if a or b or p])
+def test_tensor_operand_controls(source, size, controls):
+    assert_arithmetic("SM89", source, size, controls)
+
+
 @pytest.mark.native
-def test_native_tensor_arithmetic():
-    selected = arithmetic_cases("SM89")
+@pytest.mark.parametrize("source,size", SHAPES)
+@pytest.mark.parametrize("controls", [(a, b, p) for a in (0, 1) for b in (0, 1) for p in (0, 1)])
+def test_native_tensor_arithmetic(source, size, controls):
+    selected = arithmetic_cases("SM89", source, size, controls)
     indices = {word: j for j, word in enumerate(dict.fromkeys(c.request["word"] for c in selected))}
     fragment = machine.Fragments([("SM89", bytes.fromhex(word), 0) for word in indices])
     for case in selected:

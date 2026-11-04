@@ -24,9 +24,17 @@ import sass.semantics.families  # registers the families
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}   # bits per register element
 SHARED = frozenset({"fma.rn.bf16x2", "add.ftz.f16x2", "mul.ftz.f16x2", "fma.ftz.f16x2"})
 SCRATCH = frozenset({"atomic.add.f32.ftz.rn", "atomic.add.f64.rn", "atomic.add.f16x2.rn",
-                     "fma.rn.f16",
+                     "fma.rn.f16", "fma.rn.bf16",
+                     "narrow.rn.f16.f64", "narrow.rn.bf16.f64",
+                     "hmma16816.f16.f32.g8.e1", "hmma16816.f16.f32.g16.e2",
                      "hmma.f16.f32.k8.e1", "hmma.f16.f32.k16.e2",
-                     "hmma.f16.product.e1", "hmma.f16.product.e2"})
+                     "hmma.f16.product.e1", "hmma.f16.product.e2",
+                     "hmma.tf32.product.e1", "hmma.tf32.product.e2"}) | frozenset(
+                         f"hmma.tf32.f32.k{k}.e{e}.l{floor}"
+                         for k, e in ((4, 1), (4, 2), (8, 2)) for floor in (132, 133)) | frozenset(
+                         f"hmma168{k}.tf32.f32.g{group}.e{e}.l{floor}"
+                         for k, group, e in ((4, 4, 1), (4, 4, 2), (8, 4, 1), (8, 8, 2))
+                         for floor in (132, 133))
 def nbytes(w): return (w + 7) // 8
 
 

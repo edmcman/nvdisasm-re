@@ -38,14 +38,48 @@ def generate(c, k, form, profiles):
     return c
 
 
+def hmma_cases(c, k, form, groups, pattern, lanes, source="F16", count=16):
+    from tests.harness.autocases import Inputs
+    predicates = (("UPT", None), (0, 0), (0, 1), (6, 0), (6, 1)) if "UPp" in k.operand_types and pattern in (
+        "accumulator", "nan_c", "snan_c", "raw_00000000_00000000_ff800001") else (("UPT", None),)
+    for lane in lanes:
+        placements = ((40, None, None), (16, None, None), (24, None, None), (32, None, None),
+                      (40, 0, None), (40, 1, None), ("RZ", None, None),
+                      *((40, None, name) for name in ("Ra", "Rb", "Rc"))) if pattern == "ones" and lane == 0 else ((40, None, None),)
+        for destination, disabled, zero in placements:
+            for predicate, value in predicates:
+                s = Inputs(c, k, form)
+                s.fields.update(Ra=16, Rb=24, Rc=32, Rd=destination)
+                inputs = groups | {zero: [[0] * len(words) for words in groups[zero]]} if zero else groups
+                if zero: s.fields[zero] = "RZ"
+                if "UPp" in k.operand_types:
+                    s.fields["UPp"] = predicate
+                    if value is not None: s.registers[f"UP{predicate}"] = value
+                for name, register in (("Ra", 16), ("Rb", 24), ("Rc", 32)):
+                    s.registers.update({f"R{register + j}": v for j, v in enumerate(groups[name][lane])})
+                if disabled is not None:
+                    s.fields.update(Pg=0, **{"Pg@not": disabled})
+                    s.registers["P0"] = disabled
+                    s.registers.update({f"R{destination + j}": 0x12345678 + j for j in range(4)})
+                enabled = bool(1 if value is None else value) ^ (form.get("UPp@not") == "set")
+                values = [] if c.discovery or destination == "RZ" else [s.registers[f"R{destination + j}"] for j in range(4)] if disabled is not None else matrix.hmma(
+                    inputs, lane, c.arch, source, count, enabled,
+                    tuple(form.get(name + "@negate") == "set" for name in ("Ra", "Rb")))
+                names = list(s.registers) if destination == "RZ" else [f"R{destination + j}" for j in range(4)]
+                expected = {name: s.registers[name] for name in names} if destination == "RZ" and not c.discovery else dict(zip(names, values))
+                s.add(expected, form, observe=names,
+                      context={"warp": dict(lane=lane, active=0xffffffff, operand_groups=inputs)},
+                      hardware={"adapter": "matrix", "pattern": pattern,
+                                "sampling_floor": f"hmma-{source}-{pattern}-{destination}-{disabled}-{zero}-{predicate}-{value}"})
+
+
 def hmma(c, k, form):
     import random
     import struct
-    from tests.harness.autocases import Inputs, Unsupported
+    from tests.harness.autocases import Unsupported
+    if form.get("srcfmt") == "TF32": return tf32(c, k, form)
     if k.name != "hmma_x8_" or (form.get("size"), form.get("srcfmt"), form.get("dstfmt")) != ("16816", "F16", "F32"):
         raise Unsupported("HMMA adapter covers direct 16816 F16/F32")
-    if any(form.get(name + "@negate") == "set" for name in ("Ra", "Rb")) or form.get("UPp@not") == "set":
-        raise Unsupported("HMMA negate/accumulator predicate unresolved")
     bits = lambda value, fmt: int.from_bytes(struct.pack(fmt, value), "little")
     for pattern in autocase_profiles.PROFILES["hmma_forms"]["patterns"]:
         rng = random.Random(int(pattern.split("_")[-1])) if pattern.startswith("random_") else None
@@ -128,21 +162,81 @@ def hmma(c, k, form):
             if pattern == "snan_c": groups["Rc"][-1] = [0xff800001] * 4
         lanes = range(32) if rng else autocase_profiles.PROFILES["matrix_forms"]["lanes"] if pattern in (
             "ones", "coordinates", "identity", "accumulator", "small", "cancel") else (0,)
-        for lane in lanes:
-            placements = ((40, None), (16, None), (24, None), (32, None), (40, 0), (40, 1)) if pattern == "ones" and lane == 0 else ((40, None),)
-            for destination, disabled in placements:
-                s = Inputs(c, k, form)
-                s.fields.update(Ra=16, Rb=24, Rc=32, Rd=destination)
-                for name, register in (("Ra", 16), ("Rb", 24), ("Rc", 32)):
-                    s.registers.update({f"R{register + j}": value for j, value in enumerate(groups[name][lane])})
-                if disabled is not None:
-                    s.fields.update(Pg=0, **{"Pg@not": disabled})
-                    s.registers["P0"] = disabled
-                    s.registers.update({f"R{destination + j}": 0x12345678 + j for j in range(4)})
-                values = [s.registers[f"R{destination + j}"] for j in range(4)] if disabled is not None else matrix.hmma(groups, lane, c.arch) if not c.discovery else []
-                expected = {f"R{destination + j}": value for j, value in enumerate(values)}
-                floor = f"hmma-{pattern}-{destination}-{disabled}"
-                s.add(expected, form, observe=[f"R{destination + j}" for j in range(4)],
-                      context={"warp": dict(lane=lane, active=0xffffffff, operand_groups=groups)},
-                      hardware={"adapter": "matrix", "pattern": pattern, "sampling_floor": floor})
+        hmma_cases(c, k, form, groups, pattern, lanes)
+    return c
+
+
+def tf32(c, k, form):
+    import random
+    import struct
+    from tests.harness.autocases import Unsupported
+    if k.name != "hmma_x8_" or form.get("dstfmt") != "F32" or form.get("size") not in ("1684", "1688"):
+        raise Unsupported("TF32 adapter covers direct 1684/1688 F32")
+    count = int(form["size"][3:])
+    bits = lambda v: int.from_bytes(struct.pack("<f", v), "little")
+    for pattern in autocase_profiles.PROFILES["hmma_tf32_forms"]["patterns"]:
+        if pattern.startswith(("basis_", "pair_", "cancel_")) and any(int(n) >= count for n in pattern.split("_")[1:]):
+            continue
+        rng = random.Random(int(pattern.removeprefix("random_"))) if pattern.startswith("random_") else None
+        def value(name, row, column):
+            index = column if name == "Ra" else row
+            match pattern:
+                case "coordinates": return bits(row + 1 if name == "Ra" else column + 1) if name != "Rc" else 0
+                case "accumulator": return bits(row * 8 + column + 1) if name == "Rc" else 0
+                case "identity": return bits(int(row == column)) if name == "Ra" else bits(row + 1) if name == "Rb" else 0
+                case p if p.startswith("tiny_power_"):
+                    _, _, power, accumulator = p.split("_")
+                    power = int(power)
+                    return int(accumulator, 16) if name == "Rc" else bits(2 ** (power // 2 if name == "Ra" else power - power // 2))
+                case "tiny_join" | "tiny_split":
+                    a = (1.984375 * 2 ** -75, 2 ** -78, 2 ** -78, 2 ** -79)
+                    b = (2 ** -75, 2 ** -79, 2 ** (-79 if pattern == "tiny_join" else -80),
+                         0 if pattern == "tiny_join" else 2 ** -79)
+                    return bits((a if name == "Ra" else b)[index % 4]) if name != "Rc" else 0
+                case p if p.startswith("tiny_precision_"):
+                    q = int(p.split("_")[-1])
+                    if name == "Rc" or index % 4 == 3: return 0
+                    if index % 4 == 0: return bits((2 - 2 ** (1 - q)) * 2 ** -75 if name == "Ra" else 2 ** -75)
+                    power = -150 - q
+                    return bits(2 ** (power // 2 if name == "Ra" else power - power // 2))
+                case p if p.startswith("tiny_alignment_"):
+                    exponent = int(p.split("_")[-1])
+                    difference = max(1, 2 ** (-129 - exponent))
+                    if name == "Rc" or index % 4 == 3: return 0
+                    if index % 4 == 2:
+                        power = exponent - 24
+                        return bits((1 if name == "Ra" else -1) * 2 ** (power // 2 if name == "Ra" else power - power // 2))
+                    factors = ((1 + 1 / 1024, 1 + difference / 1024),
+                               (1, -(1 + (difference + 1) / 1024)))
+                    power = exponent // 2 if name == "Ra" else exponent - exponent // 2
+                    return bits(factors[index % 4][name == "Rb"] * 2 ** power)
+                case "overflow_cancel" | "overflow_groups" | "wide_cancel":
+                    if name == "Rc": return bits(1)
+                    if name == "Ra": return 0x7f7fe000
+                    sign = index % 2 if pattern != "overflow_groups" else int(index >= 4)
+                    return (sign << 31) | (0x7f7fe000 if pattern == "wide_cancel" else 0x40000000)
+                case "unnormalized":
+                    if name == "Rc": return 0
+                    return bits(1.5 if index == 0 else 1 if name == "Ra" else 2 ** -24)
+                case p if p.startswith("basis_"):
+                    return bits(int((column if name == "Ra" else row) == int(p.split("_")[1]))) if name != "Rc" else 0
+                case p if p.startswith("pair_"):
+                    return bits(1 if name != "Rb" else 2 ** -24) if name != "Rb" or row in map(int, p.split("_")[1:]) else 0
+                case p if p.startswith("cancel_"):
+                    return bits(1 if name != "Rb" or row == 0 else -1) if name != "Rb" or row in (0, int(p.split("_")[-1])) else 0
+                case p if p.startswith("raw_"):
+                    return int(p.split("_")[("Ra", "Rb", "Rc").index(name) + 1], 16)
+                case p if p.startswith("random_"):
+                    v = rng.getrandbits(32)
+                    return v ^ 0x40000000 if v & 0x7f800000 == 0x7f800000 else v
+                case _: return bits(1) if name != "Rc" else 0
+        groups = dict(Ra=[], Rb=[], Rc=[])
+        for lane in range(32):
+            row, thread = divmod(lane, 4)
+            groups["Ra"].append([value("Ra", row + dr, thread + dk) for dk in range(0, count, 4) for dr in (0, 8)])
+            groups["Rb"].append([value("Rb", thread + dk, row) for dk in range(0, count, 4)])
+            groups["Rc"].append([value("Rc", row + dr, thread * 2 + n) for dr in (0, 8) for n in (0, 1)])
+        lanes = range(32) if rng else autocase_profiles.PROFILES["matrix_forms"]["lanes"] if pattern in (
+            "ones", "coordinates", "identity", "accumulator") or pattern.startswith("basis_") else (0,)
+        hmma_cases(c, k, form, groups, pattern, lanes, "TF32", count)
     return c

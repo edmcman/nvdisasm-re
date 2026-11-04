@@ -50,7 +50,8 @@ def main():
     args = parser.parse_args()
     probes = [paths.ROOT / "tests/ptx" / family / name for family, name in
               (("atomg", "integer.ptx"), ("b2r", "reductions.ptx"), ("cctl", "prefetch.ptx"),
-               ("hmma", "dense.ptx"), ("ldgsts", "groups.ptx"), ("ldsm", "m8n8.ptx"))]
+               ("hmma", "dense.ptx"), ("hmma", "tf32_1684.ptx"), ("hmma", "tf32_1688.ptx"),
+               ("ldgsts", "groups.ptx"), ("ldsm", "m8n8.ptx"))]
     data = dict(compiler=tool(paths.PTXAS), kind="compiler encoding evidence; no functional verification",
                 probes=[trace(probe, arch, args.sources) for arch in ARCHES for probe in probes])
     args.out.write_text(json.dumps(data, indent=1) + "\n")

@@ -22,7 +22,8 @@
   forward references. `lzcount` replaces repeated bit-position searches in the shared integer
   rounding machinery; zero is handled by the caller's `sig | 1`.
 - Pure-definition calls (2026-11-04): HMMA products and accumulation blocks,
-  floating ATOMG updates and scalar half FMA share bodies through internal argument/result registers.
+  floating ATOMG updates, dense HMMA fragments, scalar half/BF16 FMA and selected
+  F64-to-half narrowing definitions share bodies through internal argument/result registers.
   Callers write every argument before an explicit build and copy the result
   immediately. Distinct forwarding operands allow repeated calls in one
   instruction; SLEIGH rejects repeated builds of the same operand. Nested calls
@@ -38,9 +39,14 @@
   Sharing is selective: argument/result copies and operand constructors can
   outweigh a small numerical body, and explicit builds expand into P-code rather
   than providing runtime function calls. Scalar half FMA sharing saves about
-  21 KiB in SM107 exact, which is 16,771,596 bytes after restoring integer
-  pruning and rejecting invalid span selectors. Sizes are checked against the
-  limit on every build.
+  21 KiB in SM107 exact after restoring integer pruning and rejecting invalid
+  span selectors. Dense TF32 support required additional fragment/FMA/narrowing
+  sharing and decode-time source-negation masks; SM107 exact is 16,753,273 bytes
+  with these definitions (2026-11-04). Sizes are checked against the limit on
+  every build. Shared F64-to-F16/BF16 narrowing loses constant specialization:
+  SM107 exact `hmul2__RR` grows from 150 to 194 operations and `hmul2_fixed__RU`
+  from 271 to 313. All twenty languages' FP16 numerical and dataflow checks pass;
+  the extra operations buy about 73 KiB of required language-size savings.
 - Ghidra 12.2 locks each `.sla` while loading it (`sass_<variant>.sla.lock` beside it, GP-4045), and a `sass.ldefs` entry whose `.slaspec` is missing ("Missing sleigh file(.slaspec)", only in `application.log` when headless) stops the provider reading the rest of the file: the languages after it are silently absent and `getLanguage` returns null (2026-10-23; a committed `sass_sm89.sla.lock` listed sm89 in every CI job and lost sm90, sorted after it). `gen.write_ldefs` lists only variants with a `.sla` or `.slaspec`.
 - Size compromises (the 16 MiB `.sla` limit above). Each trades run-time p-code, readability or
   generator simplicity for size; revisit them when the limit is lifted.

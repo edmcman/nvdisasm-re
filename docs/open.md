@@ -11,16 +11,19 @@
   remains a possible adversarial order. Timing proper matters for racy code, fence-based ordering
   and scoreboards: instructions complete instantly in the emulator, and GPU patches retain
   controls unless the experiment explicitly changes them.
-- Replay blockers (#117, 2026-11-04): 201 retained YOLO launches compare every captured buffer
-  exactly and 113 stop on unresolved instructions. Passing launches execute
-  none of the twelve additional target opcodes. Fifty-three blocked launches reach HMMA.
-  The remaining blockers are EX2 approximation and a system-scope load.
+- Replay blockers (#117, 2026-11-04): 249 retained YOLO launches compare all 470 captured
+  memory regions exactly and 65 stop on unresolved instructions. Forty-eight passing launches
+  execute HMMA, LDSM, LDGSTS, LDGDEPBAR and DEPBAR. Remaining blockers are 59 launches
+  reaching MUFU.EX2, five reaching YIELD in a global-memory polling loop, and one reaching
+  a system-scope load. YIELD and CCTL.IVALL occur together in the polling loop; their
+  scheduler, predicate and memory obligations require separate investigation.
   `research/additional-opcodes/yolo-replay.json` records actual memory comparisons and visited
   instructions. Physical SFU coefficient-table formats, BF16/SIMD MUFU numerical behavior,
   packed-register BAR ID/count, BREAK and BMOV remain unresolved. SM89 observations do not
   establish SM90 numerical or synchronization behavior.
-- Additional opcode forms (#117, 2026-11-03): HMMA shapes/formats beyond direct 16816 F16/F32,
-  source negation, accumulator predicates, sparse metadata and indexed registers;
+- Additional opcode forms (#117, updated 2026-11-04): HMMA shapes/formats beyond dense
+  F16/16816 and TF32/1684/1688 with F32 accumulators, including BF16, F16 outputs,
+  sparse metadata and indexed registers;
   packed/expanded LDSM; SAFEADD, newer floating atomic types/operations and
   MMIO; BRX depth changes; B2R BAR/WARP; CCTL, ERRBAR and YIELD remain unfinished. MEMBAR's
   async/MMIO obligations and a complete ordinary-instruction scoreboard model are unresolved.

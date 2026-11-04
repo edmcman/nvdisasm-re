@@ -607,6 +607,29 @@ PROFILES['hmma_forms'] = dict(patterns=(
     "snan_a", "snan_b", "snan_c", "zero_times_inf", "positive_inf", "negative_inf",
     "max_half", "min_half", "half_subnormals",
     *(f"random_{seed}" for seed in range(16))))
+PROFILES['hmma_tf32_forms'] = dict(patterns=(
+    "ones", "coordinates", "identity", "accumulator",
+    "tiny_join", "tiny_split", "overflow_cancel", "overflow_groups", "wide_cancel", "unnormalized",
+    *(f"tiny_precision_{q}" for q in range(1, 12)),
+    *(f"tiny_alignment_{e}" for e in range(-138, -119)),
+    *(f"tiny_power_{power}_{c:08x}" for power in range(-120, -161, -1) for c in (0, 1, 0x007fffff)),
+    *(f"basis_{k}" for k in range(8)),
+    *(f"pair_{a}_{b}" for a, b in ((0, 1), (0, 2), (0, 3), (0, 4), (0, 7), (2, 3), (3, 4), (6, 7))),
+    *(f"cancel_{k}" for k in range(1, 8)),
+    *(f"raw_{a:08x}_{b:08x}_{c:08x}" for a, b, c in (
+        (0, 0, 0x80000000), (0x80000000, 0x3f800000, 0x80000000),
+        (0x3f800001, 0x3f800000, 0), (0x3f801fff, 0x3f800000, 0),
+        (0x3f802000, 0x3f800000, 0), (0x3fc00000, 0x3fc00000, 0),
+        (0, 0, 1), (0, 0, 0x007fffff), (1, 0x3f800000, 0),
+        (0x00002000, 0x3f800000, 0), (0x007fffff, 0x3f800000, 0),
+        (0x00800000, 0x3f800000, 0), (0x00800000, 0x00800000, 0),
+        (0x3f800000, 0x33800000, 0x3f800000), (0x3f000000, 0x33800000, 0x3f800000),
+        (0x7f7fe000, 0x40000000, 0), (0x7f7fe000, 0x7f7fe000, 0),
+        (0x7f800000, 0x3f800000, 0), (0x7f800000, 0, 0),
+        (0x7f800001, 0x3f800000, 0), (0x7f802000, 0x3f800000, 0),
+        (0x7fffffff, 0x3f800000, 0), (0x3f800000, 0xff800001, 0),
+        (0, 0, 0xff800001), (0x7f800000, 0x3f800000, 0xff800000))),
+    *(f"random_{seed}" for seed in range(16))))
 PROFILES['effect_forms'] = dict(results=(0, 1, 16, 32, 64, 0xffffffff),
                               words=(0, 0x12345678, 0xfedcba98765432100123456789abcdef),
                               descriptors=((6, 0x10000000), (12, 0x10000000), (6, 0), (12, 0)))

@@ -20,7 +20,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM75/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpaa8uaj1i/probe.cubin"
+    "/tmp/tmpd43m76c3/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -201,7 +201,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM75/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmpdjsx6xhm/probe.cubin"
+    "/tmp/tmp02_ivw00/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -284,7 +284,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM75/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmp04im6z8r/probe.cubin"
+    "/tmp/tmpfppz25qx/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -353,10 +353,50 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM75/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpi0cjj2fg/probe.cubin"
+    "/tmp/tmpcfdrgmwy/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas research/additional-opcodes/compiler-sources/SM75/hmma/dense.ptx, line 18; error   : Feature '.m16n8k16' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM75",
+   "source": "research/additional-opcodes/compiler-sources/SM75/hmma/tf32_1684.ptx",
+   "source_sha256": "6f331ada0863ce6a3d68943823e42b396bb69bcaef73feb0cd79accfd05af6e7",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM75/hmma/tf32_1684.ptx",
+    "-o",
+    "/tmp/tmpq22xyxvn/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas research/additional-opcodes/compiler-sources/SM75/hmma/tf32_1684.ptx, line 20; error   : Feature '.tf32' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/hmma/tf32_1684.ptx, line 20; error   : Feature '.tf32' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/hmma/tf32_1684.ptx, line 20; error   : Feature '.m16n8k4' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM75",
+   "source": "research/additional-opcodes/compiler-sources/SM75/hmma/tf32_1688.ptx",
+   "source_sha256": "7bd089828788f1b56278a2fe72e98230f4cfeb17a60e6d15a6d3cd2353a134db",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM75/hmma/tf32_1688.ptx",
+    "-o",
+    "/tmp/tmpogto5o8g/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas research/additional-opcodes/compiler-sources/SM75/hmma/tf32_1688.ptx, line 19; error   : Feature '.tf32' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/hmma/tf32_1688.ptx, line 19; error   : Feature '.tf32' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/hmma/tf32_1688.ptx, line 19; error   : Feature '.m16n8k8' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
    "status": "compiler rejected",
    "instructions": []
   },
@@ -375,7 +415,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmp43dgxg61/probe.cubin"
+    "/tmp/tmppqfjr9f1/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 16; error   : Feature 'cp.async' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 17; error   : Feature 'cp.async.commit_group' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 19; error   : Feature 'cp.async' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 20; error   : Feature 'cp.async.commit_group' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 21; error   : Feature 'cp.async.wait_group' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources/SM75/ldgsts/groups.ptx, line 23; error   : Feature 'cp.async.wait_group' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
@@ -395,7 +435,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM75/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpx5ew6k0s/probe.cubin"
+    "/tmp/tmp6_a8opjs/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -444,7 +484,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM80/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpa4xdsfz9/probe.cubin"
+    "/tmp/tmp60x0gz4y/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -631,7 +671,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM80/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmp9xj57x27/probe.cubin"
+    "/tmp/tmpri4qasy4/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -714,7 +754,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM80/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpa63g88u6/probe.cubin"
+    "/tmp/tmp1bpniuhm/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -783,7 +823,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM80/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpfsb6zlaj/probe.cubin"
+    "/tmp/tmpaznv4qs6/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -827,6 +867,116 @@
   },
   {
    "architecture": "SM80",
+   "source": "research/additional-opcodes/compiler-sources/SM80/hmma/tf32_1684.ptx",
+   "source_sha256": "da8cc32ddf074e5018e36f373a13469c46719cfdb25657fc45b0fe3fa6515620",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM80/hmma/tf32_1684.ptx",
+    "-o",
+    "/tmp/tmpu63vn60f/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "633310d181d28a374a9bb5a0fd0facce139c1f8963d491b6f1cb55c800ce0f92",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c50080000de4f00",
+     "settings": {
+      "size": "1684",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 2,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
+   "source": "research/additional-opcodes/compiler-sources/SM80/hmma/tf32_1688.ptx",
+   "source_sha256": "539e11a3944419ebeaed90cc08ed44f119816bbdf29ae93f221ae4ec77ebe76e",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM80/hmma/tf32_1688.ptx",
+    "-o",
+    "/tmp/tmpihodxkou/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "57cee8bf12472887d418afc1240ad878e1843f9ff411269e3ab9b465d5b16fd5",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000000410080000ee4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 23,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
    "source": "research/additional-opcodes/compiler-sources/SM80/ldgsts/groups.ptx",
    "source_sha256": "58a73297f2c0d424a342d3c650c1535c70cf2fe78b3e347389be207402137f0f",
    "requested_opcodes": [
@@ -840,7 +990,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM80/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpiycr4p3r/probe.cubin"
+    "/tmp/tmpo2_al5pz/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1019,7 +1169,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM80/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpstxwioek/probe.cubin"
+    "/tmp/tmp72hd8iig/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1068,7 +1218,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM86/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpb91uirbx/probe.cubin"
+    "/tmp/tmpry4xg6v7/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1261,7 +1411,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM86/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmp82dvu5ff/probe.cubin"
+    "/tmp/tmpptyjylz3/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1347,7 +1497,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM86/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpod4mmvtd/probe.cubin"
+    "/tmp/tmplg0f92ct/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1418,7 +1568,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM86/hmma/dense.ptx",
     "-o",
-    "/tmp/tmp4myncs87/probe.cubin"
+    "/tmp/tmprdk3msx2/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1466,6 +1616,124 @@
   },
   {
    "architecture": "SM86",
+   "source": "research/additional-opcodes/compiler-sources/SM86/hmma/tf32_1684.ptx",
+   "source_sha256": "7a4884eb6af5582e29eb783985923d2a61f1cca60893836cbf6d683aead201cf",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM86/hmma/tf32_1684.ptx",
+    "-o",
+    "/tmp/tmpbcjchsfa/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "bad626906288c0e3d013f04977c02cc2ebad8a094924e781d3890e15a1badff4",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c50080000de4f00",
+     "settings": {
+      "size": "1684",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 2,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
+   "source": "research/additional-opcodes/compiler-sources/SM86/hmma/tf32_1688.ptx",
+   "source_sha256": "7ca83be42f5d513e3ec9864fed165f4bf28d8ea87e961a090d0f6438c9bd232e",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM86/hmma/tf32_1688.ptx",
+    "-o",
+    "/tmp/tmpv82i5pi0/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "4f303a1cdc8a5775ddbb4bd0d4acdc40c262545cb11bda52e2a9aa28c6a923c0",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000000410080000ee4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 23,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
    "source": "research/additional-opcodes/compiler-sources/SM86/ldgsts/groups.ptx",
    "source_sha256": "0271a06816622695d4c1030b9f93efa2b8292694fa1e4b7b2c549574ece9dfe4",
    "requested_opcodes": [
@@ -1479,7 +1747,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM86/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpzp22nyfr/probe.cubin"
+    "/tmp/tmpvosam3kk/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1664,7 +1932,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM86/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpkurv8tt8/probe.cubin"
+    "/tmp/tmpxnb7x10k/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1714,7 +1982,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM89/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpoz_e4xms/probe.cubin"
+    "/tmp/tmpnpwrdt9p/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1907,7 +2175,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM89/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmpduwe6nye/probe.cubin"
+    "/tmp/tmphw3lyxqz/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1993,7 +2261,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM89/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpozpfkbg9/probe.cubin"
+    "/tmp/tmpx3xtc2g9/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2064,7 +2332,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM89/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpuk1w7j0h/probe.cubin"
+    "/tmp/tmpti28z8df/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2112,6 +2380,124 @@
   },
   {
    "architecture": "SM89",
+   "source": "research/additional-opcodes/compiler-sources/SM89/hmma/tf32_1684.ptx",
+   "source_sha256": "40b847ee2a0fd380ba912b5dbbfce44e88ff54f321dff74685175a6783cabe8d",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM89/hmma/tf32_1684.ptx",
+    "-o",
+    "/tmp/tmpt14pcyiq/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "c0ad0b521a7418667dfe30936e1a0639e45b4adcbec270ddf549e95943bf65c4",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c50080000de4f00",
+     "settings": {
+      "size": "1684",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 2,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
+   "source": "research/additional-opcodes/compiler-sources/SM89/hmma/tf32_1688.ptx",
+   "source_sha256": "deabf86366b8be9fc9b761e1e929e7fa0df0ddc7da6badc07be950e31227ac7c",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM89/hmma/tf32_1688.ptx",
+    "-o",
+    "/tmp/tmpj8g0bg2l/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "e448657aad37b2ea4c4121c6a7c69d50cc0661a39f9f0cf152e67868e289af40",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000000410080000ee4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 23,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
    "source": "research/additional-opcodes/compiler-sources/SM89/ldgsts/groups.ptx",
    "source_sha256": "561bba7027595b5fae31c2224d51778f5ccb43165283c497783f86133a10c9b2",
    "requested_opcodes": [
@@ -2125,7 +2511,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM89/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmp5rb1s3sm/probe.cubin"
+    "/tmp/tmplya3lyft/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2310,7 +2696,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM89/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpntqdll3a/probe.cubin"
+    "/tmp/tmpzhbwym7c/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2360,7 +2746,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM90/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpsdda7via/probe.cubin"
+    "/tmp/tmpgujqnt9g/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2549,7 +2935,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM90/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmpmrltu34t/probe.cubin"
+    "/tmp/tmpcvkbk_m8/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2635,7 +3021,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM90/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmp2zbdmqab/probe.cubin"
+    "/tmp/tmpft2mivbt/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2706,7 +3092,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM90/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpxmtmr9xz/probe.cubin"
+    "/tmp/tmp7ul6hefd/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2754,6 +3140,124 @@
   },
   {
    "architecture": "SM90",
+   "source": "research/additional-opcodes/compiler-sources/SM90/hmma/tf32_1684.ptx",
+   "source_sha256": "410cd1511f6d8c465fc3fd01411bd5f52bd7d11a9dc94d00b0bc03c487466484",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM90/hmma/tf32_1684.ptx",
+    "-o",
+    "/tmp/tmpdcb388gk/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "bca70b218297b4a6e7daeb69edc32fc66a927fe76fa5f5ed9f6789af2442129e",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c50080000de0f01",
+     "settings": {
+      "size": "1684",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 2,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 16,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
+   "source": "research/additional-opcodes/compiler-sources/SM90/hmma/tf32_1688.ptx",
+   "source_sha256": "22ffdf67f11aeb0a307d2ca83ccf0117350a8a0b4b622350976e644daadd868c",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM90/hmma/tf32_1688.ptx",
+    "-o",
+    "/tmp/tmp1x518f8m/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "ae9465df2ba096199a9c7dab555984db62957fc969c06242d48886e63da63038",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000001010080000de0f01",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 16,
+      "req_bit_set": 16,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
    "source": "research/additional-opcodes/compiler-sources/SM90/ldgsts/groups.ptx",
    "source_sha256": "371f2b9901568ca241901759e5eb0aa37f66f361d7c5944843a20de76f567777",
    "requested_opcodes": [
@@ -2767,7 +3271,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM90/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpgdzezrhx/probe.cubin"
+    "/tmp/tmpq2ekbe4w/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2948,7 +3452,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM90/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpzzdvcpb6/probe.cubin"
+    "/tmp/tmp23mubun3/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2999,7 +3503,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM100/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpllxa9di5/probe.cubin"
+    "/tmp/tmp02y_c1w6/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3188,7 +3692,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM100/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmp_fdycz3y/probe.cubin"
+    "/tmp/tmp1zyeyv_6/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3274,7 +3778,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM100/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmp5_6bntc9/probe.cubin"
+    "/tmp/tmpy2wh4hs_/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3345,7 +3849,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM100/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpxva7xex7/probe.cubin"
+    "/tmp/tmpnrn6ij2h/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3393,6 +3897,124 @@
   },
   {
    "architecture": "SM100",
+   "source": "research/additional-opcodes/compiler-sources/SM100/hmma/tf32_1684.ptx",
+   "source_sha256": "2ecb183ab968ebba9be0cebcda18f9861733b62abb17bfef50c434cee634cf59",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM100/hmma/tf32_1684.ptx",
+    "-o",
+    "/tmp/tmpnc3moa16/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "6e752659aeeb24d89151a8ff5cdbf7324194b94d35448ec31ca1ab5d0f045740",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c50080000de4f00",
+     "settings": {
+      "size": "1684",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 2,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
+   "source": "research/additional-opcodes/compiler-sources/SM100/hmma/tf32_1688.ptx",
+   "source_sha256": "72df73ec89ffe5d2113625c34cba8703ac27ada87e75e8da48675567e48647f0",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM100/hmma/tf32_1688.ptx",
+    "-o",
+    "/tmp/tmp0_fog03_/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "ed37640507f1a02dc31974dabd491da8268f1ba1b390c849ade1d025074447a1",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000001010080000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 16,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
    "source": "research/additional-opcodes/compiler-sources/SM100/ldgsts/groups.ptx",
    "source_sha256": "9440cf8d6b34612ec9d1ba0ced2972f9434d6b4281b2ebb6e051ccb3f17f7415",
    "requested_opcodes": [
@@ -3406,7 +4028,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM100/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmppc2dge3t/probe.cubin"
+    "/tmp/tmpi5oin55p/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3587,7 +4209,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM100/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpw4j3eq01/probe.cubin"
+    "/tmp/tmp59wk9hrz/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3638,7 +4260,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM101/atomg/integer.ptx",
     "-o",
-    "/tmp/tmp60n62l10/probe.cubin"
+    "/tmp/tmp7d1lqz_f/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
@@ -3658,7 +4280,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM101/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmptv808p15/probe.cubin"
+    "/tmp/tmp5ahsht6c/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
@@ -3678,7 +4300,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM101/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpqixwi32b/probe.cubin"
+    "/tmp/tmp9vhvc5ak/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
@@ -3698,7 +4320,47 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM101/hmma/dense.ptx",
     "-o",
-    "/tmp/tmprnwa94qm/probe.cubin"
+    "/tmp/tmpeymi2im7/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM101",
+   "source": "research/additional-opcodes/compiler-sources/SM101/hmma/tf32_1684.ptx",
+   "source_sha256": "5c509ad9eae4b45de1eee4966a75ceca501040cfe92bcb950167ad8006c3955d",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_101",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM101/hmma/tf32_1684.ptx",
+    "-o",
+    "/tmp/tmp1vqapct3/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM101",
+   "source": "research/additional-opcodes/compiler-sources/SM101/hmma/tf32_1688.ptx",
+   "source_sha256": "cdbc1081f7e61b5d868f756e355a1fb22f4a28e243053aebf84a9c6491a69863",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_101",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM101/hmma/tf32_1688.ptx",
+    "-o",
+    "/tmp/tmpk5wnvo4s/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
@@ -3720,7 +4382,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM101/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpgsioncrm/probe.cubin"
+    "/tmp/tmpfzepwfu4/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
@@ -3740,7 +4402,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM101/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpvx24ckow/probe.cubin"
+    "/tmp/tmpkrtdagr4/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_101' is not defined for option 'gpu-name'\n",
@@ -3761,7 +4423,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM103/atomg/integer.ptx",
     "-o",
-    "/tmp/tmp7pf_x07g/probe.cubin"
+    "/tmp/tmp4lyuakae/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3950,7 +4612,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM103/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmp9rozp658/probe.cubin"
+    "/tmp/tmpkfwc_023/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4036,7 +4698,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM103/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpqhbgnirt/probe.cubin"
+    "/tmp/tmpyrmvzrxb/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4107,7 +4769,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM103/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpgtaegkth/probe.cubin"
+    "/tmp/tmphut1ejk0/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4155,6 +4817,124 @@
   },
   {
    "architecture": "SM103",
+   "source": "research/additional-opcodes/compiler-sources/SM103/hmma/tf32_1684.ptx",
+   "source_sha256": "92d86dee930db25cffb9172429f56786ea5816db30dda01001102f0919570135",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM103/hmma/tf32_1684.ptx",
+    "-o",
+    "/tmp/tmpgxw3e0uw/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "c7a1074e3b2a58a6e26794173f2986df2605f044b4c9aa0deb5c83b91142f012",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c50080000de4f00",
+     "settings": {
+      "size": "1684",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 2,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM103",
+   "source": "research/additional-opcodes/compiler-sources/SM103/hmma/tf32_1688.ptx",
+   "source_sha256": "d39ffd35351384440eee11ac49a381de8cb81922b46e05febc38ec57c52f7ef9",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM103/hmma/tf32_1688.ptx",
+    "-o",
+    "/tmp/tmp39o2n9g8/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "6f6d7cd87c5f87874e8d25592e829d44fe159bf1ac2f0ce0337a1285b0c479a0",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000001010080000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 16,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM103",
    "source": "research/additional-opcodes/compiler-sources/SM103/ldgsts/groups.ptx",
    "source_sha256": "3d62f405987803cb4e6f243642d98a8a5f1d5a90a5e60e72758a0eb0dbaf2cd5",
    "requested_opcodes": [
@@ -4168,7 +4948,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM103/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpeu2pbowy/probe.cubin"
+    "/tmp/tmp2gwiwz9k/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4349,7 +5129,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM103/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmp91i9s169/probe.cubin"
+    "/tmp/tmp2qkeu7bx/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4400,7 +5180,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM107/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpp80y8bbl/probe.cubin"
+    "/tmp/tmpnqv1fp_p/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
@@ -4420,7 +5200,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM107/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmp0vzv1696/probe.cubin"
+    "/tmp/tmphm3kf__v/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
@@ -4440,7 +5220,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM107/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpnfhp1cb_/probe.cubin"
+    "/tmp/tmp4n79qsh1/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
@@ -4460,7 +5240,47 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM107/hmma/dense.ptx",
     "-o",
-    "/tmp/tmp5x60207g/probe.cubin"
+    "/tmp/tmp9zfmbl3t/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM107",
+   "source": "research/additional-opcodes/compiler-sources/SM107/hmma/tf32_1684.ptx",
+   "source_sha256": "990041088f1cd9a1fb614b9401cf5cad3b768c94a985d4617197d4e95501bd6b",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM107/hmma/tf32_1684.ptx",
+    "-o",
+    "/tmp/tmpz2ou7tmd/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM107",
+   "source": "research/additional-opcodes/compiler-sources/SM107/hmma/tf32_1688.ptx",
+   "source_sha256": "7c8b0118053158d2300780948d7fc320e10178a20c3aef0d7f1f5572f7fbd658",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM107/hmma/tf32_1688.ptx",
+    "-o",
+    "/tmp/tmp6ubmksj2/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
@@ -4482,7 +5302,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM107/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpu6koq3_7/probe.cubin"
+    "/tmp/tmpyqhbbb0e/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
@@ -4502,7 +5322,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM107/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpcvletpo7/probe.cubin"
+    "/tmp/tmpk8qu3msk/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas fatal   : Value 'sm_107' is not defined for option 'gpu-name'\n",
@@ -4523,7 +5343,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM120/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpzt_lca57/probe.cubin"
+    "/tmp/tmp1_rqz_h3/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4712,7 +5532,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM120/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmpllgw8afz/probe.cubin"
+    "/tmp/tmpbq41a7ad/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4798,7 +5618,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM120/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmplkd35_na/probe.cubin"
+    "/tmp/tmpymaimxv9/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4869,7 +5689,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM120/hmma/dense.ptx",
     "-o",
-    "/tmp/tmp7264vs64/probe.cubin"
+    "/tmp/tmp7prpg20p/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4914,6 +5734,118 @@
   },
   {
    "architecture": "SM120",
+   "source": "research/additional-opcodes/compiler-sources/SM120/hmma/tf32_1684.ptx",
+   "source_sha256": "70247efb7200a33f95fc528bf88543e464448e2f89a6a851c60f406919abc072",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM120/hmma/tf32_1684.ptx",
+    "-o",
+    "/tmp/tmpf2twoj92/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "cdfc6d467052e4ac0c6c8042da54d8d2140fc99420b3823e26f540f1c7d49767",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c50080000de4f00",
+     "settings": {
+      "size": "1684",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 2,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM120",
+   "source": "research/additional-opcodes/compiler-sources/SM120/hmma/tf32_1688.ptx",
+   "source_sha256": "76da118aeed7e8864826662bff9321f06fc9b08ea84481281df596cfcecdeed7",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/home/ed/Projects/nvdisasm-re/.venv/lib/python3.13/site-packages/nvidia/cu13/bin/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources/SM120/hmma/tf32_1688.ptx",
+    "-o",
+    "/tmp/tmpji9lp1p5/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "97253d19d63b405888276698253c9714b3676be1f75ab3b16d5bd57d4a5565eb",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c0c080000001010080000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "TF32",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 2,
+      "Rd": 12,
+      "Ra": 12,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 16,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM120",
    "source": "research/additional-opcodes/compiler-sources/SM120/ldgsts/groups.ptx",
    "source_sha256": "6f20e4430df4aabc99b9af8b29a7ee89f8bd8d346e4ca4b54d6db6bce8a5a0fc",
    "requested_opcodes": [
@@ -4927,7 +5859,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM120/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpmxb05rj_/probe.cubin"
+    "/tmp/tmp9_g47s91/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5108,7 +6040,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources/SM120/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmppzodhh88/probe.cubin"
+    "/tmp/tmpa3ucb0sj/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",

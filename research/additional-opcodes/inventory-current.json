@@ -181919,10 +181919,8 @@
     ],
     "selector_guards": {},
     "selector_combinations": {
-     "srcfmt,Ra@negate,Rb@negate": [
+     "srcfmt": [
       [
-       0,
-       0,
        0
       ]
      ]
@@ -181957,275 +181955,65 @@
      "decides": [
       "size",
       "dstfmt",
-      "srcfmt",
-      "Ra@negate",
-      "Rb@negate"
+      "srcfmt"
      ],
-     "free": 1,
+     "free": 4,
      "table": [
       [
        "1688",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "F16",
-       "unset",
-       "unset",
        "primitive"
       ],
       [
        "16816",
        "F32",
-       "F16",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
        "BF16",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1684",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ]
      ]
     },
     "modifiers": {
      "size": {
-      "1688": "opaque",
+      "1688": "partially primitive",
       "16816": "partially primitive",
-      "1684": "opaque"
+      "1684": "primitive"
      },
      "dstfmt": {
       "F16": "opaque",
@@ -182234,15 +182022,15 @@
      "srcfmt": {
       "F16": "partially primitive",
       "BF16": "opaque",
-      "TF32": "opaque"
+      "TF32": "primitive"
      },
      "Ra@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "Rb@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      }
     },
     "modifier_roles": {},
@@ -182336,14 +182124,14 @@
     ],
     "legal_forms": 32,
     "semantics": {
-     "opaque": 31,
-     "primitive": 1
+     "opaque": 20,
+     "primitive": 12
     },
     "full_form_verification": {
-     "supported": 1,
-     "planned": 1,
+     "supported": 12,
+     "planned": 12,
      "unplanned": 0,
-     "reference": 1,
+     "reference": 12,
      "gpu": 0,
      "ptxas": 0
     },
@@ -182351,11 +182139,88 @@
      "forms": {
       "reference": [
        [
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
         "unset",
         "unset",
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      },
@@ -182366,15 +182231,92 @@
       "size",
       "srcfmt"
      ],
-     "reference": 166,
+     "reference": 4376,
      "verification_forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      }
@@ -328668,13 +328610,9 @@
     ],
     "selector_guards": {},
     "selector_combinations": {
-     "srcfmt,Ra@negate,Rb@negate,UPp@not,('zero', 'UPp')": [
+     "srcfmt": [
       [
-       0,
-       0,
-       0,
-       0,
-       true
+       0
       ]
      ]
     },
@@ -328712,740 +328650,77 @@
      "decides": [
       "size",
       "dstfmt",
-      "srcfmt",
-      "Ra@negate",
-      "Rb@negate",
-      "UPp@not"
+      "srcfmt"
      ],
-     "free": 1,
+     "free": 8,
      "table": [
       [
        "1688",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "E6M9",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "partially primitive"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "E6M9",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1684",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ]
      ]
     },
     "modifiers": {
      "size": {
-      "1688": "opaque",
+      "1688": "partially primitive",
       "16816": "partially primitive",
-      "1684": "opaque"
+      "1684": "primitive"
      },
      "dstfmt": {
       "F16": "opaque",
@@ -329455,19 +328730,19 @@
       "F16": "partially primitive",
       "BF16": "opaque",
       "E6M9": "opaque",
-      "TF32": "opaque"
+      "TF32": "primitive"
      },
      "Ra@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "Rb@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "UPp@not": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      }
     },
     "modifier_roles": {},
@@ -329569,20 +328844,188 @@
     ],
     "legal_forms": 80,
     "semantics": {
-     "opaque": 79,
-     "partially primitive": 1
+     "opaque": 56,
+     "primitive": 24
     },
     "full_form_verification": {
-     "partial_supported": 1,
-     "partial_planned": 1,
-     "partial_unplanned": 0,
-     "partial_reference": 1,
-     "partial_gpu": 0,
-     "partial_ptxas": 0
+     "supported": 24,
+     "planned": 24,
+     "unplanned": 0,
+     "reference": 24,
+     "gpu": 0,
+     "ptxas": 0
     },
     "evidence": {
      "forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -329590,6 +329033,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      },
@@ -329601,9 +329060,177 @@
       "size",
       "srcfmt"
      ],
-     "reference": 166,
+     "reference": 9200,
      "verification_forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -329611,6 +329238,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      }
@@ -489929,13 +489572,9 @@
     ],
     "selector_guards": {},
     "selector_combinations": {
-     "srcfmt,Ra@negate,Rb@negate,UPp@not,('zero', 'UPp')": [
+     "srcfmt": [
       [
-       0,
-       0,
-       0,
-       0,
-       true
+       0
       ]
      ]
     },
@@ -489973,740 +489612,77 @@
      "decides": [
       "size",
       "dstfmt",
-      "srcfmt",
-      "Ra@negate",
-      "Rb@negate",
-      "UPp@not"
+      "srcfmt"
      ],
-     "free": 1,
+     "free": 8,
      "table": [
       [
        "1688",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "E6M9",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "partially primitive"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "E6M9",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1684",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ]
      ]
     },
     "modifiers": {
      "size": {
-      "1688": "opaque",
+      "1688": "partially primitive",
       "16816": "partially primitive",
-      "1684": "opaque"
+      "1684": "primitive"
      },
      "dstfmt": {
       "F16": "opaque",
@@ -490716,19 +489692,19 @@
       "F16": "partially primitive",
       "BF16": "opaque",
       "E6M9": "opaque",
-      "TF32": "opaque"
+      "TF32": "primitive"
      },
      "Ra@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "Rb@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "UPp@not": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      }
     },
     "modifier_roles": {},
@@ -490830,20 +489806,188 @@
     ],
     "legal_forms": 80,
     "semantics": {
-     "opaque": 79,
-     "partially primitive": 1
+     "opaque": 56,
+     "primitive": 24
     },
     "full_form_verification": {
-     "partial_supported": 1,
-     "partial_planned": 1,
-     "partial_unplanned": 0,
-     "partial_reference": 1,
-     "partial_gpu": 1,
-     "partial_ptxas": 1
+     "supported": 24,
+     "planned": 24,
+     "unplanned": 0,
+     "reference": 24,
+     "gpu": 24,
+     "ptxas": 3
     },
     "evidence": {
      "forms": {
       "gpu": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -490851,6 +489995,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ],
       "ptxas": [
@@ -490861,9 +490021,193 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ],
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -490871,14 +490215,36 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      },
      "gpu": [
       "cases/matrix",
-      "hmma_alias_16",
-      "hmma_alias_24",
-      "hmma_alias_32"
+      "hmma_f16_16816_alias_16",
+      "hmma_f16_16816_alias_24",
+      "hmma_f16_16816_alias_32",
+      "hmma_tf32_1684_alias_16",
+      "hmma_tf32_1684_alias_24",
+      "hmma_tf32_1684_alias_32",
+      "hmma_tf32_1688_alias_16",
+      "hmma_tf32_1688_alias_24",
+      "hmma_tf32_1688_alias_32"
      ],
      "modifiers": [
       "Ra@negate",
@@ -490889,11 +490255,181 @@
       "srcfmt"
      ],
      "ptxas": [
-      "hmma/dense.ptx"
+      "hmma/dense.ptx",
+      "hmma/tf32_1684.ptx",
+      "hmma/tf32_1688.ptx"
      ],
-     "reference": 166,
+     "reference": 9200,
      "verification_forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -490901,6 +490437,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      }
@@ -674022,13 +673574,9 @@
     ],
     "selector_guards": {},
     "selector_combinations": {
-     "srcfmt,Ra@negate,Rb@negate,UPp@not,('zero', 'UPp')": [
+     "srcfmt": [
       [
-       0,
-       0,
-       0,
-       0,
-       true
+       0
       ]
      ]
     },
@@ -674066,740 +673614,77 @@
      "decides": [
       "size",
       "dstfmt",
-      "srcfmt",
-      "Ra@negate",
-      "Rb@negate",
-      "UPp@not"
+      "srcfmt"
      ],
-     "free": 1,
+     "free": 8,
      "table": [
       [
        "1688",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "E6M9",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "partially primitive"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "E6M9",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "E6M9",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1684",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ]
      ]
     },
     "modifiers": {
      "size": {
-      "1688": "opaque",
+      "1688": "partially primitive",
       "16816": "partially primitive",
-      "1684": "opaque"
+      "1684": "primitive"
      },
      "dstfmt": {
       "F16": "opaque",
@@ -674809,19 +673694,19 @@
       "F16": "partially primitive",
       "BF16": "opaque",
       "E6M9": "opaque",
-      "TF32": "opaque"
+      "TF32": "primitive"
      },
      "Ra@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "Rb@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "UPp@not": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      }
     },
     "modifier_roles": {},
@@ -674923,20 +673808,188 @@
     ],
     "legal_forms": 80,
     "semantics": {
-     "opaque": 79,
-     "partially primitive": 1
+     "opaque": 56,
+     "primitive": 24
     },
     "full_form_verification": {
-     "partial_supported": 1,
-     "partial_planned": 1,
-     "partial_unplanned": 0,
-     "partial_reference": 1,
-     "partial_gpu": 0,
-     "partial_ptxas": 0
+     "supported": 24,
+     "planned": 24,
+     "unplanned": 0,
+     "reference": 24,
+     "gpu": 0,
+     "ptxas": 0
     },
     "evidence": {
      "forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -674944,6 +673997,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      },
@@ -674955,9 +674024,177 @@
       "size",
       "srcfmt"
      ],
-     "reference": 166,
+     "reference": 9200,
      "verification_forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -674965,6 +674202,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      }
@@ -857218,13 +856471,9 @@
     ],
     "selector_guards": {},
     "selector_combinations": {
-     "srcfmt,Ra@negate,Rb@negate,UPp@not,('zero', 'UPp')": [
+     "srcfmt": [
       [
-       0,
-       0,
-       0,
-       0,
-       true
+       0
       ]
      ]
     },
@@ -857262,596 +856511,65 @@
      "decides": [
       "size",
       "dstfmt",
-      "srcfmt",
-      "Ra@negate",
-      "Rb@negate",
-      "UPp@not"
+      "srcfmt"
      ],
-     "free": 1,
+     "free": 8,
      "table": [
       [
        "1688",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "partially primitive"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1684",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ]
      ]
     },
     "modifiers": {
      "size": {
-      "1688": "opaque",
+      "1688": "partially primitive",
       "16816": "partially primitive",
-      "1684": "opaque"
+      "1684": "primitive"
      },
      "dstfmt": {
       "F16": "opaque",
@@ -857860,19 +856578,19 @@
      "srcfmt": {
       "F16": "partially primitive",
       "BF16": "opaque",
-      "TF32": "opaque"
+      "TF32": "primitive"
      },
      "Ra@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "Rb@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "UPp@not": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      }
     },
     "modifier_roles": {},
@@ -857974,20 +856692,188 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 63,
-     "partially primitive": 1
+     "opaque": 40,
+     "primitive": 24
     },
     "full_form_verification": {
-     "partial_supported": 1,
-     "partial_planned": 1,
-     "partial_unplanned": 0,
-     "partial_reference": 1,
-     "partial_gpu": 0,
-     "partial_ptxas": 0
+     "supported": 24,
+     "planned": 24,
+     "unplanned": 0,
+     "reference": 24,
+     "gpu": 0,
+     "ptxas": 0
     },
     "evidence": {
      "forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -857995,6 +856881,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      },
@@ -858006,9 +856908,177 @@
       "size",
       "srcfmt"
      ],
-     "reference": 166,
+     "reference": 9200,
      "verification_forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -858016,6 +857086,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      }
@@ -1040368,13 +1039454,9 @@
     ],
     "selector_guards": {},
     "selector_combinations": {
-     "srcfmt,Ra@negate,Rb@negate,UPp@not,('zero', 'UPp')": [
+     "srcfmt": [
       [
-       0,
-       0,
-       0,
-       0,
-       true
+       0
       ]
      ]
     },
@@ -1040412,596 +1039494,65 @@
      "decides": [
       "size",
       "dstfmt",
-      "srcfmt",
-      "Ra@negate",
-      "Rb@negate",
-      "UPp@not"
+      "srcfmt"
      ],
-     "free": 1,
+     "free": 8,
      "table": [
       [
        "1688",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "partially primitive"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1684",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ]
      ]
     },
     "modifiers": {
      "size": {
-      "1688": "opaque",
+      "1688": "partially primitive",
       "16816": "partially primitive",
-      "1684": "opaque"
+      "1684": "primitive"
      },
      "dstfmt": {
       "F16": "opaque",
@@ -1041010,19 +1039561,19 @@
      "srcfmt": {
       "F16": "partially primitive",
       "BF16": "opaque",
-      "TF32": "opaque"
+      "TF32": "primitive"
      },
      "Ra@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "Rb@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "UPp@not": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      }
     },
     "modifier_roles": {},
@@ -1041124,20 +1039675,188 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 63,
-     "partially primitive": 1
+     "opaque": 40,
+     "primitive": 24
     },
     "full_form_verification": {
-     "partial_supported": 1,
-     "partial_planned": 1,
-     "partial_unplanned": 0,
-     "partial_reference": 1,
-     "partial_gpu": 0,
-     "partial_ptxas": 0
+     "supported": 24,
+     "planned": 24,
+     "unplanned": 0,
+     "reference": 24,
+     "gpu": 0,
+     "ptxas": 0
     },
     "evidence": {
      "forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -1041145,6 +1039864,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      },
@@ -1041156,9 +1039891,177 @@
       "size",
       "srcfmt"
      ],
-     "reference": 166,
+     "reference": 9200,
      "verification_forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -1041166,6 +1040069,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      }
@@ -1223518,13 +1222437,9 @@
     ],
     "selector_guards": {},
     "selector_combinations": {
-     "srcfmt,Ra@negate,Rb@negate,UPp@not,('zero', 'UPp')": [
+     "srcfmt": [
       [
-       0,
-       0,
-       0,
-       0,
-       true
+       0
       ]
      ]
     },
@@ -1223562,596 +1222477,65 @@
      "decides": [
       "size",
       "dstfmt",
-      "srcfmt",
-      "Ra@negate",
-      "Rb@negate",
-      "UPp@not"
+      "srcfmt"
      ],
-     "free": 1,
+     "free": 8,
      "table": [
       [
        "1688",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "partially primitive"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1684",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ]
      ]
     },
     "modifiers": {
      "size": {
-      "1688": "opaque",
+      "1688": "partially primitive",
       "16816": "partially primitive",
-      "1684": "opaque"
+      "1684": "primitive"
      },
      "dstfmt": {
       "F16": "opaque",
@@ -1224160,19 +1222544,19 @@
      "srcfmt": {
       "F16": "partially primitive",
       "BF16": "opaque",
-      "TF32": "opaque"
+      "TF32": "primitive"
      },
      "Ra@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "Rb@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "UPp@not": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      }
     },
     "modifier_roles": {},
@@ -1224274,20 +1222658,188 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 63,
-     "partially primitive": 1
+     "opaque": 40,
+     "primitive": 24
     },
     "full_form_verification": {
-     "partial_supported": 1,
-     "partial_planned": 1,
-     "partial_unplanned": 0,
-     "partial_reference": 1,
-     "partial_gpu": 0,
-     "partial_ptxas": 0
+     "supported": 24,
+     "planned": 24,
+     "unplanned": 0,
+     "reference": 24,
+     "gpu": 0,
+     "ptxas": 0
     },
     "evidence": {
      "forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -1224295,6 +1222847,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      },
@@ -1224306,9 +1222874,177 @@
       "size",
       "srcfmt"
      ],
-     "reference": 166,
+     "reference": 9200,
      "verification_forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -1224316,6 +1223052,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      }
@@ -1406922,13 +1405674,9 @@
     ],
     "selector_guards": {},
     "selector_combinations": {
-     "srcfmt,Ra@negate,Rb@negate,UPp@not,('zero', 'UPp')": [
+     "srcfmt": [
       [
-       0,
-       0,
-       0,
-       0,
-       true
+       0
       ]
      ]
     },
@@ -1406966,596 +1405714,65 @@
      "decides": [
       "size",
       "dstfmt",
-      "srcfmt",
-      "Ra@negate",
-      "Rb@negate",
-      "UPp@not"
+      "srcfmt"
      ],
-     "free": 1,
+     "free": 8,
      "table": [
       [
        "1688",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "partially primitive"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1684",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ]
      ]
     },
     "modifiers": {
      "size": {
-      "1688": "opaque",
+      "1688": "partially primitive",
       "16816": "partially primitive",
-      "1684": "opaque"
+      "1684": "primitive"
      },
      "dstfmt": {
       "F16": "opaque",
@@ -1407564,19 +1405781,19 @@
      "srcfmt": {
       "F16": "partially primitive",
       "BF16": "opaque",
-      "TF32": "opaque"
+      "TF32": "primitive"
      },
      "Ra@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "Rb@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "UPp@not": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      }
     },
     "modifier_roles": {},
@@ -1407678,20 +1405895,188 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 63,
-     "partially primitive": 1
+     "opaque": 40,
+     "primitive": 24
     },
     "full_form_verification": {
-     "partial_supported": 1,
-     "partial_planned": 1,
-     "partial_unplanned": 0,
-     "partial_reference": 1,
-     "partial_gpu": 0,
-     "partial_ptxas": 0
+     "supported": 24,
+     "planned": 24,
+     "unplanned": 0,
+     "reference": 24,
+     "gpu": 0,
+     "ptxas": 0
     },
     "evidence": {
      "forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -1407699,6 +1406084,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      },
@@ -1407710,9 +1406111,177 @@
       "size",
       "srcfmt"
      ],
-     "reference": 166,
+     "reference": 9200,
      "verification_forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -1407720,6 +1406289,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      }
@@ -1590438,13 +1589023,9 @@
     ],
     "selector_guards": {},
     "selector_combinations": {
-     "srcfmt,Ra@negate,Rb@negate,UPp@not,('zero', 'UPp')": [
+     "srcfmt": [
       [
-       0,
-       0,
-       0,
-       0,
-       true
+       0
       ]
      ]
     },
@@ -1590482,596 +1589063,65 @@
      "decides": [
       "size",
       "dstfmt",
-      "srcfmt",
-      "Ra@negate",
-      "Rb@negate",
-      "UPp@not"
+      "srcfmt"
      ],
-     "free": 1,
+     "free": 8,
      "table": [
       [
        "1688",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1688",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1688",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F16",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F16",
-       "F16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "16816",
        "F32",
        "F16",
-       "unset",
-       "unset",
-       "unset",
-       "partially primitive"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "F16",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
        "F32",
        "BF16",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "16816",
-       "F32",
-       "BF16",
-       "set",
-       "set",
-       "set",
        "opaque"
       ],
       [
        "1684",
        "F32",
        "TF32",
-       "unset",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "unset",
-       "set",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "unset",
-       "set",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "unset",
-       "opaque"
-      ],
-      [
-       "1684",
-       "F32",
-       "TF32",
-       "set",
-       "set",
-       "set",
-       "opaque"
+       "primitive"
       ]
      ]
     },
     "modifiers": {
      "size": {
-      "1688": "opaque",
+      "1688": "partially primitive",
       "16816": "partially primitive",
-      "1684": "opaque"
+      "1684": "primitive"
      },
      "dstfmt": {
       "F16": "opaque",
@@ -1591080,19 +1589130,19 @@
      "srcfmt": {
       "F16": "partially primitive",
       "BF16": "opaque",
-      "TF32": "opaque"
+      "TF32": "primitive"
      },
      "Ra@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "Rb@negate": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      },
      "UPp@not": {
       "unset": "partially primitive",
-      "set": "opaque"
+      "set": "partially primitive"
      }
     },
     "modifier_roles": {},
@@ -1591194,20 +1589244,188 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 63,
-     "partially primitive": 1
+     "opaque": 40,
+     "primitive": 24
     },
     "full_form_verification": {
-     "partial_supported": 1,
-     "partial_planned": 1,
-     "partial_unplanned": 0,
-     "partial_reference": 1,
-     "partial_gpu": 0,
-     "partial_ptxas": 0
+     "supported": 24,
+     "planned": 24,
+     "unplanned": 0,
+     "reference": 24,
+     "gpu": 0,
+     "ptxas": 0
     },
     "evidence": {
      "forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -1591215,6 +1589433,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      },
@@ -1591226,9 +1589460,177 @@
       "size",
       "srcfmt"
      ],
-     "reference": 166,
+     "reference": 9200,
      "verification_forms": {
       "reference": [
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
+        "F32",
+        "1688",
+        "TF32"
+       ],
        [
         "unset",
         "unset",
@@ -1591236,6 +1589638,22 @@
         "F32",
         "16816",
         "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1684",
+        "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F32",
+        "1688",
+        "TF32"
        ]
       ]
      }

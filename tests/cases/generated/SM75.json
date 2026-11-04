@@ -3,7 +3,9 @@
   "arch": "SM75",
   "verification": {
     "default_strength": 3,
-    "opcode_strength": {}
+    "opcode_strength": {
+      "HMMA": "exhaustive"
+    }
   },
   "forms": [
     {"family":"atomic","cls":"atomg__RaNonRZ","settings":{"cop":"EF","e":"E","op":"ADD","private":"PRIVATE","sco":"CTA","sem":"STRONG","sz":"32"},"profiles":["atomic_forms"],"native":true,"strength":3,"profile_mode":"full"},

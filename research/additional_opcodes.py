@@ -70,6 +70,10 @@ def report(data):
     total = sum(r["legal_forms"] for r in rows)
     replay = json.loads((paths.ROOT / "research/additional-opcodes/yolo-replay.json").read_text())
     replay_counts = replay["summary"]
+    executed = Counter(op for launch in replay["launches"] if launch["status"] == "pass"
+                       for op in launch.get("executed_targets", {}))
+    comparisons = sum(len(launch["comparisons"]) for launch in replay["launches"]
+                      if launch["status"] == "pass")
     text = [
         "# Additional opcodes in #117, 2026-11-04", "",
         f"The request remains incomplete. The corrected machine descriptions define {total:,} "
@@ -87,8 +91,8 @@ def report(data):
         "coverage. Sparse and indexed HMMA, packed LDSM, descriptor variants and branch-depth "
         "forms remain visible in the inventory even when unsupported.", "",
         "Partial counts require operand restrictions and remain included in Unresolved. "
-        "Reference and GPU columns show complete/partial form counts separately. HMMA cases "
-        "with UPp=UPT do not establish other accumulator predicate values.", "",
+        "Reference and GPU columns show complete/partial form counts separately. Dense HMMA "
+        "cases exercise accumulator predicate values and inversion as well as source negation.", "",
     ]
     for op in sorted(OPS):
         text += [f"## {op}", "",
@@ -139,9 +143,12 @@ def report(data):
         f"The retained YOLO replay compares every captured memory region: {replay_counts.get('pass', 0)} "
         f"launches pass, {replay_counts.get('blocked', 0)} are blocked, "
         f"{replay_counts.get('mismatch', 0)} differ, and {replay_counts.get('uncompared', 0)} "
-        "have no memory region to compare. No passing launch "
-        "executes any of these twelve target opcodes; these passes establish no target-opcode "
-        "verification. See `research/additional-opcodes/yolo-replay.json`.", "",
+        f"have no memory region to compare. Passing launches compare {comparisons} complete "
+        "memory regions. Target instructions executed by passing launches: "
+        + (", ".join(f"{op} in {count} launches" for op, count in sorted(executed.items()))
+           or "none")
+        + ". Executed counts in each launch record count distinct visited instruction locations, "
+        "rather than dynamic invocations. See `research/additional-opcodes/yolo-replay.json`.", "",
         "PR #119's failing logs identified a stale SM107 case plan and launch tests that still "
         "expected Ghidra to reject launch scope. The regenerated plan passes `--check`; the "
         "updated launch test compares against the reference and passes locally on SM89/SM90. "
@@ -152,9 +159,20 @@ def report(data):
         "16 MiB limit. All-architecture decoder/dataflow and int_alu/fp16 numerical checks passed "
         "2,794 tests with 209,716 selected shared cases; the twenty reviewed operation-count "
         "baselines pass separately. Carry, threads and memory checks on SM89/SM107 in both "
-        "modes passed 614 tests with 23,406 shared cases. Coverage refresh leaves the committed "
-        "coverage/evidence files unchanged. SM90's generation job also failed artifact upload "
+        "modes passed 614 tests with 23,406 shared cases. That refresh left the committed "
+        "coverage/evidence files unchanged. Following `d715824`, all 58 current PR checks pass "
+        "and nine are skipped. SM90's earlier generation job failed artifact upload "
         "with ECONNRESET after its generation checks passed.", "",
+        "The dense TF32 and operand-control extension passes 4,612 SM89 shared GPU cases and "
+        "nine whole-warp GPU fixtures. All-architecture exact/readable matrix Ghidra validation "
+        "passes 94 tests with 78,216 shared cases; FP16 numerical/dataflow validation passes "
+        "916 tests with 155,492 shared cases. Corrected arithmetic passes 72 Python/native tests, "
+        "including all eight source-negation/predicate-inversion combinations in the native engine. "
+        "Integrated source checks pass 54 tests, and all twenty reviewed P-code baselines pass. "
+        "All twenty languages compile below the unchanged 16 MiB limit; SM107 exact is "
+        "16,753,273 bytes. Full-form HMMA planning is exhaustive; input profiles remain sampled "
+        "regression domains. BF16, F16 destinations, sparse/indexed HMMA and other unresolved "
+        "target forms still prevent completion.", "",
     ]
     return "\n".join(text)
 

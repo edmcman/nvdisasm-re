@@ -1059,3 +1059,46 @@ Whole-warp HMMA fixtures on 2026-11-04:
 - The planner now admits explicitly constrained partial-primitive operand
   adapters. HMMA uses UPp=UPT where that operand exists; other accumulator
   predicate values retain unresolved semantics and are not verified by these cases.
+
+Dense TF32 and HMMA operand controls on 2026-11-04:
+
+- On the RTX 4070 Laptop GPU (SM89), `HMMA.1684.F32.TF32` uses one four-product
+  block; `HMMA.1688.F32.TF32` uses two consecutive four-product blocks. Each
+  block includes its incoming accumulator, leaves products unnormalized, aligns
+  with one extra fractional bit, truncates each aligned term, then normalizes
+  and rounds the sum toward zero. The lower thirteen input bits are ignored,
+  including NaN payload bits: a NaN whose entire payload is in those bits becomes
+  infinity. Retained NaNs and invalid operations produce `0x7fffffff`; zero
+  sums produce positive zero. Accumulator subnormals survive, finite overflow
+  produces infinity, and overflowing intermediate products can cancel within
+  a block. The two `hmma-tf32-168*-SM89.json` discovery files retain the mapping,
+  cancellation, exceptional-value and seeded-matrix observations.
+- `hmma-tf32-precision-SM89.json` and `hmma-tf32-alignment-SM89.json` distinguish
+  the smallest alignment quantum when C is zero. Thirteen precision probes and
+  nineteen cancellation probes establish a minimum alignment exponent of
+  **-132**, hence a quantum of `2^-156`, on this device. This differs from the
+  **-133** reported for A100, L40S, RTX Ada 1000, H100 and B200 in
+  [Khattak and Mikaitis, v3](https://arxiv.org/html/2512.07004v3).
+  The reference retains the published floor on other architectures and the
+  observed floor on SM89. Neither this device's result nor the model verifies
+  every other SM89 device. SM80/86's four-term grouping and SM90/Blackwell's
+  eight-term grouping with two extra bits are specification/paper inferences,
+  not local hardware verification.
+- The 178 observations in `hmma-controls-SM89.json` establish that UPp gates
+  only the initial C input, with inversion honored. Disabled C contributes
+  zero even when its registers contain NaNs. Negating Ra or Rb negates the
+  corresponding matrix entries; negating both preserves the product.
+  Predicate probes cover F16/16816 and TF32/1684; negation probes cover those
+  shapes and TF32/1688. These discovery files earn no verification credit.
+  Their inputs are promoted into independent rational references and the
+  `hmma_forms` / `hmma_tf32_forms` autocase profiles.
+- Exhaustive dense-form regression exposed 168 negative-underflow cases where
+  IEEE round-toward-zero packing returned negative zero but SM89 HMMA returned
+  positive zero. All 672 output words differ only in that sign bit. HMMA clears
+  the sign of a result that becomes zero during final normalization/truncation,
+  as well as of an exactly zero aligned sum. The matrix reference and TF32
+  implementation apply this operation-specific rule; shared IEEE packing retains
+  its ordinary signed-zero behavior.
+- CUDA 13.0.88 `ptxas` emits the two TF32 shapes from the retained
+  `tests/ptx/hmma/tf32_1684.ptx` and `tf32_1688.ptx` `mma.sync.aligned` probes.
+  Compiler emission establishes encoding, not the accumulation model.
