@@ -94,12 +94,16 @@ def hmma(c, k, form):
     source = form.get("srcfmt")
     half_output = form.get("dstfmt") == "F16"
     if k.name != "hmma_x8_" or form.get("size") not in ("1688", "16816") or (
-        source, form.get("dstfmt")) not in (("F16", "F32"), ("BF16", "F32"), ("F16", "F16")):
-        raise Unsupported("HMMA adapter covers direct 1688/16816 F16/F16, F16/F32 and BF16/F32")
+        source, form.get("dstfmt")) not in (("F16", "F32"), ("BF16", "F32"), ("E6M9", "F32"), ("F16", "F16")):
+        raise Unsupported("HMMA adapter covers packed 1688/16816 F32 and F16/F16")
     count = int(form["size"][3:])
     def bits(value, fmt):
+        if source == "E6M9" and fmt == "<e":
+            from tests.refs import fpformat
+            return fpformat.narrow(int.from_bytes(struct.pack("<f", value), "little"), "F32", "E6M9", satfinite=False)
         return int.from_bytes(struct.pack("<f", value), "little") >> 16 if source == "BF16" and fmt == "<e" else int.from_bytes(struct.pack(fmt, value), "little")
-    profile = "hmma_f16_output_forms" if half_output else "hmma_bf16_forms" if source == "BF16" else "hmma_forms"
+    profile = {"BF16": "hmma_bf16_forms", "E6M9": "hmma_e6m9_forms"}.get(
+        source, "hmma_f16_output_forms" if half_output else "hmma_forms")
     midpoint = 2 ** (-11 if half_output else -24)
     for pattern in autocase_profiles.PROFILES[profile]["patterns"]:
         match pattern.split("_"):
@@ -110,8 +114,13 @@ def hmma(c, k, form):
             value = rng.getrandbits(width)
             return value ^ (1 << (width - 2)) if value & exponent_mask == exponent_mask else value
         if rng:
-            unpack = lambda v: struct.unpack("<f", (v << 16).to_bytes(4, "little"))[0] if source == "BF16" else struct.unpack("<e", v.to_bytes(2, "little"))[0]
-            mask = 0x7f80 if source == "BF16" else 0x7c00
+            def unpack(value):
+                if source == "E6M9":
+                    from tests.refs import fpformat
+                    _, sign, magnitude = fpformat.decode(source, value)
+                    return (-1.0 if sign else 1.0) * float(magnitude)
+                return struct.unpack("<f", (value << 16).to_bytes(4, "little"))[0] if source == "BF16" else struct.unpack("<e", value.to_bytes(2, "little"))[0]
+            mask = {"BF16": 0x7f80, "E6M9": 0x7e00}.get(source, 0x7c00)
             random_a = [[unpack(finite(16, mask))
                          for _ in range(count)] for _ in range(16)]
             random_b = [[unpack(finite(16, mask))
@@ -191,8 +200,8 @@ def hmma(c, k, form):
             half_a = [bits(a(row + dr, thread * 2 + dk + n), "<e")
                       for dk in range(0, count, 8) for dr in (0, 8) for n in (0, 1)]
             half_b = [bits(b(thread * 2 + dk + n, row), "<e") for dk in range(0, count, 8) for n in (0, 1)]
-            if pattern == "snan_a": half_a = [0x7f81 if source == "BF16" else 0x7c01] * (count // 2)
-            if pattern == "snan_b": half_b = [0xff81 if source == "BF16" else 0xfc01] * (count // 4)
+            if pattern == "snan_a": half_a = [{"BF16": 0x7f81, "E6M9": 0x7e01}.get(source, 0x7c01)] * (count // 2)
+            if pattern == "snan_b": half_b = [{"BF16": 0xff81, "E6M9": 0xfe01}.get(source, 0xfc01)] * (count // 4)
             if pattern.startswith("raw_"):
                 _, raw_a, raw_b, raw_c = pattern.split("_")
                 half_a, half_b = [int(raw_a, 16)] * (count // 2), [int(raw_b, 16)] * (count // 4)

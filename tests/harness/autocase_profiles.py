@@ -630,6 +630,13 @@ PROFILES['hmma_bf16_forms'] = dict(patterns=(
         (0, 0, 0x80000000), (0x3fc0, 0x3fc0, 0x3f800000),
         *((e << 7, e << 7, 0) for e in range(40, 65)))))
 
+PROFILES['hmma_e6m9_forms'] = dict(patterns=PROFILES['hmma_forms']['patterns'] + tuple(
+    f"raw_{a:04x}_{b:04x}_{c:08x}" for a, b, c in (
+        (0x0001, 0x3e00, 0), (0x01ff, 0x3e00, 0), (0x0200, 0x3e00, 0),
+        (0x7dff, 0x3e00, 0), (0x7e00, 0, 0),
+        (0xffff, 0x3e00, 0), (0x3e01, 0x3e01, 0), (0x8001, 0x3e00, 0),
+        (0, 0, 1), (0, 0, 0x80000001), (0, 0, 0x80000000))))
+
 PROFILES['hmma_tf32_forms'] = dict(patterns=(
     "ones", "coordinates", "identity", "accumulator",
     "tiny_join", "tiny_split", "overflow_cancel", "overflow_groups", "wide_cancel", "unnormalized",

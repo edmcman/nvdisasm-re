@@ -47,7 +47,7 @@ Reading notes:
   (`memory.py`), runtime-executed operations (`runtime.py`); UP2UR is in `integer.py`, HFMA2.MMA in `floating.py`.
 - `atomic.py` supplies integer atomic updates, floating atomic ADD, and ordinary SC fences;
   `asynchronous.py` supplies copy issue, commit, and wait effects; `matrix.py` supplies
-  unexpanded 16-bit M88/MT88 matrix loads and direct HMMA F16/BF16/1688/16816 and
+  unexpanded 16-bit M88/MT88 matrix loads and direct HMMA F16/BF16/E6M9/1688/16816 and
   TF32/1684/1688 arithmetic with F32 accumulators, plus F16/1688/16816 with packed
   F16 accumulators and outputs for both packed shapes, including source negation and
   accumulator predicates (2026-11-04). Matrix arithmetic is defined over values;
@@ -55,6 +55,9 @@ Reading notes:
   local hardware; other architectures' grouping, precision and floor are inferred
   from published tensor-core models. F16 output staging on other architectures
   is inferred from those grouping models and SM89 rounding observations.
+  E6M9 source forms are exposed on SM86/SM89/SM90. SM89 synthetic SASS
+  observations establish their eight-product stages; SM86/SM90 staging remains
+  inferred. This does not establish PTX compiler emission of E6M9 HMMA.
   See `docs/hardware-facts.md`.
   Unsupported selectors retain opaque fallbacks; the form inventory in
   `research/additional-opcodes/inventory-current.json` separates these from evidence.
@@ -153,18 +156,21 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   calls in one constructor use distinct forwarding operands because SLEIGH rejects
   duplicate builds of one operand. Other constructors reuse those forwarding
   tables. Nested definitions use separate argument registers.
-  Packed F16/BF16 HMMA shares format and output-precision parameters and a common biased-exponent
-  product representation. The shared body adds format-selection operations to
+  Packed F16/BF16/E6M9 HMMA shares fraction-width and output-precision parameters and a common biased-exponent
+  product representation. The format's fraction width determines its exponent
+  mask, hidden bit, bias and product scaling. The shared body adds parameter operations to
   F16 P-code, but avoids duplicating matrix constructors and keeps every language
   below Ghidra's unchanged 16 MiB limit. Packed dot products, alignment,
   normalization and half accumulator expansion are shared independently
-  (SM107 exact: 16,775,109 bytes). A stage returns four 32-bit cells:
+  (SM107 exact: 16,774,025 bytes after the E6M9 extension). A stage returns four 32-bit cells:
   F32 bit patterns, or zero-extended F16 bit patterns that its caller packs.
   Tensor half accumulators reuse the same exact `cvt.f32.f16` definition
   as ordinary conversions. Every F16 encoding is checked against the
   independent conversion reference. Sharing stages adds an output-mode
   choice in P-code while eliminating duplicated dot-product bodies.
-  The reviewed sampled HMMA operation counts increase by 3.5–6.5%.
+  The earlier stage-sharing change increased sampled HMMA operation counts
+  by 3.5–6.5%. The subsequent fraction-width calculation removes conditional
+  format selection and reduces those counts by 13.9–15.1% against `4e99cda`.
   Shared half-to-float conversion adds 1–2 operations to sampled register
   forms; sampled immediate forms grow from 44 to 118 operations because
   the shared body cannot fold their argument. Numerical and dataflow

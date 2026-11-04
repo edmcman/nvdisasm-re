@@ -5,6 +5,9 @@ from sass.semantics.families import convert
 from sass.semantics.fp import fpformat
 
 
+PACKED_BITS = {source: fpformat.FORMATS[source].mbits for source in ("F16", "BF16", "E6M9")}
+
+
 @definition(lambda a: (f"ldmatrix.{'trans' if a['transpose'] else 'row'}.element", ["lane", "matrix", "n"]))
 def element(lane, matrix, n, transpose):
     """The address-owning lane and halfword column of one matrix fragment element."""
@@ -40,7 +43,7 @@ def ldsm(i):
 @definition(lambda a: (f"hmma.{a['source'].lower()}.product.e{a['extra']}", ["x", "y"]))
 def tensor_product(x, y, extra, source="F16"):
     """An unnormalized tensor product, its exponent, sign and exceptional-value flags."""
-    if source != "TF32": return packed_product(x, y, const(source == "BF16", 1), extra)
+    if source != "TF32": return packed_product(x, y, const(PACKED_BITS[source], 32), extra)
     fraction, shift, sign_bit, exceptional, bias, width, product_shift = 23, 13, 31, 255, 129, 10, 3
     hidden = 1 << (fraction - shift)
     ex, ey = zext(extract(x, sign_bit - 1, fraction), 32), zext(extract(y, sign_bit - 1, fraction), 32)
@@ -56,18 +59,19 @@ def tensor_product(x, y, extra, source="F16"):
     return concat(flags, mantissa)
 
 
-@definition(lambda a: (f"hmma.packed.product.e{a['extra']}", ["x", "y", "bf16"]))
-def packed_product(x, y, bf16, extra):
-    """Encode an unnormalized F16 or BF16 product with a common exponent bias."""
-    ex, ey = (ite(bf16, (v >> 7) & 255, (v >> 10) & 31) for v in (x, y))
-    fx, fy = (ite(bf16, v & 127, v & 1023) for v in (x, y))
-    hidden, exceptional = ite(bf16, const(128, 16), const(1024, 16)), ite(bf16, const(255, 16), const(31, 16))
+@definition(lambda a: (f"hmma.packed.product.e{a['extra']}", ["x", "y", "mbits"]))
+def packed_product(x, y, mbits, extra):
+    """Encode an unnormalized packed IEEE product with a common exponent bias."""
+    hidden, exceptional = const(1, 16) << mbits, const(0x7fff, 16) >> mbits
+    ex, ey = ((v & 0x7fff) >> mbits for v in (x, y))
+    fx, fy = (v & (hidden - 1) for v in (x, y))
     mx, my = (zext(f | ite(e == 0, const(0, 16), hidden), 32) for f, e in ((fx, ex), (fy, ey)))
     sign = extract(x ^ y, 15, 15)
     inf = (ex == exceptional) | (ey == exceptional)
     nan = ((ex == exceptional) & (fx != 0)) | ((ey == exceptional) & (fy != 0)) | (inf & ((mx == 0) | (my == 0)))
-    mantissa = (mx * my) << ite(bf16, const(9 + extra, 32), const(3 + extra, 32))
-    exponent = zext(umax(ex, 1), 32) + zext(umax(ey, 1), 32) + ite(bf16, const(129, 32), const(353, 32))
+    mantissa = (mx * my) << (23 + extra - 2 * mbits)
+    bias = (const(1, 32) << (14 - mbits)) - 1
+    exponent = zext(umax(ex, 1), 32) + zext(umax(ey, 1), 32) + 383 - 2 * bias
     flags = ite(mantissa == 0, const(0, 32), exponent) | (zext(sign, 32) << 10)
     flags = flags | (zext(nan, 32) << 11) | (zext(inf & ~sign, 32) << 12) | (zext(inf & sign, 32) << 13)
     return concat(flags, mantissa)
@@ -148,7 +152,7 @@ def tensor_normalize(aligned, extra, destination):
 def tensor_fragment(a, b, c, block, extra, source="F16", count=16, minimum_exponent=-133):
     """Four F32 accumulators updated from two tensor matrix rows and columns."""
     if source != "TF32":
-        return packed_fragment(a, b, c, const(source == "BF16", 1), const(minimum_exponent, 32), block, extra)
+        return packed_fragment(a, b, c, const(PACKED_BITS[source], 32), const(minimum_exponent, 32), block, extra)
     result = []
     for j in range(4):
         row = tuple(a[j // 2 * count + k] for k in range(count))
@@ -160,39 +164,39 @@ def tensor_fragment(a, b, c, block, extra, source="F16", count=16, minimum_expon
     return concat(*reversed(result))
 
 
-@definition(lambda a: (f"hmma16816.packed.f32.g{a['block']}.e{a['extra']}", ["a", "b", "c", "bf16", "minimum_exponent"]))
-def packed_fragment(a, b, c, bf16, minimum_exponent, block, extra):
-    """Four accumulators updated with packed half or bfloat matrix fragments."""
-    return packed_accumulate(a, b, c, bf16, minimum_exponent, block, extra)
+@definition(lambda a: (f"hmma16816.packed.f32.g{a['block']}.e{a['extra']}", ["a", "b", "c", "mbits", "minimum_exponent"]))
+def packed_fragment(a, b, c, mbits, minimum_exponent, block, extra):
+    """Four accumulators updated with packed 16-bit matrix fragments."""
+    return packed_accumulate(a, b, c, mbits, minimum_exponent, block, extra)
 
 
-@definition(lambda a: (f"hmma.packed.stage.k{len(a['a'])}.e{a['extra']}", ["a", "b", "c", "bf16", "minimum_exponent", "half_output"]))
-def packed_stage(a, b, c, bf16, minimum_exponent, half_output, extra):
+@definition(lambda a: (f"hmma.packed.stage.k{len(a['a'])}.e{a['extra']}", ["a", "b", "c", "mbits", "minimum_exponent", "half_output"]))
+def packed_stage(a, b, c, mbits, minimum_exponent, half_output, extra):
     """Four tensor results in 32-bit cells, with optional half rounding."""
     result = []
     count = len(a)
     for j in range(4):
         row = a[j // 2 * count // 2:(j // 2 + 1) * count // 2]
         column = b[j % 2 * count // 2:(j % 2 + 1) * count // 2]
-        aligned = packed_dot(row, column, c[j], bf16, minimum_exponent, extra)
+        aligned = packed_dot(row, column, c[j], mbits, minimum_exponent, extra)
         result.append(ite(half_output, zext(tensor_normalize(aligned, extra, "F16"), 32),
                           tensor_normalize(aligned, extra, "F32")))
     return concat(*reversed(result))
 
 
-@definition(lambda a: (f"hmma.packed.dot.k{len(a['a']) * 2}.e{a['extra']}", ["a", "b", "c", "bf16", "minimum_exponent"]))
-def packed_dot(a, b, c, bf16, minimum_exponent, extra):
-    """One aligned tensor dot product from packed F16 or BF16 source words."""
-    products = tuple(packed_product(extract(x, shift + 15, shift), extract(y, shift + 15, shift), bf16, extra)
+@definition(lambda a: (f"hmma.packed.dot.k{len(a['a']) * 2}.e{a['extra']}", ["a", "b", "c", "mbits", "minimum_exponent"]))
+def packed_dot(a, b, c, mbits, minimum_exponent, extra):
+    """One aligned tensor dot product from packed 16-bit source words."""
+    products = tuple(packed_product(extract(x, shift + 15, shift), extract(y, shift + 15, shift), mbits, extra)
                      for x, y in zip(a, b) for shift in (0, 16))
     return tensor_align(products, c, extra, minimum_exponent)
 
 
-def packed_accumulate(a, b, c, bf16, minimum_exponent, block, extra, half_output=False):
+def packed_accumulate(a, b, c, mbits, minimum_exponent, block, extra, half_output=False):
     for start in range(0, 16, block):
         def segment(words):
             return tuple(words[r * 8 + start // 2 + k] for r in range(2) for k in range(block // 2))
-        stage = packed_stage(segment(a), segment(b), c, bf16, minimum_exponent, const(half_output, 1), extra)
+        stage = packed_stage(segment(a), segment(b), c, mbits, minimum_exponent, const(half_output, 1), extra)
         c = (tuple(half_accumulator(extract(stage, j * 32 + 15, j * 32)) for j in range(4))
              if half_output else tuple(extract(stage, j * 32 + 31, j * 32) for j in range(4)))
     return half_result(stage) if half_output else stage
@@ -205,7 +209,7 @@ def half_result(stage):
 @definition(lambda a: (f"hmma16816.f16.g{a['block']}.e{a['extra']}", ["a", "b", "c"]))
 def half_fragment(a, b, c, block, extra):
     """Four packed F16 accumulators rounded RN-even after every tensor stage."""
-    return packed_accumulate(a, b, half_accumulators(c), const(0, 1), const(-133, 32), block, extra, True)
+    return packed_accumulate(a, b, half_accumulators(c), const(PACKED_BITS["F16"], 32), const(-133, 32), block, extra, True)
 
 
 def half_accumulators(c):
@@ -221,11 +225,11 @@ def half_accumulator(value):
 @family("HMMA", classes=lambda k: k.name == "hmma_x8_" and "srcfmt" in k.operand_types)
 def hmma(i):
     size, dst = str(i.select_fork("size")), str(i.select_fork("dstfmt"))
-    packed = i.select_in("srcfmt", ("F16", "BF16"))
+    packed = i.select_in("srcfmt", tuple(PACKED_BITS))
     if dst not in ("F16", "F32") or (packed and size not in ("1688", "16816")):
         unmodelled(f"HMMA {size}.{dst}: fragment/numerical model unresolved")
     if packed:
-        bf16 = i.select_lookup_const("srcfmt", {"F16": 0, "BF16": 1}, w=1)
+        mbits = i.select_lookup_const("srcfmt", PACKED_BITS, w=32)
     elif not i.select_in("srcfmt", ("TF32",)) or size not in ("1684", "1688"):
         unmodelled(f"HMMA {size}.{dst}: fragment/numerical model unresolved")
     current = {name: i.value(name, modifiers=False) for name in ("Ra", "Rb", "Rc")}
@@ -255,9 +259,9 @@ def hmma(i):
     minimum = -132 if i.arch.name == "SM89" else -133
     if packed and count == 8:
         stage = packed_stage(a, b, half_accumulators(c) if dst == "F16" else c,
-                             bf16, const(minimum, 32), const(dst == "F16", 1), extra)
+                             mbits, const(minimum, 32), const(dst == "F16", 1), extra)
         return outputs(Rd=half_result(stage) if dst == "F16" else stage)
     result = (half_fragment(a, b, c, block, extra) if dst == "F16" else
-              packed_fragment(a, b, c, bf16, const(minimum, 32), block, extra) if packed
+              packed_fragment(a, b, c, mbits, const(minimum, 32), block, extra) if packed
               else tensor_fragment(a, b, c, block, extra, "TF32", count, minimum))
     return outputs(Rd=result)

@@ -6,6 +6,7 @@ from sass.emulate import machine
 from sass.semantics import evaluate, lifter
 from sass.semantics.runtime import Runtime
 from sass.sleigh import modifiers
+from tests.cases import matrix
 from tests.harness import autocases
 
 
@@ -48,9 +49,7 @@ def test_native_matrix_context(mode):
         assert all(found.read("R", int(name[1:]), 1) == value for name, value in case.expected.items())
 
 
-SHAPES = (("F16", "16816", "F32"), ("F16", "16816", "F16"), ("BF16", "16816", "F32"),
-          ("F16", "1688", "F32"), ("F16", "1688", "F16"), ("BF16", "1688", "F32"),
-          ("TF32", "1684", "F32"), ("TF32", "1688", "F32"))
+SHAPES = matrix.SHAPES
 
 
 def test_half_accumulator_promotes_every_encoding():
@@ -69,8 +68,8 @@ def test_dense_tensor_plans_cover_each_control_combination(arch):
               for entry in autocases.saved_plan(arch)["forms"] if entry["cls"] == "hmma_x8_"
               for s in (entry["settings"],)}
     inversions = ("unset", "set") if arch not in ("SM75", "SM80") else ("unset",)
-    expected = {(size, source, destination, a, b, p) for source, size, destination in SHAPES
-                for a in ("unset", "set") for b in ("unset", "set") for p in inversions} if arch != "SM75" else set()
+    expected = {(size, source, destination, a, b, p) for source, size, destination in matrix.shapes(arch)
+                for a in ("unset", "set") for b in ("unset", "set") for p in inversions}
     assert actual == expected
 
 
@@ -94,8 +93,9 @@ def assert_arithmetic(arch, source, size, controls=(0, 0, 0), destination="F32")
         assert all(found.read("R", int(name[1:]), 1) == value for name, value in case.expected.items()), case.hardware
 
 
-@pytest.mark.parametrize("arch", ["SM80", "SM86", "SM89", "SM90", "SM100", "SM101", "SM103", "SM107", "SM120"])
-@pytest.mark.parametrize("source,size,destination", SHAPES)
+@pytest.mark.parametrize("arch,source,size,destination", [
+    (arch, *shape) for arch in ("SM80", "SM86", "SM89", "SM90", "SM100", "SM101", "SM103", "SM107", "SM120")
+    for shape in matrix.shapes(arch)])
 def test_tensor_arithmetic(arch, source, size, destination):
     assert_arithmetic(arch, source, size, destination=destination)
 

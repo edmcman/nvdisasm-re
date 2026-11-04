@@ -309,6 +309,17 @@ from 14.1 to 19.6 seconds, and definition traversal remained below 0.05 seconds.
 Use roughly eight minutes for the expanded full discovery; the 465-second
 measurement is not an isolated all-architecture baseline.
 
+The E6M9 extension (2026-11-04) passed 216 matrix/generator checks in 557 seconds
+and 82 native checks in 233 seconds while rebuilding native fragments, languages
+and case plans. Those contended measurements are not new standalone baselines.
+A quiet comparison on the same 9,964 cases took 40.6 seconds on `4e99cda` and
+40.0 seconds afterward. The expanded 11,844-case profile took 55.7 seconds:
+generation 28.7 seconds, lifting 26.9 seconds, and traversal under 0.1 seconds.
+Real parameter discovery and validation took 511 seconds. Matrix-only validation
+in all twenty Ghidra languages took 866 seconds, including 180,000 shared cases,
+120 whole-kernel fixture tests and full dataflow checks. Plan about fifteen minutes
+for that run; its earlier 8–10 minute estimate was too low.
+
 ```sh
 nice uv run pytest tests/test_definition_functions.py
 CXX=g++ nice uv run pytest -m native tests/test_definition_functions.py tests/test_emulate_fp.py tests/test_fp_backends.py tests/test_emulate_ops.py

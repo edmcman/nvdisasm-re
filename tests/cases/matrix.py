@@ -1,9 +1,20 @@
 from sass import launch
 from sass.assemble import assemble_cubin, encoding
-from sass.decode import pydecode
+from sass.decode import ir, pydecode
 from sass.sleigh import modifiers
 from tests.harness import gpu
 from tests.refs import matrix
+
+
+SHAPES = (("F16", "16816", "F32"), ("F16", "16816", "F16"), ("BF16", "16816", "F32"),
+          ("F16", "1688", "F32"), ("F16", "1688", "F16"), ("BF16", "1688", "F32"),
+          ("E6M9", "1688", "F32"), ("E6M9", "16816", "F32"),
+          ("TF32", "1684", "F32"), ("TF32", "1688", "F32"))
+
+
+def shapes(arch):
+    operand = encoding.klass(arch, "hmma_x8_").operand_types.get("srcfmt")
+    return tuple(shape for shape in SHAPES if operand and shape[0] in ir.load(arch).enums[operand.type])
 
 
 def emulator_cases(c):
@@ -61,8 +72,5 @@ EXIT;
 
 
 def gpu_fixtures(arch="SM89"):
-    return [fixture for source, size, destination in (
-                ("F16", "16816", "F32"), ("F16", "16816", "F16"), ("BF16", "16816", "F32"),
-                ("F16", "1688", "F32"), ("F16", "1688", "F16"), ("BF16", "1688", "F32"),
-                ("TF32", "1684", "F32"), ("TF32", "1688", "F32"))
+    return [fixture for source, size, destination in shapes(arch)
             for fixture in tensor_fixtures(arch, source, size, destination)]

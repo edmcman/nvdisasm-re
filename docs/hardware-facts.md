@@ -1217,3 +1217,55 @@ Dense eight-product tensor forms on 2026-11-04:
   This includes source negation, accumulator predicates and their inversion.
   SM90+ precision remains inferred from the published models; these SM89
   runs do not numerically verify other devices.
+
+Dense E6M9 tensor inputs on 2026-11-04:
+
+- SM89 `HMMA.1688.F32.E6M9` and `HMMA.16816.F32.E6M9` use the same packed
+  lane/register ownership as F16/BF16. E6M9 inputs have one sign bit, six exponent
+  bits with bias 31, and nine fraction bits. Exceptional values follow the
+  existing tensor NaN/infinity model.
+- The 1688 instruction performs one eight-product stage; 16816 performs two.
+  Unnormalized products align with C on the one-extra-bit grid, then each stage
+  truncates to F32. Cancellation, product normalization, rounding-boundary and
+  lane-distinguishing cases agree with the independent rational reference.
+- Retained discovery contains 686 and 699 observations respectively, with no
+  device errors or reference mismatches. The files retain actual operand groups
+  and lane register inputs, with shared contexts deduplicated. Reproduce their
+  reference comparison with `nice uv run python -m research.matrix_observe
+  --check-capture research/additional-opcodes/hmma-e6m9-1688-SM89.json`
+  and the corresponding `16816` file.
+- These synthetic SASS observations earn no verification credit and do not
+  establish PTX compiler emission. Other architecture staging remains inferred;
+  they are not hardware-verified by the SM89 captures.
+- Full-exponent random inputs and explicit format boundaries add 523 discovery
+  observations per shape, also with no errors or reference mismatches. These
+  include the minimum subnormal, largest subnormal, minimum normal, maximum
+  finite value and zero-times-infinity. Actual inputs are retained in the
+  corresponding `hmma-e6m9-*-wide-SM89.json` files.
+- Promoted SM89 matrix regression passes 11,844 shared cases covering all 80
+  direct dense HMMA selector combinations, plus 30 whole-warp alias fixtures.
+  Hardware evidence remains SM89-specific. The other supported architecture
+  forms pass independent reference and exact/readable Ghidra checks. Native
+  arithmetic and cooperative fixtures were checked on SM89; the cooperative
+  scheduler fixtures also pass on SM90.
+
+B2R cooperative discovery on 2026-11-04:
+
+- Initial BAR, WARP and RESULT reads return zero. `WARPSYNC` leaves WARP zero.
+  Completed ordinary `BAR.SYNC` sets RESULT to its actual participant count,
+  including partial warps (17, 33 and 45 threads). Later ordinary barriers
+  overwrite earlier reduction results.
+- WARP returns RESULT's low eleven bits. True AND/OR reductions return
+  RESULT=0xffffffff and WARP=0x7ff; mixed AND returns zero, and mixed OR returns
+  the true encoding. POPC returns the number of true lane predicates.
+- Pending BAR state is
+  `tag << 28 | expected_warps << 20 | arrived_warps << 13 | arrived_warps`.
+  Tags are 8 for SYNC/ARV, 9 for POPC, 10 for AND and 11 for OR. Staggering
+  arrivals in both orders distinguishes warp counts from warp identities.
+  Completion clears the selected BAR state.
+- Retained whole-kernel sources and actual outputs are in
+  `research/additional-opcodes/b2r-*-SM89.json`. Reproduce with
+  `nice uv run python -m research.barrier_state_observe --extended --out /tmp/b2r.json`
+  and `--partial-warps` for mixed reductions and partial CTAs. These are discovery
+  observations, earn no verification credit, and do not yet establish behavior
+  for exited participants or overlapping generations.

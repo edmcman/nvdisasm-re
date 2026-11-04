@@ -15,13 +15,23 @@ def load(memory, addresses, lane, matrices=1, transpose=False, offset=0, uniform
 def tensor_block(a, b, c, extra, source="F16", minimum_exponent=-133, negate=(False, False), destination=32):
     from fractions import Fraction
     from sass.semantics.fp import softfloat
+    from tests.refs import fpformat
     nan, infinity = (0x7fff, 0x7c00) if destination == 16 else (0x7fffffff, 0x7f800000)
     terms, infinities = [], set()
+    width, fraction, bias = {"F16": (16, 10, 15), "BF16": (16, 7, 127),
+                             "E6M9": (16, 9, 31), "TF32": (32, 23, 127)}[source]
+    def unpack(value):
+        match source:
+            case "BF16": return softfloat.unpack(value << 16, 32)
+            case "E6M9":
+                kind, sign, magnitude = fpformat.decode(source, value)
+                return ("zero" if magnitude == 0 else kind), sign, (
+                    None if magnitude is None else -magnitude if sign else magnitude)
+            case _: return softfloat.unpack(value, width)
     for x, y in zip(a, b):
         if source == "TF32": x, y = x & 0xffffe000, y & 0xffffe000
-        width, fraction, bias = {"F16": (16, 10, 15), "BF16": (16, 7, 127), "TF32": (32, 23, 127)}[source]
-        kx, sx, vx = softfloat.unpack(x << 16 if source == "BF16" else x, 32 if source == "BF16" else width)
-        ky, sy, vy = softfloat.unpack(y << 16 if source == "BF16" else y, 32 if source == "BF16" else width)
+        kx, sx, vx = unpack(x)
+        ky, sy, vy = unpack(y)
         if negate[0]:
             sx ^= 1
             if vx is not None: vx = -vx
