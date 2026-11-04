@@ -27,14 +27,14 @@ SCRATCH = frozenset({"atomic.add.f32.ftz.rn", "atomic.add.f64.rn", "atomic.add.f
                      "fma.rn.f16", "fma.rn.bf16",
                      "narrow.rn.f16.f64", "narrow.rn.bf16.f64",
                      "hmma.tf32.product.e1", "hmma.tf32.product.e2",
-                     "hmma.f16.accumulator", "hmma16816.packed.f32.g8.e1"}) | frozenset(
+                     "cvt.f32.f16", "hmma16816.packed.f32.g8.e1"}) | frozenset(
                          f"hmma.align.k{k}.e{e}"
                          for k, e in ((4, 1), (4, 2), (8, 1), (8, 2), (16, 2))) | frozenset(
                          f"hmma.normalize.{fmt}.e{e}" for fmt in ("f16", "f32") for e in (1, 2)) | frozenset(
                          f"hmma.packed.product.e{e}" for e in (1, 2)) | frozenset(
-                         f"hmma.packed.dot.k{k}.e{e}" for k, e in ((8, 1), (16, 2))) | frozenset(
-                         f"hmma.packed.{fmt}.stage.k{k}.e{e}"
-                         for fmt in ("f16", "f32") for k, e in ((8, 1), (16, 2))) | frozenset(
+                         f"hmma.packed.dot.k{k}.e{e}" for k, e in ((8, 1), (8, 2), (16, 2))) | frozenset(
+                         f"hmma.packed.stage.k{k}.e{e}"
+                         for k, e in ((8, 1), (8, 2), (16, 2))) | frozenset(
                          f"hmma16816.f16.g{g}.e{e}" for g, e in ((8, 1), (16, 2))) | frozenset(
                          f"hmma.tf32.f32.k{k}.e{e}.l{floor}"
                          for k, e in ((4, 1), (4, 2), (8, 2)) for floor in (132, 133)) | frozenset(

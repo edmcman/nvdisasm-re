@@ -1151,6 +1151,15 @@ Control discovery on 2026-11-04:
   outputs. The test is inconclusive about distinguishing scheduler behavior;
   YIELD and CCTL remain unresolved and these observations earn no verification
   credit.
+- The revised probe records the number of polling loads in
+  `yield-poll-counts-SM89.json`, separately from those original captures.
+  All 32 launches execute the polling path: each consumer loads one or
+  three times, and every producer has zero polling loads. The four YIELD
+  variants produce identical per-lane flags and counts for each launch
+  geometry. This confirms activity on the path containing YIELD in the
+  original kernel but still does not distinguish its scheduling behavior.
+  The compiler, PTX source and original/patched instruction words are pinned;
+  no semantics or verification credit is inferred from these observations.
 
 Dense F16 tensor outputs on 2026-11-04:
 
@@ -1186,3 +1195,25 @@ Dense F16 tensor outputs on 2026-11-04:
   tensor grouping models and these SM89 observations, not numerically
   hardware-verified here. Legacy SM75, other shapes, sparse metadata and
   indexed-register forms remain unresolved.
+
+Dense eight-product tensor forms on 2026-11-04:
+
+- SM89 `HMMA.1688.F32`, `HMMA.1688.F32.BF16` and `HMMA.1688.F16`
+  use two packed A registers and one packed B register per lane. The row,
+  column and half ownership follows PTX `mma.m16n8k8`. F32 C/D occupies
+  four registers; F16 C/D occupies two packed registers.
+- A single eight-product stage uses the same unnormalized products and
+  one-extra-bit alignment grid as the corresponding `16816` stages.
+  F32 normalization truncates; F16 rounds directly RN-even. Pair probes
+  at K=0 and K=4 distinguish the eight-product stage from two four-product
+  stages. BF16 retains SM89's previously established minimum alignment
+  exponent of -132.
+- The retained raw discovery captures contain 686 F16/F32, 704 BF16/F32
+  and 725 F16/F16 observations, with no device errors. They match the
+  independently referenced candidate model but earn no verification credit.
+  Source profiles omit K indices outside the shorter matrix.
+- Promoted regression passes 9,964 SM89 shared cases across all 64
+  supported dense selector forms and 24 whole-warp source-overlap fixtures.
+  This includes source negation, accumulator predicates and their inversion.
+  SM90+ precision remains inferred from the published models; these SM89
+  runs do not numerically verify other devices.

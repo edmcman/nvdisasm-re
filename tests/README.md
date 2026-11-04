@@ -300,6 +300,15 @@ discovery on SM89/SM90 increased from 21–22 seconds to 28–30 seconds. Runnin
 discovery alongside coverage refresh and Ghidra took 607 seconds; that contended run
 is not the standalone timing baseline.
 
+Adding packed `1688` forms took 465 seconds for discovery and under a second for
+parameter validation, with YOLO replay briefly running alongside it. An isolated
+SM89 phase comparison against the pushed commit found no regression on the same
+7,108 cases: 28.0 seconds before, 27.4 seconds afterward. The expanded 9,964-case
+profile took 38.7 seconds: generation increased from 13.9 to 19.0 seconds, lifting
+from 14.1 to 19.6 seconds, and definition traversal remained below 0.05 seconds.
+Use roughly eight minutes for the expanded full discovery; the 465-second
+measurement is not an isolated all-architecture baseline.
+
 ```sh
 nice uv run pytest tests/test_definition_functions.py
 CXX=g++ nice uv run pytest -m native tests/test_definition_functions.py tests/test_emulate_fp.py tests/test_fp_backends.py tests/test_emulate_ops.py

@@ -1,6 +1,7 @@
 from sass.semantics import primitive
 from sass.semantics.bitvec import concat, const, extract, ite, load, op, slt, trunc, umax, zext
 from sass.semantics.family import definition, family, outputs, unmodelled
+from sass.semantics.families import convert
 from sass.semantics.fp import fpformat
 
 
@@ -165,16 +166,17 @@ def packed_fragment(a, b, c, bf16, minimum_exponent, block, extra):
     return packed_accumulate(a, b, c, bf16, minimum_exponent, block, extra)
 
 
-@definition(lambda a: (f"hmma.packed.{a['destination'].lower()}.stage.k{len(a['a'])}.e{a['extra']}", ["a", "b", "c", "bf16", "minimum_exponent"]))
-def packed_stage(a, b, c, bf16, minimum_exponent, extra, destination="F32"):
-    """One tensor accumulation stage for two rows and two columns."""
+@definition(lambda a: (f"hmma.packed.stage.k{len(a['a'])}.e{a['extra']}", ["a", "b", "c", "bf16", "minimum_exponent", "half_output"]))
+def packed_stage(a, b, c, bf16, minimum_exponent, half_output, extra):
+    """Four tensor results in 32-bit cells, with optional half rounding."""
     result = []
     count = len(a)
     for j in range(4):
         row = a[j // 2 * count // 2:(j // 2 + 1) * count // 2]
         column = b[j % 2 * count // 2:(j % 2 + 1) * count // 2]
         aligned = packed_dot(row, column, c[j], bf16, minimum_exponent, extra)
-        result.append(tensor_normalize(aligned, extra, destination))
+        result.append(ite(half_output, zext(tensor_normalize(aligned, extra, "F16"), 32),
+                          tensor_normalize(aligned, extra, "F32")))
     return concat(*reversed(result))
 
 
@@ -190,32 +192,37 @@ def packed_accumulate(a, b, c, bf16, minimum_exponent, block, extra, half_output
     for start in range(0, 16, block):
         def segment(words):
             return tuple(words[r * 8 + start // 2 + k] for r in range(2) for k in range(block // 2))
-        stage = packed_stage(segment(a), segment(b), c, bf16, minimum_exponent, extra,
-                             "F16" if half_output else "F32")
-        c = (tuple(half_accumulator(extract(stage, j * 16 + 15, j * 16)) for j in range(4))
+        stage = packed_stage(segment(a), segment(b), c, bf16, minimum_exponent, const(half_output, 1), extra)
+        c = (tuple(half_accumulator(extract(stage, j * 32 + 15, j * 32)) for j in range(4))
              if half_output else tuple(extract(stage, j * 32 + 31, j * 32) for j in range(4)))
-    return stage
+    return half_result(stage) if half_output else stage
+
+
+def half_result(stage):
+    return concat(*(extract(stage, j * 32 + 15, j * 32) for j in reversed(range(4))))
 
 
 @definition(lambda a: (f"hmma16816.f16.g{a['block']}.e{a['extra']}", ["a", "b", "c"]))
 def half_fragment(a, b, c, block, extra):
     """Four packed F16 accumulators rounded RN-even after every tensor stage."""
-    accumulators = tuple(half_accumulator(extract(c[j // 2], j % 2 * 16 + 15, j % 2 * 16))
-                         for j in range(4))
-    return packed_accumulate(a, b, accumulators, const(0, 1), const(-133, 32), block, extra, True)
+    return packed_accumulate(a, b, half_accumulators(c), const(0, 1), const(-133, 32), block, extra, True)
+
+
+def half_accumulators(c):
+    return tuple(half_accumulator(extract(c[j // 2], j % 2 * 16 + 15, j % 2 * 16)) for j in range(4))
 
 
 @definition("hmma.f16.accumulator")
 def half_accumulator(value):
     """Expand an F16 tensor accumulator without changing its value."""
-    return fpformat.widen(value, "F16", "F32")
+    return convert.converted("F16", "F32", *fpformat.rounding("RN"), value)
 
 
 @family("HMMA", classes=lambda k: k.name == "hmma_x8_" and "srcfmt" in k.operand_types)
 def hmma(i):
     size, dst = str(i.select_fork("size")), str(i.select_fork("dstfmt"))
     packed = i.select_in("srcfmt", ("F16", "BF16"))
-    if dst not in ("F16", "F32") or (packed and size != "16816"):
+    if dst not in ("F16", "F32") or (packed and size not in ("1688", "16816")):
         unmodelled(f"HMMA {size}.{dst}: fragment/numerical model unresolved")
     if packed:
         bf16 = i.select_lookup_const("srcfmt", {"F16": 0, "BF16": 1}, w=1)
@@ -246,6 +253,10 @@ def hmma(i):
     c = tuple(ite(enabled, extract(current["Rc"], j * 32 + 31, j * 32), const(0, 32))
               for j in range(2 if dst == "F16" else 4))
     minimum = -132 if i.arch.name == "SM89" else -133
+    if packed and count == 8:
+        stage = packed_stage(a, b, half_accumulators(c) if dst == "F16" else c,
+                             bf16, const(minimum, 32), const(dst == "F16", 1), extra)
+        return outputs(Rd=half_result(stage) if dst == "F16" else stage)
     result = (half_fragment(a, b, c, block, extra) if dst == "F16" else
               packed_fragment(a, b, c, bf16, const(minimum, 32), block, extra) if packed
               else tensor_fragment(a, b, c, block, extra, "TF32", count, minimum))

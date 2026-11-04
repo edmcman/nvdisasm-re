@@ -63,5 +63,6 @@ EXIT;
 def gpu_fixtures(arch="SM89"):
     return [fixture for source, size, destination in (
                 ("F16", "16816", "F32"), ("F16", "16816", "F16"), ("BF16", "16816", "F32"),
+                ("F16", "1688", "F32"), ("F16", "1688", "F16"), ("BF16", "1688", "F32"),
                 ("TF32", "1684", "F32"), ("TF32", "1688", "F32"))
             for fixture in tensor_fixtures(arch, source, size, destination)]

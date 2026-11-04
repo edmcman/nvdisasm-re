@@ -49,7 +49,18 @@ def test_native_matrix_context(mode):
 
 
 SHAPES = (("F16", "16816", "F32"), ("F16", "16816", "F16"), ("BF16", "16816", "F32"),
+          ("F16", "1688", "F32"), ("F16", "1688", "F16"), ("BF16", "1688", "F32"),
           ("TF32", "1684", "F32"), ("TF32", "1688", "F32"))
+
+
+def test_half_accumulator_promotes_every_encoding():
+    from sass.semantics import bitvec
+    from sass.semantics.families import matrix
+    from tests.refs import float
+    expression = bitvec.lowered(matrix.half_accumulator(bitvec.param("x", 16)))
+    initial = evaluate.State()
+    for bits in range(1 << 16):
+        assert evaluate.evaluate(expression, initial, {"x": bits}) == float.f2f(bits, 16, 32, "RN"), bits
 
 
 @pytest.mark.parametrize("arch", ["SM75", "SM80", "SM86", "SM89", "SM90", "SM100", "SM101", "SM103", "SM107", "SM120"])

@@ -25,7 +25,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM75/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpwipxjvdm/probe.cubin"
+    "/tmp/tmp67oot6rq/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -208,7 +208,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM75/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmpj_os6691/probe.cubin"
+    "/tmp/tmptdhasuch/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -293,7 +293,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM75/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpqvoelm46/probe.cubin"
+    "/tmp/tmpsahhp2cu/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -364,7 +364,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/dense.ptx",
     "-o",
-    "/tmp/tmp3rqlzvki/probe.cubin"
+    "/tmp/tmptpy1gsew/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/dense.ptx, line 18; error   : Feature '.m16n8k16' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
@@ -386,7 +386,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/f16_output.ptx",
     "-o",
-    "/tmp/tmp0q91kgtm/probe.cubin"
+    "/tmp/tmpsh5vw_qh/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/f16_output.ptx, line 18; error   : Feature '.m16n8k16' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
@@ -408,10 +408,148 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/bf16.ptx",
     "-o",
-    "/tmp/tmpz481yqf3/probe.cubin"
+    "/tmp/tmp8psufh38/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/bf16.ptx, line 18; error   : Feature '.bf16' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/bf16.ptx, line 18; error   : Feature '.bf16' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/bf16.ptx, line 18; error   : Feature '.m16n8k16' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
+   "status": "compiler rejected",
+   "instructions": []
+  },
+  {
+   "architecture": "SM75",
+   "compiler_target": "sm_75",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/f16_1688.ptx",
+   "source_sha256": "125a00effcdb87760cb361cf630462d0996507d51fe0b9b1c3f5717de01345d8",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/f16_1688.ptx",
+    "-o",
+    "/tmp/tmpl7qnb6k6/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "1c76ff57d03634fc9663aef909701e9cbcc562a6782e825b6097eda99390ad3f",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c100000005c4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "altfmt": "noaltfmt",
+      "satfinite": "nosatfinite",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "altfmt": 0,
+      "satfinite": 0,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 5,
+      "batch_t": 0,
+      "usched_info": 14,
+      "reuse_src_b": 0
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM75",
+   "compiler_target": "sm_75",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/f16_output_1688.ptx",
+   "source_sha256": "97586a33ff3cc1d4b72f9692f78e0a5681b916bcdaebcf56e4e4e329c6d54383",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/f16_output_1688.ptx",
+    "-o",
+    "/tmp/tmpp_ogdpki/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "45449dd77b39097781c2f9feb6c21e40fe6a9a02b05326e01e2e114942f743cd",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720a020800000004000000005c4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F16",
+      "altfmt": "noaltfmt",
+      "satfinite": "nosatfinite",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 0,
+      "altfmt": 0,
+      "satfinite": 0,
+      "Rd": 10,
+      "Ra": 2,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 5,
+      "batch_t": 0,
+      "usched_info": 14,
+      "reuse_src_b": 0
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM75",
+   "compiler_target": "sm_75",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/bf16_1688.ptx",
+   "source_sha256": "21af0782a2047ce2f5ab8e153a469f9d1eac929f6f4239e61d541a8a2dc6c5b5",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_75",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/bf16_1688.ptx",
+    "-o",
+    "/tmp/tmpi_j9dq14/probe.cubin"
+   ],
+   "returncode": 255,
+   "diagnostics": "ptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/bf16_1688.ptx, line 19; error   : Feature '.bf16' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/bf16_1688.ptx, line 19; error   : Feature '.bf16' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/bf16_1688.ptx, line 19; error   : Feature '.m16n8k8' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
    "status": "compiler rejected",
    "instructions": []
   },
@@ -430,7 +568,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/tf32_1684.ptx",
     "-o",
-    "/tmp/tmpt5jqea4r/probe.cubin"
+    "/tmp/tmpdxqz7v1_/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/tf32_1684.ptx, line 20; error   : Feature '.tf32' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/tf32_1684.ptx, line 20; error   : Feature '.tf32' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/tf32_1684.ptx, line 20; error   : Feature '.m16n8k4' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
@@ -452,7 +590,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM75/hmma/tf32_1688.ptx",
     "-o",
-    "/tmp/tmpwqd03l6v/probe.cubin"
+    "/tmp/tmpbfcpb38v/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/tf32_1688.ptx, line 19; error   : Feature '.tf32' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/tf32_1688.ptx, line 19; error   : Feature '.tf32' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/hmma/tf32_1688.ptx, line 19; error   : Feature '.m16n8k8' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
@@ -476,7 +614,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM75/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpk2dgkhmd/probe.cubin"
+    "/tmp/tmphx51gxce/probe.cubin"
    ],
    "returncode": 255,
    "diagnostics": "ptxas research/additional-opcodes/compiler-sources-13.4/SM75/ldgsts/groups.ptx, line 16; error   : Feature 'cp.async' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/ldgsts/groups.ptx, line 17; error   : Feature 'cp.async.commit_group' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/ldgsts/groups.ptx, line 19; error   : Feature 'cp.async' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/ldgsts/groups.ptx, line 20; error   : Feature 'cp.async.commit_group' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/ldgsts/groups.ptx, line 21; error   : Feature 'cp.async.wait_group' requires .target sm_80 or higher\nptxas research/additional-opcodes/compiler-sources-13.4/SM75/ldgsts/groups.ptx, line 23; error   : Feature 'cp.async.wait_group' requires .target sm_80 or higher\nptxas fatal   : Ptx assembly aborted due to errors\n",
@@ -498,7 +636,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM75/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpgcq9u_zc/probe.cubin"
+    "/tmp/tmpfrmeiy9r/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -549,7 +687,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM80/atomg/integer.ptx",
     "-o",
-    "/tmp/tmp13_bv3q5/probe.cubin"
+    "/tmp/tmp8x993kh9/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -738,7 +876,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM80/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmpunpnyr2m/probe.cubin"
+    "/tmp/tmpzv5vn8nl/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -823,7 +961,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM80/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpy5xhdx42/probe.cubin"
+    "/tmp/tmp0hyx_g2_/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -894,7 +1032,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpk5yg2ng_/probe.cubin"
+    "/tmp/tmpxn8rsmrw/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -951,7 +1089,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/f16_output.ptx",
     "-o",
-    "/tmp/tmpbak50xjg/probe.cubin"
+    "/tmp/tmpigok_1d3/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1008,7 +1146,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/bf16.ptx",
     "-o",
-    "/tmp/tmp7eg7ct80/probe.cubin"
+    "/tmp/tmpxn8fc7nr/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1054,6 +1192,177 @@
    "architecture": "SM80",
    "compiler_target": "sm_80",
    "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/f16_1688.ptx",
+   "source_sha256": "44e93b3459d5f6433cb8f97558377efd811c4ee8aee5f73603dcde3c091bdc53",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/f16_1688.ptx",
+    "-o",
+    "/tmp/tmp3qp9qw3n/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "8765aaa7e292a7f29b4ce7f4461f65c9e43b99d95342c33e74c7741b68bc44a8",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10000000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
+   "compiler_target": "sm_80",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/f16_output_1688.ptx",
+   "source_sha256": "c5f08dda0a525515958b4621431ad3f8757705580ea37c7c1ee8b889b6abe494",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/f16_output_1688.ptx",
+    "-o",
+    "/tmp/tmp6jf95bq0/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "836c4e23b57074e2752f169cfd8b2e26f37bf6bd101446fbaf61d9df29ac3add",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720a02080000000400000000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F16",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 0,
+      "srcfmt": 0,
+      "Rd": 10,
+      "Ra": 2,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
+   "compiler_target": "sm_80",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/bf16_1688.ptx",
+   "source_sha256": "7b36b401ee260b5373c206df8aeb541a92fcf6d4c6b764468c6307089093e778",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_80",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/bf16_1688.ptx",
+    "-o",
+    "/tmp/tmpc5pd_nqb/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "37d0730aadac91e3966e9a65a5e53979c8894377c5cfecc12a4c6b2ee0d1e7bf",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10040000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "BF16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 1,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM80",
+   "compiler_target": "sm_80",
+   "ptx_version": "9.4",
    "source": "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/tf32_1684.ptx",
    "source_sha256": "d7feb91b3148e4e1819dc435fae71fc4085a6ecdbb4f440b51a57c0a198686a2",
    "requested_opcodes": [
@@ -1065,7 +1374,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/tf32_1684.ptx",
     "-o",
-    "/tmp/tmpek51ewac/probe.cubin"
+    "/tmp/tmpc2gjjv8a/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1122,7 +1431,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM80/hmma/tf32_1688.ptx",
     "-o",
-    "/tmp/tmph13trspw/probe.cubin"
+    "/tmp/tmpjx5cfk7o/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1181,7 +1490,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM80/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpkrsv5ias/probe.cubin"
+    "/tmp/tmpu_fs9gxk/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1362,7 +1671,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM80/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpudtahoj8/probe.cubin"
+    "/tmp/tmp6m938ct6/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1413,7 +1722,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM86/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpu3_c6fos/probe.cubin"
+    "/tmp/tmpj2nxlvdy/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1608,7 +1917,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM86/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmp_kypq2ij/probe.cubin"
+    "/tmp/tmpdv0i2efa/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1696,7 +2005,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM86/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpjclpdl52/probe.cubin"
+    "/tmp/tmpd5v99c0y/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1769,7 +2078,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/dense.ptx",
     "-o",
-    "/tmp/tmp1bbj23iy/probe.cubin"
+    "/tmp/tmpq2aece5y/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1830,7 +2139,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/f16_output.ptx",
     "-o",
-    "/tmp/tmpl_8okysn/probe.cubin"
+    "/tmp/tmp9yu5xdjv/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1891,7 +2200,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/bf16.ptx",
     "-o",
-    "/tmp/tmpvlowho_e/probe.cubin"
+    "/tmp/tmpsh_bg3gs/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -1941,6 +2250,189 @@
    "architecture": "SM86",
    "compiler_target": "sm_86",
    "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/f16_1688.ptx",
+   "source_sha256": "40c660d87822515b806970c5e0aa313a7925aafe732a70c1c8f837208dbfe039",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/f16_1688.ptx",
+    "-o",
+    "/tmp/tmpi0d_drym/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "caab37cfc9086ebeba71ba3f92908b236640bf4fd34c2fdd6451b1e0613dbc41",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10000000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
+   "compiler_target": "sm_86",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/f16_output_1688.ptx",
+   "source_sha256": "f3e10350cd626549df38114f415b02828b0102edade9ded299640c429a973cd2",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/f16_output_1688.ptx",
+    "-o",
+    "/tmp/tmpz0v6i366/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "6b5f08397aa94b9953f92c5b91ec115064b227ba747e56761699770e813ddeb0",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720a02080000000400000000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F16",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 0,
+      "srcfmt": 0,
+      "Rd": 10,
+      "Ra": 2,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
+   "compiler_target": "sm_86",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/bf16_1688.ptx",
+   "source_sha256": "6d07c76c7b23b45e44f52158a5f687d8d337d9dd3c006870ae935776922ea04a",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_86",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/bf16_1688.ptx",
+    "-o",
+    "/tmp/tmprxp8u9ob/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "3216b7164127dcfb5b505cbedbab576a29d0f02665f42932b327e16983fc110f",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10040000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "BF16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 1,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM86",
+   "compiler_target": "sm_86",
+   "ptx_version": "9.4",
    "source": "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/tf32_1684.ptx",
    "source_sha256": "8fb1c5e64f8fcb690248d8a1a6aedae801f19b5920d9ffd1b883cf529a349d12",
    "requested_opcodes": [
@@ -1952,7 +2444,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/tf32_1684.ptx",
     "-o",
-    "/tmp/tmpvjd9m9vg/probe.cubin"
+    "/tmp/tmpixrdakjq/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2013,7 +2505,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM86/hmma/tf32_1688.ptx",
     "-o",
-    "/tmp/tmp2l2i6x38/probe.cubin"
+    "/tmp/tmpib6v3a0c/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2076,7 +2568,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM86/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmplbwww7hy/probe.cubin"
+    "/tmp/tmph6qoo8oy/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2263,7 +2755,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM86/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpxhw938xg/probe.cubin"
+    "/tmp/tmpj2c0922r/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2315,7 +2807,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM89/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpl_ci997_/probe.cubin"
+    "/tmp/tmpzyhm0pvt/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2510,7 +3002,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM89/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmpuyarwm23/probe.cubin"
+    "/tmp/tmp4pfhhzzb/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2598,7 +3090,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM89/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmprewsx7w9/probe.cubin"
+    "/tmp/tmp0_htzbv3/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2671,7 +3163,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/dense.ptx",
     "-o",
-    "/tmp/tmp6caly5oe/probe.cubin"
+    "/tmp/tmpj63gylea/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2732,7 +3224,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/f16_output.ptx",
     "-o",
-    "/tmp/tmp9dbto2db/probe.cubin"
+    "/tmp/tmp_cj6vapz/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2793,7 +3285,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/bf16.ptx",
     "-o",
-    "/tmp/tmpc_tb2how/probe.cubin"
+    "/tmp/tmpb8w_pg75/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2843,6 +3335,189 @@
    "architecture": "SM89",
    "compiler_target": "sm_89",
    "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/f16_1688.ptx",
+   "source_sha256": "baa2a2e936777e0f8ee1d6c51ed0359a4ed0b16ecb7404840a7be327f9dc6b28",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/f16_1688.ptx",
+    "-o",
+    "/tmp/tmp6d2og53z/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "25eea7a341a84028e6f520c10778d41d624058ac7169d827bc0ecc694afe5ad5",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10000000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
+   "compiler_target": "sm_89",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/f16_output_1688.ptx",
+   "source_sha256": "01b3961034e6d077e058ced11a1e28c22e98a8f3606895b1ca2fc3608925fda7",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/f16_output_1688.ptx",
+    "-o",
+    "/tmp/tmp252szpfo/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "08ac896fe5c0274227e768372e264acfcb8ceb4e76b03b4df8d09935521f13a6",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720a02080000000400000000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F16",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 0,
+      "srcfmt": 0,
+      "Rd": 10,
+      "Ra": 2,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
+   "compiler_target": "sm_89",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/bf16_1688.ptx",
+   "source_sha256": "5dcfd0a5bd4b9262fce697b9883decfae7acfde3ed3c49b0c298fcbf47123870",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_89",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/bf16_1688.ptx",
+    "-o",
+    "/tmp/tmp_7so__ni/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "867735381c146403b9a6f7fbc34137b873b27b9094302cafdaa7a25dc9fff939",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10040000de4f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "BF16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 1,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 15,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM89",
+   "compiler_target": "sm_89",
+   "ptx_version": "9.4",
    "source": "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/tf32_1684.ptx",
    "source_sha256": "4381b2c7f67a836f3c8afe12f4a22212ee240a6cd011c4c95da7aab45d4aac1b",
    "requested_opcodes": [
@@ -2854,7 +3529,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/tf32_1684.ptx",
     "-o",
-    "/tmp/tmpbuma8ieh/probe.cubin"
+    "/tmp/tmpljwgunce/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2915,7 +3590,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM89/hmma/tf32_1688.ptx",
     "-o",
-    "/tmp/tmp1damnqeb/probe.cubin"
+    "/tmp/tmp5mj2mvei/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -2978,7 +3653,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM89/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmplkawm32_/probe.cubin"
+    "/tmp/tmpx0z7pehe/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3165,7 +3840,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM89/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpa8jxaxf9/probe.cubin"
+    "/tmp/tmp0pgxfwzm/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3217,7 +3892,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM90/atomg/integer.ptx",
     "-o",
-    "/tmp/tmp6l4gz6ic/probe.cubin"
+    "/tmp/tmpp91zz7ml/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3408,7 +4083,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM90/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmp0c5_e9oq/probe.cubin"
+    "/tmp/tmp45nzovx0/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3496,7 +4171,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM90/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmp8jd9mwhy/probe.cubin"
+    "/tmp/tmpqe8s4l7k/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3569,7 +4244,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/dense.ptx",
     "-o",
-    "/tmp/tmp4at46nop/probe.cubin"
+    "/tmp/tmpfeoz1eys/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3630,7 +4305,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/f16_output.ptx",
     "-o",
-    "/tmp/tmp0ot8j73o/probe.cubin"
+    "/tmp/tmpf5acpjgd/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3691,7 +4366,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/bf16.ptx",
     "-o",
-    "/tmp/tmp_drew5tl/probe.cubin"
+    "/tmp/tmpmgbuyl2o/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3741,6 +4416,189 @@
    "architecture": "SM90",
    "compiler_target": "sm_90",
    "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/f16_1688.ptx",
+   "source_sha256": "275f864143e840fdb230dda28ce5e7b516a95989fd783b24d36c5542f323dcd1",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/f16_1688.ptx",
+    "-o",
+    "/tmp/tmpg1i1aqri/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "43148b0ce2a75f05fcdd896e0e13b88658f091ffc6678a5753082ae95670b864",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10000000f60f01",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 16,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
+   "compiler_target": "sm_90",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/f16_output_1688.ptx",
+   "source_sha256": "bca3fc29edd2c8fd10276bd163403ecbe714429ac4a5a4fc0fb57154496ed58f",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/f16_output_1688.ptx",
+    "-o",
+    "/tmp/tmp4loq1oth/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "aa4fcff0f8e873364ef8510b9e9a75836230d59b9e1fdb1aca0a6121472b80de",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720a02080000000400000000f60f01",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F16",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 0,
+      "srcfmt": 0,
+      "Rd": 10,
+      "Ra": 2,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 16,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
+   "compiler_target": "sm_90",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/bf16_1688.ptx",
+   "source_sha256": "9d35a5632af509dee1fc47f49f0222aa8084c555d674225863a99aafb411849c",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_90",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/bf16_1688.ptx",
+    "-o",
+    "/tmp/tmp07m46pz9/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "a759b4045ebd1003a1eb16b5f2147fd27db8efa3b97ac60d15452592de87960c",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10040000f60f01",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "BF16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 1,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 16,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM90",
+   "compiler_target": "sm_90",
+   "ptx_version": "9.4",
    "source": "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/tf32_1684.ptx",
    "source_sha256": "559bd7b7f13cb17bae01631ee5d1bb46d14cd396370f9d9deca2d7cfdbe89b1a",
    "requested_opcodes": [
@@ -3752,7 +4610,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/tf32_1684.ptx",
     "-o",
-    "/tmp/tmps6mtrcks/probe.cubin"
+    "/tmp/tmp_9yf51na/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3813,7 +4671,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM90/hmma/tf32_1688.ptx",
     "-o",
-    "/tmp/tmpyaa9b5il/probe.cubin"
+    "/tmp/tmpdxx7nc6k/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -3876,7 +4734,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM90/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpz76zq_4k/probe.cubin"
+    "/tmp/tmpv72nu3he/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4059,7 +4917,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM90/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpzw1b3ol0/probe.cubin"
+    "/tmp/tmp9fpm42x0/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4112,7 +4970,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM100/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpnfmhguqj/probe.cubin"
+    "/tmp/tmpjtam77i3/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4303,7 +5161,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM100/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmp6s5q83y9/probe.cubin"
+    "/tmp/tmpxo0xl9d0/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4391,7 +5249,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM100/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpa4i34i8s/probe.cubin"
+    "/tmp/tmpbjb7vrr0/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4464,7 +5322,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpse1fxwxa/probe.cubin"
+    "/tmp/tmp3s7tiblx/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4525,7 +5383,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/f16_output.ptx",
     "-o",
-    "/tmp/tmpl4tfutpz/probe.cubin"
+    "/tmp/tmpe1ix2w2z/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4586,7 +5444,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/bf16.ptx",
     "-o",
-    "/tmp/tmppnyw6r1y/probe.cubin"
+    "/tmp/tmpf4ntb4a2/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4636,6 +5494,189 @@
    "architecture": "SM100",
    "compiler_target": "sm_100",
    "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/f16_1688.ptx",
+   "source_sha256": "ee72ab7dbd39762478e534b601830ffe5946e18601aae9002f3428c3afbccff0",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/f16_1688.ptx",
+    "-o",
+    "/tmp/tmp4cmvw4q0/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "9deeef121f23ad880bead954b4bb1e1b8c3b68b53aa4edffc20301e6ea1e5993",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10000000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
+   "compiler_target": "sm_100",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/f16_output_1688.ptx",
+   "source_sha256": "ea6f24fc79f7eea12d5e477bacf6a43b0febac96009a4b83f23f556436232d88",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/f16_output_1688.ptx",
+    "-o",
+    "/tmp/tmplcqxtx22/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "5aa8f1c3308530280b753297dd32a72d11dafab168deaddc441e3458b3846805",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720a02080000000400000000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F16",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 0,
+      "srcfmt": 0,
+      "Rd": 10,
+      "Ra": 2,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
+   "compiler_target": "sm_100",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/bf16_1688.ptx",
+   "source_sha256": "1e7bb7748d63885a31e0c0083207ec81496e19cf6cb88c966406ce068a8facbd",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_100",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/bf16_1688.ptx",
+    "-o",
+    "/tmp/tmp2yefi1lx/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "b544fcbd0d4dd733d05ccb676b48d1498b51b6b482a2e1e5df511580c62bdeb8",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10040000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "BF16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 1,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM100",
+   "compiler_target": "sm_100",
+   "ptx_version": "9.4",
    "source": "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/tf32_1684.ptx",
    "source_sha256": "748ecf2be539e02e7aa9caf78a5907ef897474a25d5efc9fdec39dc31a17a9b5",
    "requested_opcodes": [
@@ -4647,7 +5688,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/tf32_1684.ptx",
     "-o",
-    "/tmp/tmpy9i9erf7/probe.cubin"
+    "/tmp/tmp49iocan1/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4708,7 +5749,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM100/hmma/tf32_1688.ptx",
     "-o",
-    "/tmp/tmplj60g5b5/probe.cubin"
+    "/tmp/tmplhmhn349/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4771,7 +5812,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM100/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpb9en3zdd/probe.cubin"
+    "/tmp/tmps5775o9n/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -4954,7 +5995,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM100/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpbekeram8/probe.cubin"
+    "/tmp/tmpyp5ualtb/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5007,7 +6048,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM101/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpiav2odwa/probe.cubin"
+    "/tmp/tmptv7ba01g/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5198,7 +6239,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM101/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmpinr9w_6y/probe.cubin"
+    "/tmp/tmpt211mtse/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5286,7 +6327,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM101/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpuo15hudf/probe.cubin"
+    "/tmp/tmps4skjgdn/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5359,7 +6400,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpxkjm0vel/probe.cubin"
+    "/tmp/tmp4yot3gwe/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5420,7 +6461,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/f16_output.ptx",
     "-o",
-    "/tmp/tmpsg9yvdpz/probe.cubin"
+    "/tmp/tmppvtw7q1f/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5481,7 +6522,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/bf16.ptx",
     "-o",
-    "/tmp/tmp45sl_u61/probe.cubin"
+    "/tmp/tmp_7aqr_59/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5531,6 +6572,189 @@
    "architecture": "SM101",
    "compiler_target": "sm_110",
    "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/f16_1688.ptx",
+   "source_sha256": "fbf6e742c1d15ef6d0696b4b6405abb05009362efc3308af6f82e4e1d3e8a5a5",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_110",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/f16_1688.ptx",
+    "-o",
+    "/tmp/tmpib346hxg/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "d1a62a5541f50337ff5a01718dfe30c071234ef7cedf48ea2deafab90e26898e",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10000000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM101",
+   "compiler_target": "sm_110",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/f16_output_1688.ptx",
+   "source_sha256": "9ce7e04cb14dff50d46b5557e982eca58b6f3f8a91073a9c92cee14df82eff4f",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_110",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/f16_output_1688.ptx",
+    "-o",
+    "/tmp/tmpuie5d5d7/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "dc03818dd4cdac556b6c95d3805ac673cf8b1b6b450e1319b8eb54afff63dcef",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720a02080000000400000000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F16",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 0,
+      "srcfmt": 0,
+      "Rd": 10,
+      "Ra": 2,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM101",
+   "compiler_target": "sm_110",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/bf16_1688.ptx",
+   "source_sha256": "83caa2d8e0b10215c4430736c172742989506a444f075214fa8b12d475bef8aa",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_110",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/bf16_1688.ptx",
+    "-o",
+    "/tmp/tmpge61tf50/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "eb356fc0841d0bc52676525812ccfd5a2aaff36fd3b1cd3db51709564eb78dac",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10040000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "BF16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 1,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM101",
+   "compiler_target": "sm_110",
+   "ptx_version": "9.4",
    "source": "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/tf32_1684.ptx",
    "source_sha256": "b397a199a11e300f4744714affe0795f864b3f46a10938f33cd1e33d67e827b6",
    "requested_opcodes": [
@@ -5542,7 +6766,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/tf32_1684.ptx",
     "-o",
-    "/tmp/tmpjc7nf16b/probe.cubin"
+    "/tmp/tmpnvgr4p41/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5603,7 +6827,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM101/hmma/tf32_1688.ptx",
     "-o",
-    "/tmp/tmp1s0a13yk/probe.cubin"
+    "/tmp/tmpmucrgn4h/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5666,7 +6890,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM101/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmp77u8ac30/probe.cubin"
+    "/tmp/tmpvsafqy5q/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5849,7 +7073,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM101/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmp79dw_z45/probe.cubin"
+    "/tmp/tmpqzlj_z3y/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -5902,7 +7126,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM103/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpl6fjsf5j/probe.cubin"
+    "/tmp/tmpiw050tov/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6093,7 +7317,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM103/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmpw6fn6k3q/probe.cubin"
+    "/tmp/tmp4jqr029z/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6181,7 +7405,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM103/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpd25rv59i/probe.cubin"
+    "/tmp/tmpm17a3751/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6254,7 +7478,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/dense.ptx",
     "-o",
-    "/tmp/tmptp24ol8t/probe.cubin"
+    "/tmp/tmpq9toisio/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6315,7 +7539,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/f16_output.ptx",
     "-o",
-    "/tmp/tmps5srpiu1/probe.cubin"
+    "/tmp/tmpr3v0_ck7/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6376,7 +7600,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/bf16.ptx",
     "-o",
-    "/tmp/tmpcfu193r6/probe.cubin"
+    "/tmp/tmptdm3xy30/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6426,6 +7650,189 @@
    "architecture": "SM103",
    "compiler_target": "sm_103",
    "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/f16_1688.ptx",
+   "source_sha256": "1de33fb81a6d3352e30b936fc8a31a00aa3f556d2239a73dde8b28a494ca57ee",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/f16_1688.ptx",
+    "-o",
+    "/tmp/tmps4hbqlkj/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "8cc963fc397183d1a54bc8482d4d15a160fbc5d8a9ee46b640c0e7cda61d6213",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10000000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM103",
+   "compiler_target": "sm_103",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/f16_output_1688.ptx",
+   "source_sha256": "4f12e2b859b2876a359c35009ac7133e2ae38afe0d7a92cb2a4b0d95d51c7be4",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/f16_output_1688.ptx",
+    "-o",
+    "/tmp/tmp45noalrs/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "6e3847b1c775d08f7ad6187dd8366d012b3f7d7dce71c4ab48e558eb1fd0aba7",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720a02080000000400000000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F16",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 0,
+      "srcfmt": 0,
+      "Rd": 10,
+      "Ra": 2,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM103",
+   "compiler_target": "sm_103",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/bf16_1688.ptx",
+   "source_sha256": "3e5fcd57fa22a3dae46cb9aae5413d706e647b0f63eb7a8a65dba43ffaba4f06",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_103",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/bf16_1688.ptx",
+    "-o",
+    "/tmp/tmplg02vf9e/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "4f6fcb2ea3536bdd8c89ed733457f89539d431efd713ce858550b4b8edf3be15",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10040000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "BF16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 1,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "src_rel_sb": 7,
+      "dst_wr_sb": 7,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM103",
+   "compiler_target": "sm_103",
+   "ptx_version": "9.4",
    "source": "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/tf32_1684.ptx",
    "source_sha256": "8943161057499e0df91cb3aa5a470c21c6f26bd31efaf3d33545a7e77cd32652",
    "requested_opcodes": [
@@ -6437,7 +7844,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/tf32_1684.ptx",
     "-o",
-    "/tmp/tmphec1xh0i/probe.cubin"
+    "/tmp/tmp8waqgv0l/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6498,7 +7905,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM103/hmma/tf32_1688.ptx",
     "-o",
-    "/tmp/tmpiqwa5t_k/probe.cubin"
+    "/tmp/tmpkrq8vlux/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6561,7 +7968,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM103/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpfjpgvjs9/probe.cubin"
+    "/tmp/tmpe75vj3j4/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6744,7 +8151,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM103/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmp5ep2y8cq/probe.cubin"
+    "/tmp/tmpq1akuc1r/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6797,7 +8204,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM107/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpwep76ayp/probe.cubin"
+    "/tmp/tmpyistwxtw/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -6988,7 +8395,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM107/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmpdwq59s_u/probe.cubin"
+    "/tmp/tmpkev8hkrj/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7076,7 +8483,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM107/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpavnhufcc/probe.cubin"
+    "/tmp/tmpx9httti9/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7149,7 +8556,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpnvqtauw1/probe.cubin"
+    "/tmp/tmpu_qepj4x/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7208,7 +8615,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/f16_output.ptx",
     "-o",
-    "/tmp/tmp3sl1nidc/probe.cubin"
+    "/tmp/tmpdze3hiys/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7267,7 +8674,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/bf16.ptx",
     "-o",
-    "/tmp/tmpmv446gk0/probe.cubin"
+    "/tmp/tmpvqn6xrs9/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7315,6 +8722,183 @@
    "architecture": "SM107",
    "compiler_target": "sm_107",
    "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/f16_1688.ptx",
+   "source_sha256": "bafdf1db34ff20dedfaa29747579333351600844e1e7f4bf50c59975ec1a13b9",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/f16_1688.ptx",
+    "-o",
+    "/tmp/tmpl_h_oe2i/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "f53b87377ffea170c39337844743245e4fe7abaa8bf1d6b8f512adeaa890527d",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10000000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM107",
+   "compiler_target": "sm_107",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/f16_output_1688.ptx",
+   "source_sha256": "11e053d36671851c96278d77ac19d09b46821c046c1e94886a607b1fe34ad626",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/f16_output_1688.ptx",
+    "-o",
+    "/tmp/tmpgos16c6e/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "3c00ae3a7a9f251fb72f4884c7946723186035b00d4a72bac0ec6a5043240f4b",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720a02080000000400000000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F16",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 0,
+      "srcfmt": 0,
+      "Rd": 10,
+      "Ra": 2,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM107",
+   "compiler_target": "sm_107",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/bf16_1688.ptx",
+   "source_sha256": "d6dd9106faa88d260930c72cce8856e888ac2651ddd9c04b74098f98efc1452d",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_107",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/bf16_1688.ptx",
+    "-o",
+    "/tmp/tmp0cz26cf3/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "64545481c14acd77aaf21fc1e811c19ee8760804f5a1868bb67becc2ee68880e",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10040000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "BF16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 1,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_a": 0,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM107",
+   "compiler_target": "sm_107",
+   "ptx_version": "9.4",
    "source": "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/tf32_1684.ptx",
    "source_sha256": "95e3ee8625b6853dac5e74323db75a64bc39de03d34faca680bf8c81b0b43f0e",
    "requested_opcodes": [
@@ -7326,7 +8910,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/tf32_1684.ptx",
     "-o",
-    "/tmp/tmp36rqq19i/probe.cubin"
+    "/tmp/tmpidoyq2fz/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7385,7 +8969,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM107/hmma/tf32_1688.ptx",
     "-o",
-    "/tmp/tmpf_e65wz8/probe.cubin"
+    "/tmp/tmpcg04w9dm/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7446,7 +9030,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM107/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpvm_okcx7/probe.cubin"
+    "/tmp/tmpr9qfxbe2/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7629,7 +9213,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM107/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpngmv0qy6/probe.cubin"
+    "/tmp/tmpnhsp0vzi/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7682,7 +9266,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM120/atomg/integer.ptx",
     "-o",
-    "/tmp/tmpvp3mqu4u/probe.cubin"
+    "/tmp/tmpqbbk0866/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7873,7 +9457,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM120/b2r/reductions.ptx",
     "-o",
-    "/tmp/tmplb5ilh6v/probe.cubin"
+    "/tmp/tmpwte0ub8u/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -7961,7 +9545,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM120/cctl/prefetch.ptx",
     "-o",
-    "/tmp/tmpdkmyit_x/probe.cubin"
+    "/tmp/tmpzzh8uhj6/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -8034,7 +9618,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/dense.ptx",
     "-o",
-    "/tmp/tmpccyquase/probe.cubin"
+    "/tmp/tmp8o6c8qq8/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -8092,7 +9676,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/f16_output.ptx",
     "-o",
-    "/tmp/tmpaxc458b6/probe.cubin"
+    "/tmp/tmppd65tsut/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -8150,7 +9734,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/bf16.ptx",
     "-o",
-    "/tmp/tmpjg3znlzy/probe.cubin"
+    "/tmp/tmplnzth6yx/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -8197,6 +9781,180 @@
    "architecture": "SM120",
    "compiler_target": "sm_120",
    "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/f16_1688.ptx",
+   "source_sha256": "10d27d074b20463df3f86c0f8e44a50fbb4917d25a6e1327dbd8470255000e36",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/f16_1688.ptx",
+    "-o",
+    "/tmp/tmpqpx8x1oi/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "9f30d1f454a31bed790acc686c72a221664ab38c21be3be114d84c556cb33a55",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10000000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 0,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM120",
+   "compiler_target": "sm_120",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/f16_output_1688.ptx",
+   "source_sha256": "48067f8e743943df3baf667d6ae7d55137b693b790f1605a1f6dcdd768472c85",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/f16_output_1688.ptx",
+    "-o",
+    "/tmp/tmp4hw9k729/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "8ae2513ec61ad012cf4d9ae1128bf37d8461756ef0c91e59e25a479acfcc91a5",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720a02080000000400000000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F16",
+      "srcfmt": "F16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 0,
+      "srcfmt": 0,
+      "Rd": 10,
+      "Ra": 2,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 4,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM120",
+   "compiler_target": "sm_120",
+   "ptx_version": "9.4",
+   "source": "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/bf16_1688.ptx",
+   "source_sha256": "87703aedd560cee052e7fee668abb7537f4105ffc3eddc1b969f8f451d9e091b",
+   "requested_opcodes": [
+    "HMMA"
+   ],
+   "command": [
+    "/tmp/additional-cuda-13.4/ptxas",
+    "-arch=sm_120",
+    "-O3",
+    "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/bf16_1688.ptx",
+    "-o",
+    "/tmp/tmp0ku12hhq/probe.cubin"
+   ],
+   "returncode": 0,
+   "diagnostics": "",
+   "status": "compiled",
+   "image_sha256": "1487ee35f95e311339211e3be9c2681ad2cc8f334e92a7b2b0870599c7f0058c",
+   "instructions": [
+    {
+     "opcode": "HMMA",
+     "cls": "hmma_x8_",
+     "word": "3c720c06080000000c10040000f64f00",
+     "settings": {
+      "size": "1688",
+      "dstfmt": "F32",
+      "srcfmt": "BF16",
+      "Ra@negate": "unset",
+      "Rb@negate": "unset",
+      "UPp@not": "unset"
+     },
+     "operands": {
+      "Pg": 7,
+      "Pg@not": 0,
+      "size": 0,
+      "dstfmt": 1,
+      "srcfmt": 1,
+      "Rd": 12,
+      "Ra": 6,
+      "Ra@negate": 0,
+      "Rb": 8,
+      "Rb@negate": 0,
+      "Rc": 12,
+      "req_bit_set": 4,
+      "pm_pred": 0,
+      "batch_t": 0,
+      "usched_info": 27,
+      "reuse_src_b": 0,
+      "UPp@not": 0,
+      "UPp": 7
+     }
+    }
+   ],
+   "missing_opcodes": []
+  },
+  {
+   "architecture": "SM120",
+   "compiler_target": "sm_120",
+   "ptx_version": "9.4",
    "source": "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/tf32_1684.ptx",
    "source_sha256": "6b64058c964cfde203d797237003502671e06a1763793c2952d0912341855c55",
    "requested_opcodes": [
@@ -8208,7 +9966,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/tf32_1684.ptx",
     "-o",
-    "/tmp/tmpoa1i5i52/probe.cubin"
+    "/tmp/tmprnz7989z/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -8266,7 +10024,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM120/hmma/tf32_1688.ptx",
     "-o",
-    "/tmp/tmpi1it9qbs/probe.cubin"
+    "/tmp/tmp2wj1x6_a/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -8326,7 +10084,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM120/ldgsts/groups.ptx",
     "-o",
-    "/tmp/tmpwd28ttls/probe.cubin"
+    "/tmp/tmp0kn4g6q6/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",
@@ -8509,7 +10267,7 @@
     "-O3",
     "research/additional-opcodes/compiler-sources-13.4/SM120/ldsm/m8n8.ptx",
     "-o",
-    "/tmp/tmpkscdvjhr/probe.cubin"
+    "/tmp/tmpr74w4w3w/probe.cubin"
    ],
    "returncode": 0,
    "diagnostics": "",

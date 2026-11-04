@@ -22,8 +22,8 @@
   packed-register BAR ID/count, BREAK and BMOV remain unresolved. SM89 observations do not
   establish SM90 numerical or synchronization behavior.
 - Additional opcode forms (#117, updated 2026-11-04): HMMA shapes/formats beyond dense
-  F16/BF16/16816 and TF32/1684/1688 with F32 accumulators, or F16/16816 with F16 outputs;
-  sparse metadata and indexed registers;
+  F16/BF16/1688/16816 and TF32/1684/1688 with F32 accumulators, or F16/1688/16816 with F16 outputs;
+  legacy SM75 HMMA, sparse metadata and indexed registers;
   packed/expanded LDSM; SAFEADD, newer floating atomic types/operations and
   MMIO; BRX depth changes; B2R BAR/WARP; CCTL, ERRBAR and YIELD remain unfinished. MEMBAR's
   async/MMIO obligations and a complete ordinary-instruction scoreboard model are unresolved.

@@ -23,6 +23,8 @@ def main():
     finally: driver.close()
     args.out.write_text(json.dumps(dict(
         kind='bounded compiler-generated whole-kernel discovery; no verification credit', device=driver.device,
+        source_sha256=hashlib.sha256(source.encode()).hexdigest(),
+        compiler_version=subprocess.check_output([paths.PTXAS, '--version'], text=True).strip(),
         compiler_sha256=hashlib.sha256(Path(paths.PTXAS).read_bytes()).hexdigest(), observations=rows), indent=1)+'\n')
 
 
@@ -46,10 +48,13 @@ def observe(source, driver, rows, directory):
                     word = encoding.encode_environment(ir.load('SM89'), decoded.klass, fields, base=decoded.env)[0]
                     image = template.patch({offset: (int.from_bytes(word, 'little'), template.control(offset))})
             for block in (64, 128):
-                fixture = gpu.Fixture(f'yield_{producer}_{mode}_{block}', image, 'acquire_loop', bytes(12 * block), None, block=block, scope='launch')
-                outputs = driver.run(fixture)
+                fixture = gpu.Fixture(f'yield_{producer}_{mode}_{block}', image, 'acquire_loop',
+                                      bytes(12 * block), None, output_size=8, block=block, scope='launch')
+                outputs = [dict(flag=value & 0xffffffff, polls=value >> 32) for value in driver.run(fixture)]
                 rows.append(dict(producer=producer, mode=mode, block=block, outputs=outputs,
+                                 yield_offset=offset, yield_word=template.code[offset:offset+16].hex(),
+                                 patched_word=gpu.Template(image, 'acquire_loop').code[offset:offset+16].hex(),
                                  image_sha256=hashlib.sha256(image).hexdigest()))
-                print(producer, mode, block, sorted(set(outputs)), flush=True)
+                print(producer, mode, block, sorted({(v['flag'], v['polls']) for v in outputs}), flush=True)
 
 if __name__ == '__main__': main()

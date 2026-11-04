@@ -93,14 +93,18 @@ def hmma(c, k, form):
     if form.get("srcfmt") == "TF32": return tf32(c, k, form)
     source = form.get("srcfmt")
     half_output = form.get("dstfmt") == "F16"
-    if k.name != "hmma_x8_" or (form.get("size"), source, form.get("dstfmt")) not in (
-        ("16816", "F16", "F32"), ("16816", "BF16", "F32"), ("16816", "F16", "F16")):
-        raise Unsupported("HMMA adapter covers direct 16816 F16/F16, F16/F32 and BF16/F32")
+    if k.name != "hmma_x8_" or form.get("size") not in ("1688", "16816") or (
+        source, form.get("dstfmt")) not in (("F16", "F32"), ("BF16", "F32"), ("F16", "F16")):
+        raise Unsupported("HMMA adapter covers direct 1688/16816 F16/F16, F16/F32 and BF16/F32")
+    count = int(form["size"][3:])
     def bits(value, fmt):
         return int.from_bytes(struct.pack("<f", value), "little") >> 16 if source == "BF16" and fmt == "<e" else int.from_bytes(struct.pack(fmt, value), "little")
     profile = "hmma_f16_output_forms" if half_output else "hmma_bf16_forms" if source == "BF16" else "hmma_forms"
     midpoint = 2 ** (-11 if half_output else -24)
     for pattern in autocase_profiles.PROFILES[profile]["patterns"]:
+        match pattern.split("_"):
+            case ["pair", first, last] if max(int(first), int(last)) >= count: continue
+            case ["cancel", "pair", index] if int(index) >= count: continue
         rng = random.Random(int(pattern.split("_")[-1])) if pattern.startswith("random_") else None
         def finite(width, exponent_mask):
             value = rng.getrandbits(width)
@@ -109,9 +113,9 @@ def hmma(c, k, form):
             unpack = lambda v: struct.unpack("<f", (v << 16).to_bytes(4, "little"))[0] if source == "BF16" else struct.unpack("<e", v.to_bytes(2, "little"))[0]
             mask = 0x7f80 if source == "BF16" else 0x7c00
             random_a = [[unpack(finite(16, mask))
-                         for _ in range(16)] for _ in range(16)]
+                         for _ in range(count)] for _ in range(16)]
             random_b = [[unpack(finite(16, mask))
-                         for _ in range(8)] for _ in range(16)]
+                         for _ in range(8)] for _ in range(count)]
             random_c = [[struct.unpack("<e", finite(16, 0x7c00).to_bytes(2, "little"))[0] if half_output else
                          struct.unpack("<f", finite(32, 0x7f800000).to_bytes(4, "little"))[0]
                          if int(pattern.split("_")[-1]) % 2 else rng.uniform(-4, 4)
@@ -149,10 +153,10 @@ def hmma(c, k, form):
                 case "coordinates": return column + 1
                 case "identity": return row + 1
                 case "small": return 2 ** -24
-                case "cancel": return 1 if row < 8 else -1
+                case "cancel": return 1 if row < count // 2 else -1
                 case "cancel_even": return 1 if row % 2 == 0 else -1
                 case "nan_b": return float("nan")
-                case "infinity_cancel": return float("inf") if row < 8 else -float("inf")
+                case "infinity_cancel": return float("inf") if row < count // 2 else -float("inf")
                 case "zero_times_inf" | "positive_inf": return float("inf")
                 case "negative_inf": return -float("inf")
                 case "max_half": return 65504
@@ -185,15 +189,15 @@ def hmma(c, k, form):
         for lane in range(32):
             row, thread = lane // 4, lane % 4
             half_a = [bits(a(row + dr, thread * 2 + dk + n), "<e")
-                      for dk, dr in ((0, 0), (0, 8), (8, 0), (8, 8)) for n in (0, 1)]
-            half_b = [bits(b(thread * 2 + dk + n, row), "<e") for dk in (0, 8) for n in (0, 1)]
-            if pattern == "snan_a": half_a = [0x7f81 if source == "BF16" else 0x7c01] * 8
-            if pattern == "snan_b": half_b = [0xff81 if source == "BF16" else 0xfc01] * 4
+                      for dk in range(0, count, 8) for dr in (0, 8) for n in (0, 1)]
+            half_b = [bits(b(thread * 2 + dk + n, row), "<e") for dk in range(0, count, 8) for n in (0, 1)]
+            if pattern == "snan_a": half_a = [0x7f81 if source == "BF16" else 0x7c01] * (count // 2)
+            if pattern == "snan_b": half_b = [0xff81 if source == "BF16" else 0xfc01] * (count // 4)
             if pattern.startswith("raw_"):
                 _, raw_a, raw_b, raw_c = pattern.split("_")
-                half_a, half_b = [int(raw_a, 16)] * 8, [int(raw_b, 16)] * 4
-            groups["Ra"].append([half_a[j] | half_a[j + 1] << 16 for j in range(0, 8, 2)])
-            groups["Rb"].append([half_b[j] | half_b[j + 1] << 16 for j in range(0, 4, 2)])
+                half_a, half_b = [int(raw_a, 16)] * (count // 2), [int(raw_b, 16)] * (count // 4)
+            groups["Ra"].append([half_a[j] | half_a[j + 1] << 16 for j in range(0, count // 2, 2)])
+            groups["Rb"].append([half_b[j] | half_b[j + 1] << 16 for j in range(0, count // 4, 2)])
             values = [bits(accumulator(row + dr, thread * 2 + n), "<e" if half_output else "<f")
                       for dr in (0, 8) for n in (0, 1)]
             groups["Rc"].append([values[j] | values[j + 1] << 16 for j in (0, 2)] if half_output else values)
@@ -203,7 +207,7 @@ def hmma(c, k, form):
                 groups["Rc"][-1] = [value | value << 16] * 2 if half_output else [value] * 4
         lanes = range(32) if rng else autocase_profiles.PROFILES["matrix_forms"]["lanes"] if pattern in (
             "ones", "coordinates", "identity", "accumulator", "small", "cancel") else (0,)
-        hmma_cases(c, k, form, groups, pattern, lanes, source)
+        hmma_cases(c, k, form, groups, pattern, lanes, source, count)
     return c
 
 

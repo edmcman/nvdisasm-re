@@ -55,6 +55,7 @@ def main():
     probes = [paths.ROOT / "tests/ptx" / family / name for family, name in
               (("atomg", "integer.ptx"), ("b2r", "reductions.ptx"), ("cctl", "prefetch.ptx"),
                ("hmma", "dense.ptx"), ("hmma", "f16_output.ptx"), ("hmma", "bf16.ptx"),
+               ("hmma", "f16_1688.ptx"), ("hmma", "f16_output_1688.ptx"), ("hmma", "bf16_1688.ptx"),
                ("hmma", "tf32_1684.ptx"), ("hmma", "tf32_1688.ptx"),
                ("ldgsts", "groups.ptx"), ("ldsm", "m8n8.ptx"))]
     renamed = {"SM101": "SM110"} if args.renamed_targets else {}

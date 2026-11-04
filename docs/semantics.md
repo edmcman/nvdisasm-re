@@ -47,9 +47,9 @@ Reading notes:
   (`memory.py`), runtime-executed operations (`runtime.py`); UP2UR is in `integer.py`, HFMA2.MMA in `floating.py`.
 - `atomic.py` supplies integer atomic updates, floating atomic ADD, and ordinary SC fences;
   `asynchronous.py` supplies copy issue, commit, and wait effects; `matrix.py` supplies
-  unexpanded 16-bit M88/MT88 matrix loads and direct HMMA F16/BF16/16816 and
-  TF32/1684/1688 arithmetic with F32 accumulators, plus F16/16816 with packed
-  F16 accumulators and outputs, including source negation and
+  unexpanded 16-bit M88/MT88 matrix loads and direct HMMA F16/BF16/1688/16816 and
+  TF32/1684/1688 arithmetic with F32 accumulators, plus F16/1688/16816 with packed
+  F16 accumulators and outputs for both packed shapes, including source negation and
   accumulator predicates (2026-11-04). Matrix arithmetic is defined over values;
   only lane access is a primitive. The SM89 BF16/TF32 alignment floor comes from
   local hardware; other architectures' grouping, precision and floor are inferred
@@ -58,15 +58,15 @@ Reading notes:
   See `docs/hardware-facts.md`.
   Unsupported selectors retain opaque fallbacks; the form inventory in
   `research/additional-opcodes/inventory-current.json` separates these from evidence.
-- Compiler traces (2026-11-04): ptxas 13.0.88 compiles the ten retained opcode
-  probes on SM80/86/89/90/100/103/120 with PTX 9.0. SM75 compiles four; the
-  selected dense matrix shape and async-copy probes require SM80. That compiler
+- Compiler traces (2026-11-04): ptxas 13.0.88 compiles the thirteen retained opcode
+  probes on SM80/86/89/90/100/103/120 with PTX 9.0. SM75 compiles six; the
+  `16816`, BF16 and async-copy probes require SM80. That compiler
   does not recognize SM101 or SM107. Generated sources, commands, hashes,
   emitted words and missing opcodes are retained in
   `research/additional-opcodes/compiler-probes.json`. These traces establish
   encodings, not numerical or synchronization behavior.
-- Compiler traces with ptxas 13.4.92 and PTX 9.4 compile all ten probes on
-  every modeled architecture except SM75, which compiles four. The SM101
+- Compiler traces with ptxas 13.4.92 and PTX 9.4 compile all thirteen probes on
+  every modeled architecture except SM75, which compiles six. The SM101
   model is traced using compiler target `sm_110`, following the target rename
   documented in the PTX ISA. The trace records this mapping explicitly.
   `research/additional-opcodes/compiler-probes-13.4.json` retains the results;
@@ -153,16 +153,22 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   calls in one constructor use distinct forwarding operands because SLEIGH rejects
   duplicate builds of one operand. Other constructors reuse those forwarding
   tables. Nested definitions use separate argument registers.
-  Packed F16/BF16 HMMA shares a format parameter and a common biased-exponent
+  Packed F16/BF16 HMMA shares format and output-precision parameters and a common biased-exponent
   product representation. The shared body adds format-selection operations to
   F16 P-code, but avoids duplicating matrix constructors and keeps every language
   below Ghidra's unchanged 16 MiB limit. Packed dot products, alignment,
   normalization and half accumulator expansion are shared independently
-  (SM107 exact: 16,776,580 bytes).
-  The reviewed representative HMMA P-code increases from 9,557 to 9,956
-  operations on SM89 and from 9,177 to 9,397 on SM90, due to the packed
-  alignment result and its decoding. These operations allow F16 and F32
-  normalization to share the same dot product without duplicating its body.
+  (SM107 exact: 16,775,109 bytes). A stage returns four 32-bit cells:
+  F32 bit patterns, or zero-extended F16 bit patterns that its caller packs.
+  Tensor half accumulators reuse the same exact `cvt.f32.f16` definition
+  as ordinary conversions. Every F16 encoding is checked against the
+  independent conversion reference. Sharing stages adds an output-mode
+  choice in P-code while eliminating duplicated dot-product bodies.
+  The reviewed sampled HMMA operation counts increase by 3.5–6.5%.
+  Shared half-to-float conversion adds 1–2 operations to sampled register
+  forms; sampled immediate forms grow from 44 to 118 operations because
+  the shared body cannot fold their argument. Numerical and dataflow
+  validation covers matrices and conversions in all twenty languages.
   Small predicate results share a body when their extra inputs can be elided
   without reading discarded predicates. Decode-time substitutes handle inputs
   used only by those results. Larger savings and complete-discard cases retain
