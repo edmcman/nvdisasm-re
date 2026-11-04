@@ -103,15 +103,15 @@ Partial counts require operand restrictions and remain included in Unresolved. R
 | Architecture | Legal | Supported | Partial | Unresolved | Reference | GPU | Unplanned |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
 | SM75 | 384 | 0 | 0 | 384 | 0/0 | 0/0 | 0 |
-| SM80 | 192 | 16 | 0 | 176 | 16/0 | 0/0 | 0 |
-| SM86 | 480 | 32 | 0 | 448 | 32/0 | 0/0 | 0 |
-| SM89 | 480 | 32 | 0 | 448 | 32/0 | 32/0 | 0 |
-| SM90 | 480 | 32 | 0 | 448 | 32/0 | 0/0 | 0 |
-| SM100 | 384 | 32 | 0 | 352 | 32/0 | 0/0 | 0 |
-| SM101 | 384 | 32 | 0 | 352 | 32/0 | 0/0 | 0 |
-| SM103 | 384 | 32 | 0 | 352 | 32/0 | 0/0 | 0 |
-| SM107 | 384 | 32 | 0 | 352 | 32/0 | 0/0 | 0 |
-| SM120 | 384 | 32 | 0 | 352 | 32/0 | 0/0 | 0 |
+| SM80 | 192 | 20 | 0 | 172 | 20/0 | 0/0 | 0 |
+| SM86 | 480 | 40 | 0 | 440 | 40/0 | 0/0 | 0 |
+| SM89 | 480 | 40 | 0 | 440 | 40/0 | 40/0 | 0 |
+| SM90 | 480 | 40 | 0 | 440 | 40/0 | 0/0 | 0 |
+| SM100 | 384 | 40 | 0 | 344 | 40/0 | 0/0 | 0 |
+| SM101 | 384 | 40 | 0 | 344 | 40/0 | 0/0 | 0 |
+| SM103 | 384 | 40 | 0 | 344 | 40/0 | 0/0 | 0 |
+| SM107 | 384 | 40 | 0 | 344 | 40/0 | 0/0 | 0 |
+| SM120 | 384 | 40 | 0 | 344 | 40/0 | 0/0 | 0 |
 
 ## LDGDEPBAR
 
@@ -208,6 +208,8 @@ Numerical and cooperative findings, including unfinished behavior, are documente
 
 Architecture-specific compiler traces and transformed source files are retained in `research/additional-opcodes/compiler-probes.json` and `compiler-sources/`. Reproduce with `nice uv run python -m research.compiler_additional_opcodes --out research/additional-opcodes/compiler-probes.json --sources research/additional-opcodes/compiler-sources`. This distinguishes emitted encodings from compiler/version rejections; numerical behavior remains separately evidenced.
 
+The second trace set, `compiler-probes-13.4.json` and `compiler-sources-13.4/`, uses ptxas 13.4.92 with PTX 9.4. All ten probes compile on nine modeled architectures; SM75 compiles four. The SM101 model explicitly maps to compiler target `sm_110`, following the PTX target rename. Package and executable hashes are retained in `compiler-13.4-identity.json`. With that executable selected through `PTXAS`, reproduce using `nice uv run python -m research.compiler_additional_opcodes --ptx-version 9.4 --renamed-targets --out research/additional-opcodes/compiler-probes-13.4.json --sources research/additional-opcodes/compiler-sources-13.4`. Target mappings and compiler emission provide no hardware verification credit.
+
 ## Replay and PR checks
 
 The retained YOLO replay compares every captured memory region: 249 launches pass, 65 are blocked, 0 differ, and 0 have no memory region to compare. Passing launches compare 470 complete memory regions. Target instructions executed by passing launches: DEPBAR in 48 launches, HMMA in 48 launches, LDGDEPBAR in 48 launches, LDGSTS in 48 launches, LDSM in 48 launches. Executed counts in each launch record count distinct visited instruction locations, rather than dynamic invocations. See `research/additional-opcodes/yolo-replay.json`.
@@ -217,3 +219,5 @@ PR #119's failing logs identified a stale SM107 case plan and launch tests that 
 The dense TF32 and operand-control extension passes 4,612 SM89 shared GPU cases and nine whole-warp GPU fixtures. All-architecture exact/readable matrix Ghidra validation passes 94 tests with 78,216 shared cases; FP16 numerical/dataflow validation passes 916 tests with 155,492 shared cases. Corrected arithmetic passes 72 Python/native tests, including all eight source-negation/predicate-inversion combinations in the native engine. Integrated source checks pass 54 tests, and all twenty reviewed P-code baselines pass. All twenty languages compile below the unchanged 16 MiB limit; SM107 exact is 16,753,273 bytes. Full-form HMMA planning is exhaustive; input profiles remain sampled regression domains. F16 destinations, sparse/indexed HMMA and other unresolved target forms still prevent completion.
 
 The BF16 extension passes 5,892 SM89 shared GPU cases and twelve whole-warp GPU fixtures. Final all-architecture exact/readable Ghidra matrix validation passes 106 tests with 99,880 shared cases in 408 seconds. The expanded source-overlap checks pass 96 Python/native tests; cooperative fixtures separately pass all six SM89/SM90 schedule combinations. Integrated source checks pass 575 tests, including real numeric-definition parameter expansion. All twenty reviewed P-code baselines pass. The shared packed-format parameter increases F16's P-code, while keeping every language below the unchanged 16 MiB limit (SM107 exact: 16,776,587 bytes). SM89 has 32 supported dense selector forms with exhaustive planning; F16 destinations, sparse/indexed forms and other target gaps still prevent completion.
+
+The packed F16-output extension passes 7,108 SM89 shared GPU cases across all forty supported dense selector forms and fifteen whole-warp fixtures. Ghidra exact/readable validation on all ten architectures checks 120,456 shared cases; all 140 numerical, fixture and dataflow tests pass. Eighteen HMMA-only operation-count changes were reviewed, and the twenty updated baseline tests pass. Integrated source validation passes 741 tests, including independent references, real definition parameter expansion and cooperative schedules. Final native arithmetic passes 42 tests. All twenty languages compile below the unchanged 16 MiB limit (SM107 exact: 16,776,580 bytes). The F16 model rounds the aligned sum directly to half after each tensor stage; a distinguishing GPU boundary rejects an intermediate F32 rounding. Other architectures' F16 staging remains inferred, and legacy/other shapes, sparse/indexed forms and the other opcode gaps remain unfinished.

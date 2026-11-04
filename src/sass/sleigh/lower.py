@@ -26,11 +26,16 @@ SHARED = frozenset({"fma.rn.bf16x2", "add.ftz.f16x2", "mul.ftz.f16x2", "fma.ftz.
 SCRATCH = frozenset({"atomic.add.f32.ftz.rn", "atomic.add.f64.rn", "atomic.add.f16x2.rn",
                      "fma.rn.f16", "fma.rn.bf16",
                      "narrow.rn.f16.f64", "narrow.rn.bf16.f64",
-                     "hmma.tf32.product.e1", "hmma.tf32.product.e2"}) | frozenset(
-                         f"hmma.f32.k{k}.e{e}"
+                     "hmma.tf32.product.e1", "hmma.tf32.product.e2",
+                     "hmma.f16.accumulator", "hmma16816.packed.f32.g8.e1"}) | frozenset(
+                         f"hmma.align.k{k}.e{e}"
                          for k, e in ((4, 1), (4, 2), (8, 1), (8, 2), (16, 2))) | frozenset(
+                         f"hmma.normalize.{fmt}.e{e}" for fmt in ("f16", "f32") for e in (1, 2)) | frozenset(
                          f"hmma.packed.product.e{e}" for e in (1, 2)) | frozenset(
-                         f"hmma16816.packed.f32.g{g}.e{e}" for g, e in ((8, 1), (16, 2))) | frozenset(
+                         f"hmma.packed.dot.k{k}.e{e}" for k, e in ((8, 1), (16, 2))) | frozenset(
+                         f"hmma.packed.{fmt}.stage.k{k}.e{e}"
+                         for fmt in ("f16", "f32") for k, e in ((8, 1), (16, 2))) | frozenset(
+                         f"hmma16816.f16.g{g}.e{e}" for g, e in ((8, 1), (16, 2))) | frozenset(
                          f"hmma.tf32.f32.k{k}.e{e}.l{floor}"
                          for k, e in ((4, 1), (4, 2), (8, 2)) for floor in (132, 133)) | frozenset(
                          f"hmma168{k}.tf32.f32.g{group}.e{e}.l{floor}"
@@ -523,7 +528,7 @@ def expr(text, *parts): return Operand(text, "expr", frozenset().union(*(p.refs 
 class Code:
     """Statements of one constructor, with the references they use."""
 
-    def __init__(self): self.lines, self.refs = [], set()
+    def __init__(self): self.lines, self.refs, self.calls = [], set(), defaultdict(int)
 
     def add(self, line, *parts):
         self.lines.append(line)
@@ -760,9 +765,13 @@ class Lower:
         name, arguments, result = g.scratch_calls[signature]
         values = [self.value(argument) for argument in e.args]
         for symbol, value in zip(arguments, values): self.code.add(f"{symbol} = {value.text};", value)
-        g.scratch_serial += 1
-        call = f"purecall{g.scratch_serial}"
-        g.table_lines.append(f'{call}: "" is {name} {{ build {name}; }}')
+        self.code.calls[name] += 1
+        key = name, self.code.calls[name]
+        if key not in g.scratch_forwards:
+            call = f"purecall{len(g.scratch_forwards)}"
+            g.scratch_forwards[key] = call
+            g.table_lines.append(f'{call}: "" is {name} {{ build {name}; }}')
+        call = g.scratch_forwards[key]
         self.code.add(f"build {call};", Operand(call, "name", frozenset({("sub", call)})))
         return self.local(e.w, Operand(result, "name"))
 

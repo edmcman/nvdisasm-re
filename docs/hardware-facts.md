@@ -1151,3 +1151,38 @@ Control discovery on 2026-11-04:
   outputs. The test is inconclusive about distinguishing scheduler behavior;
   YIELD and CCTL remain unresolved and these observations earn no verification
   credit.
+
+Dense F16 tensor outputs on 2026-11-04:
+
+- `HMMA.16816.F16` uses the same A/B lane ownership as the F32-output form.
+  Each lane's four C/D half values occupy two packed registers, in the same
+  matrix-coordinate order as the four F32 registers. The retained 738 raw
+  observations in `research/additional-opcodes/hmma-f16-output-SM89.json`
+  establish layout, staging, rounding boundaries, exceptional values and
+  accumulator predicates. They are synthetic instruction probes, without
+  verification credit.
+- SM89 performs K=0..7 and K=8..15 as separate stages, rounding C back to
+  F16 with RN-even after each stage. Products are unnormalized and terms are
+  truncated on the 24-significand-bit plus one-extra-bit alignment grid.
+  The aligned sum rounds directly to F16; an intermediate F32 RZ result
+  incorrectly loses information needed for the half rounding.
+- With C=1, products `1 * 2^-11` and `2^-24 * 1` produce `0x3c01`.
+  Rounding through F32 instead predicts `0x3c00`. Replacing the second
+  product with `2^-24 * 0.5` gives `0x3c00`, distinguishing the alignment
+  grid from an exact dot. Half-ULP pairs within one stage combine; pairs
+  straddling K=7/8 round independently. Seeded full-range finite half
+  inputs distinguish four-product stages and scalar half FMAs.
+- NaNs become positive `0x7fff`, infinities propagate unless an invalid
+  product or opposing infinities produce NaN, and exact or underflowed
+  zeros are positive. Input and accumulator half subnormals are preserved
+  before alignment and final rounding.
+- The promoted matrix regression passes 7,108 SM89 shared cases across
+  all forty supported dense selector forms and fifteen whole-warp fixtures.
+  The F16-output fixtures overwrite each source group in turn. The retained
+  PTX probe `tests/ptx/hmma/f16_output.ptx` uses
+  `mma.sync.aligned.m16n8k16.row.col.f16.f16.f16.f16`; compiler emission
+  remains separate from numerical hardware evidence.
+- Other architectures' F16 output staging is inferred from their existing
+  tensor grouping models and these SM89 observations, not numerically
+  hardware-verified here. Legacy SM75, other shapes, sparse metadata and
+  indexed-register forms remain unresolved.

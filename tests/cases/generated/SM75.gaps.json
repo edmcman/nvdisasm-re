@@ -1,12 +1,12 @@
 {
   "counts": {
     "legal": 3093438,
-    "unresolved_semantics": 1967048,
-    "requirements": 185864,
+    "unresolved_semantics": 1941663,
+    "requirements": 197665,
     "manual": 0,
-    "blocked": 1272,
-    "covered_requirements": 184592,
-    "generated": 15931
+    "blocked": 1284,
+    "covered_requirements": 196381,
+    "generated": 17603
   },
   "gaps": [
     {
@@ -126,37 +126,27 @@
     },
     {
       "cls": "atomg__RaNonRZ",
-      "count": 5952,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "atomg__RaRZ",
-      "count": 5952,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "atomg_cas__RaNonRZ",
       "count": 576,
       "reason": "unresolved semantics"
     },
     {
-      "cls": "atomg_cas__RaRZ",
+      "cls": "atomg__RaRZ",
       "count": 576,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_uniform__Ra32",
-      "count": 5952,
+      "count": 576,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_uniform__Ra64",
-      "count": 2976,
+      "count": 288,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_uniform__RaRZ",
-      "count": 5952,
+      "count": 576,
       "reason": "unresolved semantics"
     },
     {
@@ -196,11 +186,6 @@
     },
     {
       "cls": "b2r__BAR",
-      "count": 1,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "b2r__RESULT",
       "count": 1,
       "reason": "unresolved semantics"
     },
@@ -285,7 +270,7 @@
     },
     {
       "cls": "brx_",
-      "count": 6,
+      "count": 4,
       "reason": "unresolved semantics"
     },
     {
@@ -411,16 +396,6 @@
     {
       "cls": "csmtest_bop_",
       "count": 144,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "depbar__LE",
-      "count": 1,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "depbar__noLE",
-      "count": 1,
       "reason": "unresolved semantics"
     },
     {
@@ -1245,23 +1220,41 @@
     },
     {
       "cls": "ldsm__URsIR",
-      "count": 18,
+      "count": 12,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldsm__URuIR",
-      "count": 18,
+      "count": 12,
       "reason": "unresolved semantics"
     },
     {
+      "cls": "ldsm__URuIR",
+      "count": 6,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "matrix load absolute row address cannot distinguish rows": 6
+      }
+    },
+    {
       "cls": "ldsm__sImmOffset",
-      "count": 18,
+      "count": 12,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldsm__uImmOffset",
-      "count": 18,
+      "count": 12,
       "reason": "unresolved semantics"
+    },
+    {
+      "cls": "ldsm__uImmOffset",
+      "count": 6,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "matrix load absolute row address cannot distinguish rows": 6
+      }
     },
     {
       "cls": "ldtram_",
@@ -1275,7 +1268,7 @@
     },
     {
       "cls": "membar_",
-      "count": 30,
+      "count": 18,
       "reason": "unresolved semantics"
     },
     {

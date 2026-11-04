@@ -1,0 +1,22 @@
+// sass: HMMA
+.version 9.0
+.target sm_120
+.address_size 64
+.visible .entry half_output(.param .u64 a, .param .u64 b, .param .u64 c, .param .u64 out) {
+.reg .b32 %a<4>, %b<2>, %c<2>, %d<2>;
+.reg .b64 %pa, %pb, %pc, %po, %offset;
+.reg .u32 %lane;
+ld.param.u64 %pa, [a]; ld.param.u64 %pb, [b];
+ld.param.u64 %pc, [c]; ld.param.u64 %po, [out];
+mov.u32 %lane, %laneid;
+mul.wide.u32 %offset, %lane, 16; add.u64 %pa, %pa, %offset;
+mul.wide.u32 %offset, %lane, 8;
+add.u64 %pb, %pb, %offset; add.u64 %pc, %pc, %offset; add.u64 %po, %po, %offset;
+ld.global.v4.b32 {%a0,%a1,%a2,%a3}, [%pa];
+ld.global.v2.b32 {%b0,%b1}, [%pb];
+ld.global.v2.b32 {%c0,%c1}, [%pc];
+mma.sync.aligned.m16n8k16.row.col.f16.f16.f16.f16
+{%d0,%d1}, {%a0,%a1,%a2,%a3}, {%b0,%b1}, {%c0,%c1};
+st.global.v2.b32 [%po], {%d0,%d1};
+ret;
+}

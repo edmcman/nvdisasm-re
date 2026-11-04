@@ -181981,7 +181981,7 @@
        "16816",
        "F16",
        "F16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -182006,11 +182006,11 @@
     "modifiers": {
      "size": {
       "1688": "partially primitive",
-      "16816": "partially primitive",
+      "16816": "primitive",
       "1684": "primitive"
      },
      "dstfmt": {
-      "F16": "opaque",
+      "F16": "partially primitive",
       "F32": "partially primitive"
      },
      "srcfmt": {
@@ -182118,14 +182118,14 @@
     ],
     "legal_forms": 32,
     "semantics": {
-     "opaque": 16,
-     "primitive": 16
+     "opaque": 12,
+     "primitive": 20
     },
     "full_form_verification": {
-     "supported": 16,
-     "planned": 16,
+     "supported": 20,
+     "planned": 20,
      "unplanned": 0,
-     "reference": 16,
+     "reference": 20,
      "gpu": 0,
      "ptxas": 0
     },
@@ -182135,6 +182135,13 @@
        [
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -182163,6 +182170,13 @@
        [
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -182191,6 +182205,13 @@
        [
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -182215,6 +182236,13 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -182253,12 +182281,19 @@
       "size",
       "srcfmt"
      ],
-     "reference": 5560,
+     "reference": 6680,
      "verification_forms": {
       "reference": [
        [
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -182287,6 +182322,13 @@
        [
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -182315,6 +182357,13 @@
        [
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -182339,6 +182388,13 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -328738,7 +328794,7 @@
        "16816",
        "F16",
        "F16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -328773,7 +328829,7 @@
       "1684": "primitive"
      },
      "dstfmt": {
-      "F16": "opaque",
+      "F16": "partially primitive",
       "F32": "partially primitive"
      },
      "srcfmt": {
@@ -328894,14 +328950,14 @@
     ],
     "legal_forms": 80,
     "semantics": {
-     "opaque": 48,
-     "primitive": 32
+     "opaque": 40,
+     "primitive": 40
     },
     "full_form_verification": {
-     "supported": 32,
-     "planned": 32,
+     "supported": 40,
+     "planned": 40,
      "unplanned": 0,
-     "reference": 32,
+     "reference": 40,
      "gpu": 0,
      "ptxas": 0
     },
@@ -328912,6 +328968,14 @@
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -328944,6 +329008,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -328976,6 +329048,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -329008,6 +329088,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -329040,6 +329128,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -329072,6 +329168,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -329104,6 +329208,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -329131,6 +329243,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -329174,13 +329294,21 @@
       "size",
       "srcfmt"
      ],
-     "reference": 11760,
+     "reference": 14192,
      "verification_forms": {
       "reference": [
        [
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -329213,6 +329341,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -329245,6 +329381,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -329277,6 +329421,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -329309,6 +329461,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -329341,6 +329501,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -329373,6 +329541,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -329400,6 +329576,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -489828,7 +490012,7 @@
        "16816",
        "F16",
        "F16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -489863,7 +490047,7 @@
       "1684": "primitive"
      },
      "dstfmt": {
-      "F16": "opaque",
+      "F16": "partially primitive",
       "F32": "partially primitive"
      },
      "srcfmt": {
@@ -489984,16 +490168,16 @@
     ],
     "legal_forms": 80,
     "semantics": {
-     "opaque": 48,
-     "primitive": 32
+     "opaque": 40,
+     "primitive": 40
     },
     "full_form_verification": {
-     "supported": 32,
-     "planned": 32,
+     "supported": 40,
+     "planned": 40,
      "unplanned": 0,
-     "reference": 32,
-     "gpu": 32,
-     "ptxas": 4
+     "reference": 40,
+     "gpu": 40,
+     "ptxas": 5
     },
     "evidence": {
      "forms": {
@@ -490002,6 +490186,14 @@
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490034,6 +490226,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -490066,6 +490266,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490098,6 +490306,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -490130,6 +490346,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490162,6 +490386,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -490194,6 +490426,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490221,6 +490461,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -490260,6 +490508,14 @@
         "unset",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -490294,6 +490550,14 @@
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490326,6 +490590,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -490358,6 +490630,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490390,6 +490670,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -490422,6 +490710,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490454,6 +490750,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -490486,6 +490790,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490513,6 +490825,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -490556,6 +490876,9 @@
       "hmma_f16_16816_alias_16",
       "hmma_f16_16816_alias_24",
       "hmma_f16_16816_alias_32",
+      "hmma_f16_16816_f16_alias_16",
+      "hmma_f16_16816_f16_alias_24",
+      "hmma_f16_16816_f16_alias_32",
       "hmma_tf32_1684_alias_16",
       "hmma_tf32_1684_alias_24",
       "hmma_tf32_1684_alias_32",
@@ -490574,16 +490897,25 @@
      "ptxas": [
       "hmma/bf16.ptx",
       "hmma/dense.ptx",
+      "hmma/f16_output.ptx",
       "hmma/tf32_1684.ptx",
       "hmma/tf32_1688.ptx"
      ],
-     "reference": 11760,
+     "reference": 14192,
      "verification_forms": {
       "reference": [
        [
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490616,6 +490948,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -490648,6 +490988,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490680,6 +491028,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -490712,6 +491068,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490744,6 +491108,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -490776,6 +491148,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -490803,6 +491183,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -674034,7 +674422,7 @@
        "16816",
        "F16",
        "F16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -674069,7 +674457,7 @@
       "1684": "primitive"
      },
      "dstfmt": {
-      "F16": "opaque",
+      "F16": "partially primitive",
       "F32": "partially primitive"
      },
      "srcfmt": {
@@ -674190,14 +674578,14 @@
     ],
     "legal_forms": 80,
     "semantics": {
-     "opaque": 48,
-     "primitive": 32
+     "opaque": 40,
+     "primitive": 40
     },
     "full_form_verification": {
-     "supported": 32,
-     "planned": 32,
+     "supported": 40,
+     "planned": 40,
      "unplanned": 0,
-     "reference": 32,
+     "reference": 40,
      "gpu": 0,
      "ptxas": 0
     },
@@ -674208,6 +674596,14 @@
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -674240,6 +674636,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -674272,6 +674676,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -674304,6 +674716,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -674336,6 +674756,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -674368,6 +674796,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -674400,6 +674836,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -674427,6 +674871,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -674470,13 +674922,21 @@
       "size",
       "srcfmt"
      ],
-     "reference": 11760,
+     "reference": 14192,
      "verification_forms": {
       "reference": [
        [
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -674509,6 +674969,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -674541,6 +675009,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -674573,6 +675049,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -674605,6 +675089,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -674637,6 +675129,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -674669,6 +675169,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -674696,6 +675204,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -857047,7 +857563,7 @@
        "16816",
        "F16",
        "F16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -857072,11 +857588,11 @@
     "modifiers": {
      "size": {
       "1688": "partially primitive",
-      "16816": "partially primitive",
+      "16816": "primitive",
       "1684": "primitive"
      },
      "dstfmt": {
-      "F16": "opaque",
+      "F16": "partially primitive",
       "F32": "partially primitive"
      },
      "srcfmt": {
@@ -857196,14 +857712,14 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 32,
-     "primitive": 32
+     "opaque": 24,
+     "primitive": 40
     },
     "full_form_verification": {
-     "supported": 32,
-     "planned": 32,
+     "supported": 40,
+     "planned": 40,
      "unplanned": 0,
-     "reference": 32,
+     "reference": 40,
      "gpu": 0,
      "ptxas": 0
     },
@@ -857214,6 +857730,14 @@
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -857246,6 +857770,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -857278,6 +857810,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -857310,6 +857850,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -857342,6 +857890,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -857374,6 +857930,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -857406,6 +857970,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -857433,6 +858005,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -857476,13 +858056,21 @@
       "size",
       "srcfmt"
      ],
-     "reference": 11760,
+     "reference": 14192,
      "verification_forms": {
       "reference": [
        [
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -857515,6 +858103,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -857547,6 +858143,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -857579,6 +858183,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -857611,6 +858223,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -857643,6 +858263,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -857675,6 +858303,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -857702,6 +858338,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -1040152,7 +1040796,7 @@
        "16816",
        "F16",
        "F16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -1040177,11 +1040821,11 @@
     "modifiers": {
      "size": {
       "1688": "partially primitive",
-      "16816": "partially primitive",
+      "16816": "primitive",
       "1684": "primitive"
      },
      "dstfmt": {
-      "F16": "opaque",
+      "F16": "partially primitive",
       "F32": "partially primitive"
      },
      "srcfmt": {
@@ -1040301,14 +1040945,14 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 32,
-     "primitive": 32
+     "opaque": 24,
+     "primitive": 40
     },
     "full_form_verification": {
-     "supported": 32,
-     "planned": 32,
+     "supported": 40,
+     "planned": 40,
      "unplanned": 0,
-     "reference": 32,
+     "reference": 40,
      "gpu": 0,
      "ptxas": 0
     },
@@ -1040319,6 +1040963,14 @@
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1040351,6 +1041003,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1040383,6 +1041043,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1040415,6 +1041083,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1040447,6 +1041123,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1040479,6 +1041163,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1040511,6 +1041203,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1040538,6 +1041238,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -1040581,13 +1041289,21 @@
       "size",
       "srcfmt"
      ],
-     "reference": 11760,
+     "reference": 14192,
      "verification_forms": {
       "reference": [
        [
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1040620,6 +1041336,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1040652,6 +1041376,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1040684,6 +1041416,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1040716,6 +1041456,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1040748,6 +1041496,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1040780,6 +1041536,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1040807,6 +1041571,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -1223257,7 +1224029,7 @@
        "16816",
        "F16",
        "F16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -1223282,11 +1224054,11 @@
     "modifiers": {
      "size": {
       "1688": "partially primitive",
-      "16816": "partially primitive",
+      "16816": "primitive",
       "1684": "primitive"
      },
      "dstfmt": {
-      "F16": "opaque",
+      "F16": "partially primitive",
       "F32": "partially primitive"
      },
      "srcfmt": {
@@ -1223406,14 +1224178,14 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 32,
-     "primitive": 32
+     "opaque": 24,
+     "primitive": 40
     },
     "full_form_verification": {
-     "supported": 32,
-     "planned": 32,
+     "supported": 40,
+     "planned": 40,
      "unplanned": 0,
-     "reference": 32,
+     "reference": 40,
      "gpu": 0,
      "ptxas": 0
     },
@@ -1223424,6 +1224196,14 @@
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1223456,6 +1224236,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1223488,6 +1224276,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1223520,6 +1224316,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1223552,6 +1224356,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1223584,6 +1224396,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1223616,6 +1224436,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1223643,6 +1224471,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -1223686,13 +1224522,21 @@
       "size",
       "srcfmt"
      ],
-     "reference": 11760,
+     "reference": 14192,
      "verification_forms": {
       "reference": [
        [
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1223725,6 +1224569,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1223757,6 +1224609,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1223789,6 +1224649,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1223821,6 +1224689,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1223853,6 +1224729,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1223885,6 +1224769,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1223912,6 +1224804,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -1406616,7 +1407516,7 @@
        "16816",
        "F16",
        "F16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -1406641,11 +1407541,11 @@
     "modifiers": {
      "size": {
       "1688": "partially primitive",
-      "16816": "partially primitive",
+      "16816": "primitive",
       "1684": "primitive"
      },
      "dstfmt": {
-      "F16": "opaque",
+      "F16": "partially primitive",
       "F32": "partially primitive"
      },
      "srcfmt": {
@@ -1406765,14 +1407665,14 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 32,
-     "primitive": 32
+     "opaque": 24,
+     "primitive": 40
     },
     "full_form_verification": {
-     "supported": 32,
-     "planned": 32,
+     "supported": 40,
+     "planned": 40,
      "unplanned": 0,
-     "reference": 32,
+     "reference": 40,
      "gpu": 0,
      "ptxas": 0
     },
@@ -1406783,6 +1407683,14 @@
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1406815,6 +1407723,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1406847,6 +1407763,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1406879,6 +1407803,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1406911,6 +1407843,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1406943,6 +1407883,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1406975,6 +1407923,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1407002,6 +1407958,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -1407045,13 +1408009,21 @@
       "size",
       "srcfmt"
      ],
-     "reference": 11760,
+     "reference": 14192,
      "verification_forms": {
       "reference": [
        [
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1407084,6 +1408056,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1407116,6 +1408096,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1407148,6 +1408136,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1407180,6 +1408176,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1407212,6 +1408216,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1407244,6 +1408256,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1407271,6 +1408291,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -1590087,7 +1591115,7 @@
        "16816",
        "F16",
        "F16",
-       "opaque"
+       "primitive"
       ],
       [
        "16816",
@@ -1590112,11 +1591140,11 @@
     "modifiers": {
      "size": {
       "1688": "partially primitive",
-      "16816": "partially primitive",
+      "16816": "primitive",
       "1684": "primitive"
      },
      "dstfmt": {
-      "F16": "opaque",
+      "F16": "partially primitive",
       "F32": "partially primitive"
      },
      "srcfmt": {
@@ -1590236,14 +1591264,14 @@
     ],
     "legal_forms": 64,
     "semantics": {
-     "opaque": 32,
-     "primitive": 32
+     "opaque": 24,
+     "primitive": 40
     },
     "full_form_verification": {
-     "supported": 32,
-     "planned": 32,
+     "supported": 40,
+     "planned": 40,
      "unplanned": 0,
-     "reference": 32,
+     "reference": 40,
      "gpu": 0,
      "ptxas": 0
     },
@@ -1590254,6 +1591282,14 @@
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1590286,6 +1591322,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1590318,6 +1591362,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1590350,6 +1591402,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1590382,6 +1591442,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1590414,6 +1591482,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1590446,6 +1591522,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1590473,6 +1591557,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",
@@ -1590516,13 +1591608,21 @@
       "size",
       "srcfmt"
      ],
-     "reference": 11760,
+     "reference": 14192,
      "verification_forms": {
       "reference": [
        [
         "set",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1590555,6 +1591655,14 @@
         "set",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1590587,6 +1591695,14 @@
         "set",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1590619,6 +1591735,14 @@
         "set",
         "unset",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "set",
+        "unset",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1590651,6 +1591775,14 @@
         "unset",
         "set",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1590683,6 +1591815,14 @@
         "unset",
         "set",
         "unset",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "set",
+        "unset",
         "F32",
         "16816",
         "BF16"
@@ -1590715,6 +1591855,14 @@
         "unset",
         "unset",
         "set",
+        "F16",
+        "16816",
+        "F16"
+       ],
+       [
+        "unset",
+        "unset",
+        "set",
         "F32",
         "16816",
         "BF16"
@@ -1590742,6 +1591890,14 @@
         "F32",
         "1688",
         "TF32"
+       ],
+       [
+        "unset",
+        "unset",
+        "unset",
+        "F16",
+        "16816",
+        "F16"
        ],
        [
         "unset",

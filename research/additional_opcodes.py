@@ -139,6 +139,15 @@ def report(data):
         "--out research/additional-opcodes/compiler-probes.json "
         "--sources research/additional-opcodes/compiler-sources`. This distinguishes emitted "
         "encodings from compiler/version rejections; numerical behavior remains separately evidenced.", "",
+        "The second trace set, `compiler-probes-13.4.json` and `compiler-sources-13.4/`, uses "
+        "ptxas 13.4.92 with PTX 9.4. All ten probes compile on nine modeled architectures; "
+        "SM75 compiles four. The SM101 model explicitly maps to compiler target `sm_110`, "
+        "following the PTX target rename. Package and executable hashes are retained in "
+        "`compiler-13.4-identity.json`. With that executable selected through `PTXAS`, reproduce "
+        "using `nice uv run python -m research.compiler_additional_opcodes --ptx-version 9.4 "
+        "--renamed-targets --out research/additional-opcodes/compiler-probes-13.4.json "
+        "--sources research/additional-opcodes/compiler-sources-13.4`. Target mappings and "
+        "compiler emission provide no hardware verification credit.", "",
         "## Replay and PR checks", "",
         f"The retained YOLO replay compares every captured memory region: {replay_counts.get('pass', 0)} "
         f"launches pass, {replay_counts.get('blocked', 0)} are blocked, "
@@ -183,6 +192,19 @@ def report(data):
         "language below the unchanged 16 MiB limit (SM107 exact: 16,776,587 bytes). "
         "SM89 has 32 supported dense selector forms with exhaustive planning; F16 "
         "destinations, sparse/indexed forms and other target gaps still prevent completion.", "",
+        "The packed F16-output extension passes 7,108 SM89 shared GPU cases across all forty "
+        "supported dense selector forms and fifteen whole-warp fixtures. Ghidra exact/readable "
+        "validation on all ten architectures checks 120,456 shared cases; all 140 numerical, "
+        "fixture and dataflow tests pass. Eighteen HMMA-only operation-count changes were "
+        "reviewed, and the twenty updated baseline tests pass. Integrated source validation "
+        "passes 741 tests, including independent references, real definition parameter "
+        "expansion and cooperative schedules. Final native arithmetic passes 42 tests. "
+        "All twenty languages compile below the unchanged 16 MiB limit "
+        "(SM107 exact: 16,776,580 bytes). The F16 model rounds the aligned sum directly "
+        "to half after each tensor stage; a distinguishing GPU boundary rejects an "
+        "intermediate F32 rounding. Other architectures' F16 staging remains inferred, "
+        "and legacy/other shapes, sparse/indexed forms and the other opcode gaps remain "
+        "unfinished.", "",
     ]
     return "\n".join(text)
 

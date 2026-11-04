@@ -1,6 +1,7 @@
 from sass.semantics import primitive
 from sass.semantics.bitvec import concat, const, extract, ite, load, op, slt, trunc, umax, zext
 from sass.semantics.family import definition, family, outputs, unmodelled
+from sass.semantics.fp import fpformat
 
 
 @definition(lambda a: (f"ldmatrix.{'trans' if a['transpose'] else 'row'}.element", ["lane", "matrix", "n"]))
@@ -79,9 +80,15 @@ def tensor_block(a, b, c, extra, source="F16", minimum_exponent=-133):
     return tensor_sum(products, c, extra, const(-133 if source == "F16" else minimum_exponent, 32))
 
 
-@definition(lambda a: (f"hmma.f32.k{len(a['products'])}.e{a['extra']}", ["products", "c", "minimum_exponent"]))
-def tensor_sum(products, c, extra, minimum_exponent):
-    """Align encoded tensor products with C and normalize their truncated sum."""
+@definition(lambda a: (f"hmma.{a['destination'].lower()}.k{len(a['products'])}.e{a['extra']}", ["products", "c", "minimum_exponent"]))
+def tensor_sum(products, c, extra, minimum_exponent, destination="F32"):
+    """Align tensor products with C; normalize RZ to F32 or RN-even to F16."""
+    return tensor_normalize(tensor_align(products, c, extra, minimum_exponent), extra, destination)
+
+
+@definition(lambda a: (f"hmma.align.k{len(a['products'])}.e{a['extra']}", ["products", "c", "minimum_exponent"]))
+def tensor_align(products, c, extra, minimum_exponent):
+    """The signed magnitude, exponent and exceptional flags of an aligned tensor sum."""
     width, bias, minimum = 10, 256, 383 + minimum_exponent
     terms = []
     nan = const(0, 1)
@@ -105,8 +112,25 @@ def tensor_sum(products, c, extra, minimum_exponent):
         total = total + ite(sign, -aligned, aligned)
     sign = slt(total, 0)
     magnitude = trunc(ite(sign, -total, total), 32)
+    flags = zext(sign, 32) | (zext(nan, 32) << 1) | (zext(positive, 32) << 2) | (zext(negative, 32) << 3)
+    return concat(exponent | (flags << 10), magnitude)
+
+
+@definition(lambda a: (f"hmma.normalize.{a['destination'].lower()}.e{a['extra']}", ["aligned"]))
+def tensor_normalize(aligned, extra, destination):
+    """Round an aligned tensor sum to F32 with RZ or F16 with RN-even."""
+    encoded, magnitude = extract(aligned, 63, 32), trunc(aligned, 32)
+    flags, exponent = encoded >> 10, encoded & 1023
+    sign, nan, positive, negative = (extract(flags, j, j) for j in range(4))
+    bias = 256
     lead = 31 - op("lzcount", magnitude, w=32)
     output_exponent = exponent + lead - (23 + extra + bias)
+    if destination == "F16":
+        parts = fpformat.Parts(ite(positive | negative, negative, sign), magnitude,
+                               exponent - (23 + extra + bias + 127), output_exponent - 127,
+                               nan | (positive & negative), positive | negative)
+        result_sign, code, _ = fpformat.round_parts(parts, fpformat.dest("F16"), fpformat.rounding("RN"), general=True)
+        return concat(result_sign & (code != 0), extract(code, 14, 0))
     normalized = ite(lead >= 23, magnitude >> (lead - 23), magnitude << (23 - lead))
     subnormal = ite(exponent >= 1 + extra + bias, magnitude << (exponent - 1 - extra - bias),
                     magnitude >> (1 + extra + bias - exponent))
@@ -138,24 +162,60 @@ def tensor_fragment(a, b, c, block, extra, source="F16", count=16, minimum_expon
 @definition(lambda a: (f"hmma16816.packed.f32.g{a['block']}.e{a['extra']}", ["a", "b", "c", "bf16", "minimum_exponent"]))
 def packed_fragment(a, b, c, bf16, minimum_exponent, block, extra):
     """Four accumulators updated with packed half or bfloat matrix fragments."""
+    return packed_accumulate(a, b, c, bf16, minimum_exponent, block, extra)
+
+
+@definition(lambda a: (f"hmma.packed.{a['destination'].lower()}.stage.k{len(a['a'])}.e{a['extra']}", ["a", "b", "c", "bf16", "minimum_exponent"]))
+def packed_stage(a, b, c, bf16, minimum_exponent, extra, destination="F32"):
+    """One tensor accumulation stage for two rows and two columns."""
     result = []
+    count = len(a)
     for j in range(4):
-        half = lambda words, offset, k: extract(words[offset + k // 2], k % 2 * 16 + 15, k % 2 * 16)
-        row = tuple(half(a, j // 2 * 8, k) for k in range(16))
-        column = tuple(half(b, j % 2 * 8, k) for k in range(16))
-        value = c[j]
-        for start in range(0, 16, block):
-            products = tuple(packed_product(row[k], column[k], bf16, extra) for k in range(start, start + block))
-            value = tensor_sum(products, value, extra, minimum_exponent)
-        result.append(value)
+        row = a[j // 2 * count // 2:(j // 2 + 1) * count // 2]
+        column = b[j % 2 * count // 2:(j % 2 + 1) * count // 2]
+        aligned = packed_dot(row, column, c[j], bf16, minimum_exponent, extra)
+        result.append(tensor_normalize(aligned, extra, destination))
     return concat(*reversed(result))
+
+
+@definition(lambda a: (f"hmma.packed.dot.k{len(a['a']) * 2}.e{a['extra']}", ["a", "b", "c", "bf16", "minimum_exponent"]))
+def packed_dot(a, b, c, bf16, minimum_exponent, extra):
+    """One aligned tensor dot product from packed F16 or BF16 source words."""
+    products = tuple(packed_product(extract(x, shift + 15, shift), extract(y, shift + 15, shift), bf16, extra)
+                     for x, y in zip(a, b) for shift in (0, 16))
+    return tensor_align(products, c, extra, minimum_exponent)
+
+
+def packed_accumulate(a, b, c, bf16, minimum_exponent, block, extra, half_output=False):
+    for start in range(0, 16, block):
+        def segment(words):
+            return tuple(words[r * 8 + start // 2 + k] for r in range(2) for k in range(block // 2))
+        stage = packed_stage(segment(a), segment(b), c, bf16, minimum_exponent, extra,
+                             "F16" if half_output else "F32")
+        c = (tuple(half_accumulator(extract(stage, j * 16 + 15, j * 16)) for j in range(4))
+             if half_output else tuple(extract(stage, j * 32 + 31, j * 32) for j in range(4)))
+    return stage
+
+
+@definition(lambda a: (f"hmma16816.f16.g{a['block']}.e{a['extra']}", ["a", "b", "c"]))
+def half_fragment(a, b, c, block, extra):
+    """Four packed F16 accumulators rounded RN-even after every tensor stage."""
+    accumulators = tuple(half_accumulator(extract(c[j // 2], j % 2 * 16 + 15, j % 2 * 16))
+                         for j in range(4))
+    return packed_accumulate(a, b, accumulators, const(0, 1), const(-133, 32), block, extra, True)
+
+
+@definition("hmma.f16.accumulator")
+def half_accumulator(value):
+    """Expand an F16 tensor accumulator without changing its value."""
+    return fpformat.widen(value, "F16", "F32")
 
 
 @family("HMMA", classes=lambda k: k.name == "hmma_x8_" and "srcfmt" in k.operand_types)
 def hmma(i):
     size, dst = str(i.select_fork("size")), str(i.select_fork("dstfmt"))
     packed = i.select_in("srcfmt", ("F16", "BF16"))
-    if dst != "F32" or (packed and size != "16816"):
+    if dst not in ("F16", "F32") or (packed and size != "16816"):
         unmodelled(f"HMMA {size}.{dst}: fragment/numerical model unresolved")
     if packed:
         bf16 = i.select_lookup_const("srcfmt", {"F16": 0, "BF16": 1}, w=1)
@@ -183,8 +243,10 @@ def hmma(i):
         b = tuple(word("Rb", (column + col) * 4 + k % 4, k // 4)
                   for col in (0, 1) for k in range(count))
     enabled = i.pred("UPp") if i.has_operand("UPp") else const(1, 1)
-    c = tuple(ite(enabled, extract(current["Rc"], j * 32 + 31, j * 32), const(0, 32)) for j in range(4))
+    c = tuple(ite(enabled, extract(current["Rc"], j * 32 + 31, j * 32), const(0, 32))
+              for j in range(2 if dst == "F16" else 4))
     minimum = -132 if i.arch.name == "SM89" else -133
-    result = (packed_fragment(a, b, c, bf16, const(minimum, 32), block, extra) if packed
+    result = (half_fragment(a, b, c, block, extra) if dst == "F16" else
+              packed_fragment(a, b, c, bf16, const(minimum, 32), block, extra) if packed
               else tensor_fragment(a, b, c, block, extra, "TF32", count, minimum))
     return outputs(Rd=result)

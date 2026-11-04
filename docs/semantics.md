@@ -48,20 +48,30 @@ Reading notes:
 - `atomic.py` supplies integer atomic updates, floating atomic ADD, and ordinary SC fences;
   `asynchronous.py` supplies copy issue, commit, and wait effects; `matrix.py` supplies
   unexpanded 16-bit M88/MT88 matrix loads and direct HMMA F16/BF16/16816 and
-  TF32/1684/1688 arithmetic with F32 accumulators, including source negation and
+  TF32/1684/1688 arithmetic with F32 accumulators, plus F16/16816 with packed
+  F16 accumulators and outputs, including source negation and
   accumulator predicates (2026-11-04). Matrix arithmetic is defined over values;
   only lane access is a primitive. The SM89 BF16/TF32 alignment floor comes from
   local hardware; other architectures' grouping, precision and floor are inferred
-  from published tensor-core models. See `docs/hardware-facts.md`.
+  from published tensor-core models. F16 output staging on other architectures
+  is inferred from those grouping models and SM89 rounding observations.
+  See `docs/hardware-facts.md`.
   Unsupported selectors retain opaque fallbacks; the form inventory in
   `research/additional-opcodes/inventory-current.json` separates these from evidence.
-- Compiler traces (2026-11-04): ptxas 13.0.88 compiles the nine retained opcode
+- Compiler traces (2026-11-04): ptxas 13.0.88 compiles the ten retained opcode
   probes on SM80/86/89/90/100/103/120 with PTX 9.0. SM75 compiles four; the
   selected dense matrix shape and async-copy probes require SM80. That compiler
   does not recognize SM101 or SM107. Generated sources, commands, hashes,
   emitted words and missing opcodes are retained in
   `research/additional-opcodes/compiler-probes.json`. These traces establish
   encodings, not numerical or synchronization behavior.
+- Compiler traces with ptxas 13.4.92 and PTX 9.4 compile all ten probes on
+  every modeled architecture except SM75, which compiles four. The SM101
+  model is traced using compiler target `sm_110`, following the target rename
+  documented in the PTX ISA. The trace records this mapping explicitly.
+  `research/additional-opcodes/compiler-probes-13.4.json` retains the results;
+  `compiler-13.4-identity.json` pins the official wheel and compiler hashes.
+  SM107 needs the newer PTX version. These are compiler observations only.
 - Static answers are Python values that SLEIGH enumerates; operand values are expressions. The
   static API:
   - `i.select_fork(name)`: a selector's label, one family body per label.
@@ -139,13 +149,20 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   constructors preserve class constraints and fields determining operand spans.
   HMMA products/sums/fragments, scalar half/BF16 FMA, selected F64-to-half narrowing
   and atomic floating ADD use caller-written internal argument
-  registers, followed by an explicit build and an immediate result copy. Each call
-  has a distinct forwarding operand because SLEIGH rejects duplicate builds of
-  one operand. Nested definitions use separate argument registers.
+  registers, followed by an explicit build and an immediate result copy. Repeated
+  calls in one constructor use distinct forwarding operands because SLEIGH rejects
+  duplicate builds of one operand. Other constructors reuse those forwarding
+  tables. Nested definitions use separate argument registers.
   Packed F16/BF16 HMMA shares a format parameter and a common biased-exponent
   product representation. The shared body adds format-selection operations to
   F16 P-code, but avoids duplicating matrix constructors and keeps every language
-  below Ghidra's unchanged 16 MiB limit (SM107 exact: 16,776,587 bytes).
+  below Ghidra's unchanged 16 MiB limit. Packed dot products, alignment,
+  normalization and half accumulator expansion are shared independently
+  (SM107 exact: 16,776,580 bytes).
+  The reviewed representative HMMA P-code increases from 9,557 to 9,956
+  operations on SM89 and from 9,177 to 9,397 on SM90, due to the packed
+  alignment result and its decoding. These operations allow F16 and F32
+  normalization to share the same dot product without duplicating its body.
   Small predicate results share a body when their extra inputs can be elided
   without reading discarded predicates. Decode-time substitutes handle inputs
   used only by those results. Larger savings and complete-discard cases retain

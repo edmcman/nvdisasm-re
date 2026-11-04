@@ -96,6 +96,24 @@ def test_zero_argument_effect_is_retained():
     assert any("sass_async_commit();" in row for row in g.table_lines)
 
 
+def test_pure_forwarding_reuses_tables_across_constructors():
+    from types import SimpleNamespace
+    from sass.semantics.bitvec import const
+    from sass.semantics.families import matrix
+    from sass.sleigh import lower
+    g = gen.Gen("SM89")
+    b = SimpleNamespace(g=g, values={}, refs=[], serial=0)
+    first, second = lower.Code(), lower.Code()
+    for code, values in ((first, (1, 2)), (second, (3, 4))):
+        emitter = lower.Lower(b, code, {})
+        for value in values:
+            emitter.scratch_call(matrix.half_accumulator(const(value, 16)))
+    assert len(g.scratch_forwards) == 2
+    assert [line for line in first.lines if line.startswith("build ")] == [
+        line for line in second.lines if line.startswith("build ")]
+    assert len({line for line in first.lines if line.startswith("build ")}) == 2
+
+
 def test_class_filter_preserves_opaque_input_spans():
     from sass.sleigh.gen import Gen
     g = Gen("SM90")

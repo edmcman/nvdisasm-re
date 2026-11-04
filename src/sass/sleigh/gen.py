@@ -247,7 +247,7 @@ class Gen:
         self.table_lines = []
         self.shared_calls = {}
         self.scratch_calls = {}
-        self.scratch_serial = 0
+        self.scratch_forwards = {}
         self.skipped = []
         self.attach_vars = {}         # field name -> register names
         self.spans = {file: {1} for file in REG_FILES}

@@ -292,6 +292,14 @@ the compiled softfloat functions. Compilation batches contain at most 48 definit
 CUDA dispatch sizes rows to the batch's argument count and carries every operand/result
 as two 64-bit limbs, including a five-argument regression with two 128-bit inputs.
 
+On 2026-11-04, isolated `test_real_expansions_accept_parameters` runs took 324 seconds
+before packed F16 HMMA outputs and 378 seconds afterward. Discovery setup accounts for
+323 and 377 seconds respectively; parameter validation itself takes under a second.
+The additional output form and boundary profiles explain the 17% increase. Matrix-only
+discovery on SM89/SM90 increased from 21–22 seconds to 28–30 seconds. Running full
+discovery alongside coverage refresh and Ghidra took 607 seconds; that contended run
+is not the standalone timing baseline.
+
 ```sh
 nice uv run pytest tests/test_definition_functions.py
 CXX=g++ nice uv run pytest -m native tests/test_definition_functions.py tests/test_emulate_fp.py tests/test_fp_backends.py tests/test_emulate_ops.py

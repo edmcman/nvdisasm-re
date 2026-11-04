@@ -607,6 +607,15 @@ PROFILES['hmma_forms'] = dict(patterns=(
     "snan_a", "snan_b", "snan_c", "zero_times_inf", "positive_inf", "negative_inf",
     "max_half", "min_half", "half_subnormals",
     *(f"random_{seed}" for seed in range(16))))
+PROFILES['hmma_f16_output_forms'] = dict(patterns=PROFILES['hmma_forms']['patterns'] + (
+    *(f"half_boundary_{tail}_{sign}_{parity}" for tail in (-24, -25, -26, -27, -35, -45, -48)
+      for sign in (1, -1) for parity in ("even", "odd")),
+    *(f"raw_{a:04x}_{b:04x}_{c:04x}" for a, b, c in (
+        (0, 0, 0x8000), (0x8001, 1, 0), (0x03ff, 0x3c00, 0),
+        (0x0400, 0x1000, 0), (0, 0, 1), (0, 0, 0x8001),
+        (0, 0, 0x7c01),
+        (0x7bff, 0x3c00, 0), (0x7bff, 0x3c00, 0x7bff),
+        (0x7c00, 0xfc00, 0), (0x7c00, 0, 0)))))
 PROFILES['hmma_bf16_forms'] = dict(patterns=(
     "ones", "coordinates", "identity", "accumulator", "small", "cancel", "cancel_even",
     "nan_a", "nan_b", "nan_c", "snan_a", "snan_b", "snan_c", "negative_zero",

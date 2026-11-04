@@ -40,6 +40,7 @@ def generate(c, k, form, profiles):
 
 def hmma_cases(c, k, form, groups, pattern, lanes, source="F16", count=16):
     from tests.harness.autocases import Inputs
+    words = 2 if form.get("dstfmt") == "F16" else 4
     predicates = (("UPT", None), (0, 0), (0, 1), (6, 0), (6, 1)) if "UPp" in k.operand_types and pattern in (
         "accumulator", "nan_c", "snan_c", "raw_00000000_00000000_ff800001") else (("UPT", None),)
     for lane in lanes:
@@ -71,12 +72,12 @@ def hmma_cases(c, k, form, groups, pattern, lanes, source="F16", count=16):
                 if disabled is not None:
                     s.fields.update(Pg=0, **{"Pg@not": disabled})
                     s.registers["P0"] = disabled
-                    s.registers.update({f"R{destination + j}": 0x12345678 + j for j in range(4)})
+                    s.registers.update({f"R{destination + j}": 0x12345678 + j for j in range(words)})
                 enabled = bool(1 if value is None else value) ^ (form.get("UPp@not") == "set")
-                values = [] if c.discovery or destination == "RZ" else [s.registers[f"R{destination + j}"] for j in range(4)] if disabled is not None else matrix.hmma(
+                values = [] if c.discovery or destination == "RZ" else [s.registers[f"R{destination + j}"] for j in range(words)] if disabled is not None else matrix.hmma(
                     inputs, lane, c.arch, source, count, enabled,
-                    tuple(form.get(name + "@negate") == "set" for name in ("Ra", "Rb")))
-                names = list(s.registers) if destination == "RZ" else [f"R{destination + j}" for j in range(4)]
+                    tuple(form.get(name + "@negate") == "set" for name in ("Ra", "Rb")), form["dstfmt"])
+                names = list(s.registers) if destination == "RZ" else [f"R{destination + j}" for j in range(words)]
                 expected = {name: s.registers[name] for name in names} if destination == "RZ" and not c.discovery else dict(zip(names, values))
                 s.add(expected, form, observe=names,
                       context={"warp": dict(lane=lane, active=0xffffffff, operand_groups=inputs)},
@@ -91,12 +92,14 @@ def hmma(c, k, form):
     from tests.harness.autocases import Unsupported
     if form.get("srcfmt") == "TF32": return tf32(c, k, form)
     source = form.get("srcfmt")
+    half_output = form.get("dstfmt") == "F16"
     if k.name != "hmma_x8_" or (form.get("size"), source, form.get("dstfmt")) not in (
-        ("16816", "F16", "F32"), ("16816", "BF16", "F32")):
-        raise Unsupported("HMMA adapter covers direct 16816 F16/F32")
+        ("16816", "F16", "F32"), ("16816", "BF16", "F32"), ("16816", "F16", "F16")):
+        raise Unsupported("HMMA adapter covers direct 16816 F16/F16, F16/F32 and BF16/F32")
     def bits(value, fmt):
         return int.from_bytes(struct.pack("<f", value), "little") >> 16 if source == "BF16" and fmt == "<e" else int.from_bytes(struct.pack(fmt, value), "little")
-    profile = "hmma_bf16_forms" if source == "BF16" else "hmma_forms"
+    profile = "hmma_f16_output_forms" if half_output else "hmma_bf16_forms" if source == "BF16" else "hmma_forms"
+    midpoint = 2 ** (-11 if half_output else -24)
     for pattern in autocase_profiles.PROFILES[profile]["patterns"]:
         rng = random.Random(int(pattern.split("_")[-1])) if pattern.startswith("random_") else None
         def finite(width, exponent_mask):
@@ -109,11 +112,13 @@ def hmma(c, k, form):
                          for _ in range(16)] for _ in range(16)]
             random_b = [[unpack(finite(16, mask))
                          for _ in range(8)] for _ in range(16)]
-            random_c = [[struct.unpack("<f", finite(32, 0x7f800000).to_bytes(4, "little"))[0]
+            random_c = [[struct.unpack("<e", finite(16, 0x7c00).to_bytes(2, "little"))[0] if half_output else
+                         struct.unpack("<f", finite(32, 0x7f800000).to_bytes(4, "little"))[0]
                          if int(pattern.split("_")[-1]) % 2 else rng.uniform(-4, 4)
                          for _ in range(8)] for _ in range(16)]
         def a(row, column):
             match pattern:
+                case p if p.startswith("half_boundary_"): return 1 if column == 0 else 2 ** -24 if column == 1 else 0
                 case p if p.startswith("tiny_precision_"):
                     q = int(p.split("_")[-1])
                     return (2 - 2 ** (1 - q)) * 2 ** -75 if column % 8 == 0 else 2 ** ((-150 - q) // 2) if column % 8 in (1, 2) else 0
@@ -134,6 +139,9 @@ def hmma(c, k, form):
                 case _: return 1
         def b(row, column):
             match pattern:
+                case p if p.startswith("half_boundary_"):
+                    _, _, tail, sign, parity = p.split("_")
+                    return midpoint if row == 0 else int(sign) * 2 ** (int(tail) + 24) if row == 1 else 0
                 case p if p.startswith("tiny_precision_"):
                     q = int(p.split("_")[-1])
                     return 2 ** -75 if row % 8 == 0 else 2 ** (-150 - q - (-150 - q) // 2) if row % 8 in (1, 2) else 0
@@ -149,17 +157,18 @@ def hmma(c, k, form):
                 case "negative_inf": return -float("inf")
                 case "max_half": return 65504
                 case "half_subnormals": return 2 ** -24
-                case "quarter_products" | "negative_quarters": return 2 ** -24
-                case "unnormalized_product": return 1.5 if row == 0 else 2 ** -24 if row <= 4 else 0
-                case "normalized_product": return 2.25 if row == 0 else 2 ** -24 if row <= 4 else 0
-                case name if name.startswith("round_"): return 2 ** -24 if row == 0 else 0
+                case "quarter_products" | "negative_quarters": return midpoint
+                case "unnormalized_product": return 1.5 if row == 0 else midpoint if row <= 4 else 0
+                case "normalized_product": return 2.25 if row == 0 else midpoint if row <= 4 else 0
+                case name if name.startswith("round_"): return midpoint if row == 0 else 0
                 case name if name.startswith("pair_"):
-                    return 2 ** -24 if row in map(int, name.split("_")[1:]) else 0
+                    return midpoint if row in map(int, name.split("_")[1:]) else 0
                 case name if name.startswith("cancel_pair_"):
                     return 1 if row == 0 else -1 if row == int(name.split("_")[-1]) else 0
                 case _: return 1
         def accumulator(row, column):
             match pattern:
+                case p if p.startswith("half_boundary_"): return 1 if p.endswith("even") else 1 + midpoint * 2
                 case name if name.startswith("random_"): return random_c[row][column]
                 case "accumulator": return row * 8 + column + 1
                 case "small": return 1
@@ -167,9 +176,9 @@ def hmma(c, k, form):
                 case "cancel": return 2 ** -24
                 case name if name.startswith("pair_"): return 1
                 case name if name.startswith("cancel"): return 2 ** -24
-                case name if name.startswith("round_"): return 1 if name.endswith("even") else 1 + 2 ** -23
+                case name if name.startswith("round_"): return 1 if name.endswith("even") else 1 + midpoint * 2
                 case "nan_c": return float("nan")
-                case "subnormal_c": return 2 ** -149
+                case "subnormal_c": return 2 ** (-24 if half_output else -149)
                 case "negative_zero": return -0.0
                 case _: return 0
         groups = dict(Ra=[], Rb=[], Rc=[])
@@ -185,9 +194,13 @@ def hmma(c, k, form):
                 half_a, half_b = [int(raw_a, 16)] * 8, [int(raw_b, 16)] * 4
             groups["Ra"].append([half_a[j] | half_a[j + 1] << 16 for j in range(0, 8, 2)])
             groups["Rb"].append([half_b[j] | half_b[j + 1] << 16 for j in range(0, 4, 2)])
-            groups["Rc"].append([bits(accumulator(row + dr, thread * 2 + n), "<f") for dr in (0, 8) for n in (0, 1)])
-            if pattern == "snan_c": groups["Rc"][-1] = [0xff800001] * 4
-            if pattern.startswith("raw_"): groups["Rc"][-1] = [int(raw_c, 16)] * 4
+            values = [bits(accumulator(row + dr, thread * 2 + n), "<e" if half_output else "<f")
+                      for dr in (0, 8) for n in (0, 1)]
+            groups["Rc"].append([values[j] | values[j + 1] << 16 for j in (0, 2)] if half_output else values)
+            if pattern == "snan_c": groups["Rc"][-1] = [0xfc01fc01] * 2 if half_output else [0xff800001] * 4
+            if pattern.startswith("raw_"):
+                value = int(raw_c, 16)
+                groups["Rc"][-1] = [value | value << 16] * 2 if half_output else [value] * 4
         lanes = range(32) if rng else autocase_profiles.PROFILES["matrix_forms"]["lanes"] if pattern in (
             "ones", "coordinates", "identity", "accumulator", "small", "cancel") else (0,)
         hmma_cases(c, k, form, groups, pattern, lanes, source)
