@@ -50,6 +50,17 @@ def test_native_matrix_context(mode):
 SHAPES = (("F16", "16816"), ("TF32", "1684"), ("TF32", "1688"))
 
 
+@pytest.mark.parametrize("arch", ["SM75", "SM80", "SM86", "SM89", "SM90", "SM100", "SM101", "SM103", "SM107", "SM120"])
+def test_dense_tensor_plans_cover_each_control_combination(arch):
+    actual = {(s["size"], s["srcfmt"], s["dstfmt"], s["Ra@negate"], s["Rb@negate"], s.get("UPp@not", "unset"))
+              for entry in autocases.saved_plan(arch)["forms"] if entry["cls"] == "hmma_x8_"
+              for s in (entry["settings"],)}
+    inversions = ("unset", "set") if arch not in ("SM75", "SM80") else ("unset",)
+    expected = {(size, source, "F32", a, b, p) for source, size in SHAPES
+                for a in ("unset", "set") for b in ("unset", "set") for p in inversions} if arch != "SM75" else set()
+    assert actual == expected
+
+
 def arithmetic_cases(arch, source="F16", size="16816", controls=(0, 0, 0)):
     flags = {key: value for key, value in zip(("Ra@negate", "Rb@negate", "UPp@not"), controls)
              if key != "UPp@not" or "UPp" in encoding.klass(arch, "hmma_x8_").operand_types}
