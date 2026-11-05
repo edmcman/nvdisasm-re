@@ -15,6 +15,7 @@ void sass_memory_read(const sass::Memory *m, int space, uint64_t address, uint8_
 }
 sass::CacheState *sass_cache_new() { return new sass::CacheState(); }
 void sass_cache_free(sass::CacheState *s) { delete s; }
+uint64_t sass_cache_generation(const sass::CacheState *s) { return s->generation; }
 int sass_cache_issue(sass::CacheState *s, uint32_t operation, uint64_t address, char *message, size_t size) {
   auto status = s->issue(operation, address);
   if (status) return 0;

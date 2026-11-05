@@ -78,14 +78,19 @@ def address(i):
 
 @family("CCTL", modifier_roles={"cop": "effect", "cache": "effect"})
 def cache_control(i):
-    """Record a data-cache prefetch or priority request, completed immediately under SC."""
-    if i.cls not in ("cctl__sImmOffset", "cctl__sImmOffset_pf2"):
-        unmodelled("cache descriptor, predicate result or whole-cache operation")
+    """Record a data-cache request, completed immediately under SC."""
+    match i.cls:
+        case "cctl__IVALL_WBALL_D_U_noSrc":
+            required(i, "cop", "IVALL")
+            operation, location = const(4, 32), const(0, 64)
+        case "cctl__sImmOffset" | "cctl__sImmOffset_pf2":
+            operations = primitive.CACHE_OPERATIONS[:2] if i.arch.name == "SM75" else primitive.CACHE_OPERATIONS[:4]
+            if not i.select_in("cop", operations): unmodelled("cache operation unresolved")
+            operation = i.select_lookup_const("cop", {name: index for index, name in enumerate(operations)})
+            location = address(i)
+        case _: unmodelled("cache descriptor, predicate result or whole-cache operation")
     required(i, "cache", "D")
-    operations = primitive.CACHE_OPERATIONS[:2] if i.arch.name == "SM75" else primitive.CACHE_OPERATIONS
-    if not i.select_in("cop", operations): unmodelled("cache operation unresolved")
-    operation = i.select_lookup_const("cop", {name: index for index, name in enumerate(operations)})
-    return outputs(effects=[effect("sass_cache_control", operation, address(i))])
+    return outputs(effects=[effect("sass_cache_control", operation, location)])
 
 
 def windows(i, space, addr):

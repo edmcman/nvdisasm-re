@@ -3,6 +3,8 @@ from sass.emulate import kernel, reference
 from sass.sleigh.build import ARCHES
 from tests.harness import gpu, hardware, synchronization
 
+pytestmark = pytest.mark.usefixtures("selected_architecture")
+
 
 @pytest.mark.parametrize("arch", ARCHES)
 @pytest.mark.parametrize("mode", ["BAR", "WARP", "RESULT"])

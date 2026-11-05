@@ -47,8 +47,9 @@ class Cache:
         count = self.lib.sass_cache_requests(self.state, None, 0)
         records = (CacheRequest * count)()
         self.lib.sass_cache_requests(self.state, records, count)
-        return [dict(op="CCTL", operation=primitive.CACHE_OPERATIONS[r.operation], address=r.address)
-                for r in records]
+        return [primitive.cache_event(r.operation, r.address) for r in records]
+
+    def generation(self): return self.lib.sass_cache_generation(self.state)
 
 
 class AsyncCopy(ctypes.Structure):
@@ -159,6 +160,8 @@ class Library:
         lib.sass_memory_read.argtypes = [ctypes.c_void_p, ctypes.c_int, ctypes.c_uint64, ctypes.c_char_p, ctypes.c_size_t]
         lib.sass_cache_new.restype = ctypes.c_void_p
         lib.sass_cache_free.argtypes = [ctypes.c_void_p]
+        lib.sass_cache_generation.argtypes = [ctypes.c_void_p]
+        lib.sass_cache_generation.restype = ctypes.c_uint64
         lib.sass_cache_issue.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint64, ctypes.c_char_p, ctypes.c_size_t]
         lib.sass_cache_requests.argtypes = [ctypes.c_void_p, ctypes.POINTER(CacheRequest), ctypes.c_size_t]
         lib.sass_cache_requests.restype = ctypes.c_size_t

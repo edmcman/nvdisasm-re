@@ -2,6 +2,8 @@ import pytest
 from sass.emulate import kernel, reference
 from tests.harness import asynchronous, gpu, hardware
 
+pytestmark = pytest.mark.usefixtures("selected_architecture")
+
 
 @pytest.mark.parametrize("arch", ["SM89", "SM90"])
 @pytest.mark.parametrize("order", ["round_robin", "reverse", "seeded"])

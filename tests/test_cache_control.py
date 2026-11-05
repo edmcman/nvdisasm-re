@@ -6,6 +6,8 @@ from sass.sleigh.build import ARCHES
 from tests.harness import autocases, cache_controls, checks, device_cases, device_evidence, gpu, hardware, lifted
 from tests.refs import cache
 
+pytestmark = pytest.mark.usefixtures("selected_architecture")
+
 
 SCHEDULES = [("thread", "round_robin"), ("block", "round_robin"),
              ("launch", "round_robin"), ("launch", "reverse"), ("launch", "seeded")]
@@ -13,6 +15,10 @@ SCHEDULES = [("thread", "round_robin"), ("block", "round_robin"),
 
 def cases(arch):
     for k in ir.load(arch).classes:
+        if not k.alternate and k.name == "cctl__IVALL_WBALL_D_U_noSrc":
+            yield from autocases.generate(arch, k.name, dict(cache="D", cop="IVALL"),
+                                          profiles=["effect_forms"], native=False)
+            continue
         if k.alternate or k.name not in ("cctl__sImmOffset", "cctl__sImmOffset_pf2"): continue
         for operation in ir.load(arch).enums[k.operand_types["cop"].type]:
             if operation not in cache.OPERATIONS or arch == "SM75" and operation in ("PML2", "DML2"): continue
@@ -32,20 +38,21 @@ def test_cache_profiles_and_native_requests(arch, fp):
     try:
         for index, case in enumerate(selected):
             assert not lifted.run(arch, fp, case)[1], case.id
-            regions = [(m["space"], m["address"], m["size"]) for m in case.request["observe_memory"]]
+            regions = [(m["space"], m["address"], m["size"]) for m in case.request.get("observe_memory", [])]
             result = library.execute(index, lifted.state(arch, case.request), dict(cache=records), observe=regions)
-            for region in case.request["memory"]:
+            for region in case.request.get("memory", []):
                 found = bytes(result.memory["ram"][region["address"] + k] for k in range(128))
                 assert found.hex() == region["hex"]
             expected.extend(case.expected["__event_values"])
         assert records.requests() == expected
+        assert records.generation() == sum(event == cache.invalidate() for event in expected)
     finally: library.lib.sass_cache_free(records.state)
 
 
 @pytest.mark.parametrize("arch", ["SM89", "SM90"])
 @pytest.mark.parametrize("scope,order", SCHEDULES)
 def test_cache_kernel_schedules(arch, scope, order):
-    for fixture in cache_controls.fixtures(arch):
+    for fixture in cache_controls.fixtures(arch, cross_block=scope == "launch"):
         request = gpu.request(fixture)
         request["kernel"].update(scope=scope, schedule=order)
         result = reference.run_kernel(request, arch)
@@ -100,7 +107,7 @@ def test_cache_kernel_ghidra(arch, pytestconfig):
     select.require_languages([(arch, mode) for mode in modes])
     requests = [dict(r, kernel=dict(r["kernel"], scope=scope, schedule=order))
                 for scope, order in SCHEDULES
-                for r in map(gpu.request, cache_controls.fixtures(arch))]
+                for r in map(gpu.request, cache_controls.fixtures(arch, cross_block=scope == "launch"))]
     expected = [reference.run_kernel(r, arch) for r in requests]
     results = ghidra_bridge.emulate_sharded({mode: (arch, mode, requests) for mode in modes}, workers=len(modes))
     assert all(found == expected for found in results.values())

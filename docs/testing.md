@@ -930,3 +930,20 @@ with 470 complete captured-region comparisons, leaves 65 launches blocked, and
 finds no mismatches. Hardware verification covers 5,892 SM89 shared cases and
 twelve whole-warp fixtures; other architectures' tensor arithmetic remains
 specification/paper inference.
+
+### CI architecture selection (2026-11-05)
+
+Six Python jobs on PR #119's `e925a82` hit the 60-minute limit. SM89's log
+shows 1,274 seconds between the start and completion of the definition test
+group, which discovered every architecture and both lowering modes inside
+each architecture job. Barrier and cooperative runtime tests also repeated
+their full architecture domains.
+
+Explicit `--arch` selection now limits definition discovery and the barrier,
+async, cache and matrix runtime modules. SM89-only matrix checks expose their
+architecture as a parameter so they can be excluded from other jobs.
+Unqualified discovery still covers twenty variants; the CI matrix and
+`--arch all --fp all` retain complete architecture coverage. The timeout is
+unchanged. The focused SM89 suite passes 128 tests with 173 architecture
+skips; default/subset discovery contracts and selected matrix execution pass
+separately. Fresh CI results must establish whether every job finishes.

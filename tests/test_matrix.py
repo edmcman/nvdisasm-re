@@ -9,6 +9,8 @@ from sass.sleigh import modifiers
 from tests.cases import matrix
 from tests.harness import autocases
 
+pytestmark = pytest.mark.usefixtures("selected_architecture")
+
 
 def cases(arch, mode, count, uniform=False):
     cls = ("ldsm__URsIR" if arch == "SM75" else "ldsm__UR_sI_R") if uniform else "ldsm__sImmOffset"
@@ -40,10 +42,11 @@ def test_matrix_lane_mapping(arch, mode, count, uniform):
 
 
 @pytest.mark.native
+@pytest.mark.parametrize("arch", ["SM89"])
 @pytest.mark.parametrize("mode", ["M88", "MT88"])
-def test_native_matrix_context(mode):
-    selected = cases("SM89", mode, 4, True)
-    fragment = machine.Fragments([("SM89", bytes.fromhex(case.request["word"]), 0) for case in selected])
+def test_native_matrix_context(arch, mode):
+    selected = cases(arch, mode, 4, True)
+    fragment = machine.Fragments([(arch, bytes.fromhex(case.request["word"]), 0) for case in selected])
     for j, case in enumerate(selected):
         found = fragment.execute(j, state(case), case.request["context"])
         assert all(found.read("R", int(name[1:]), 1) == value for name, value in case.expected.items())
@@ -100,19 +103,21 @@ def test_tensor_arithmetic(arch, source, size, destination):
     assert_arithmetic(arch, source, size, destination=destination)
 
 
+@pytest.mark.parametrize("arch", ["SM89"])
 @pytest.mark.parametrize("source,size,destination", SHAPES)
 @pytest.mark.parametrize("controls", [(a, b, p) for a in (0, 1) for b in (0, 1) for p in (0, 1) if a or b or p])
-def test_tensor_operand_controls(source, size, destination, controls):
-    assert_arithmetic("SM89", source, size, controls, destination)
+def test_tensor_operand_controls(arch, source, size, destination, controls):
+    assert_arithmetic(arch, source, size, controls, destination)
 
 
 @pytest.mark.native
+@pytest.mark.parametrize("arch", ["SM89"])
 @pytest.mark.parametrize("source,size,destination", SHAPES)
 @pytest.mark.parametrize("controls", [(a, b, p) for a in (0, 1) for b in (0, 1) for p in (0, 1)])
-def test_native_tensor_arithmetic(source, size, destination, controls):
-    selected = arithmetic_cases("SM89", source, size, controls, destination)
+def test_native_tensor_arithmetic(arch, source, size, destination, controls):
+    selected = arithmetic_cases(arch, source, size, controls, destination)
     indices = {word: j for j, word in enumerate(dict.fromkeys(c.request["word"] for c in selected))}
-    fragment = machine.Fragments([("SM89", bytes.fromhex(word), 0) for word in indices])
+    fragment = machine.Fragments([(arch, bytes.fromhex(word), 0) for word in indices])
     for case in selected:
         found = fragment.execute(indices[case.request["word"]], state(case), case.request["context"])
         assert all(found.read("R", int(name[1:]), 1) == value for name, value in case.expected.items()), case.hardware

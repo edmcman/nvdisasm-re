@@ -48763,8 +48763,8 @@
    {
     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
     "opcode": "CCTL",
-    "status": "opaque",
-    "reason": "cache descriptor, predicate result or whole-cache operation",
+    "status": "native",
+    "reason": "decode-time selector guards retain complete opaque fallbacks",
     "operands": [
      {
       "name": "Pg",
@@ -48885,7 +48885,14 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {},
+    "selector_combinations": {
+     "cache,cop": [
+      [
+       0,
+       4
+      ]
+     ]
+    },
     "combinations": {
      "labels": {
       "cache": [
@@ -48899,21 +48906,61 @@
        "WBALLP"
       ]
      },
-     "decides": [],
+     "decides": [
+      "cache",
+      "cop"
+     ],
      "table": [
       [
+       "D",
+       "IVALL",
+       "native"
+      ],
+      [
+       "D",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALLP",
        "opaque"
       ]
      ],
-     "free": 8
+     "free": 1
     },
     "modifiers": {
      "cache": {
-      "D": "opaque",
+      "D": "partially native",
       "U": "opaque"
      },
      "cop": {
-      "IVALL": "opaque",
+      "IVALL": "partially native",
       "IVALLP": "opaque",
       "WBALL": "opaque",
       "WBALLP": "opaque"
@@ -48937,10 +48984,40 @@
     ],
     "legal_forms": 8,
     "semantics": {
-     "opaque": 8
+     "native": 1,
+     "opaque": 7
     },
-    "full_form_verification": {},
-    "evidence": {}
+    "full_form_verification": {
+     "supported": 1,
+     "planned": 1,
+     "unplanned": 0,
+     "reference": 1,
+     "gpu": 0,
+     "ptxas": 0
+    },
+    "evidence": {
+     "forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     },
+     "modifiers": [
+      "cache",
+      "cop"
+     ],
+     "reference": 2,
+     "verification_forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     }
+    }
    },
    {
     "cls": "cctl__IVALL_WBALL_I_noSrc",
@@ -179586,8 +179663,8 @@
    {
     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
     "opcode": "CCTL",
-    "status": "opaque",
-    "reason": "cache descriptor, predicate result or whole-cache operation",
+    "status": "native",
+    "reason": "decode-time selector guards retain complete opaque fallbacks",
     "operands": [
      {
       "name": "Pg",
@@ -179708,7 +179785,14 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {},
+    "selector_combinations": {
+     "cache,cop": [
+      [
+       0,
+       4
+      ]
+     ]
+    },
     "combinations": {
      "labels": {
       "cache": [
@@ -179722,21 +179806,61 @@
        "WBALLP"
       ]
      },
-     "decides": [],
+     "decides": [
+      "cache",
+      "cop"
+     ],
      "table": [
       [
+       "D",
+       "IVALL",
+       "native"
+      ],
+      [
+       "D",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALLP",
        "opaque"
       ]
      ],
-     "free": 8
+     "free": 1
     },
     "modifiers": {
      "cache": {
-      "D": "opaque",
+      "D": "partially native",
       "U": "opaque"
      },
      "cop": {
-      "IVALL": "opaque",
+      "IVALL": "partially native",
       "IVALLP": "opaque",
       "WBALL": "opaque",
       "WBALLP": "opaque"
@@ -179760,10 +179884,40 @@
     ],
     "legal_forms": 8,
     "semantics": {
-     "opaque": 8
+     "native": 1,
+     "opaque": 7
     },
-    "full_form_verification": {},
-    "evidence": {}
+    "full_form_verification": {
+     "supported": 1,
+     "planned": 1,
+     "unplanned": 0,
+     "reference": 1,
+     "gpu": 0,
+     "ptxas": 0
+    },
+    "evidence": {
+     "forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     },
+     "modifiers": [
+      "cache",
+      "cop"
+     ],
+     "reference": 2,
+     "verification_forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     }
+    }
    },
    {
     "cls": "cctl__IVALL_WBALL_I_noSrc",
@@ -326747,8 +326901,8 @@
    {
     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
     "opcode": "CCTL",
-    "status": "opaque",
-    "reason": "cache descriptor, predicate result or whole-cache operation",
+    "status": "native",
+    "reason": "decode-time selector guards retain complete opaque fallbacks",
     "operands": [
      {
       "name": "Pg",
@@ -326876,7 +327030,14 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {},
+    "selector_combinations": {
+     "cache,cop": [
+      [
+       0,
+       4
+      ]
+     ]
+    },
     "combinations": {
      "labels": {
       "cache": [
@@ -326890,21 +327051,61 @@
        "WBALLP"
       ]
      },
-     "decides": [],
+     "decides": [
+      "cache",
+      "cop"
+     ],
      "table": [
       [
+       "D",
+       "IVALL",
+       "native"
+      ],
+      [
+       "D",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALLP",
        "opaque"
       ]
      ],
-     "free": 8
+     "free": 1
     },
     "modifiers": {
      "cache": {
-      "D": "opaque",
+      "D": "partially native",
       "U": "opaque"
      },
      "cop": {
-      "IVALL": "opaque",
+      "IVALL": "partially native",
       "IVALLP": "opaque",
       "WBALL": "opaque",
       "WBALLP": "opaque"
@@ -326928,10 +327129,40 @@
     ],
     "legal_forms": 8,
     "semantics": {
-     "opaque": 8
+     "native": 1,
+     "opaque": 7
     },
-    "full_form_verification": {},
-    "evidence": {}
+    "full_form_verification": {
+     "supported": 1,
+     "planned": 1,
+     "unplanned": 0,
+     "reference": 1,
+     "gpu": 0,
+     "ptxas": 0
+    },
+    "evidence": {
+     "forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     },
+     "modifiers": [
+      "cache",
+      "cop"
+     ],
+     "reference": 2,
+     "verification_forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     }
+    }
    },
    {
     "cls": "cctl__IVALL_WBALL_I_noSrc",
@@ -486162,8 +486393,8 @@
    {
     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
     "opcode": "CCTL",
-    "status": "opaque",
-    "reason": "cache descriptor, predicate result or whole-cache operation",
+    "status": "native",
+    "reason": "decode-time selector guards retain complete opaque fallbacks",
     "operands": [
      {
       "name": "Pg",
@@ -486291,7 +486522,14 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {},
+    "selector_combinations": {
+     "cache,cop": [
+      [
+       0,
+       4
+      ]
+     ]
+    },
     "combinations": {
      "labels": {
       "cache": [
@@ -486305,21 +486543,61 @@
        "WBALLP"
       ]
      },
-     "decides": [],
+     "decides": [
+      "cache",
+      "cop"
+     ],
      "table": [
       [
+       "D",
+       "IVALL",
+       "native"
+      ],
+      [
+       "D",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALLP",
        "opaque"
       ]
      ],
-     "free": 8
+     "free": 1
     },
     "modifiers": {
      "cache": {
-      "D": "opaque",
+      "D": "partially native",
       "U": "opaque"
      },
      "cop": {
-      "IVALL": "opaque",
+      "IVALL": "partially native",
       "IVALLP": "opaque",
       "WBALL": "opaque",
       "WBALLP": "opaque"
@@ -486343,10 +486621,51 @@
     ],
     "legal_forms": 8,
     "semantics": {
-     "opaque": 8
+     "native": 1,
+     "opaque": 7
     },
-    "full_form_verification": {},
-    "evidence": {}
+    "full_form_verification": {
+     "supported": 1,
+     "planned": 1,
+     "unplanned": 0,
+     "reference": 1,
+     "gpu": 1,
+     "ptxas": 0
+    },
+    "evidence": {
+     "forms": {
+      "gpu": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ],
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     },
+     "gpu": [
+      "cache_invalidation_!P0",
+      "cache_invalidation_P1",
+      "cache_invalidation_PT"
+     ],
+     "modifiers": [
+      "cache",
+      "cop"
+     ],
+     "reference": 2,
+     "verification_forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     }
+    }
    },
    {
     "cls": "cctl__IVALL_WBALL_I_noSrc",
@@ -486932,6 +487251,15 @@
       ]
      },
      "gpu": [
+      "cache_DML2_!P0",
+      "cache_DML2_P0",
+      "cache_DML2_PT",
+      "cache_PF1_!P0",
+      "cache_PF1_P0",
+      "cache_PF1_PT",
+      "cache_PML2_!P0",
+      "cache_PML2_P0",
+      "cache_PML2_PT",
       "cases/control"
      ],
      "modifiers": [
@@ -487275,6 +487603,9 @@
       ]
      },
      "gpu": [
+      "cache_PF2_!P0",
+      "cache_PF2_P0",
+      "cache_PF2_PT",
       "cases/control"
      ],
      "modifiers": [
@@ -674994,8 +675325,8 @@
    {
     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
     "opcode": "CCTL",
-    "status": "opaque",
-    "reason": "cache descriptor, predicate result or whole-cache operation",
+    "status": "native",
+    "reason": "decode-time selector guards retain complete opaque fallbacks",
     "operands": [
      {
       "name": "Pg",
@@ -675123,7 +675454,14 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {},
+    "selector_combinations": {
+     "cache,cop": [
+      [
+       0,
+       4
+      ]
+     ]
+    },
     "combinations": {
      "labels": {
       "cache": [
@@ -675137,21 +675475,61 @@
        "WBALLP"
       ]
      },
-     "decides": [],
+     "decides": [
+      "cache",
+      "cop"
+     ],
      "table": [
       [
+       "D",
+       "IVALL",
+       "native"
+      ],
+      [
+       "D",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALLP",
        "opaque"
       ]
      ],
-     "free": 8
+     "free": 1
     },
     "modifiers": {
      "cache": {
-      "D": "opaque",
+      "D": "partially native",
       "U": "opaque"
      },
      "cop": {
-      "IVALL": "opaque",
+      "IVALL": "partially native",
       "IVALLP": "opaque",
       "WBALL": "opaque",
       "WBALLP": "opaque"
@@ -675175,10 +675553,40 @@
     ],
     "legal_forms": 8,
     "semantics": {
-     "opaque": 8
+     "native": 1,
+     "opaque": 7
     },
-    "full_form_verification": {},
-    "evidence": {}
+    "full_form_verification": {
+     "supported": 1,
+     "planned": 1,
+     "unplanned": 0,
+     "reference": 1,
+     "gpu": 0,
+     "ptxas": 0
+    },
+    "evidence": {
+     "forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     },
+     "modifiers": [
+      "cache",
+      "cop"
+     ],
+     "reference": 2,
+     "verification_forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     }
+    }
    },
    {
     "cls": "cctl__IVALL_WBALL_I_noSrc",
@@ -854377,8 +854785,8 @@
    {
     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
     "opcode": "CCTL",
-    "status": "opaque",
-    "reason": "cache descriptor, predicate result or whole-cache operation",
+    "status": "native",
+    "reason": "decode-time selector guards retain complete opaque fallbacks",
     "operands": [
      {
       "name": "Pg",
@@ -854506,7 +854914,14 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {},
+    "selector_combinations": {
+     "cache,cop": [
+      [
+       0,
+       4
+      ]
+     ]
+    },
     "combinations": {
      "labels": {
       "cache": [
@@ -854520,21 +854935,61 @@
        "WBALLP"
       ]
      },
-     "decides": [],
+     "decides": [
+      "cache",
+      "cop"
+     ],
      "table": [
       [
+       "D",
+       "IVALL",
+       "native"
+      ],
+      [
+       "D",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALLP",
        "opaque"
       ]
      ],
-     "free": 8
+     "free": 1
     },
     "modifiers": {
      "cache": {
-      "D": "opaque",
+      "D": "partially native",
       "U": "opaque"
      },
      "cop": {
-      "IVALL": "opaque",
+      "IVALL": "partially native",
       "IVALLP": "opaque",
       "WBALL": "opaque",
       "WBALLP": "opaque"
@@ -854558,10 +855013,40 @@
     ],
     "legal_forms": 8,
     "semantics": {
-     "opaque": 8
+     "native": 1,
+     "opaque": 7
     },
-    "full_form_verification": {},
-    "evidence": {}
+    "full_form_verification": {
+     "supported": 1,
+     "planned": 1,
+     "unplanned": 0,
+     "reference": 1,
+     "gpu": 0,
+     "ptxas": 0
+    },
+    "evidence": {
+     "forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     },
+     "modifiers": [
+      "cache",
+      "cop"
+     ],
+     "reference": 2,
+     "verification_forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     }
+    }
    },
    {
     "cls": "cctl__sImmOffset",
@@ -1038793,8 +1039278,8 @@
    {
     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
     "opcode": "CCTL",
-    "status": "opaque",
-    "reason": "cache descriptor, predicate result or whole-cache operation",
+    "status": "native",
+    "reason": "decode-time selector guards retain complete opaque fallbacks",
     "operands": [
      {
       "name": "Pg",
@@ -1038922,7 +1039407,14 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {},
+    "selector_combinations": {
+     "cache,cop": [
+      [
+       0,
+       4
+      ]
+     ]
+    },
     "combinations": {
      "labels": {
       "cache": [
@@ -1038936,21 +1039428,61 @@
        "WBALLP"
       ]
      },
-     "decides": [],
+     "decides": [
+      "cache",
+      "cop"
+     ],
      "table": [
       [
+       "D",
+       "IVALL",
+       "native"
+      ],
+      [
+       "D",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALLP",
        "opaque"
       ]
      ],
-     "free": 8
+     "free": 1
     },
     "modifiers": {
      "cache": {
-      "D": "opaque",
+      "D": "partially native",
       "U": "opaque"
      },
      "cop": {
-      "IVALL": "opaque",
+      "IVALL": "partially native",
       "IVALLP": "opaque",
       "WBALL": "opaque",
       "WBALLP": "opaque"
@@ -1038974,10 +1039506,40 @@
     ],
     "legal_forms": 8,
     "semantics": {
-     "opaque": 8
+     "native": 1,
+     "opaque": 7
     },
-    "full_form_verification": {},
-    "evidence": {}
+    "full_form_verification": {
+     "supported": 1,
+     "planned": 1,
+     "unplanned": 0,
+     "reference": 1,
+     "gpu": 0,
+     "ptxas": 0
+    },
+    "evidence": {
+     "forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     },
+     "modifiers": [
+      "cache",
+      "cop"
+     ],
+     "reference": 2,
+     "verification_forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     }
+    }
    },
    {
     "cls": "cctl__sImmOffset",
@@ -1223209,8 +1223771,8 @@
    {
     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
     "opcode": "CCTL",
-    "status": "opaque",
-    "reason": "cache descriptor, predicate result or whole-cache operation",
+    "status": "native",
+    "reason": "decode-time selector guards retain complete opaque fallbacks",
     "operands": [
      {
       "name": "Pg",
@@ -1223338,7 +1223900,14 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {},
+    "selector_combinations": {
+     "cache,cop": [
+      [
+       0,
+       4
+      ]
+     ]
+    },
     "combinations": {
      "labels": {
       "cache": [
@@ -1223352,21 +1223921,61 @@
        "WBALLP"
       ]
      },
-     "decides": [],
+     "decides": [
+      "cache",
+      "cop"
+     ],
      "table": [
       [
+       "D",
+       "IVALL",
+       "native"
+      ],
+      [
+       "D",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALLP",
        "opaque"
       ]
      ],
-     "free": 8
+     "free": 1
     },
     "modifiers": {
      "cache": {
-      "D": "opaque",
+      "D": "partially native",
       "U": "opaque"
      },
      "cop": {
-      "IVALL": "opaque",
+      "IVALL": "partially native",
       "IVALLP": "opaque",
       "WBALL": "opaque",
       "WBALLP": "opaque"
@@ -1223390,10 +1223999,40 @@
     ],
     "legal_forms": 8,
     "semantics": {
-     "opaque": 8
+     "native": 1,
+     "opaque": 7
     },
-    "full_form_verification": {},
-    "evidence": {}
+    "full_form_verification": {
+     "supported": 1,
+     "planned": 1,
+     "unplanned": 0,
+     "reference": 1,
+     "gpu": 0,
+     "ptxas": 0
+    },
+    "evidence": {
+     "forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     },
+     "modifiers": [
+      "cache",
+      "cop"
+     ],
+     "reference": 2,
+     "verification_forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     }
+    }
    },
    {
     "cls": "cctl__sImmOffset",
@@ -1407753,8 +1408392,8 @@
    {
     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
     "opcode": "CCTL",
-    "status": "opaque",
-    "reason": "cache descriptor, predicate result or whole-cache operation",
+    "status": "native",
+    "reason": "decode-time selector guards retain complete opaque fallbacks",
     "operands": [
      {
       "name": "Pg",
@@ -1407890,7 +1408529,14 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {},
+    "selector_combinations": {
+     "cache,cop": [
+      [
+       0,
+       4
+      ]
+     ]
+    },
     "combinations": {
      "labels": {
       "cache": [
@@ -1407904,21 +1408550,61 @@
        "WBALLP"
       ]
      },
-     "decides": [],
+     "decides": [
+      "cache",
+      "cop"
+     ],
      "table": [
       [
+       "D",
+       "IVALL",
+       "native"
+      ],
+      [
+       "D",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALLP",
        "opaque"
       ]
      ],
-     "free": 8
+     "free": 1
     },
     "modifiers": {
      "cache": {
-      "D": "opaque",
+      "D": "partially native",
       "U": "opaque"
      },
      "cop": {
-      "IVALL": "opaque",
+      "IVALL": "partially native",
       "IVALLP": "opaque",
       "WBALL": "opaque",
       "WBALLP": "opaque"
@@ -1407942,10 +1408628,40 @@
     ],
     "legal_forms": 8,
     "semantics": {
-     "opaque": 8
+     "native": 1,
+     "opaque": 7
     },
-    "full_form_verification": {},
-    "evidence": {}
+    "full_form_verification": {
+     "supported": 1,
+     "planned": 1,
+     "unplanned": 0,
+     "reference": 1,
+     "gpu": 0,
+     "ptxas": 0
+    },
+    "evidence": {
+     "forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     },
+     "modifiers": [
+      "cache",
+      "cop"
+     ],
+     "reference": 2,
+     "verification_forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     }
+    }
    },
    {
     "cls": "cctl__sImmOffset",
@@ -1592483,8 +1593199,8 @@
    {
     "cls": "cctl__IVALL_WBALL_D_U_noSrc",
     "opcode": "CCTL",
-    "status": "opaque",
-    "reason": "cache descriptor, predicate result or whole-cache operation",
+    "status": "native",
+    "reason": "decode-time selector guards retain complete opaque fallbacks",
     "operands": [
      {
       "name": "Pg",
@@ -1592620,7 +1593336,14 @@
      }
     ],
     "selector_guards": {},
-    "selector_combinations": {},
+    "selector_combinations": {
+     "cache,cop": [
+      [
+       0,
+       4
+      ]
+     ]
+    },
     "combinations": {
      "labels": {
       "cache": [
@@ -1592634,21 +1593357,61 @@
        "WBALLP"
       ]
      },
-     "decides": [],
+     "decides": [
+      "cache",
+      "cop"
+     ],
      "table": [
       [
+       "D",
+       "IVALL",
+       "native"
+      ],
+      [
+       "D",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "D",
+       "WBALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "IVALLP",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALL",
+       "opaque"
+      ],
+      [
+       "U",
+       "WBALLP",
        "opaque"
       ]
      ],
-     "free": 8
+     "free": 1
     },
     "modifiers": {
      "cache": {
-      "D": "opaque",
+      "D": "partially native",
       "U": "opaque"
      },
      "cop": {
-      "IVALL": "opaque",
+      "IVALL": "partially native",
       "IVALLP": "opaque",
       "WBALL": "opaque",
       "WBALLP": "opaque"
@@ -1592672,10 +1593435,40 @@
     ],
     "legal_forms": 8,
     "semantics": {
-     "opaque": 8
+     "native": 1,
+     "opaque": 7
     },
-    "full_form_verification": {},
-    "evidence": {}
+    "full_form_verification": {
+     "supported": 1,
+     "planned": 1,
+     "unplanned": 0,
+     "reference": 1,
+     "gpu": 0,
+     "ptxas": 0
+    },
+    "evidence": {
+     "forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     },
+     "modifiers": [
+      "cache",
+      "cop"
+     ],
+     "reference": 2,
+     "verification_forms": {
+      "reference": [
+       [
+        "D",
+        "IVALL"
+       ]
+      ]
+     }
+    }
    },
    {
     "cls": "cctl__sImmOffset",

@@ -190,6 +190,7 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   pass numerical and register-dataflow checks for 191,390 shared cases;
   their reviewed operation-count baselines pass separately. Sharing FP64 FMA or the outer 16816 fragment instead
   increased compiled size, so those experiments were discarded.
+  Adding CCTL.D.IVALL then makes SM107 exact 16,735,261 bytes.
 - **Printing** (`bitvec.show`): operators print as calls, a constant expression's value after it
   (`... = 0x3f800000`), and with `describe=True` the descriptions. `expand=True` prints the lowered
   expressions with each expansion pointing at its operator. A leaf result (a constant, a register)

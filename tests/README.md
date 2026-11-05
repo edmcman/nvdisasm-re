@@ -52,6 +52,9 @@ an RTX 4070 selects SM89. An explicit architecture list must include the detecte
 device; only its architecture runs on hardware. CPU-only tests still default to SM89.
 Both shared cases and compiled whole-kernel fixtures use the selected architecture.
 Whole-kernel Ghidra tests support `--arch SM89,SM90 --fp all` without a GPU.
+Explicit `--arch` selection also limits numeric-definition discovery and the
+barrier, async, cache and matrix runtime checks. Without that option, these
+checks retain their full architecture domains; `--arch all` runs every domain.
 The MUFU sample fixtures compare the same 1,462 recorded inputs per operation on
 both devices; their GPU pass records remain architecture-specific.
 
@@ -899,6 +902,35 @@ These contended measurements are validation records, not timing baselines.
 The direct cache-profile checks cover every retained input beyond the
 planner's interaction coverage; cooperative tests exercise two blocks under
 round-robin, reverse and seeded launch schedules.
+
+The subsequent D.IVALL validation uses the same cache-profile and GPU commands,
+plus this focused all-language check:
+
+```sh
+nice uv run pytest tests/test_cache_control.py tests/test_pcode_semantics.py tests/test_pcode_dataflow.py --family control -m ghidra --arch all --fp all -q
+```
+
+The final uninterrupted run passed 1,509 tests and 6,580 shared control cases in
+51 seconds with populated caches. All operation-count baselines passed without
+updates. The finalized source check passed 66 tests in 113 seconds alongside
+coverage work; the exhaustive control GPU suite passed 160 tests in 14 seconds.
+Cross-block invalidation fixtures require launch scope. Their readiness counter
+orders cache warm-up before the producer's release handoff; all outputs are
+compared exactly, without timing or polling-count expectations.
+
+The CI architecture-selection fix was checked with:
+
+```sh
+nice uv run pytest tests/test_definition_functions.py tests/test_barrier_result.py tests/test_asynchronous.py tests/test_cache_control.py tests/test_matrix.py tests/test_evidence.py --arch SM89 --fp all -q
+```
+
+This passed 128 tests with 173 unselected-architecture skips in 576 seconds,
+including native compilation and cooperative matrix checks. The initial
+2–4 minute estimate omitted most of that work; this is a validation record,
+not a revised timing baseline. Two discovery-contract checks preserve the
+default twenty-variant domain and explicit subsets. Three representative
+matrix checks pass with explicit SM89 parameters; selecting SM90 skips all
+152 SM89-only matrix checks.
 
 ## Caches
 

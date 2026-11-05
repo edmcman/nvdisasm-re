@@ -43,6 +43,16 @@ def generate(c, k, form, profiles):
             s.add(dict(__events=1, __event_values=[event], __max_ops=dict(count=4, userops=["sass_fence"])), form,
                   hardware={"skip": "SC fence events are internal model state; hardware ordering requires a cooperative fixture"})
         case "CCTL":
+            if k.name == "cctl__IVALL_WBALL_D_U_noSrc" and form == dict(cache="D", cop="IVALL"):
+                for predicate, invert in product((0, 1), (0, 1)):
+                    s = Inputs(c, k, form)
+                    s.fields.update(Pg=0, **{"Pg@not": invert})
+                    s.registers["P0"] = predicate
+                    events = [cache.invalidate()] if predicate ^ invert else []
+                    s.add(dict(__events=len(events), __event_values=events,
+                               __max_ops=dict(count=4, userops=["sass_cache_control"], branches=True)), form,
+                          hardware={"skip": "cache invalidation requires a warmed dependent payload; covered by cooperative fixtures"})
+                return c
             if k.name not in ("cctl__sImmOffset", "cctl__sImmOffset_pf2") or form["cache"] != "D":
                 raise Unsupported("cache descriptor, predicate result or cache selector unresolved")
             if form["cop"] not in cache.OPERATIONS or c.arch == "SM75" and form["cop"] in ("PML2", "DML2"):

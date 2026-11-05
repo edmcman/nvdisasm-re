@@ -1,14 +1,24 @@
 """Markers say what a test needs (see tests/README.md): `ghidra` (compiled languages and pyghidra)
 and `gpu` (an SM89 or SM90 device). Plain `pytest` runs the Python tests, which need neither."""
 
-from tests.harness import sampling
+from itertools import product
+from tests.harness import sampling, select
 import pytest
 
 
 @pytest.fixture(scope="session")
-def real_uses():
+def real_uses(pytestconfig):
     from tests.harness import definition_functions
-    return definition_functions.discover()
+    variants = (definition_functions.VARIANTS if pytestconfig.getoption("--arch") is None else
+                tuple(product(select.arches(pytestconfig), select.modes(pytestconfig))))
+    return definition_functions.discover(variants)
+
+
+@pytest.fixture
+def selected_architecture(request):
+    arch = getattr(getattr(request.node, "callspec", None), "params", {}).get("arch")
+    if arch and request.config.getoption("--arch") is not None and arch not in select.arches(request.config):
+        pytest.skip(f"{arch} not selected")
 
 
 def pytest_addoption(parser):

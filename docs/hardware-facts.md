@@ -1325,3 +1325,35 @@ Cache-control value validation on 2026-11-04:
   and both lowering modes. It took 652 seconds with competing cold validation
   work. This checks generated functions against independent numeric expectations;
   it does not grant HMMA-instruction hardware evidence.
+
+Whole-cache invalidation on 2026-11-04:
+
+- `cache-invalidation-13.4.json` pins eighty successful compiler probes across
+  ten architectures, varying only the polling load's semantics and scope.
+  GPU/system acquire loads emit CCTL.D.IVALL; the corresponding relaxed loads
+  do not. Both emit YIELD. Reproduce with the pinned compiler selected through
+  `PTXAS`: `nice uv run python -m research.cache_invalidation_trace --out
+  /tmp/invalidation.json --sources /tmp/invalidation-sources`.
+- A one-block warmed-payload probe does not distinguish the original CCTL
+  from a NOP replacement or a false instruction guard. The cross-block probe
+  does: consumers cache zero and announce readiness through an atomic counter;
+  the producer waits for every consumer, writes 42, then publishes a release
+  flag. Consumers acquire the flag before reloading the cached payload.
+  All warm-up values are zero, every consumer observes the release flag, and
+  no bounded loop exhausts its limit.
+- Across three repetitions of sixteen and thirty-two blocks, all 4,416
+  consumers read 42 with CCTL.D.IVALL. Every consumer reads stale zero with
+  NOP or a false guard instead. Producer outputs remain 42. The retained
+  `cache-invalidation-cross-SM89.json` includes source, image hashes, patched
+  words, readiness/flag values and polling counts. Reproduce with
+  `nice uv run python -m research.cache_invalidation_observe --cross-block
+  --out /tmp/invalidation-cross.json`. Discovery captures earn no credit.
+- Three independent SASS regression fixtures pass on SM89, each comparing
+  all 64 lane outputs after a two-block handoff. The invalidation is
+  unconditional, enabled by an inverted producer predicate, or enabled by
+  the acquired flag. These fixtures omit YIELD and establish this cache form
+  separately from unresolved scheduling behavior.
+- The SC runtime records the invalidation and advances an internal generation
+  for each enabled request. Logical memory already exposes the latest stores;
+  physical cache contents, weak-memory outcomes and timing are not simulated.
+  Other cache selectors and whole-cache operations remain unresolved.

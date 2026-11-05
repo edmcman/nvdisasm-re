@@ -15,8 +15,8 @@
   memory regions exactly and 65 stop on unresolved instructions. Forty-eight passing launches
   execute HMMA, LDSM, LDGSTS, LDGDEPBAR and DEPBAR. Remaining blockers are 59 launches
   reaching MUFU.EX2, five reaching YIELD in a global-memory polling loop, and one reaching
-  a system-scope load. YIELD and CCTL.IVALL occur together in the polling loop; their
-  scheduler, predicate and memory obligations require separate investigation.
+  a system-scope load. YIELD occurs before the now-supported CCTL.D.IVALL
+  in the polling loop; its scheduling obligations remain unresolved.
   `research/additional-opcodes/yolo-replay.json` records actual memory comparisons and visited
   instructions. Physical SFU coefficient-table formats, BF16/SIMD MUFU numerical behavior,
   packed-register BAR ID/count, BREAK and BMOV remain unresolved. SM89 observations do not
@@ -26,7 +26,7 @@
   legacy SM75 HMMA, sparse metadata and indexed registers;
   packed/expanded LDSM; SAFEADD, newer floating atomic types/operations and
   MMIO; BRX depth changes; CCTL operations beyond ordinary D-cache
-  prefetch/priority address forms, ERRBAR and YIELD remain unfinished. B2R reads
+  prefetch/priority address forms and D.IVALL, ERRBAR and YIELD remain unfinished. B2R reads
   all three modes; packed-register BAR producers and overlapping arrival
   generations remain unresolved. MEMBAR's
   async/MMIO obligations and a complete ordinary-instruction scoreboard model are unresolved.

@@ -36,7 +36,12 @@ def read_lane(x, src):
 
 
 OPERAND_GROUPS = ("Ra", "Rb", "Rc", "Re", "indexURc", "Ra_URb", "Ra_URc", "Rb_URc")
-CACHE_OPERATIONS = ("PF1", "PF2", "PML2", "DML2")
+CACHE_OPERATIONS = ("PF1", "PF2", "PML2", "DML2", "IVALL")
+
+
+def cache_event(operation, address):
+    label = CACHE_OPERATIONS[operation]
+    return dict(op="CCTL", operation=label) | ({} if label == "IVALL" else dict(address=address))
 
 
 def operand_lane(group, src, word, current=None):

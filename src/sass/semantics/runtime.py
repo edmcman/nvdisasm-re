@@ -66,7 +66,7 @@ class Runtime:
                 if cache:=self.context.get('cache'):cache.issue(operation,address)
                 else:native.cache_controls(operation,address)
             except native.Failure as error:raise UnsupportedSemantics(str(error)) from error
-            self.events.append(dict(op='CCTL',operation=primitive.CACHE_OPERATIONS[operation],address=address))
+            self.events.append(primitive.cache_event(operation,address))
             return 0
         if name in ('sass_async_issue','sass_async_commit','sass_async_wait'):
             if self.context.get('async_record'):

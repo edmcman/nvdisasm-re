@@ -99,10 +99,10 @@ def on_data_path(g, code):
 
 
 def fixture_path(g, fixture, code):
-    synchronization = {'BAR', 'BSSY', 'BSYNC', 'WARPSYNC'}
+    effects = {'BAR', 'BSSY', 'BSYNC', 'WARPSYNC', 'CCTL'}
     return on_data_path(g, code) | {
         offset for offset, d in decoded(g.arch.name, code)
-        if fixture.scope != 'thread' and d.klass.mnemonic in synchronization
+        if fixture.scope != 'thread' and d.klass.mnemonic in effects
         and any(hits(mnemonic(d), target) for target in fixture.targets)}
 
 
