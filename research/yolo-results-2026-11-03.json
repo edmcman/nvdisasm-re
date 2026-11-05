@@ -1,0 +1,371 @@
+{
+  "date": "2026-11-03",
+  "workload": "Pretrained YOLOv8n model inference, eager PyTorch, seeded random input; independent launch replay",
+  "executor_commit": "3e45e4c",
+  "capture": {
+    "torch": "2.7.1+cu126",
+    "device": "NVIDIA GeForce RTX 4070 Laptop GPU",
+    "input_shape": [
+      1,
+      3,
+      64,
+      64
+    ],
+    "prediction_shape": [
+      1,
+      84,
+      84
+    ],
+    "first_inference_event": 1,
+    "last_inference_event": 314,
+    "weights_sha256": "31e20dde3def09e2cf938c7be6fe23d9150bbbe503982af13345706515f2ef95"
+  },
+  "launches": 313,
+  "unique_symbols": 27,
+  "results": {
+    "blocked": 297,
+    "pass": 16
+  },
+  "first_blockers": {
+    "BSSY convergence synchronization": 167,
+    "MUFU.RSQ approximation": 57,
+    "BAR.SYNC.DEFER_BLOCKING": 69,
+    "MUFU.RCP approximation": 4
+  },
+  "compared_bytes": 35651584,
+  "replay": {
+    "scope": "launch",
+    "schedule": "round_robin",
+    "max_threads": 262144,
+    "max_code_bytes": 131072,
+    "max_steps": 10000
+  },
+  "kernels": [
+    {
+      "name": "_5x_cudnn_ampere_scudnn_winograd_128x128_ldg1_ldg4_relu_tile148n_nt_v1",
+      "launches": 8,
+      "results": {
+        "blocked": 8
+      },
+      "first_blockers": {
+        "BAR.SYNC.DEFER_BLOCKING": 8
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_Z14gemvNSP_kernelIffffLi1ELi16ELi4ELi1024ELb0E18cublasGemvParamsExIi30cublasGemvTensorStridedBatchedIKfES3_S1_IfEfEEvT8_",
+      "launches": 1,
+      "results": {
+        "blocked": 1
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 1
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_Z23implicit_convolve_sgemmIffLi128ELi5ELi5ELi3ELi3ELi3ELi1ELb0ELb0ELb1EEviiiPKT_iPT0_S2_18kernel_conv_paramsyiffiPKS3_S7_bbii",
+      "launches": 2,
+      "results": {
+        "blocked": 2
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 2
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_13BinaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+      "launches": 1,
+      "results": {
+        "blocked": 1
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 1
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastINS0_15CUDAFunctor_addIfEEEEvRNS_18TensorIteratorBaseERKT_EUliE_EEviT1_",
+      "launches": 8,
+      "results": {
+        "blocked": 8
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 8
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native18elementwise_kernelILi128ELi2EZNS0_22gpu_kernel_impl_nocastIZZZNS0_23direct_copy_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE1_clEvENKUlvE5_clEvEUlfE_EEvS4_RKT_EUliE_EEviT1_",
+      "launches": 1,
+      "results": {
+        "blocked": 1
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 1
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_11FillFunctorIfEESt5arrayIPcLm1EEEEviT0_T1_",
+      "launches": 3,
+      "results": {
+        "pass": 3
+      },
+      "first_blockers": {},
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_13BUnaryFunctorIfffNS0_15binary_internal10MulFunctorIfEEEESt5arrayIPcLm2EEEEviT0_T1_",
+      "launches": 1,
+      "results": {
+        "blocked": 1
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 1
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_15CUDAFunctor_addIfEESt5arrayIPcLm3EEEEviT0_T1_",
+      "launches": 8,
+      "results": {
+        "pass": 5,
+        "blocked": 3
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 3
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native29vectorized_elementwise_kernelILi4ENS0_21CUDAFunctorOnSelf_addIfEESt5arrayIPcLm2EEEEviT0_T1_",
+      "launches": 6,
+      "results": {
+        "blocked": 6
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 6
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_19sigmoid_kernel_cudaERNS_18TensorIteratorBaseEENKUlvE0_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_",
+      "launches": 1,
+      "results": {
+        "blocked": 1
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 1
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native29vectorized_elementwise_kernelILi4EZZZNS0_62_GLOBAL__N__7d4ed096_23_ActivationSiluKernel_cu_55cf6bc6_2534311silu_kernelERNS_18TensorIteratorBaseEENKUlvE_clEvENKUlvE0_clEvEUlfE_St5arrayIPcLm2EEEEviT0_T1_",
+      "launches": 57,
+      "results": {
+        "blocked": 57
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 57
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native40_GLOBAL__N__0f1a8107_8_Shape_cu_49f7391c19CatArrayBatchedCopyINS1_10OpaqueTypeILj4EEEjLi3ELi64ELi64EEEvPT_NS1_25CatArrInputTensorMetadataIS5_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+      "launches": 4,
+      "results": {
+        "blocked": 4
+      },
+      "first_blockers": {
+        "MUFU.RCP approximation": 4
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native40_GLOBAL__N__0f1a8107_8_Shape_cu_49f7391c36CatArrayBatchedCopy_aligned16_contigINS1_10OpaqueTypeILj4EEEjLi2ELi128ELi1EEEvPT_NS1_25CatArrInputTensorMetadataIS5_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+      "launches": 2,
+      "results": {
+        "blocked": 2
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 2
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native40_GLOBAL__N__0f1a8107_8_Shape_cu_49f7391c36CatArrayBatchedCopy_aligned16_contigINS1_10OpaqueTypeILj4EEEjLi3ELi128ELi1EEEvPT_NS1_25CatArrInputTensorMetadataIS5_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+      "launches": 2,
+      "results": {
+        "blocked": 2
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 2
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native40_GLOBAL__N__0f1a8107_8_Shape_cu_49f7391c36CatArrayBatchedCopy_aligned16_contigINS1_10OpaqueTypeILj4EEEjLi4ELi128ELi1EEEvPT_NS1_25CatArrInputTensorMetadataIS5_T0_XT2_EXT3_EEENS1_16TensorSizeStrideIS8_Lj4EEEiS8_",
+      "launches": 16,
+      "results": {
+        "blocked": 16
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 16
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native43_GLOBAL__N__b6de9c8c_10_SoftMax_cu_9f978f6326cunn_SpatialSoftMaxForwardIfffiNS1_22SoftMaxForwardEpilogueEEEvPT1_PKT_T2_S9_S9_",
+      "launches": 1,
+      "results": {
+        "blocked": 1
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 1
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native52_GLOBAL__N__e57809e0_19_DilatedMaxPool2d_cu_6258b57421max_pool_forward_nchwIfEEviPKT_llliiiiiiiiiiPS3_Pl",
+      "launches": 3,
+      "results": {
+        "blocked": 3
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 3
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN2at6native53_GLOBAL__N__222ba01c_20_UpSampleNearest2d_cu_198c5ce228upsample_nearest2d_out_frameIfXadL_ZNS0_37nearest_neighbor_compute_source_indexEfiiEEEEvPKT_PS3_mmmmmff",
+      "launches": 2,
+      "results": {
+        "pass": 2
+      },
+      "first_blockers": {},
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN50_GLOBAL__N__fa15d16e_17_RangeFactories_cu_38772b0829elementwise_kernel_with_indexIiZZZN2at6native15arange_cuda_outERKN3c106ScalarES6_S6_RNS1_6TensorEENKUlvE_clEvENKUlvE5_clEvEUllE_EEvT_T0_PN15function_traitsISD_E11result_typeE",
+      "launches": 6,
+      "results": {
+        "pass": 6
+      },
+      "first_blockers": {},
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN5cudnn19engines_precompiled16nchwToNhwcKernelIfffLb0ELb1EL21cudnnKernelDataType_t2EEEvNS0_18nchw2nhwc_params_tIT1_EEPKT_PT0_",
+      "launches": 58,
+      "results": {
+        "blocked": 58
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 58
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN5cudnn26bn_fw_inf_1C11_kernel_NCHWIffLb1ELi1EEEvT0_S1_17cudnnTensorStructPKT_S2_PS3_S2_PKS1_S8_S8_S8_S1_",
+      "launches": 57,
+      "results": {
+        "blocked": 57
+      },
+      "first_blockers": {
+        "MUFU.RSQ approximation": 57
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN5cudnn8winograd27generateWinogradTilesKernelILi0EffEEvNS0_27GenerateWinogradTilesParamsIT0_T1_EE",
+      "launches": 8,
+      "results": {
+        "blocked": 8
+      },
+      "first_blockers": {
+        "BAR.SYNC.DEFER_BLOCKING": 8
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_16x6_nn_align4EEvNT_6ParamsE",
+      "launches": 4,
+      "results": {
+        "blocked": 4
+      },
+      "first_blockers": {
+        "BAR.SYNC.DEFER_BLOCKING": 4
+      },
+      "static_gaps": {
+        "LDGSTS: no family": 24,
+        "LDGDEPBAR: no family": 8,
+        "DEPBAR: no family": 3,
+        "LDSM: no family": 6,
+        "HMMA: no family": 16,
+        "CCTL: no family": 2,
+        "B2R: no family": 2,
+        "YIELD: no family": 1,
+        "MEMBAR: no family": 1,
+        "ERRBAR: no family": 1
+      }
+    },
+    {
+      "name": "_ZN7cutlass7Kernel2I50cutlass_80_tensorop_s1688gemm_64x64_32x6_nn_align4EEvNT_6ParamsE",
+      "launches": 20,
+      "results": {
+        "blocked": 20
+      },
+      "first_blockers": {
+        "BAR.SYNC.DEFER_BLOCKING": 20
+      },
+      "static_gaps": {
+        "LDGSTS: no family": 48,
+        "LDGDEPBAR: no family": 8,
+        "DEPBAR: no family": 3,
+        "LDSM: no family": 10,
+        "HMMA: no family": 32,
+        "BRX: no family": 1,
+        "CCTL: no family": 2,
+        "B2R: no family": 2,
+        "YIELD: no family": 1,
+        "MEMBAR: no family": 1,
+        "ERRBAR: no family": 1
+      }
+    },
+    {
+      "name": "_ZN8cublasLt19splitKreduce_kernelILi32ELi16EifffLb0EfffLb1ELb0ELb0EEEvNS_18cublasSplitKParamsIT4_EEPKT2_PKT7_PT6_PT3_PKS2_SF_PKT8_S6_PSG_PvlPS2_PiSL_SF_SF_SF_SF_",
+      "launches": 4,
+      "results": {
+        "blocked": 4
+      },
+      "first_blockers": {
+        "BSSY convergence synchronization": 4
+      },
+      "static_gaps": {}
+    },
+    {
+      "name": "sm86_xmma_fprop_implicit_gemm_indexed_tf32f32_tf32f32_f32_nhwckrsc_nchw_tilesize64x32x64_stage4_warpsize2x2x1_g1_tensor16x8x8_alignc4_execute_kernel__5x_cudnn",
+      "launches": 29,
+      "results": {
+        "blocked": 29
+      },
+      "first_blockers": {
+        "BAR.SYNC.DEFER_BLOCKING": 29
+      },
+      "static_gaps": {
+        "LDGSTS: no family": 24,
+        "LDGDEPBAR: no family": 3,
+        "DEPBAR: no family": 3,
+        "LDSM: no family": 27,
+        "HMMA: no family": 32,
+        "YIELD: no family": 4,
+        "CCTL: no family": 6,
+        "MEMBAR: no family": 2,
+        "ERRBAR: no family": 2,
+        "ATOMG: no family": 4
+      }
+    }
+  ]
+}
