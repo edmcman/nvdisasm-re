@@ -1257,9 +1257,16 @@ Family `families/memory.py` (Phase 6b).
   ATOM/RED/LDGSTS, extended/uniform memory, unsupported address modes and 256-bit variants.
 
 ## 11. Runtime primitives
+
+The consolidated [runtime primitive and effect reference](runtime-primitives.md)
+lists every call family, arguments/results, context requirements, state changes,
+ordering guarantees and unsupported cases (2026-11-05).
+
 - `src/sass/semantics/primitive.py` names the primitives families use (2026-10-22): `mufu_<fn>`, the
   warp's `lane`, `active`, `waiting`, `read_lane`, `ballot`, `match`, `redux_<op>`, QSPC's
-  `address_space`, and the synchronization effects `bar`/`bssy`/`bsync`/`break`/`warpsync`/`bmov`.
+  `address_space`, named operand snapshots (`operand_lane`), barrier result/state reads
+  (`bar_result`, `bar_state`), and the synchronization effects
+  `bar`/`bssy`/`bsync`/`break`/`warpsync`/`bmov`.
   SLEIGH calls a node as `local t = sass_prim_<name>(args)`; `evaluate.execute(semantics, state,
   runtime=...)` and Ghidra's emulator both run it through `Runtime.call`, so the Ghidra-free tests
   evaluate primitive cases with the case's context. Arguments are the values the family passed and

@@ -185,7 +185,9 @@ retain inline expansion unless given a definition-use collector.
 ## Primitives and floating point
 
 The runtime primitives (`sass.semantics.primitive`) are what the IR cannot express: other lanes'
-values, the environment's state, hardware approximations. `include/sass/primitives.hpp` is their
+values, the environment's state, hardware approximations. Their signatures, context, state changes
+and ordering are listed in the [runtime reference](runtime-primitives.md).
+`include/sass/primitives.hpp` is their
 only implementation, warp-wide (32 lanes' inputs and a `need` mask of the lanes whose results are
 used). The native kernels call it inline; `sass.semantics.runtime` (Python, so the reference engine
 and Ghidra's userops) parses its context and calls the same code through `sass.emulate.native`. MUFU
