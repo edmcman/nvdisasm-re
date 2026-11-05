@@ -191,6 +191,12 @@ recognition) without changing what anything computes. Rationale: sass2cu's hando
   their reviewed operation-count baselines pass separately. Sharing FP64 FMA or the outer 16816 fragment instead
   increased compiled size, so those experiments were discarded.
   Adding CCTL.D.IVALL then makes SM107 exact 16,735,261 bytes.
+  Removal of size-only sharing is tracked in
+  [#120](https://github.com/edmcman/nvdisasm-re/issues/120) (2026-11-05).
+  Once every supported Ghidra release has the larger `.sla` loader limit, restore
+  constant specialization and remove size-driven argument/result copies. Keep pure
+  numerical definitions and arithmetic improvements. The counts above measure raw
+  p-code expansion; execution time and decompiler simplification require separate comparison.
 - **Printing** (`bitvec.show`): operators print as calls, a constant expression's value after it
   (`... = 0x3f800000`), and with `describe=True` the descriptions. `expand=True` prints the lowered
   expressions with each expansion pointing at its operator. A leaf result (a constant, a register)

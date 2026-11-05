@@ -1,5 +1,12 @@
 # Open questions and roadmap
 
+- Remove size-driven SLEIGH sharing ([#120](https://github.com/edmcman/nvdisasm-re/issues/120),
+  2026-11-05) once every supported Ghidra release includes the upstream `.sla` loader fix
+  (GP-7358, `dea9863592465937a4714ac33112638f3af9c06c`). Restore constant specialization
+  and remove argument/result copies introduced solely to fit below 16 MiB. Keep reusable
+  pure numerical definitions and arithmetic improvements. Review the broader
+  [size compromises](sleigh.md), with numerical/dataflow checks, operation counts,
+  representative decompiler output and measured performance before retaining any sharing.
 - Consumer warp/MUFU APIs (#75 design decision, 2026-10-25): retain lane-scoped IR and
   the existing runtime primitives. A typed warp context and supported SIN/COS wrappers
   remain follow-up API work. Defer the returning ATOMS.POPC.INC form until it is found

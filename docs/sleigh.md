@@ -50,6 +50,14 @@
 - Ghidra 12.2 locks each `.sla` while loading it (`sass_<variant>.sla.lock` beside it, GP-4045), and a `sass.ldefs` entry whose `.slaspec` is missing ("Missing sleigh file(.slaspec)", only in `application.log` when headless) stops the provider reading the rest of the file: the languages after it are silently absent and `getLanguage` returns null (2026-10-23; a committed `sass_sm89.sla.lock` listed sm89 in every CI job and lost sm90, sorted after it). `gen.write_ldefs` lists only variants with a `.sla` or `.slaspec`.
 - Size compromises (the 16 MiB `.sla` limit above). Each trades run-time p-code, readability or
   generator simplicity for size; revisit them when the limit is lifted.
+  Removal is tracked in [#120](https://github.com/edmcman/nvdisasm-re/issues/120)
+  (2026-11-05). Once every supported release includes GP-7358, remove size-only
+  pure-definition sharing (`SHARED`/`SCRATCH` and shared-call lowering in `lower.py`)
+  and restore constant specialization. Keep the reusable pure definitions and arithmetic
+  improvements; retain sharing only for demonstrated benefits independent of the old limit.
+  Review operation counts, numerical/dataflow checks, decompiler output and performance
+  across all ten architectures and both floating-point modes. The measurements in
+  [semantics.md](semantics.md) record added p-code, not measured execution-time regressions.
   - `Instruction.select_lookup` (and `select_lookup_const`) instead of `select_fork`: a selector's
     label picks a value at decode time rather than giving each label its own body. Used for swizzles,
     HMNMX2's per-format NaN test and order (forking made SM90 18.75 MB), FSETP's comparison, and the
