@@ -1,0 +1,98 @@
+{
+  "analysis": "common equality and inequality fixed point",
+  "fixed_point_verified": true,
+  "tensors": [
+    {
+      "buffer": "cb210",
+      "dimensions": [
+        "cb230:32",
+        "cb234:32"
+      ],
+      "dimensions_recovered": true,
+      "accesses": 2,
+      "coordinate_checks": [
+        {
+          "origin": "0x670: LDG.E R0, desc[UR8][R2.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x6a0: STG.E desc[UR8][R2.64], R7",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x670: LDG.E R0, desc[UR8][R2.64]",
+          "dimension": 1,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x6a0: STG.E desc[UR8][R2.64], R7",
+          "dimension": 1,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        }
+      ],
+      "remaining_index": [],
+      "integer_interpretation_proven": false
+    },
+    {
+      "buffer": "cb218",
+      "dimensions": [
+        "cb230:32",
+        "cb238:32"
+      ],
+      "dimensions_recovered": true,
+      "accesses": 1,
+      "coordinate_checks": [
+        {
+          "origin": "0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]",
+          "dimension": 1,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        }
+      ],
+      "remaining_index": [],
+      "integer_interpretation_proven": false
+    },
+    {
+      "buffer": "cb220",
+      "dimensions": [
+        "cb238:32",
+        "cb234:32"
+      ],
+      "dimensions_recovered": true,
+      "accesses": 1,
+      "coordinate_checks": [
+        {
+          "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]",
+          "dimension": 1,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        }
+      ],
+      "remaining_index": [],
+      "integer_interpretation_proven": false
+    }
+  ],
+  "residuals": [],
+  "iterations": 15,
+  "numerical_assumptions": [],
+  "source_rank_inferred": false,
+  "integer_interpretation_proven": false
+}

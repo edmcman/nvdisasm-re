@@ -1,0 +1,101 @@
+{
+  "input_ranges": {
+    "SR33:32": [
+      0,
+      127
+    ],
+    "SR136:32": [
+      0,
+      0
+    ],
+    "cb0:32": [
+      128,
+      128
+    ]
+  },
+  "cell_types": {
+    "shared:0x400": "f32",
+    "shared:0x404": "f32",
+    "shared:0x408": "f32",
+    "shared:0x40c": "f32",
+    "shared:0x410": "f32",
+    "shared:0x414": "f32",
+    "shared:0x418": "f32",
+    "shared:0x41c": "f32",
+    "shared:0x420": "f32",
+    "shared:0x424": "f32",
+    "shared:0x428": "f32",
+    "shared:0x42c": "f32",
+    "shared:0x430": "f32",
+    "shared:0x434": "f32",
+    "shared:0x438": "f32",
+    "shared:0x43c": "f32",
+    "shared:0x440": "f32",
+    "shared:0x444": "f32",
+    "shared:0x448": "f32",
+    "shared:0x44c": "f32",
+    "shared:0x450": "f32",
+    "shared:0x454": "f32",
+    "shared:0x458": "f32",
+    "shared:0x45c": "f32",
+    "shared:0x460": "f32",
+    "shared:0x464": "f32",
+    "shared:0x468": "f32",
+    "shared:0x46c": "f32",
+    "shared:0x470": "f32",
+    "shared:0x474": "f32",
+    "shared:0x478": "f32",
+    "shared:0x47c": "f32"
+  },
+  "accesses": [
+    {
+      "kind": "read",
+      "origin": "0x320: @!P1 LDS R0, [R6]",
+      "addresses": [
+        1024,
+        1028,
+        1032,
+        1036,
+        1040,
+        1044,
+        1048,
+        1052,
+        1056,
+        1060,
+        1064,
+        1068,
+        1072,
+        1076,
+        1080,
+        1084,
+        1088,
+        1092,
+        1096,
+        1100,
+        1104,
+        1108,
+        1112,
+        1116,
+        1120,
+        1124,
+        1128,
+        1132,
+        1136,
+        1140,
+        1144,
+        1148
+      ],
+      "width": 32,
+      "guard_overapproximated": true
+    }
+  ],
+  "residuals": [
+    {
+      "origin": "0x260: @!P0 STS [R3], R0",
+      "reason": "unresolved shared address operator opaque"
+    }
+  ],
+  "semantics": "monomorphic_word_cells",
+  "initialization_proven": false,
+  "synchronization_proven": false
+}
