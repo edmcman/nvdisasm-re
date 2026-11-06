@@ -1,0 +1,2744 @@
+{
+  "python": "3.13.3",
+  "tests": {
+    "run": 91,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "contexts": {
+    "kc_asum_simple": {
+      "SR33:32": [
+        0,
+        127
+      ],
+      "SR136:32": [
+        0,
+        0
+      ],
+      "cb0:32": [
+        128,
+        128
+      ]
+    },
+    "kc_dot_reduce": {
+      "SR33:32": [
+        0,
+        127
+      ],
+      "SR136:32": [
+        0,
+        0
+      ],
+      "cb0:32": [
+        128,
+        128
+      ]
+    },
+    "kc_dot_partial": {
+      "SR33:32": [
+        0,
+        127
+      ],
+      "SR136:32": [
+        0,
+        0
+      ],
+      "cb0:32": [
+        128,
+        128
+      ]
+    },
+    "kc_nrm2_final": {
+      "SR33:32": [
+        0,
+        127
+      ],
+      "SR136:32": [
+        0,
+        0
+      ],
+      "cb0:32": [
+        128,
+        128
+      ]
+    },
+    "kc_nrm2_partial": {
+      "SR33:32": [
+        0,
+        127
+      ],
+      "SR136:32": [
+        0,
+        0
+      ],
+      "cb0:32": [
+        128,
+        128
+      ]
+    },
+    "kc_nrm2_unrolled": {
+      "SR33:32": [
+        0,
+        127
+      ],
+      "SR136:32": [
+        0,
+        0
+      ],
+      "cb0:32": [
+        128,
+        128
+      ]
+    },
+    "kc_nrm2_with_imnmx": {
+      "SR33:32": [
+        0,
+        127
+      ],
+      "SR136:32": [
+        0,
+        0
+      ],
+      "cb0:32": [
+        128,
+        128
+      ]
+    },
+    "kc_gemv_n_simple": {
+      "SR33:32": [
+        0,
+        127
+      ],
+      "SR136:32": [
+        0,
+        0
+      ],
+      "cb0:32": [
+        128,
+        128
+      ]
+    },
+    "kc_axpy": {
+      "SR33:32": [
+        0,
+        7
+      ],
+      "SR34:32": [
+        0,
+        7
+      ],
+      "SR37:32": [
+        0,
+        15
+      ],
+      "SR38:32": [
+        0,
+        15
+      ],
+      "cb0:32": [
+        8,
+        8
+      ],
+      "cb4:32": [
+        8,
+        8
+      ],
+      "cb224:32": [
+        1,
+        128
+      ]
+    },
+    "kc_sgemm_naive": {
+      "SR33:32": [
+        0,
+        7
+      ],
+      "SR34:32": [
+        0,
+        7
+      ],
+      "SR37:32": [
+        0,
+        15
+      ],
+      "SR38:32": [
+        0,
+        15
+      ],
+      "cb0:32": [
+        8,
+        8
+      ],
+      "cb4:32": [
+        8,
+        8
+      ],
+      "cb230:32": [
+        1,
+        128
+      ],
+      "cb234:32": [
+        1,
+        128
+      ],
+      "cb238:32": [
+        1,
+        128
+      ]
+    },
+    "kc_sgemm_tiled": {
+      "SR33:32": [
+        0,
+        15
+      ],
+      "SR34:32": [
+        0,
+        15
+      ],
+      "SR136:32": [
+        0,
+        0
+      ]
+    },
+    "kc_strsm_lower_8x8": {
+      "SR33:32": [
+        0,
+        7
+      ]
+    }
+  },
+  "source_sha256": {
+    "access_relations.py": "d96a03adbab726c7178324167ca7767a673b90784c9dd6f3aa0f28fc77594d2e",
+    "call_graph.py": "c544c29e9ecc44e0bf84b01dabad23801b759fdcd23f705557e0a4783a89b6ad",
+    "common_constraints.py": "cb79c6ac021618481a80bc298c9ea3e167e273d7e163467ceeae6f1146cd0aaf",
+    "common_shapes.py": "682fa9f152b7996a60a67a86ef00c5b656ce2e8ea45b5e754b1e18de613d41af",
+    "constraint_domain.py": "4a542fdc8300583c48278ae80ffd7a82ca16bb79ac3a5870f7da2e615c3b3cfb",
+    "constraint_state.py": "075ef0c8a28b5af79a6eb115ccc0dcf9027c2f2e2e8ab70e12215999bf56cdf3",
+    "experiment.py": "c1f3580713478d4b3a5d03751f3a02400e4d734ff26f3109491fd8d550b3b20b",
+    "infer_types.py": "2fef7b451649a12e48a8aafb205c739ad2cc9d593f52b5a721335d65f0960288",
+    "linear_algebra.py": "fbf33d9877548a41d09dcea82112152bd0943163566d84eb27f349b7293b9954",
+    "linear_bounds.py": "c3c9fba671db387a062ba1a49540fd6fa4e527fa671a0c5ee559809a6b65bdd3",
+    "memory_types.py": "d8bd3858b96b8d5a8122b63ea096785ed3b0179d0782418785d19ab761c7c3fe",
+    "numeric_relations.py": "faed2b3603620b3c144d5414e0ab9b79c123916ae0d5b148d9c3b9d8dcc70929",
+    "polynomial_bounds.py": "8216d62088868c0559a37cd69986d54231c4f9e22f96e3db358a404ff618831d",
+    "render_common_report.py": "ed606bb1afc985482db314eba58b00dbd82492e1eb31a9dac557837a0ce6d206",
+    "scalar_bounds.py": "c98aed8b894aa39461798419c86b572f776fb1a9de540e7f5c398bc93fffbb21",
+    "test_access_relations.py": "9ce91e8d9f3a30af8010a6a636faa1e0faca6d543eac2a4b3e3a313ce808c398",
+    "test_call_graph.py": "452f01da33ef0f48fa96764ccbc52591ce1085166a2a680efbf9797e66a7349e",
+    "test_common_addresses.py": "b5297aaf16e8f9c936c87d9ac59d6a6becefd20eb1650a92c37588dbed991199",
+    "test_common_constraints.py": "f7a91679eb30e9a5ce804e9d9f0cc8a91b9eae58d6d7fe4f3f4095479e2d2c8b",
+    "test_common_shapes.py": "ba2af675f27e5abf2460af9551650ee82ad6b045cff7bb98a80a4a7c5f3adc1c",
+    "test_constraint_domain.py": "2e0ca7dd4afd3500b048b75a1e303ef8629a8c917407d367495645fc779c92f1",
+    "test_infer_types.py": "0eef647703b02ee309a2ce237a67083685ceb02811fbd9563034528905bbddd5",
+    "test_memory_types.py": "cbf2453b961311c4b0c1ecbeac18f10ecb6c009adeb54bac61ef75071c6eba19",
+    "test_numeric_relations.py": "17dbb2a24287dc73286a41331e75603e498e53126735408b6aa132982b8e4ec2",
+    "test_scalar_bounds.py": "a649e7e0e1f99f9cb2cfffaab0892a4fe1ebf92a33db34782d10ff3248f42801",
+    "test_word_constraints.py": "89d3d4dba0f84b942ed29aab49c058e80ee311e64a82895a908f9bdee7ff1e2e",
+    "type_suite.py": "45835d6f1b5d9a5b5e1335f9d17a1f4cb70368310f9b88237383b3645abb3810",
+    "type_system.py": "588f40da1a09630f3e31ccd826b5f36e2cd0a980b16510795141a6d01cd49ebd",
+    "word_ranges.py": "13b9c5357d2be49df94c0dc79e6cfd77f2a135dd00cc30ca2d0f2b808000eb86"
+  },
+  "entries": [
+    {
+      "kernel": "KC_asum_simple",
+      "entry": "kc_asum_simple",
+      "artifact": "KC_asum_simple",
+      "sha256": "c5c2f307706bc4e05c9ffea8d17652935e2c33108f5993776aac6aa1939eafbc",
+      "memory": {
+        "cells": 32,
+        "residuals": 1
+      },
+      "verified_returns": 0,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb220:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0xd0: LDG.E R2, desc[UR6][R2.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "1"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x3f0: STG.E desc[UR6][R2.64], R7",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 35,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>"
+      },
+      "accesses": 2,
+      "residuals": {
+        "representation": 30,
+        "memory_cell": 2,
+        "unresolved_join": 17
+      },
+      "effects": {
+        "sass_memory_order": 8,
+        "sass_prim_bssy": 1,
+        "sass_memory_descriptor": 2,
+        "sass_prim_bsync": 1,
+        "sass_prim_bar": 1
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_axpy",
+      "entry": "kc_axpy",
+      "artifact": "KC_axpy",
+      "sha256": "6243aaa816c254768316b5b95f004c40dfdd74a7f1a1c661e54cba8b8eecb558",
+      "memory": {
+        "cells": 0,
+        "residuals": 0
+      },
+      "verified_returns": 0,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb224:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 2,
+            "coordinate_checks": [
+              {
+                "origin": "0xf0: LDG.E R7, desc[UR4][R4.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x110: STG.E desc[UR4][R4.64], R7",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "cb224:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0xd0: LDG.E R2, desc[UR4][R2.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 2,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>"
+      },
+      "accesses": 3,
+      "residuals": {
+        "representation": 10
+      },
+      "effects": {
+        "sass_memory_order": 6,
+        "sass_memory_descriptor": 3
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_dot_2pass",
+      "entry": "kc_dot_reduce",
+      "artifact": "KC_dot_2pass",
+      "sha256": "39b601237b677362a288373bf2e128b78b524ff1a41cfc4dec78e683cc55679c",
+      "memory": {
+        "cells": 0,
+        "residuals": 0
+      },
+      "verified_returns": 0,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb220:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0xd0: LDG.E R3, desc[UR4][R2.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "1"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x200: STG.E desc[UR4][R2.64], R7",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 28,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>"
+      },
+      "accesses": 2,
+      "residuals": {
+        "representation": 19,
+        "unresolved_join": 1
+      },
+      "effects": {
+        "sass_memory_order": 6,
+        "sass_prim_bssy": 1,
+        "sass_memory_descriptor": 2,
+        "sass_prim_bsync": 1
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_dot_2pass",
+      "entry": "kc_dot_partial",
+      "artifact": "KC_dot_2pass.kc_dot_partial",
+      "sha256": "39b601237b677362a288373bf2e128b78b524ff1a41cfc4dec78e683cc55679c",
+      "memory": {
+        "cells": 0,
+        "residuals": 0
+      },
+      "verified_returns": 0,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb228:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 5,
+            "coordinate_checks": [
+              {
+                "origin": "0x2e0: LDG.E R12, desc[UR4][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x3c0: LDG.E R10, desc[UR4][R10.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x410: LDG.E R14, desc[UR4][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x450: LDG.E R22, desc[UR4][R18.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x480: LDG.E R20, desc[UR4][R20.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "cb228:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 5,
+            "coordinate_checks": [
+              {
+                "origin": "0x2d0: LDG.E R11, desc[UR4][R6.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x3f0: LDG.E R13, desc[UR4][R12.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x430: LDG.E R17, desc[UR4][R16.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x470: LDG.E R7, desc[UR4][R6.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x490: LDG.E R9, desc[UR4][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb220",
+            "dimensions": [
+              "cbc:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x610: STG.E desc[UR4][R2.64], R9",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 31,
+        "numerical_assumptions": [
+          "MUFU.RCP has at most one ulp error for positive normal operands and results"
+        ],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>",
+        "cb220:64": "ptr64<global, f32, 's3>"
+      },
+      "accesses": 11,
+      "residuals": {
+        "representation": 89,
+        "arithmetic_overload": 1,
+        "unresolved_join": 14
+      },
+      "effects": {
+        "sass_memory_order": 18,
+        "sass_prim_bssy": 2,
+        "sass_memory_descriptor": 11,
+        "sass_prim_bsync": 2
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_gemv_n_simple",
+      "entry": "kc_gemv_n_simple",
+      "artifact": "KC_gemv_n_simple",
+      "sha256": "1a85046d3b65b059466ae364348f40da1dcd60fee242295aa15214147087141b",
+      "memory": {
+        "cells": 0,
+        "residuals": 0
+      },
+      "verified_returns": 0,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb230:32",
+              "cb234:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 29,
+            "coordinate_checks": [
+              {
+                "origin": "0x210: LDG.E R16, desc[UR8][R10.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x250: LDG.E R18, desc[UR8][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x280: LDG.E R7, desc[UR8][R24.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2a0: LDG.E R20, desc[UR8][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2f0: LDG.E R10, desc[UR8][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x320: LDG.E R11, desc[UR8][R22.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x350: LDG.E R6, desc[UR8][R22.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x370: LDG.E R28, desc[UR8][R24.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x3b0: LDG.E R14, desc[UR8][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x3e0: LDG.E R29, desc[UR8][R16.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x400: LDG.E R18, desc[UR8][R18.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x470: LDG.E R5, desc[UR8][R22.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x4b0: LDG.E R15, desc[UR8][R24.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x4f0: LDG.E R19, desc[UR8][R16.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x550: LDG.E R17, desc[UR8][R10.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x560: LDG.E R24, desc[UR8][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6a0: LDG.E R5, desc[UR8][R10.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6d0: LDG.E R20, desc[UR8][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x700: LDG.E R18, desc[UR8][R26.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x740: LDG.E R22, desc[UR8][R22.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x770: LDG.E R6, desc[UR8][R6.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7a0: LDG.E R24, desc[UR8][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7d0: LDG.E R27, desc[UR8][R10.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7f0: LDG.E R23, desc[UR8][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x920: LDG.E R10, desc[UR8][R10.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x940: LDG.E R17, desc[UR8][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x980: LDG.E R19, desc[UR8][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9a0: LDG.E R21, desc[UR8][R6.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xb00: LDG.E R8, desc[UR8][R4.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x210: LDG.E R16, desc[UR8][R10.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x250: LDG.E R18, desc[UR8][R8.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x280: LDG.E R7, desc[UR8][R24.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2a0: LDG.E R20, desc[UR8][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2f0: LDG.E R10, desc[UR8][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x320: LDG.E R11, desc[UR8][R22.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x350: LDG.E R6, desc[UR8][R22.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x370: LDG.E R28, desc[UR8][R24.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x3b0: LDG.E R14, desc[UR8][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x3e0: LDG.E R29, desc[UR8][R16.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x400: LDG.E R18, desc[UR8][R18.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x470: LDG.E R5, desc[UR8][R22.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x4b0: LDG.E R15, desc[UR8][R24.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x4f0: LDG.E R19, desc[UR8][R16.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x550: LDG.E R17, desc[UR8][R10.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x560: LDG.E R24, desc[UR8][R8.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6a0: LDG.E R5, desc[UR8][R10.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6d0: LDG.E R20, desc[UR8][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x700: LDG.E R18, desc[UR8][R26.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x740: LDG.E R22, desc[UR8][R22.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x770: LDG.E R6, desc[UR8][R6.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7a0: LDG.E R24, desc[UR8][R8.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7d0: LDG.E R27, desc[UR8][R10.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7f0: LDG.E R23, desc[UR8][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x920: LDG.E R10, desc[UR8][R10.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x940: LDG.E R17, desc[UR8][R8.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x980: LDG.E R19, desc[UR8][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9a0: LDG.E R21, desc[UR8][R6.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xb00: LDG.E R8, desc[UR8][R4.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "cb234:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 29,
+            "coordinate_checks": [
+              {
+                "origin": "0x230: LDG.E R17, desc[UR8][R12.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x260: LDG.E R19, desc[UR8][R12.64+0x4]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x290: LDG.E R26, desc[UR8][R12.64+0x8]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2b0: LDG.E R5, desc[UR8][R12.64+0xc]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2c0: LDG.E R21, desc[UR8][R12.64+0x10]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2e0: LDG.E R8, desc[UR8][R12.64+0x14]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x310: LDG.E R9, desc[UR8][R12.64+0x18]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x330: LDG.E R27, desc[UR8][R12.64+0x1c]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x420: LDG.E R7, desc[UR8][R12.64+0x20]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x450: LDG.E R26, desc[UR8][R12.64+0x24]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x460: LDG.E R20, desc[UR8][R12.64+0x28]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x4a0: LDG.E R21, desc[UR8][R12.64+0x2c]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x4e0: LDG.E R22, desc[UR8][R12.64+0x30]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x500: LDG.E R23, desc[UR8][R12.64+0x34]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x510: LDG.E R25, desc[UR8][R12.64+0x3c]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x540: LDG.E R6, desc[UR8][R12.64+0x38]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6b0: LDG.E R16, desc[UR8][R12.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6f0: LDG.E R19, desc[UR8][R12.64+0x4]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x720: LDG.E R17, desc[UR8][R12.64+0x8]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x750: LDG.E R21, desc[UR8][R12.64+0xc]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x780: LDG.E R25, desc[UR8][R12.64+0x10]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7b0: LDG.E R28, desc[UR8][R12.64+0x14]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7c0: LDG.E R26, desc[UR8][R12.64+0x18]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7e0: LDG.E R8, desc[UR8][R12.64+0x1c]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x910: LDG.E R16, desc[UR8][R12.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x950: LDG.E R5, desc[UR8][R12.64+0x4]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x970: LDG.E R18, desc[UR8][R12.64+0x8]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x990: LDG.E R20, desc[UR8][R12.64+0xc]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xb20: LDG.E R6, desc[UR8][R6.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb220",
+            "dimensions": [
+              "cb230:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 2,
+            "coordinate_checks": [
+              {
+                "origin": "0xbd0: LDG.E R0, desc[UR8][R2.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xc00: STG.E desc[UR8][R2.64], R29",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 88,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>",
+        "cb220:64": "ptr64<global, f32, 's3>"
+      },
+      "accesses": 60,
+      "residuals": {
+        "representation": 191,
+        "arithmetic_overload": 9,
+        "unresolved_join": 37
+      },
+      "effects": {
+        "sass_memory_order": 66,
+        "sass_memory_descriptor": 60
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_nrm2_simple",
+      "entry": "kc_nrm2_final",
+      "artifact": "KC_nrm2_simple",
+      "sha256": "2b80ff5b193f54a2f616d9ed3b16e5968d3e2fb6105ac80bcf27b7f884c4b925",
+      "memory": {
+        "cells": 128,
+        "residuals": 1
+      },
+      "verified_returns": 1,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb220:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0xd0: LDG.E R3, desc[UR8][R2.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "1"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x3a0: STG.E desc[UR8][R2.64], R5",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 124,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>"
+      },
+      "accesses": 2,
+      "residuals": {
+        "representation": 89,
+        "memory_cell": 5,
+        "unresolved_join": 57
+      },
+      "effects": {
+        "sass_memory_order": 11,
+        "sass_prim_bssy": 1,
+        "sass_memory_descriptor": 2,
+        "sass_prim_bsync": 1,
+        "sass_prim_bar": 2
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_nrm2_simple",
+      "entry": "kc_nrm2_partial",
+      "artifact": "KC_nrm2_simple.kc_nrm2_partial",
+      "sha256": "2b80ff5b193f54a2f616d9ed3b16e5968d3e2fb6105ac80bcf27b7f884c4b925",
+      "memory": {
+        "cells": 128,
+        "residuals": 1
+      },
+      "verified_returns": 0,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb220:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x100: LDG.E R3, desc[UR8][R2.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "cbc:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x320: STG.E desc[UR8][R2.64], R5",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 37,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>"
+      },
+      "accesses": 2,
+      "residuals": {
+        "representation": 35,
+        "memory_cell": 5,
+        "unresolved_join": 14
+      },
+      "effects": {
+        "sass_memory_order": 11,
+        "sass_prim_bssy": 1,
+        "sass_memory_descriptor": 2,
+        "sass_prim_bsync": 1,
+        "sass_prim_bar": 2
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_nrm2_unrolled",
+      "entry": "kc_nrm2_unrolled",
+      "artifact": "KC_nrm2_unrolled",
+      "sha256": "803d07953f2c9ed06fef54fc6424376e756f2df94506561e298ea9ab7b87e984",
+      "memory": {
+        "cells": 192,
+        "residuals": 0
+      },
+      "verified_returns": 0,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb220:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x110: LDG.E R5, desc[UR6][R4.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "cbc:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x4e0: STG.E desc[UR6][R2.64], R7",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 18,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>"
+      },
+      "accesses": 2,
+      "residuals": {
+        "representation": 29,
+        "memory_cell": 25,
+        "unresolved_join": 31
+      },
+      "effects": {
+        "sass_memory_order": 31,
+        "sass_prim_bssy": 1,
+        "sass_memory_descriptor": 2,
+        "sass_prim_bsync": 1,
+        "sass_prim_bar": 8
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_nrm2_with_imnmx",
+      "entry": "kc_nrm2_with_imnmx",
+      "artifact": "KC_nrm2_with_imnmx",
+      "sha256": "583c0535dc965a25e8b292e22113a107aaaf01d1a2f04624706127a9f67eb9e8",
+      "memory": {
+        "cells": 192,
+        "residuals": 0
+      },
+      "verified_returns": 0,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb220:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x100: LDG.E R5, desc[UR6][R4.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "cbc:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x4f0: STG.E desc[UR6][R2.64], R5",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 21,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>"
+      },
+      "accesses": 2,
+      "residuals": {
+        "representation": 28,
+        "memory_cell": 24,
+        "unresolved_join": 28
+      },
+      "effects": {
+        "sass_memory_order": 30,
+        "sass_prim_bssy": 1,
+        "sass_memory_descriptor": 2,
+        "sass_prim_bsync": 1,
+        "sass_prim_bar": 8
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_sgemm_naive",
+      "entry": "kc_sgemm_naive",
+      "artifact": "KC_sgemm_naive",
+      "sha256": "0bc7d323f91ffd60a45bea943be35e404f9f86bb3f7b7f5f281dcdf63334173e",
+      "memory": {
+        "cells": 0,
+        "residuals": 0
+      },
+      "verified_returns": 0,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb230:32",
+              "cb234:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 2,
+            "coordinate_checks": [
+              {
+                "origin": "0xc30: LDG.E R0, desc[UR6][R2.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xc60: STG.E desc[UR6][R2.64], R11",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xc30: LDG.E R0, desc[UR6][R2.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xc60: STG.E desc[UR6][R2.64], R11",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "cb230:32",
+              "cb238:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 29,
+            "coordinate_checks": [
+              {
+                "origin": "0x280: LDG.E R24, desc[UR6][R20.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2a0: LDG.E R17, desc[UR6][R22.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2e0: LDG.E R14, desc[UR6][R26.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x310: LDG.E R18, desc[UR6][R18.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x320: LDG.E R10, desc[UR6][R28.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x370: LDG.E R20, desc[UR6][R28.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x390: LDG.E R26, desc[UR6][R22.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x3e0: LDG.E R8, desc[UR6][R22.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x410: LDG.E R28, desc[UR6][R24.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x450: LDG.E R29, desc[UR6][R16.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x460: LDG.E R25, desc[UR6][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x4e0: LDG.E R7, desc[UR6][R18.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x520: LDG.E R20, desc[UR6][R22.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x550: LDG.E R26, desc[UR6][R16.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x580: LDG.E R16, desc[UR6][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x5d0: LDG.E R22, desc[UR6][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6f0: LDG.E R22, desc[UR6][R20.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x720: LDG.E R10, desc[UR6][R18.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x760: LDG.E R23, desc[UR6][R20.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x790: LDG.E R14, desc[UR6][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7c0: LDG.E R9, desc[UR6][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7e0: LDG.E R27, desc[UR6][R16.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x810: LDG.E R8, desc[UR6][R18.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x850: LDG.E R11, desc[UR6][R20.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x970: LDG.E R20, desc[UR6][R20.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x990: LDG.E R18, desc[UR6][R16.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9d0: LDG.E R19, desc[UR6][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9f0: LDG.E R23, desc[UR6][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xb60: LDG.E R5, desc[UR6][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x280: LDG.E R24, desc[UR6][R20.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2a0: LDG.E R17, desc[UR6][R22.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2e0: LDG.E R14, desc[UR6][R26.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x310: LDG.E R18, desc[UR6][R18.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x320: LDG.E R10, desc[UR6][R28.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x370: LDG.E R20, desc[UR6][R28.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x390: LDG.E R26, desc[UR6][R22.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x3e0: LDG.E R8, desc[UR6][R22.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x410: LDG.E R28, desc[UR6][R24.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x450: LDG.E R29, desc[UR6][R16.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x460: LDG.E R25, desc[UR6][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x4e0: LDG.E R7, desc[UR6][R18.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x520: LDG.E R20, desc[UR6][R22.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x550: LDG.E R26, desc[UR6][R16.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x580: LDG.E R16, desc[UR6][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x5d0: LDG.E R22, desc[UR6][R8.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6f0: LDG.E R22, desc[UR6][R20.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x720: LDG.E R10, desc[UR6][R18.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x760: LDG.E R23, desc[UR6][R20.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x790: LDG.E R14, desc[UR6][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7c0: LDG.E R9, desc[UR6][R8.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7e0: LDG.E R27, desc[UR6][R16.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x810: LDG.E R8, desc[UR6][R18.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x850: LDG.E R11, desc[UR6][R20.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x970: LDG.E R20, desc[UR6][R20.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x990: LDG.E R18, desc[UR6][R16.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9d0: LDG.E R19, desc[UR6][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9f0: LDG.E R23, desc[UR6][R8.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xb60: LDG.E R5, desc[UR6][R8.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb220",
+            "dimensions": [
+              "cb238:32",
+              "cb234:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 29,
+            "coordinate_checks": [
+              {
+                "origin": "0x260: LDG.E R8, desc[UR6][R12.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x290: LDG.E R16, desc[UR6][R12.64+0x4]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2c0: LDG.E R15, desc[UR6][R12.64+0x8]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2f0: LDG.E R7, desc[UR6][R12.64+0x10]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x330: LDG.E R21, desc[UR6][R12.64+0x14]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x340: LDG.E R19, desc[UR6][R12.64+0xc]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x360: LDG.E R9, desc[UR6][R12.64+0x18]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x3d0: LDG.E R11, desc[UR6][R12.64+0x1c]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x400: LDG.E R27, desc[UR6][R12.64+0x20]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x490: LDG.E R24, desc[UR6][R12.64+0x24]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x4b0: LDG.E R10, desc[UR6][R12.64+0x28]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x500: LDG.E R21, desc[UR6][R12.64+0x2c]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x540: LDG.E R19, desc[UR6][R12.64+0x30]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x560: LDG.E R18, desc[UR6][R12.64+0x34]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x570: LDG.E R23, desc[UR6][R12.64+0x3c]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x5b0: LDG.E R11, desc[UR6][R12.64+0x38]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6e0: LDG.E R24, desc[UR6][R12.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x710: LDG.E R7, desc[UR6][R12.64+0x4]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x740: LDG.E R26, desc[UR6][R12.64+0x8]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x770: LDG.E R25, desc[UR6][R12.64+0xc]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7b0: LDG.E R28, desc[UR6][R12.64+0x10]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x800: LDG.E R29, desc[UR6][R12.64+0x18]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x820: LDG.E R16, desc[UR6][R12.64+0x14]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x840: LDG.E R22, desc[UR6][R12.64+0x1c]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x960: LDG.E R10, desc[UR6][R12.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9a0: LDG.E R7, desc[UR6][R12.64+0x4]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9c0: LDG.E R22, desc[UR6][R12.64+0x8]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9e0: LDG.E R24, desc[UR6][R12.64+0xc]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xb70: LDG.E R6, desc[UR6][R6.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x260: LDG.E R8, desc[UR6][R12.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x290: LDG.E R16, desc[UR6][R12.64+0x4]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2c0: LDG.E R15, desc[UR6][R12.64+0x8]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2f0: LDG.E R7, desc[UR6][R12.64+0x10]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x330: LDG.E R21, desc[UR6][R12.64+0x14]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x340: LDG.E R19, desc[UR6][R12.64+0xc]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x360: LDG.E R9, desc[UR6][R12.64+0x18]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x3d0: LDG.E R11, desc[UR6][R12.64+0x1c]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x400: LDG.E R27, desc[UR6][R12.64+0x20]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x490: LDG.E R24, desc[UR6][R12.64+0x24]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x4b0: LDG.E R10, desc[UR6][R12.64+0x28]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x500: LDG.E R21, desc[UR6][R12.64+0x2c]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x540: LDG.E R19, desc[UR6][R12.64+0x30]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x560: LDG.E R18, desc[UR6][R12.64+0x34]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x570: LDG.E R23, desc[UR6][R12.64+0x3c]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x5b0: LDG.E R11, desc[UR6][R12.64+0x38]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6e0: LDG.E R24, desc[UR6][R12.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x710: LDG.E R7, desc[UR6][R12.64+0x4]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x740: LDG.E R26, desc[UR6][R12.64+0x8]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x770: LDG.E R25, desc[UR6][R12.64+0xc]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x7b0: LDG.E R28, desc[UR6][R12.64+0x10]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x800: LDG.E R29, desc[UR6][R12.64+0x18]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x820: LDG.E R16, desc[UR6][R12.64+0x14]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x840: LDG.E R22, desc[UR6][R12.64+0x1c]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x960: LDG.E R10, desc[UR6][R12.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9a0: LDG.E R7, desc[UR6][R12.64+0x4]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9c0: LDG.E R22, desc[UR6][R12.64+0x8]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9e0: LDG.E R24, desc[UR6][R12.64+0xc]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xb70: LDG.E R6, desc[UR6][R6.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 65,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>",
+        "cb220:64": "ptr64<global, f32, 's3>"
+      },
+      "accesses": 60,
+      "residuals": {
+        "representation": 227,
+        "arithmetic_overload": 8,
+        "unresolved_join": 70
+      },
+      "effects": {
+        "sass_memory_order": 68,
+        "sass_memory_descriptor": 60
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_sgemm_tiled_smem",
+      "entry": "kc_sgemm_tiled",
+      "artifact": "KC_sgemm_tiled_smem",
+      "sha256": "4f048792bcbd2cab515ab011acbfb537219403e7321e4b689c7354065488d219",
+      "memory": {
+        "cells": 512,
+        "residuals": 0
+      },
+      "verified_returns": 0,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "cb230:32",
+              "cb234:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 2,
+            "coordinate_checks": [
+              {
+                "origin": "0x670: LDG.E R0, desc[UR8][R2.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6a0: STG.E desc[UR8][R2.64], R7",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x670: LDG.E R0, desc[UR8][R2.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x6a0: STG.E desc[UR8][R2.64], R7",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "cb230:32",
+              "cb238:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb220",
+            "dimensions": [
+              "cb238:32",
+              "cb234:32"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 1,
+            "coordinate_checks": [
+              {
+                "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 15,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>",
+        "cb220:64": "ptr64<global, f32, 's3>"
+      },
+      "accesses": 4,
+      "residuals": {
+        "representation": 66,
+        "memory_cell": 22,
+        "arithmetic_overload": 2,
+        "unresolved_join": 13
+      },
+      "effects": {
+        "sass_memory_order": 32,
+        "sass_memory_descriptor": 4,
+        "sass_prim_bar": 2
+      },
+      "bounds_checked": false
+    },
+    {
+      "kernel": "KC_strsm_lower_8x8",
+      "entry": "kc_strsm_lower_8x8",
+      "artifact": "KC_strsm_lower_8x8",
+      "sha256": "fb455e0126a471691d59df0323c9c51cf1cf198f19f3f74ec1aa556ee8ab2d0d",
+      "memory": {
+        "cells": 0,
+        "residuals": 0
+      },
+      "verified_returns": 1,
+      "shapes": {
+        "analysis": "common equality and inequality fixed point",
+        "fixed_point_verified": true,
+        "tensors": [
+          {
+            "buffer": "cb210",
+            "dimensions": [
+              "8",
+              "8"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 8,
+            "coordinate_checks": [
+              {
+                "origin": "0x820: LDG.E R16, desc[UR4][R6.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x840: LDG.E R18, desc[UR4][R6.64+0x20]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x870: LDG.E R20, desc[UR4][R6.64+0x40]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x8a0: LDG.E R22, desc[UR4][R6.64+0x60]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xa10: LDG.E R8, desc[UR4][R2.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xa70: LDG.E R8, desc[UR4][R2.64+0x20]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xa90: @P0 LDG.E R9, desc[UR4][R2.64+0x40]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xaf0: LDG.E R8, desc[UR4][R2.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x820: LDG.E R16, desc[UR4][R6.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x840: LDG.E R18, desc[UR4][R6.64+0x20]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x870: LDG.E R20, desc[UR4][R6.64+0x40]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x8a0: LDG.E R22, desc[UR4][R6.64+0x60]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xa10: LDG.E R8, desc[UR4][R2.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xa70: LDG.E R8, desc[UR4][R2.64+0x20]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xa90: @P0 LDG.E R9, desc[UR4][R2.64+0x40]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xaf0: LDG.E R8, desc[UR4][R2.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          },
+          {
+            "buffer": "cb218",
+            "dimensions": [
+              "8",
+              "8"
+            ],
+            "dimensions_recovered": true,
+            "accesses": 9,
+            "coordinate_checks": [
+              {
+                "origin": "0xb0: LDG.E R15, desc[UR4][R4.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x850: LDG.E R14, desc[UR4][R8.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x860: LDG.E R17, desc[UR4][R8.64+0x4]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x880: LDG.E R19, desc[UR4][R8.64+0x8]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x890: LDG.E R21, desc[UR4][R8.64+0xc]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9f0: LDG.E R0, desc[UR4][R6.64]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xa60: LDG.E R0, desc[UR4][R6.64+0x4]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xa80: @P0 LDG.E R12, desc[UR4][R6.64+0x8]",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xbe0: STG.E desc[UR4][R4.64], R7",
+                "dimension": 0,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xb0: LDG.E R15, desc[UR4][R4.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x850: LDG.E R14, desc[UR4][R8.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x860: LDG.E R17, desc[UR4][R8.64+0x4]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x880: LDG.E R19, desc[UR4][R8.64+0x8]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x890: LDG.E R21, desc[UR4][R8.64+0xc]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0x9f0: LDG.E R0, desc[UR4][R6.64]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xa60: LDG.E R0, desc[UR4][R6.64+0x4]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xa80: @P0 LDG.E R12, desc[UR4][R6.64+0x8]",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              },
+              {
+                "origin": "0xbe0: STG.E desc[UR4][R4.64], R7",
+                "dimension": 1,
+                "upper_bound_proven": true,
+                "nonnegative_proven": true
+              }
+            ],
+            "remaining_index": [],
+            "integer_interpretation_proven": false
+          }
+        ],
+        "residuals": [],
+        "iterations": 223,
+        "numerical_assumptions": [],
+        "source_rank_inferred": false,
+        "integer_interpretation_proven": false
+      },
+      "status": "partial",
+      "pointer_inputs": {
+        "cb210:64": "ptr64<global, f32, 's1>",
+        "cb218:64": "ptr64<global, f32, 's2>"
+      },
+      "accesses": 65,
+      "residuals": {
+        "representation": 339,
+        "arithmetic_overload": 10,
+        "unresolved_join": 213
+      },
+      "effects": {
+        "sass_memory_order": 70,
+        "sass_memory_descriptor": 65,
+        "sass_prim_bssy": 3,
+        "sass_prim_bsync": 3
+      },
+      "bounds_checked": false
+    }
+  ],
+  "all_entry_types_analyzed": true,
+  "integer_interpretation_proven": false,
+  "source_tensor_rank_inferred": false,
+  "scope": "Common SSA equality/inequality fixed point; conditional tensor dimensions; no layout recognizers",
+  "legacy_tests_included": false,
+  "post_run_source_normalization": {
+    "linear_algebra.py": {
+      "previous_sha256": "1a14b733cff89361740423f1f8d0d4d44195ad31636f248039db88842dea185f",
+      "change": "Removed trailing blank line; Python AST unchanged."
+    }
+  }
+}

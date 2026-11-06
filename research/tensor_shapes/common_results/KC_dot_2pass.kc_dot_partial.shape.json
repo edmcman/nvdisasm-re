@@ -1,0 +1,115 @@
+{
+  "analysis": "common equality and inequality fixed point",
+  "fixed_point_verified": true,
+  "tensors": [
+    {
+      "buffer": "cb210",
+      "dimensions": [
+        "cb228:32"
+      ],
+      "dimensions_recovered": true,
+      "accesses": 5,
+      "coordinate_checks": [
+        {
+          "origin": "0x2e0: LDG.E R12, desc[UR4][R8.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x3c0: LDG.E R10, desc[UR4][R10.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x410: LDG.E R14, desc[UR4][R14.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x450: LDG.E R22, desc[UR4][R18.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x480: LDG.E R20, desc[UR4][R20.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        }
+      ],
+      "remaining_index": [],
+      "integer_interpretation_proven": false
+    },
+    {
+      "buffer": "cb218",
+      "dimensions": [
+        "cb228:32"
+      ],
+      "dimensions_recovered": true,
+      "accesses": 5,
+      "coordinate_checks": [
+        {
+          "origin": "0x2d0: LDG.E R11, desc[UR4][R6.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x3f0: LDG.E R13, desc[UR4][R12.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x430: LDG.E R17, desc[UR4][R16.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x470: LDG.E R7, desc[UR4][R6.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x490: LDG.E R9, desc[UR4][R8.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        }
+      ],
+      "remaining_index": [],
+      "integer_interpretation_proven": false
+    },
+    {
+      "buffer": "cb220",
+      "dimensions": [
+        "cbc:32"
+      ],
+      "dimensions_recovered": true,
+      "accesses": 1,
+      "coordinate_checks": [
+        {
+          "origin": "0x610: STG.E desc[UR4][R2.64], R9",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        }
+      ],
+      "remaining_index": [],
+      "integer_interpretation_proven": false
+    }
+  ],
+  "residuals": [],
+  "iterations": 31,
+  "numerical_assumptions": [
+    "MUFU.RCP has at most one ulp error for positive normal operands and results"
+  ],
+  "source_rank_inferred": false,
+  "integer_interpretation_proven": false
+}
