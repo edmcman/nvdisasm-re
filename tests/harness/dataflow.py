@@ -55,12 +55,28 @@ def expected(g, d, optimized=False, ignore=()):
             if all((lut>>v&1)==(lut>>(v^(1<<bit))&1) for v in range(8)):
                 unused.update(names)
         if d.env.get('Pu',d.env.get('UPu'))==7:unused.update(('Pp','UPp'))
+        pop = d.klass.operand_types.get('pop')
+        labels = g.arch.enums[pop.type] if pop else {}
+        operation = d.env.get('pop', labels.get(pop.default) if pop else None)
+        if pop and (lut == 0xff and operation == labels.get('POR') or
+                    lut == 0 and operation == labels.get('PAND')):
+            unused.update(('Pp', 'UPp'))
     if optimized and d.klass.mnemonic in ('ISETP','UISETP','FSETP','FSET','HSET2','HSETP2','VISET'):
         name={'FSETP':'fcomp','FSET':'fcomp','HSET2':'cmp','HSETP2':'cmp'}.get(d.klass.mnemonic,'icmp')
         operand=d.klass.operand_types.get(name)
         if (operand and
                 d.env.get(name) in {g.arch.enums[operand.type].get(n) for n in ('F','T')}):
             unused.update(('Ra','Sa','Rb','Sb','Rc','Sc','URa','URb','URc','Pr','UPr'))
+            combined = d.klass.operand_types.get('h_and')
+            labels = g.arch.enums[combined.type] if combined else {}
+            both = combined and d.env.get('h_and', labels.get(combined.default)) == labels.get('H_AND')
+            if d.klass.mnemonic in ('FSET', 'HSET2', 'HSETP2') and not both:
+                comparison = d.env[name] == g.arch.enums[operand.type].get('T')
+                bop = d.klass.operand_types.get('bop')
+                labels = g.arch.enums[bop.type] if bop else {}
+                operation = d.env.get('bop', labels.get(bop.default) if bop else None)
+                if operation == labels.get('OR' if comparison else 'AND'):
+                    unused.update(('Pp', 'UPp'))
         ex=d.klass.operand_types.get('ex')
         if (d.klass.mnemonic=='ISETP' and 'Pr' in d.env and ex and
                 d.env.get('ex')==g.arch.enums[ex.type].get('noex')):

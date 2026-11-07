@@ -5,8 +5,8 @@ import multiprocessing, re
 from concurrent.futures import ProcessPoolExecutor
 from sass.decode import ir
 from sass.emulate import schedule
-from sass.semantics import evaluate, lifter
-from sass.semantics.runtime import Runtime, UnsupportedSemantics
+from sass.semantics import evaluate, lifter, ordered, ordered_runtime
+from sass.semantics.runtime import Runtime
 
 NAME = re.compile(r"(UR|UP|R|P)(\d+)$")
 SHARED = ("ram", "shared", "cbank")   # a block's common spaces; localmem is per thread
@@ -18,6 +18,7 @@ class Kernel:
 
     def __init__(self, request, arch, fp="exact"):
         kernel = request["kernel"]; self.code = bytes.fromhex(kernel["code"]); self.base = int(kernel.get("address", 0x100000))
+        self.block = schedule.launch(kernel)[3]
         self.arch, self.fp, self.runtime, self.lifted = arch, fp, Runtime(int(arch[2:])), {}
         self.global_memory = None
         self.memory = request.get("memory", []) + [dict(space="ram", address=self.base, hex=self.code.hex())]
@@ -30,6 +31,8 @@ class Kernel:
         shared = {space: {} for space in SHARED}
         if scope == "launch" and self.global_memory is not None: shared["ram"] = self.global_memory
         lanes = [Lane(self, evaluate.State(memory={**shared, "localmem": {}})) for _ in threads]
+        runtime = ordered_runtime.Cooperative(provider=self.runtime)
+        for index, lane in zip(threads, lanes): lane.ordered_runtime, lane.index = runtime, index
         for mem in self.memory:
             if scope == "launch" and self.global_memory is not None and mem["space"] == "ram": continue
             data = bytes.fromhex(mem["hex"])
@@ -44,6 +47,7 @@ class Kernel:
 class Lane:
     def __init__(self, kernel, state):
         self.kernel, self.state = kernel, state
+        self.frame, self.progressed = None, False
         state.pc = kernel.base
 
     def pc(self): return self.state.pc
@@ -62,12 +66,22 @@ class Lane:
         semantics = self.kernel.lift(self.state.pc)
         if semantics.status == "opaque": raise schedule.Fault(f"sass_opaque_{re.sub(r'\W', '_', decoded.klass.mnemonic)} ({semantics.reason})")
         runtime = self.kernel.runtime; runtime.context, runtime.events = context, []
-        try: evaluate.apply(semantics, self.state, runtime=runtime)
-        except (UnsupportedSemantics, evaluate.Unknown) as error: raise schedule.Fault(str(error)) from error
+        if self.frame is None:
+            self.frame = ordered.Frame(semantics.body, semantics.addr + 16)
+        frame = self.frame
+        before = frame.position, frame.pending, frame.status
+        local = self.index % self.kernel.block
+        self.ordered_runtime.bind(frame, local % 32, (local // 32, semantics.addr),
+                                  participant=self.index)
+        status = frame.run(self.state, self.ordered_runtime)
+        self.progressed = before != (frame.position, frame.pending, frame.status)
+        if status == ordered.Status.FAULT: raise schedule.Fault(str(frame.error)) from frame.error
+        if status == ordered.Status.COMPLETE: self.frame = None
+        return status
 
     def writes(self, pc):
         return {f"{file}{index + k}": self.state.read(file, index + k, 1)
-                for location, _ in self.kernel.lift(pc).writes for file, index, count in [location.args] if file in TRACED for k in range(count)}
+                for file, index, count in self.kernel.lift(pc).written_locations() if file in TRACED for k in range(count)}
 
 
 def run_kernel(request, arch, fp="exact"):

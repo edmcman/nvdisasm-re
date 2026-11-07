@@ -4,12 +4,13 @@ from sass.assemble import assemble_cubin
 from tests.harness import gpu
 
 
-def image(arch, width=128, fill=False, enabled=True, encoded_wait=False, deferred=False, uniform=False, board=0, empty=False):
+def image(arch, width=128, fill=False, enabled=True, encoded_wait=False, deferred=False, uniform=False, board=0, empty=False,
+          predicated_wait=False):
     global_address = "[R20.64]" if arch == "SM89" else "desc[UR4][R20.64]"
     output_address = "[R24.64]" if arch == "SM89" else "desc[UR4][R24.64]"
     predicate = "PT" if enabled else "!PT"
     instruction = f"LDGSTS.E.{width}{'.ZFILL' if fill else ''}"
-    wait = f"NOP @sched(req_bit_set={1 << board});" if encoded_wait else f"DEPBAR.LE SB{board}, 0;"
+    wait = f"{'@!PT ' if predicated_wait else ''}NOP @sched(req_bit_set={1 << board});" if encoded_wait else f"DEPBAR.LE SB{board}, 0;"
     barrier = "BAR.SYNC.DEFER_BLOCKING 0;" if deferred else ""
     setup = "UMOV UR6, 32; UMOV UR7, 0x10000000; IADD3 R3, R1, -32, RZ;" if uniform else ""
     destination = "R3+UR6" if uniform else "R1"
@@ -90,5 +91,7 @@ def fixtures(arch):
     out.extend(replace(base, name=name, image=image(arch, **options)) for name, options in (
         ("async_empty_group", dict(empty=True)),
         ("async_scoreboard3", dict(board=3)),
-        ("async_scoreboard3_encoded", dict(board=3, encoded_wait=True))))
+        ("async_scoreboard3_encoded", dict(board=3, encoded_wait=True)),
+        ("async_predicated_off_wait", dict(encoded_wait=True, predicated_wait=True)),
+        ("async_scoreboard3_predicated_off_wait", dict(board=3, encoded_wait=True, predicated_wait=True))))
     return out

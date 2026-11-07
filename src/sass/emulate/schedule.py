@@ -9,12 +9,7 @@ from sass.md import expression
 from sass.semantics.family import roles
 from sass.sleigh.registers import ENUM_FILE, REG_FILES
 
-# Instructions reading warp state (collectives, BRA.DIV/.CONV): the runtime warp-context key and the
-# operand each lane contributes (None: only the active and waiting masks).
-WARP_INPUTS = {'SHFL': ('values', 'Ra'), 'VOTE': ('predicates', 'Pp'), 'VOTEU': ('predicates', 'Pp'), 'MATCH': ('values', 'Ra'),
-               'REDUX': ('values', 'Ra'), 'ELECT': ('values', None), 'BRA': ('values', None)}
-
-WARP_GROUPS = {"LDSM": ("Ra", "Ra_URb"), "HMMA": ("Ra", "Rb", "Rc", "Re")}
+WARP_CONTEXT = frozenset(('SHFL', 'VOTE', 'VOTEU', 'MATCH', 'REDUX', 'ELECT', 'BRA', 'BSSY', 'LDSM', 'HMMA'))
 
 
 class Fault(Exception):
@@ -25,7 +20,7 @@ class Lane(Protocol):
     def pc(self) -> int: ...                           # 0 once exited
     def read(self, file, index) -> int: ...            # one architectural register element
     def seed(self, name, value) -> None: ...           # a launch input register, by name
-    def step(self, decoded, context) -> None: ...      # the instruction at pc(); raises Fault
+    def step(self, decoded, context): ...              # completion (None or Status), suspension, or Fault
     def writes(self, pc) -> dict: ...                  # {register: value} the instruction at pc writes
 
 

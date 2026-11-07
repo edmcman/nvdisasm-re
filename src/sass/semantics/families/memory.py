@@ -5,8 +5,8 @@ range-form ones, and otherwise doesn't change the access (SM89 GPU). Dual regist
 predicate results outside ordinary LDG completion and non-IA address modes are unmodelled;
 a load's Pnz input zero-fills."""
 from sass.semantics.bitvec import concat, const, extract, ite, load, sext, trunc, zext
-from sass.semantics.family import effect, family, outputs, store, unmodelled
-from sass.semantics import primitive
+from sass.semantics.family import effect, family, unmodelled
+from sass.semantics import ordered, primitive
 
 SPACES = {"LDG": "ram", "STG": "ram", "LDS": "shared", "STS": "shared", "LDL": "localmem", "STL": "localmem", "LDC": "cbank", "LDCU": "cbank",
           "LD": "generic", "ST": "generic"}
@@ -90,7 +90,9 @@ def cache_control(i):
             location = address(i)
         case _: unmodelled("cache descriptor, predicate result or whole-cache operation")
     required(i, "cache", "D")
-    return outputs(effects=[effect("sass_cache_control", operation, location)])
+    body = i.body()
+    i.emit_effects(body, [effect("sass_cache_control", operation, location)])
+    return body.block()
 
 
 def windows(i, space, addr):
@@ -99,6 +101,24 @@ def windows(i, space, addr):
     if space != "generic": return [], (space, addr)
     offsets = [(s, addr - concat(i.special_register(hi), i.special_register(lo)), size) for s, lo, hi, size in WINDOWS]
     return [(s, a, a < zext(i.special_register(size), 64)) for s, a, size in offsets], ("ram", addr)
+
+
+def write_windows(body, tried, fallback, value):
+    if not tried:
+        space, address = fallback
+        body.emit(ordered.WriteMemory(space, address, value))
+        return
+    (space, address, inside), *rest = tried
+    memo = {}
+    captured = body.move(body.capture(address, memo))
+    memo[address] = captured
+    condition = body.capture(inside, memo)
+    yes = ordered.Builder(body.count)
+    yes.emit(ordered.WriteMemory(space, captured, value))
+    no = ordered.Builder(yes.count)
+    write_windows(no, rest, fallback, value)
+    body.count = no.count
+    body.emit(ordered.If(condition, yes.block(), no.block()))
 
 
 @family("LDG", "STG", "LDS", "STS", "LDL", "STL", "LDC", "LDCU", "LD", "ST",
@@ -135,16 +155,18 @@ def memory(i):
         # SM89 ordinary completion clears Pu, including a zero-filled load.
         # Write it after Pnz so aliases retain the load's input but end cleared.
         if i.opcode == "LDG" and i.has_operand("Pu"): kept["Pu"] = const(0, 1)
-        return outputs(order=("Pu",), effects=effects, Rd=extended(loaded, i.width("Rd"), signed), **kept)
+        body = i.body()
+        i.emit_effects(body, effects)
+        return i.assign_from_inputs(body, order=("Pu",), Rd=extended(loaded, i.width("Rd"), signed), **kept)
     value = i.value("Rb", modifiers=False)
     if w > value.w: unmodelled("size")
     value = trunc(value, w) if value.w > w else value
-    tried, (s, a) = windows(i, space, addr)
-    stores, outside = [], None
-    for ws, wa, inside in tried:
-        stores.append(store(ws, wa, value, inside if outside is None else outside & inside))
-        outside = ~inside if outside is None else outside & ~inside
-    return outputs(effects=effects, stores=[*stores, store(s, a, value, outside)])
+    body = i.body()
+    i.emit_effects(body, effects)
+    addr, value = body.capture_inputs((addr, value))
+    tried, fallback = windows(i, space, addr)
+    write_windows(body, tried, fallback, value)
+    return body.block()
 
 
 @family("ULDC")
@@ -155,7 +177,7 @@ def uldc(i):
     if w > i.width("URd"): unmodelled("size")
     addr = (zext(i.imm("Sa_bank"), 64) << 32) | zext(trunc(zext(i.imm("Sa_addr"), 64), 32), 64)
     i.ignore("Sa")
-    return outputs(URd=extended(load("cbank", addr, w), i.width("URd"), signed))
+    return i.assign_from_inputs(URd=extended(load("cbank", addr, w), i.width("URd"), signed))
 
 
 @family("S2R", "CS2R", "S2UR")
@@ -163,4 +185,4 @@ def s2r(i):
     """Rd/URd = the special register SRa (CS2R.64: a register pair's view); SRZ reads 0."""
     if i.has_operand("sz"): i.select_fork("sz")   # .32/.64: Rd's span already gives the width
     d = i.resolve("Rd|URd")
-    return outputs(**{d: i.special("SRa", i.width(d))})
+    return i.assign_from_inputs(**{d: i.special("SRa", i.width(d))})

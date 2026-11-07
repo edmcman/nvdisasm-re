@@ -52,7 +52,8 @@ def generate(c, k, form, profiles):
             expected = {f"R{dest + n}": old >> (32 * n) & 0xffffffff for n in range(width // 32)} if dest != 255 else {"R255": 0}
             if not c.discovery:
                 result = atomic.float_add(form["sz"], old, value) if floating else atomic.update(op, old, value, width, signed, replacement)
-                effects = ["sass_memory_order"] + (["sass_memory_descriptor"] if "memoryDescriptor" in k.operand_types else [])
+                effects = ["sass_memory_order"] + (["sass_memory_descriptor"] if "memoryDescriptor" in k.operand_types else []) + [
+                    "sass_ordered_atomic_enter", "sass_ordered_atomic_exit"]
                 expected.update(P1=0, __memory=result.to_bytes(width // 8, "little").hex(),
                                 __max_ops=dict(count=2048 if floating else 128, userops=effects, branches=True))
             s.add(expected, form, observe=[*expected, "P1"] if c.discovery else None,

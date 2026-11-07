@@ -1,5 +1,6 @@
+from sass.semantics import ordered
 from sass.semantics.bitvec import const, extract, ite, load, sext, trunc, zext
-from sass.semantics.family import effect, family, outputs, unmodelled
+from sass.semantics.family import family, unmodelled
 from sass.semantics.families import memory
 
 
@@ -18,21 +19,26 @@ def ldgsts(i):
     value = ite(enable, load("ram", source, width), const(0, width))
     low = extract(value, 63, 0) if width > 64 else zext(value, 64)
     high = extract(value, 127, 64) if width == 128 else const(0, 64)
-    return outputs(Pnz=i.pred("Pnz", modifiers=False), effects=[memory.ordering(i), *memory.descriptor(i),
-                            effect("sass_async_issue", zext(address, 64), low, high, const(width // 8, 32),
-                                   const(1, 1))])
+    body = i.body()
+    i.emit_effects(body, [memory.ordering(i), *memory.descriptor(i)])
+    arguments = body.capture_inputs((zext(address, 64), low, high, const(width // 8, 32), const(1, 1)))
+    body.special(ordered.ASYNC_ISSUE, *arguments)
+    return i.assign_from_inputs(body, Pnz=i.pred("Pnz", modifiers=False))
 
 
 @family("LDGDEPBAR")
 def commit(i):
-    return outputs(effects=[effect("sass_async_commit")])
+    body = i.body()
+    body.special(ordered.ASYNC_COMMIT, i.control("dst_wr_sb"))
+    return body.block()
 
 
 @family("DEPBAR")
 def wait(i):
-    board, count = const(7, 32), const(0, 32)
+    body = i.body()
     if i.has_operand("le"):
         if i.select_fork("le") != "LE": unmodelled("dependency comparison")
-        board = i.encoding("sbidx")
-        count = i.value("cnt|URb", modifiers=False)
-    return outputs(effects=[effect("sass_async_wait", board, count, i.encoding("scoreboard_list"))])
+        arguments = body.capture_inputs((i.encoding("sbidx"), i.value("cnt|URb", modifiers=False)))
+        body.special(ordered.ASYNC_WAIT_GROUPS, *arguments)
+    body.special(ordered.ASYNC_WAIT_SLOTS, trunc(i.encoding("scoreboard_list"), 6))
+    return body.block()

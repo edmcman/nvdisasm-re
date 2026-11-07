@@ -7,7 +7,7 @@ from sass.paths import ROOT
 from sass.assemble import encoding
 from sass.decode import pydecode
 from sass.sleigh.modifiers import settings
-from tests.harness.case import Case, Cases, READABLE_FLOATS, put, source, cx_source
+from tests.harness.case import Case, Cases, READABLE_FLOATS, put, source, cx_source, native_contract
 from tests.harness import sampling
 from tests.refs import integer
 from tests.harness import autocase_profiles, autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp, autocase_integer_extra, autocase_system, autocase_mixed_fp, autocase_remaining, autocase_partial, autocase_atomic, autocase_matrix, autocase_effects
@@ -210,8 +210,7 @@ def finish(c, native):
     unique = {}
     for case in c:
         if native:
-            # Explicit op/effect bounds cover native memory ordering and an empty NOP.
-            guard = {} if isinstance(case.expected.get('__max_ops'),dict) else {'__native':True}
+            guard = native_contract(c.arch, case.cls, case.expected.get('__max_ops'))
             case = case._replace(expected={**case.expected, **guard}, request={**case.request, 'inspect_pcode':True})
         identity = case.id
         if identity in unique and unique[identity] != case: raise ValueError(f'{identity}: conflicting generated expectations')

@@ -131,7 +131,22 @@ def nested_expected(threads):
             + (11 if i & 2 else 7 if i & 1 else 5) & 0xffffffff for i in range(threads)]
 
 
+def deferred_branch(cond):
+    return f'''UMOV UR0, 0xffff;
+ISETP.LT.U32.AND P2, PT, R0, 16, PT;
+@P2 BAR.SYNC.DEFER_BLOCKING 0, 32;
+BRA.{cond} UR0, taken;
+MOV R8, 0;
+BRA done;
+taken:
+MOV R8, 1;
+done:
+@!P2 BAR.ARV 0, 32;
+'''
+
+
 def fixtures(arch):
+    from tests.refs.control import deferred_branch_outputs
     cases = (
         ('nested', NESTED, nested_expected(32), ('BSSY', 'BSYNC', 'VOTE')),
         ('exited', EXITED, [0 if i & 1 else 0x55555555 for i in range(32)], ('BSSY', 'BSYNC', 'VOTE')),
@@ -141,13 +156,20 @@ def fixtures(arch):
         ('counted_deferred', COUNTED_DEFERRED, [7] * 32 + [9] * 32, ('BAR.SYNC.DEFER_BLOCKING',)),
         ('target', TARGET, [9] * 32, ('BSSY', 'BSYNC')),
         ('bar_exited', BAR_EXITED, [0 if i & 1 else 7 for i in range(32)], ('BAR',)),
+        ('deferred_convergence', 'BAR.SYNC.DEFER_BLOCKING 0;\n' + NESTED,
+         nested_expected(64), ('BAR.SYNC.DEFER_BLOCKING', 'BSSY', 'BSYNC', 'VOTE')),
         ('combined', COMBINED, [nested_expected(64)[(i + 1) % 64] + 0x3f000000 & 0xffffffff
                                 for i in range(64)], ('BSSY', 'BSYNC', 'BAR.SYNC.DEFER_BLOCKING', 'LDS', 'STS', 'MUFU.RCP')),
     )
     return [gpu.Fixture('sync_' + name, image(body, arch), 'synchronize', bytes(12 * len(expected)),
                         expected, block=len(expected), scope='launch', exit=True,
                         targets=targets, modes=('exact', 'readable'))
-            for name, body, expected, targets in cases]
+            for name, body, expected, targets in cases] + [
+        gpu.Fixture(f"sync_deferred_branch_{cond.lower()}", image(deferred_branch(cond), arch),
+                    "synchronize", bytes(12 * 32), deferred_branch_outputs(cond),
+                    block=32, scope="launch", exit=True,
+                    targets=(f"BRA.{cond}", "BAR.SYNC.DEFER_BLOCKING", "BAR.ARV"),
+                    modes=("exact", "readable")) for cond in ("DIV", "CONV")]
 
 
 def reductions(arch):

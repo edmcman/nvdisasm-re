@@ -434,13 +434,13 @@
         "opaque": 279
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMOV": {
-        "primitive": 15
+        "native": 15
       },
       "BMSK": {
         "native": 6
@@ -454,7 +454,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 4
+        "native": 4
       },
       "BREV": {
         "native": 3
@@ -470,7 +470,7 @@
         "primitive": 6
       },
       "BSYNC": {
-        "primitive": 6
+        "native": 6
       },
       "CALL": {
         "native": 8,
@@ -1098,7 +1098,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -1143,11 +1143,11 @@
       "reference": 546
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -1214,8 +1214,8 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
-      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__UR_sI_R": "ordered semantics family",
+      "ldsm__sImmOffset": "ordered semantics family",
       "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -1627,13 +1627,13 @@
         "opaque": 11
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -1647,7 +1647,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -1662,7 +1662,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -2279,7 +2279,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -2324,13 +2324,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -2341,7 +2341,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -2353,7 +2353,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -2763,15 +2763,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 357,
+      "native": 404,
       "opaque": 408,
       "partially native": 142,
       "partially primitive": 6,
-      "primitive": 65
+      "primitive": 18
     }
   },
   "SM100_READABLE": {
@@ -3209,13 +3209,13 @@
         "opaque": 279
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMOV": {
-        "primitive": 15
+        "native": 15
       },
       "BMSK": {
         "native": 6
@@ -3229,7 +3229,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 4
+        "native": 4
       },
       "BREV": {
         "native": 3
@@ -3245,7 +3245,7 @@
         "primitive": 6
       },
       "BSYNC": {
-        "primitive": 6
+        "native": 6
       },
       "CALL": {
         "native": 8,
@@ -3873,7 +3873,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -3918,11 +3918,11 @@
       "reference": 546
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -3989,8 +3989,8 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
-      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__UR_sI_R": "ordered semantics family",
+      "ldsm__sImmOffset": "ordered semantics family",
       "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -4402,13 +4402,13 @@
         "opaque": 11
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -4422,7 +4422,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -4437,7 +4437,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -5054,7 +5054,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -5099,13 +5099,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -5116,7 +5116,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -5128,7 +5128,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -5538,15 +5538,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 357,
+      "native": 404,
       "opaque": 408,
       "partially native": 142,
       "partially primitive": 6,
-      "primitive": 65
+      "primitive": 18
     }
   },
   "SM101": {
@@ -5949,13 +5949,13 @@
         "opaque": 279
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMOV": {
-        "primitive": 15
+        "native": 15
       },
       "BMSK": {
         "native": 6
@@ -5969,7 +5969,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 4
+        "native": 4
       },
       "BREV": {
         "native": 3
@@ -5985,7 +5985,7 @@
         "primitive": 6
       },
       "BSYNC": {
-        "primitive": 6
+        "native": 6
       },
       "CALL": {
         "native": 8,
@@ -6559,7 +6559,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -6594,11 +6594,11 @@
       "reference": 536
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -6647,8 +6647,8 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
-      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__UR_sI_R": "ordered semantics family",
+      "ldsm__sImmOffset": "ordered semantics family",
       "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -7028,13 +7028,13 @@
         "opaque": 11
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -7048,7 +7048,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -7063,7 +7063,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -7630,7 +7630,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -7666,13 +7666,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -7683,7 +7683,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -7695,7 +7695,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -8103,15 +8103,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 354,
+      "native": 401,
       "opaque": 359,
       "partially native": 120,
       "partially primitive": 6,
-      "primitive": 65
+      "primitive": 18
     }
   },
   "SM101_READABLE": {
@@ -8514,13 +8514,13 @@
         "opaque": 279
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMOV": {
-        "primitive": 15
+        "native": 15
       },
       "BMSK": {
         "native": 6
@@ -8534,7 +8534,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 4
+        "native": 4
       },
       "BREV": {
         "native": 3
@@ -8550,7 +8550,7 @@
         "primitive": 6
       },
       "BSYNC": {
-        "primitive": 6
+        "native": 6
       },
       "CALL": {
         "native": 8,
@@ -9124,7 +9124,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -9159,11 +9159,11 @@
       "reference": 536
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -9212,8 +9212,8 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
-      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__UR_sI_R": "ordered semantics family",
+      "ldsm__sImmOffset": "ordered semantics family",
       "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -9593,13 +9593,13 @@
         "opaque": 11
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -9613,7 +9613,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -9628,7 +9628,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -10195,7 +10195,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -10231,13 +10231,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -10248,7 +10248,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -10260,7 +10260,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -10668,15 +10668,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 354,
+      "native": 401,
       "opaque": 359,
       "partially native": 120,
       "partially primitive": 6,
-      "primitive": 65
+      "primitive": 18
     }
   },
   "SM103": {
@@ -11104,13 +11104,13 @@
         "opaque": 279
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMOV": {
-        "primitive": 15
+        "native": 15
       },
       "BMSK": {
         "native": 6
@@ -11124,7 +11124,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 4
+        "native": 4
       },
       "BREV": {
         "native": 3
@@ -11140,7 +11140,7 @@
         "primitive": 6
       },
       "BSYNC": {
-        "primitive": 6
+        "native": 6
       },
       "CALL": {
         "native": 8,
@@ -11765,7 +11765,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -11806,11 +11806,11 @@
       "reference": 561
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -11877,8 +11877,8 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
-      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__UR_sI_R": "ordered semantics family",
+      "ldsm__sImmOffset": "ordered semantics family",
       "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -12280,13 +12280,13 @@
         "opaque": 11
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -12300,7 +12300,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -12315,7 +12315,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -12929,7 +12929,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -12971,13 +12971,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -12988,7 +12988,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -13000,7 +13000,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -13410,15 +13410,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 357,
+      "native": 404,
       "opaque": 401,
       "partially native": 142,
       "partially primitive": 6,
-      "primitive": 68
+      "primitive": 21
     }
   },
   "SM103_READABLE": {
@@ -13846,13 +13846,13 @@
         "opaque": 279
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMOV": {
-        "primitive": 15
+        "native": 15
       },
       "BMSK": {
         "native": 6
@@ -13866,7 +13866,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 4
+        "native": 4
       },
       "BREV": {
         "native": 3
@@ -13882,7 +13882,7 @@
         "primitive": 6
       },
       "BSYNC": {
-        "primitive": 6
+        "native": 6
       },
       "CALL": {
         "native": 8,
@@ -14507,7 +14507,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -14548,11 +14548,11 @@
       "reference": 561
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -14619,8 +14619,8 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
-      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__UR_sI_R": "ordered semantics family",
+      "ldsm__sImmOffset": "ordered semantics family",
       "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -15022,13 +15022,13 @@
         "opaque": 11
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -15042,7 +15042,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -15057,7 +15057,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -15671,7 +15671,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -15713,13 +15713,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -15730,7 +15730,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -15742,7 +15742,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -16152,15 +16152,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 357,
+      "native": 404,
       "opaque": 401,
       "partially native": 142,
       "partially primitive": 6,
-      "primitive": 68
+      "primitive": 21
     }
   },
   "SM107": {
@@ -16587,13 +16587,13 @@
         "opaque": 275
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMOV": {
-        "primitive": 15
+        "native": 15
       },
       "BMSK": {
         "native": 6
@@ -16607,7 +16607,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 4
+        "native": 4
       },
       "BREV": {
         "native": 3
@@ -16623,7 +16623,7 @@
         "primitive": 6
       },
       "BSYNC": {
-        "primitive": 6
+        "native": 6
       },
       "CALL": {
         "native": 8,
@@ -17193,7 +17193,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -17234,11 +17234,11 @@
       "reference": 582
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -17329,8 +17329,8 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
-      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__UR_sI_R": "ordered semantics family",
+      "ldsm__sImmOffset": "ordered semantics family",
       "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -17730,13 +17730,13 @@
         "opaque": 10
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -17750,7 +17750,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -17765,7 +17765,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -18321,7 +18321,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -18363,13 +18363,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -18380,7 +18380,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -18392,7 +18392,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -18804,15 +18804,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 352,
+      "native": 399,
       "opaque": 349,
       "partially native": 169,
       "partially primitive": 6,
-      "primitive": 68
+      "primitive": 21
     }
   },
   "SM107_READABLE": {
@@ -19239,13 +19239,13 @@
         "opaque": 275
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMOV": {
-        "primitive": 15
+        "native": 15
       },
       "BMSK": {
         "native": 6
@@ -19259,7 +19259,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 4
+        "native": 4
       },
       "BREV": {
         "native": 3
@@ -19275,7 +19275,7 @@
         "primitive": 6
       },
       "BSYNC": {
-        "primitive": 6
+        "native": 6
       },
       "CALL": {
         "native": 8,
@@ -19845,7 +19845,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -19886,11 +19886,11 @@
       "reference": 582
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -19981,8 +19981,8 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
-      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__UR_sI_R": "ordered semantics family",
+      "ldsm__sImmOffset": "ordered semantics family",
       "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -20382,13 +20382,13 @@
         "opaque": 10
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -20402,7 +20402,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -20417,7 +20417,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -20973,7 +20973,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -21015,13 +21015,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -21032,7 +21032,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -21044,7 +21044,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -21456,15 +21456,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 352,
+      "native": 399,
       "opaque": 349,
       "partially native": 169,
       "partially primitive": 6,
-      "primitive": 68
+      "primitive": 21
     }
   },
   "SM120": {
@@ -21911,13 +21911,13 @@
         "opaque": 279
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMOV": {
-        "primitive": 15
+        "native": 15
       },
       "BMSK": {
         "native": 6
@@ -21931,7 +21931,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 4
+        "native": 4
       },
       "BREV": {
         "native": 3
@@ -21947,7 +21947,7 @@
         "primitive": 6
       },
       "BSYNC": {
-        "primitive": 6
+        "native": 6
       },
       "CALL": {
         "native": 8,
@@ -22566,7 +22566,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -22616,11 +22616,11 @@
       "reference": 591
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -22697,8 +22697,8 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
-      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__UR_sI_R": "ordered semantics family",
+      "ldsm__sImmOffset": "ordered semantics family",
       "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -23128,13 +23128,13 @@
         "opaque": 11
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -23148,7 +23148,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -23163,7 +23163,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -23775,7 +23775,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -23826,13 +23826,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -23843,7 +23843,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -23855,7 +23855,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -24269,15 +24269,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 408,
+      "native": 455,
       "opaque": 411,
       "partially native": 125,
       "partially primitive": 6,
-      "primitive": 65
+      "primitive": 18
     }
   },
   "SM120_READABLE": {
@@ -24724,13 +24724,13 @@
         "opaque": 279
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMOV": {
-        "primitive": 15
+        "native": 15
       },
       "BMSK": {
         "native": 6
@@ -24744,7 +24744,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 4
+        "native": 4
       },
       "BREV": {
         "native": 3
@@ -24760,7 +24760,7 @@
         "primitive": 6
       },
       "BSYNC": {
-        "primitive": 6
+        "native": 6
       },
       "CALL": {
         "native": 8,
@@ -25379,7 +25379,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -25429,11 +25429,11 @@
       "reference": 591
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -25510,8 +25510,8 @@
       "ldg_256_uniform__Ra32": "dual registers",
       "ldg_256_uniform__Ra64": "dual registers",
       "ldg_256_uniform__RaRZ": "dual registers",
-      "ldsm__UR_sI_R": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
-      "ldsm__sImmOffset": "runtime primitives lane, operand_lane; decode-time selector guards retain complete opaque fallbacks",
+      "ldsm__UR_sI_R": "ordered semantics family",
+      "ldsm__sImmOffset": "ordered semantics family",
       "membar_async_": "async fence obligations",
       "mov_indexedRF_IRFd__Ib": "indexed register file",
       "mov_indexedRF_IRFd__Rb": "indexed register file",
@@ -25941,13 +25941,13 @@
         "opaque": 11
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -25961,7 +25961,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -25976,7 +25976,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -26588,7 +26588,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -26639,13 +26639,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 10
+        "native": 10
       },
       "BMSK": {
         "native": 3
@@ -26656,7 +26656,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 3
@@ -26668,7 +26668,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "opaque": 2,
@@ -27082,15 +27082,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 408,
+      "native": 455,
       "opaque": 411,
       "partially native": 125,
       "partially primitive": 6,
-      "primitive": 65
+      "primitive": 18
     }
   },
   "SM75": {
@@ -27459,16 +27459,16 @@
         "opaque": 198
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMMA": {
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 21
+        "native": 21
       },
       "BMSK": {
         "native": 10
@@ -27481,7 +27481,7 @@
         "opaque": 20
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 5
@@ -27497,7 +27497,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "native": 10,
@@ -27914,7 +27914,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -28356,16 +28356,16 @@
         "opaque": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMMA": {
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -28377,7 +28377,7 @@
         "partially native": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -28392,7 +28392,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -28798,7 +28798,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       },
       "YIELD": {
         "opaque": 1
@@ -28840,13 +28840,13 @@
         "partially native": 5
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -28855,7 +28855,7 @@
         "partially native": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -28867,7 +28867,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -29267,15 +29267,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       }
     },
     "status": {
-      "native": 438,
+      "native": 488,
       "opaque": 283,
       "partially native": 104,
       "partially primitive": 4,
-      "primitive": 74
+      "primitive": 24
     }
   },
   "SM75_READABLE": {
@@ -29644,16 +29644,16 @@
         "opaque": 198
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMMA": {
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 21
+        "native": 21
       },
       "BMSK": {
         "native": 10
@@ -29666,7 +29666,7 @@
         "opaque": 20
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 5
@@ -29682,7 +29682,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "native": 10,
@@ -30099,7 +30099,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -30541,16 +30541,16 @@
         "opaque": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMMA": {
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -30562,7 +30562,7 @@
         "partially native": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -30577,7 +30577,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -30983,7 +30983,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       },
       "YIELD": {
         "opaque": 1
@@ -31025,13 +31025,13 @@
         "partially native": 5
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -31040,7 +31040,7 @@
         "partially native": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -31052,7 +31052,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -31452,15 +31452,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       }
     },
     "status": {
-      "native": 438,
+      "native": 488,
       "opaque": 283,
       "partially native": 104,
       "partially primitive": 4,
-      "primitive": 74
+      "primitive": 24
     }
   },
   "SM80": {
@@ -31844,16 +31844,16 @@
         "opaque": 206
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMMA": {
         "opaque": 6
       },
       "BMOV": {
-        "primitive": 21
+        "native": 21
       },
       "BMSK": {
         "native": 10
@@ -31867,7 +31867,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 5
@@ -31883,7 +31883,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "native": 10,
@@ -32325,7 +32325,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 12
+        "native": 12
       },
       "YIELD": {
         "opaque": 2
@@ -32755,16 +32755,16 @@
         "opaque": 9
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMMA": {
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -32778,7 +32778,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -32793,7 +32793,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -33226,7 +33226,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       },
       "YIELD": {
         "opaque": 1
@@ -33252,13 +33252,13 @@
         "partially native": 8
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -33269,7 +33269,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -33281,7 +33281,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -33681,15 +33681,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       }
     },
     "status": {
-      "native": 479,
+      "native": 529,
       "opaque": 296,
       "partially native": 113,
       "partially primitive": 3,
-      "primitive": 76
+      "primitive": 26
     }
   },
   "SM80_READABLE": {
@@ -34073,16 +34073,16 @@
         "opaque": 206
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMMA": {
         "opaque": 6
       },
       "BMOV": {
-        "primitive": 21
+        "native": 21
       },
       "BMSK": {
         "native": 10
@@ -34096,7 +34096,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 5
@@ -34112,7 +34112,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "native": 10,
@@ -34553,7 +34553,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 12
+        "native": 12
       },
       "YIELD": {
         "opaque": 2
@@ -34983,16 +34983,16 @@
         "opaque": 9
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMMA": {
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -35006,7 +35006,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -35021,7 +35021,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -35455,7 +35455,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       },
       "YIELD": {
         "opaque": 1
@@ -35481,13 +35481,13 @@
         "partially native": 8
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -35498,7 +35498,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -35510,7 +35510,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -35911,15 +35911,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       }
     },
     "status": {
-      "native": 496,
+      "native": 546,
       "opaque": 296,
       "partially native": 96,
       "partially primitive": 3,
-      "primitive": 76
+      "primitive": 26
     }
   },
   "SM86": {
@@ -36311,16 +36311,16 @@
         "opaque": 206
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMMA": {
         "opaque": 12
       },
       "BMOV": {
-        "primitive": 21
+        "native": 21
       },
       "BMSK": {
         "native": 10
@@ -36334,7 +36334,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 5
@@ -36350,7 +36350,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "native": 10,
@@ -36806,7 +36806,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 12
+        "native": 12
       },
       "YIELD": {
         "opaque": 2
@@ -37259,16 +37259,16 @@
         "opaque": 9
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMMA": {
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -37282,7 +37282,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -37297,7 +37297,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -37744,7 +37744,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       },
       "YIELD": {
         "opaque": 1
@@ -37791,13 +37791,13 @@
         "partially native": 8
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -37808,7 +37808,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -37820,7 +37820,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -38222,15 +38222,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       }
     },
     "status": {
-      "native": 500,
+      "native": 550,
       "opaque": 304,
       "partially native": 121,
       "partially primitive": 3,
-      "primitive": 76
+      "primitive": 26
     }
   },
   "SM86_READABLE": {
@@ -38622,16 +38622,16 @@
         "opaque": 206
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMMA": {
         "opaque": 12
       },
       "BMOV": {
-        "primitive": 21
+        "native": 21
       },
       "BMSK": {
         "native": 10
@@ -38645,7 +38645,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 5
@@ -38661,7 +38661,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "native": 10,
@@ -39117,7 +39117,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 12
+        "native": 12
       },
       "YIELD": {
         "opaque": 2
@@ -39570,16 +39570,16 @@
         "opaque": 9
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMMA": {
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -39593,7 +39593,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -39608,7 +39608,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -40055,7 +40055,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       },
       "YIELD": {
         "opaque": 1
@@ -40102,13 +40102,13 @@
         "partially native": 8
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -40119,7 +40119,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -40131,7 +40131,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -40533,15 +40533,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       }
     },
     "status": {
-      "native": 500,
+      "native": 550,
       "opaque": 304,
       "partially native": 121,
       "partially primitive": 3,
-      "primitive": 76
+      "primitive": 26
     }
   },
   "SM89": {
@@ -40934,8 +40934,8 @@
         "gpu": 6
       },
       "WARPSYNC": {
-        "gpu": 1,
-        "reference": 11
+        "gpu": 3,
+        "reference": 9
       }
     },
     "combination_status": {
@@ -40962,16 +40962,16 @@
         "opaque": 206
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMMA": {
         "opaque": 12
       },
       "BMOV": {
-        "primitive": 21
+        "native": 21
       },
       "BMSK": {
         "native": 10
@@ -40985,7 +40985,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 5
@@ -41001,7 +41001,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "native": 10,
@@ -41462,7 +41462,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 12
+        "native": 12
       },
       "YIELD": {
         "opaque": 2
@@ -41505,10 +41505,10 @@
       }
     },
     "evidence": {
-      "gpu": 645,
+      "gpu": 647,
       "none": 15,
       "ptxas": 4,
-      "reference": 65
+      "reference": 63
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -41923,8 +41923,8 @@
         "gpu": 1
       },
       "WARPSYNC": {
-        "gpu": 1,
-        "reference": 4
+        "gpu": 3,
+        "reference": 2
       }
     },
     "opcodes": {
@@ -41950,16 +41950,16 @@
         "opaque": 9
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMMA": {
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -41973,7 +41973,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -41988,7 +41988,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -42440,7 +42440,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       },
       "YIELD": {
         "opaque": 1
@@ -42487,13 +42487,13 @@
         "partially native": 8
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -42504,7 +42504,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -42516,7 +42516,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -42920,15 +42920,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       }
     },
     "status": {
-      "native": 528,
+      "native": 578,
       "opaque": 325,
       "partially native": 122,
       "partially primitive": 3,
-      "primitive": 76
+      "primitive": 26
     }
   },
   "SM89_READABLE": {
@@ -43322,8 +43322,8 @@
         "gpu": 6
       },
       "WARPSYNC": {
-        "gpu": 1,
-        "reference": 11
+        "gpu": 3,
+        "reference": 9
       }
     },
     "combination_status": {
@@ -43350,16 +43350,16 @@
         "opaque": 206
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BMMA": {
         "opaque": 12
       },
       "BMOV": {
-        "primitive": 21
+        "native": 21
       },
       "BMSK": {
         "native": 10
@@ -43373,7 +43373,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 5
@@ -43389,7 +43389,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "native": 10,
@@ -43850,7 +43850,7 @@
         "primitive": 6
       },
       "WARPSYNC": {
-        "primitive": 12
+        "native": 12
       },
       "YIELD": {
         "opaque": 2
@@ -43893,10 +43893,10 @@
       }
     },
     "evidence": {
-      "gpu": 645,
+      "gpu": 647,
       "none": 15,
       "ptxas": 4,
-      "reference": 65
+      "reference": 63
     },
     "opaque_operations": {
       "bra_uniform_pred_": "uniform predicate",
@@ -44311,8 +44311,8 @@
         "gpu": 1
       },
       "WARPSYNC": {
-        "gpu": 1,
-        "reference": 4
+        "gpu": 3,
+        "reference": 2
       }
     },
     "opcodes": {
@@ -44338,16 +44338,16 @@
         "opaque": 9
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMMA": {
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -44361,7 +44361,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -44376,7 +44376,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -44828,7 +44828,7 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       },
       "YIELD": {
         "opaque": 1
@@ -44875,13 +44875,13 @@
         "partially native": 8
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -44892,7 +44892,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -44904,7 +44904,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -45308,15 +45308,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 5
+        "native": 5
       }
     },
     "status": {
-      "native": 528,
+      "native": 578,
       "opaque": 325,
       "partially native": 122,
       "partially primitive": 3,
-      "primitive": 76
+      "primitive": 26
     }
   },
   "SM90": {
@@ -45757,10 +45757,10 @@
         "opaque": 229
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BGMMA": {
         "opaque": 108
@@ -45769,7 +45769,7 @@
         "opaque": 6
       },
       "BMOV": {
-        "primitive": 21
+        "native": 21
       },
       "BMSK": {
         "native": 10
@@ -45783,7 +45783,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 5
@@ -45799,7 +45799,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "native": 10,
@@ -46362,7 +46362,7 @@
         "opaque": 2
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -46398,11 +46398,11 @@
       "reference": 148
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -46860,10 +46860,10 @@
         "opaque": 9
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BGMMA": {
         "opaque": 3
@@ -46872,7 +46872,7 @@
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -46886,7 +46886,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -46901,7 +46901,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -47455,7 +47455,7 @@
         "opaque": 2
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -47491,13 +47491,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -47508,7 +47508,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -47520,7 +47520,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -47927,15 +47927,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 545,
+      "native": 594,
       "opaque": 410,
       "partially native": 140,
       "partially primitive": 8,
-      "primitive": 70
+      "primitive": 21
     }
   },
   "SM90_READABLE": {
@@ -48376,10 +48376,10 @@
         "opaque": 229
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 70
+        "native": 70
       },
       "BGMMA": {
         "opaque": 108
@@ -48388,7 +48388,7 @@
         "opaque": 6
       },
       "BMOV": {
-        "primitive": 21
+        "native": 21
       },
       "BMSK": {
         "native": 10
@@ -48402,7 +48402,7 @@
         "primitive": 8
       },
       "BREAK": {
-        "primitive": 2
+        "native": 2
       },
       "BREV": {
         "native": 5
@@ -48418,7 +48418,7 @@
         "primitive": 2
       },
       "BSYNC": {
-        "primitive": 2
+        "native": 2
       },
       "CALL": {
         "native": 10,
@@ -48981,7 +48981,7 @@
         "opaque": 2
       },
       "WARPSYNC": {
-        "primitive": 10
+        "native": 10
       },
       "YIELD": {
         "opaque": 2
@@ -49017,11 +49017,11 @@
       "reference": 148
     },
     "opaque_operations": {
-      "atomg_fp__RaNonRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp__RaRZ": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra32": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__Ra64": "decode-time selector guards retain complete opaque fallbacks",
-      "atomg_fp_uniform__memdesc": "decode-time selector guards retain complete opaque fallbacks",
+      "atomg_fp__RaNonRZ": "ordered semantics family",
+      "atomg_fp__RaRZ": "ordered semantics family",
+      "atomg_fp_uniform__Ra32": "ordered semantics family",
+      "atomg_fp_uniform__Ra64": "ordered semantics family",
+      "atomg_fp_uniform__memdesc": "ordered semantics family",
       "bra_uniform_pred_": "uniform predicate",
       "call_rel__RRR": "depth INC; relative register target",
       "call_rel__URIR": "depth INC; relative register target",
@@ -49479,10 +49479,10 @@
         "opaque": 9
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BGMMA": {
         "opaque": 3
@@ -49491,7 +49491,7 @@
         "opaque": 1
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -49505,7 +49505,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -49520,7 +49520,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -50074,7 +50074,7 @@
         "opaque": 2
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       },
       "YIELD": {
         "opaque": 1
@@ -50110,13 +50110,13 @@
         "partially native": 7
       },
       "B2R": {
-        "primitive": 3
+        "native": 3
       },
       "BAR": {
-        "primitive": 26
+        "native": 26
       },
       "BMOV": {
-        "primitive": 14
+        "native": 14
       },
       "BMSK": {
         "native": 5
@@ -50127,7 +50127,7 @@
         "partially primitive": 1
       },
       "BREAK": {
-        "primitive": 1
+        "native": 1
       },
       "BREV": {
         "native": 5
@@ -50139,7 +50139,7 @@
         "primitive": 1
       },
       "BSYNC": {
-        "primitive": 1
+        "native": 1
       },
       "CALL": {
         "opaque": 2,
@@ -50546,15 +50546,15 @@
         "primitive": 1
       },
       "WARPSYNC": {
-        "primitive": 4
+        "native": 4
       }
     },
     "status": {
-      "native": 545,
+      "native": 594,
       "opaque": 410,
       "partially native": 140,
       "partially primitive": 8,
-      "primitive": 70
+      "primitive": 21
     }
   }
 }

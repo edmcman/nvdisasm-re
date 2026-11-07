@@ -601,6 +601,16 @@ software support inferred from their descriptions, without new hardware verifica
   diverged, CONV when none is, and neither when Pp is false; whether the observer lane is in URb
   doesn't matter. Tested with every inactive lane exited or every one waiting at a `BSSY`/`BSYNC`
   barrier; lanes parked at other barriers (WARPSYNC, BAR) are untested.
+- BRA after a partial deferred BAR arrival (2026-11-06, SM89): the two synthetic
+  `sync_deferred_branch_div`/`conv` cooperative fixtures have lanes 0–15 issue
+  `BAR.SYNC.DEFER_BLOCKING 0, 32`, all lanes execute `BRA.DIV` or `BRA.CONV`
+  with UR0 = `0xffff`, and lanes 16–31 subsequently issue `BAR.ARV 0, 32`.
+  DIV is untaken in all 32 lanes; CONV is taken in all 32 lanes. This establishes
+  these deferred-arrival sequences, not the behavior of BRA with participants
+  parked at a blocking BAR or WARPSYNC. The pre-ordered emulator incorrectly
+  split the two lane groups; the ordered body matches the GPU. The raw discovery
+  observations are in `.cache/ordered-gate/deferred-branch-gpu-observation.json`;
+  the retained independent expected outputs are in `tests/refs/control.py`.
 - LEPC (2026-10-14, one-off probe; no fixture): in a whole-program kernel whose function pointers
   come from `c[0x2]`, `LEPC R4` at offset 0xe0 minus the pointer to a callee at kernel offset 0x130
   gave -0x130 in every thread, i.e. the kernel's start, if `c[0x2]` holds absolute code addresses.

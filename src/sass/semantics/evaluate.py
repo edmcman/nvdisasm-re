@@ -45,7 +45,7 @@ class Unknown(Exception):
 expanded = lru_cache(maxsize=128)(bitvec.lowered)
 
 
-def evaluate(e, state, params=None, memo=None, runtime=None):
+def evaluate(e, state, params=None, memo=None, runtime=None, *, temporaries=None):
     """e's value (its defined operators by their expansions); a primitive is computed by `runtime`
     (`sass.semantics.runtime.Runtime`)."""
     memo = {} if memo is None else memo
@@ -58,6 +58,9 @@ def evaluate(e, state, params=None, memo=None, runtime=None):
             case "param":
                 if not params or e.args[0] not in params: raise Unknown(f"unbound {e!r}")
                 v = params[e.args[0]] & mask(e.w)
+            case "temp":
+                if temporaries is None or e.args[0] not in temporaries: raise Unknown(f"unbound {e!r}")
+                v = temporaries[e.args[0]] & mask(e.w)
             case "reg": v = state.read(*e.args)
             case "load": v = state.load(e.args[0], ev(e.args[1]), e.w)
             case "ite":
@@ -73,27 +76,16 @@ def evaluate(e, state, params=None, memo=None, runtime=None):
 
 
 def apply(semantics, state, params=None, runtime=None):
-    """Execute one lifted instruction (`sass.semantics.lifter.Semantics`) on `state` in place, if
-    its guard holds: its effects (runtime calls) first, then writes evaluated against the state
-    before any of them and applied in order. Returns the state."""
-    memo = {}
-    value = lambda e: evaluate(e, state, params, memo, runtime)
-    pc = semantics.addr + 16
-    if semantics.guard is not None and not value(semantics.guard):
-        state.pc = pc
-        return state
-    for effect in semantics.effects:
-        if runtime is None: raise Unknown(f"effect {effect.name} without a runtime")
-        runtime.call(effect.name, [value(a) for a in effect.args], 0)
-    values = [(loc, value(v)) for loc, v in semantics.writes]
-    stores = [(s.space, value(s.address), s.value.w, value(s.value))
-              for s in semantics.stores if s.cond is None or value(s.cond)]
-    flow = semantics.flow
-    if flow and (flow.cond is None or value(flow.cond)):
-        pc = value(flow.target)
-    state.pc = pc
-    for loc, v in values: state.write(*loc.args, v)
-    for space, address, w, v in stores: state.store(space, address, w, v)
+    """Execute the ordered body in place; suspension requires retaining a Frame."""
+    from sass.semantics import ordered, ordered_runtime
+    if semantics.body is None: raise Unknown(semantics.reason or "instruction has no ordered body")
+    parameters = {name: bitvec.const(params[name], width)
+                  for name, width in ordered.parameter_types(semantics.body).items() if name in params} if params else {}
+    frame = ordered.Frame(semantics.body, semantics.addr + 16, parameters)
+    runtime = runtime if isinstance(runtime, ordered_runtime.Runtime) else ordered_runtime.Explicit(provider=runtime)
+    status = frame.run(state, runtime)
+    if status == ordered.Status.FAULT: raise frame.error
+    if status == ordered.Status.SUSPENDED: raise Unknown("suspended instruction requires its retained frame")
     return state
 
 

@@ -27,7 +27,7 @@ class WarpContext(ctypes.Structure):
                 ("has_bar_result", ctypes.c_uint32), ("bar_result", ctypes.c_uint32), ("async_state", ctypes.c_void_p),
                 ("write_dependency", ctypes.c_uint32), ("async_ready", ctypes.c_uint32),
                 ("has_bar_states", ctypes.c_uint32), ("bar_states", ctypes.c_uint32 * 16),
-                ("cache", ctypes.c_void_p)]
+                ("cache", ctypes.c_void_p), ("coordination", ctypes.c_void_p)]
 
 
 class CacheRequest(ctypes.Structure):
@@ -57,18 +57,23 @@ class AsyncCopy(ctypes.Structure):
 
 
 class Async:
-    def __init__(self, library, state, lane, board):
-        self.lib, self.state, self.lane, self.board = library, state, lane, board
+    def __init__(self, library, state, lane):
+        self.lib, self.state, self.lane = library, state, lane
 
     def issue(self, address, low, high, size, enabled):
         if enabled: self.lib.sass_async_issue(self.state, address, low, high, size)
 
-    def commit(self):
-        if self.board not in range(6): raise UnsupportedSemantics("async commit needs a write scoreboard")
-        self.lib.sass_async_commit(self.state, self.board)
+    def commit(self, board):
+        if board not in range(6): raise UnsupportedSemantics("async commit needs a write scoreboard")
+        self.lib.sass_async_commit(self.state, board)
 
-    def wait(self, board, count, mask):
-        self.lib.sass_async_wait(self.state, board, count, mask)
+    def wait_groups(self, board, count):
+        if board not in range(6): raise UnsupportedSemantics("invalid dependency slot")
+        self.lib.sass_async_wait_groups(self.state, board, count)
+        self.complete()
+
+    def wait_slots(self, mask):
+        self.lib.sass_async_wait_slots(self.state, mask)
         self.complete()
 
     def complete(self):
@@ -78,6 +83,93 @@ class Async:
         for copy in copies:
             value = copy.low | copy.high << 64
             self.lane.store("shared", copy.address, value.to_bytes(16, "little")[:copy.size])
+
+
+class BlockTicket:
+    def __init__(self, library, pointer):
+        self.lib, self.pointer = library, pointer
+
+    def ready(self): return bool(self.lib.sass_block_barrier_ready(self.pointer))
+
+    def __del__(self): self.lib.sass_block_barrier_ticket_free(self.pointer)
+
+
+class WarpTicket:
+    def __init__(self, library, pointer):
+        self.lib, self.pointer = library, pointer
+
+    def ready(self): return bool(self.lib.sass_warp_sync_ready(self.pointer))
+
+    def __del__(self): self.lib.sass_warp_sync_ticket_free(self.pointer)
+
+
+class ConvergenceTicket:
+    def __init__(self, library, pointer):
+        self.lib, self.pointer = library, pointer
+
+    def ready(self): return bool(self.lib.sass_convergence_ready(self.pointer))
+
+    def __del__(self): self.lib.sass_convergence_ticket_free(self.pointer)
+
+
+class Coordination:
+    def __init__(self, library, state, participant):
+        self.lib, self.state, self.participant = library, state, participant
+
+    def checked(self, function, *arguments):
+        message = ctypes.create_string_buffer(MESSAGE)
+        result = function(*arguments, message, MESSAGE)
+        if result: raise UnsupportedSemantics(message.value.decode())
+
+    def eligible_lanes(self, mask):
+        value = ctypes.c_uint32()
+        self.checked(self.lib.sass_barrier_eligible_lanes, self.state, self.participant, mask, ctypes.byref(value))
+        return value.value
+
+    def arrive(self, id, predicate, reduction, count=None):
+        message = ctypes.create_string_buffer(MESSAGE)
+        pointer = self.lib.sass_block_barrier_arrive(self.state, self.participant, id, count or 0,
+                                                   predicate, reduction, int(count is None), message, MESSAGE)
+        if not pointer: raise UnsupportedSemantics(message.value.decode())
+        return BlockTicket(self.lib, pointer)
+
+    def arrive_warp(self, mask):
+        message = ctypes.create_string_buffer(MESSAGE)
+        pointer = self.lib.sass_warp_sync_arrive(self.state, self.participant, mask, message, MESSAGE)
+        if not pointer: raise UnsupportedSemantics(message.value.decode())
+        return WarpTicket(self.lib, pointer)
+
+    def check_warp(self, ticket):
+        self.checked(self.lib.sass_warp_sync_check, self.state, ticket.pointer, self.participant)
+
+    def enter_convergence(self, id, target, members):
+        self.checked(self.lib.sass_convergence_enter, self.state, self.participant, id, target, members)
+
+    def arrive_convergence(self, id):
+        message = ctypes.create_string_buffer(MESSAGE)
+        pointer = self.lib.sass_convergence_arrive(self.state, self.participant, id, message, MESSAGE)
+        if not pointer: raise UnsupportedSemantics(message.value.decode())
+        return ConvergenceTicket(self.lib, pointer)
+
+    def check_convergence(self, ticket):
+        self.checked(self.lib.sass_convergence_check, self.state, ticket.pointer, self.participant)
+
+    def bind(self, ticket, deferred=False):
+        self.checked(self.lib.sass_block_barrier_bind, self.state, ticket.pointer, self.participant, int(deferred))
+
+    def pending(self):
+        message = ctypes.create_string_buffer(MESSAGE)
+        pointer = self.lib.sass_block_barrier_deferred(self.state, self.participant, message, MESSAGE)
+        if message.value: raise UnsupportedSemantics(message.value.decode())
+        return BlockTicket(self.lib, pointer) if pointer else None
+
+    def exit(self): self.checked(self.lib.sass_coordination_exit, self.state, self.participant)
+
+    def read(self, id=None):
+        result = ctypes.c_uint32()
+        self.checked(self.lib.sass_block_barrier_read, self.state, self.participant, id or 0, int(id is None),
+                     ctypes.byref(result))
+        return result.value
 
 
 class Range(ctypes.Structure):
@@ -104,6 +196,7 @@ def registers(t):
 
 def warp(context):
     w, found = WarpContext(), context.get("warp")
+    if coordination := context.get("coordination"): w.coordination = coordination.state
     if cache := context.get("cache"): w.cache = cache.state
     if "barrier_result" in context: w.has_bar_result, w.bar_result = 1, int(context["barrier_result"])
     if (states := context.get("barrier_states")) is not None:
@@ -167,9 +260,41 @@ class Library:
         lib.sass_cache_requests.restype = ctypes.c_size_t
         lib.sass_async_issue.argtypes = [ctypes.c_void_p, ctypes.c_uint64, ctypes.c_uint64, ctypes.c_uint64, ctypes.c_uint32]
         lib.sass_async_commit.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
-        lib.sass_async_wait.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint32]
+        lib.sass_async_wait_groups.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32]
+        lib.sass_async_wait_slots.argtypes = [ctypes.c_void_p, ctypes.c_uint32]
         lib.sass_async_ready.argtypes = [ctypes.c_void_p, ctypes.POINTER(AsyncCopy), ctypes.c_size_t]
         lib.sass_async_ready.restype = ctypes.c_size_t
+        lib.sass_coordination_new.argtypes, lib.sass_coordination_new.restype = [ctypes.c_uint32], ctypes.c_void_p
+        lib.sass_coordination_free.argtypes = [ctypes.c_void_p]
+        lib.sass_barrier_eligible_lanes.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32,
+                                                   ctypes.POINTER(ctypes.c_uint32), ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_convergence_enter.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32,
+                                              ctypes.c_uint64, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_convergence_arrive.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32,
+                                               ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_convergence_arrive.restype = ctypes.c_void_p
+        lib.sass_convergence_ticket_free.argtypes = [ctypes.c_void_p]
+        lib.sass_convergence_ready.argtypes, lib.sass_convergence_ready.restype = [ctypes.c_void_p], ctypes.c_uint32
+        lib.sass_convergence_check.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint32,
+                                              ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_warp_sync_arrive.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32,
+                                            ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_warp_sync_arrive.restype = ctypes.c_void_p
+        lib.sass_warp_sync_ticket_free.argtypes = [ctypes.c_void_p]
+        lib.sass_warp_sync_ready.argtypes, lib.sass_warp_sync_ready.restype = [ctypes.c_void_p], ctypes.c_uint32
+        lib.sass_warp_sync_check.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint32,
+                                           ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_block_barrier_arrive.argtypes = [ctypes.c_void_p, *([ctypes.c_uint32] * 6), ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_block_barrier_arrive.restype = ctypes.c_void_p
+        lib.sass_block_barrier_ticket_free.argtypes = [ctypes.c_void_p]
+        lib.sass_block_barrier_ready.argtypes, lib.sass_block_barrier_ready.restype = [ctypes.c_void_p], ctypes.c_uint32
+        lib.sass_block_barrier_bind.argtypes = [ctypes.c_void_p, ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32,
+                                              ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_block_barrier_deferred.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_block_barrier_deferred.restype = ctypes.c_void_p
+        lib.sass_coordination_exit.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_char_p, ctypes.c_size_t]
+        lib.sass_block_barrier_read.argtypes = [ctypes.c_void_p, ctypes.c_uint32, ctypes.c_uint32, ctypes.c_uint32,
+                                              ctypes.POINTER(ctypes.c_uint32), ctypes.c_char_p, ctypes.c_size_t]
 
     def memory(self, regions=(), base=None):
         """A new memory (freed with `free`) holding [(space, address, bytes)] over `base`."""

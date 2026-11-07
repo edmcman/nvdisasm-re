@@ -2,15 +2,15 @@
 
 `lift(arch, word, addr)` decodes with pydecode (md-illegal encodings don't decode), runs the
 opcode's family once with every static question answered from the decoded fields, and returns the
-writes over concrete machine locations. RZ/URZ reads are 0, PT reads 1, writes to them are
+ordered body over concrete machine locations. RZ/URZ reads are 0, PT reads 1, writes to them are
 dropped; `sass.semantics.evaluate.execute` runs the result.
 """
-from dataclasses import dataclass, field, replace
+from dataclasses import dataclass
 from sass.decode import ir, pydecode
 from sass.md import expression
-from sass.semantics import bitvec
+from sass.semantics import bitvec, ordered
 from sass.semantics.bitvec import Expr
-from sass.semantics.family import Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for, roles, primitive_names
+from sass.semantics.family import Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, deferred_classes, family_for, roles, primitive_names
 import sass.semantics.families  # registers the families
 
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1}
@@ -24,11 +24,11 @@ class Semantics:
     addr: int
     status: str                                  # native | primitive (uses runtime primitives) | opaque
     reason: str = ""
-    guard: Expr | None = None                    # execute only if nonzero
-    writes: list = field(default_factory=list)   # [(register location, value)], simultaneous
-    flow: object = None                          # sem_family.Flow over concrete values, or None
-    stores: list = field(default_factory=list)   # [sem_family.Store], after the writes
-    effects: list = field(default_factory=list)  # [sem_family.Effect], before everything else
+    body: ordered.Block | None = None
+    unsupported_guard: Expr | None = None
+
+    def written_locations(self):
+        return ordered.written_locations(self.body) if self.body is not None else ()
 
 
 class Lifted(Instruction):
@@ -74,6 +74,8 @@ class Lifted(Instruction):
         if index == self.zero_index(name): return None
         return file, index, self.span(name)
 
+    def destination(self, name): return self.location(name)
+
     def operand(self, name, width):
         a = self.atom(name)
         if a.type == "PR": return bitvec.concat(*(bitvec.reg("P", k, 1, element=1) for k in reversed(range(PR_BITS))))
@@ -96,21 +98,6 @@ class Lifted(Instruction):
         else: raise Unmodelled(f"{a.type} operand {name}")
         return v if v.w == width else bitvec.zext(v, width) if v.w < width else bitvec.trunc(v, width)
 
-    def cx(self, name, width):
-        """A bounded constant-buffer load through a 64-bit uniform header plus a byte offset."""
-        if self.arch.name not in ("SM75", "SM80", "SM86", "SM89", "SM90"): raise Unmodelled(f"CX header layout on {self.arch.name}")
-        start = self.k.format.index(self.atom(name)) + 1; children = []
-        for child in self.k.format[start:]:
-            if child.kind == "lit" and child.name == ",": break
-            if child.kind == "operand": children.append(child)
-        ur = next(c.name for c in children if c.type in ("UniformRegister", "NonZeroUniformRegister", "ZeroUniformRegister"))
-        off = next(c.name for c in children if c.type in ("UImm", "SImm"))
-        header, offset = self.operand(ur, 64), bitvec.zext(self.operand(off, 32), 64)
-        bits, shift = (51, 6) if self.arch.name == "SM90" else (45, 4)
-        limit = (header >> bits) << 4
-        address = ((header & ((1 << bits) - 1)) << shift) + offset
-        return bitvec.ite(limit < offset + width // 8, bitvec.const(0, width), bitvec.load("ram", address, width))
-
     def choice(self, name, values):
         v = self.env.get(name)
         if v not in values: raise Unmodelled(f"{name} {self.select_fork(name)}")
@@ -121,6 +108,10 @@ class Lifted(Instruction):
     def encoding(self, names, w=32):
         name = self.resolve(names); self.asked.add(name)
         return bitvec.const(self.env.get(name, 0), w)
+
+    def control(self, name, w=32):
+        super().control(name, w)
+        return bitvec.const(self.env[name], w)
 
     def special(self, names, w):
         name = self.resolve(names); self.asked.add(name)
@@ -146,29 +137,28 @@ def lift(arch_name, word, addr=0, fp="exact", conditions=True):
     i = Lifted(arch, d, addr, fp)
     out = Semantics(arch_name, d.klass.name, d.text, addr, "opaque")
     guard = next((a.name for a in d.klass.format if a.kind == "guard"), None)
-    if guard:
-        g = i.pred(guard)
-        out.guard = None if bitvec.is_const(g, 1) else g
+    guard = i.pred(guard) if guard else None
+    guard = None if guard is None or bitvec.is_const(guard, 1) else guard
     fam = family_for(d.klass)
     if fam is None:
-        out.reason = "no family"; return out
+        out.reason, out.unsupported_guard = "no family", guard
+        return out
     try: result = fam(i)
     except Unmodelled as e:
-        out.reason = str(e); return out
+        out.reason, out.unsupported_guard = str(e), guard
+        return out
     except Illegal as e: raise pydecode.NoMatch(f"{d.klass.name}: {e} ({e.evidence})")
-    for name, value in result.ordered():
-        if not i.has_operand(name): continue  # e.g. no second carry output in this class
-        if i.atom(i.resolve(name)).type == "PR":
-            out.writes += [(bitvec.reg("P", k, 1, element=1), bitvec.extract(value, k, k)) for k in range(PR_BITS)]
-            continue
-        loc = i.location(i.resolve(name))
-        if loc is None: continue
-        width = loc[2] * ELEMENT[loc[0]]
-        if value.w != width: raise TypeError(f"{d.klass.name}: {name} is {width} bits, value {value!r} is {value.w}")
-        out.writes.append((bitvec.reg(*loc, element=ELEMENT[loc[0]]), value))
-    out.writes = list(zip([l for l, _ in out.writes], bitvec.narrow([v for _, v in out.writes])))
-    out.flow, out.stores, out.effects = result.flow, list(result.stores), list(result.effects)
-    if out.flow is not None and bitvec.is_const(out.flow.cond, 1):
-        out.flow = replace(out.flow, cond=None)
-    out.status = "primitive" if primitive_names(result) else "native"
+    if d.klass.name in deferred_classes(arch_name):
+        result = ordered.Block((ordered.Special(ordered.BLOCK_WAIT_DEFERRED), *result.statements), result.results)
+    prefix = ordered.Builder()
+    if mask := d.env.get("req_bit_set", 0):
+        prefix.special(ordered.DEPENDENCIES, bitvec.const(mask, 6))
+    if guard is not None:
+        predicate = prefix.capture(guard)
+        prefix.emit(ordered.If(predicate, ordered.shifted(result, prefix.count)))
+    else:
+        prefix.statements.extend(result.statements)
+    result = prefix.block()
+    ordered.prepare(result)
+    out.body, out.status = result, "primitive" if primitive_names(result) else "native"
     return out

@@ -1,6 +1,7 @@
 from sass.semantics.bitvec import concat, const, extract, fnan, ite, load, op, slt
-from sass.semantics.family import definition, effect, family, outputs, store, unmodelled
+from sass.semantics.family import definition, family, unmodelled
 from sass.semantics.families import floating, memory
+from sass.semantics import ordered
 
 
 @definition(lambda a: (f"atomic.add.{a['size'].lower()}", ["old", "value"]))
@@ -47,15 +48,24 @@ def atomg(i):
     if op == "SAFEADD": unmodelled("SAFEADD overflow and predicate result")
     if i.select_fork("sem") == "MMIO": unmodelled("atomic MMIO environment")
     address = memory.address(i)
-    old = load("ram", address, width)
+    body = i.body()
+    i.emit_effects(body, [memory.ordering(i), *memory.descriptor(i)])
+    inner = ordered.Builder(body.count)
+    address = inner.capture(address)
+    old = inner.read_memory("ram", address, width)
     value = i.value("Rb", modifiers=False)
     if value.w != width: unmodelled("atomic source span")
     replacement = i.value("Rc", modifiers=False) if i.has_operand("Rc") else None
     if replacement is not None and replacement.w != width: unmodelled("CAS replacement span")
     if size.startswith("F") and op != "ADD": unmodelled(f"atomic {op}.{size}")
+    value = inner.capture(value)
+    replacement = inner.capture(replacement) if replacement is not None else None
     result = float_add(size, old, value) if size.startswith("F") else update(op, old, value, replacement, size.startswith("S"))
-    return outputs(Rd=old, Pu=const(0, 1), stores=[store("ram", address, result, atomic=True)],
-                   effects=[memory.ordering(i), *memory.descriptor(i)])
+    result = inner.move(result)
+    i.assign_from_inputs(inner, Rd=old, Pu=const(0, 1))
+    inner.emit(ordered.WriteMemory("ram", address, result))
+    body.emit(ordered.Atomic(inner.block()))
+    return body.block()
 
 
 @family("MEMBAR", modifier_roles={"sem": "effect", "sco": "effect", "mmio": "effect"})
@@ -66,5 +76,7 @@ def membar(i):
     if scope not in ("CTA", "SM", "GPU", "SYS"): unmodelled(f"fence scope {scope}")
     if i.has_operand("mmio") and i.select_fork("mmio") != "nomembar_mmio":
         unmodelled("MMIO/async fence")
-    return outputs(effects=[effect("sass_fence", const({"SC": 0, "ALL": 1, "nomembar_sem": 2}[sem], 32),
-                                  const({"CTA": 0, "SM": 1, "GPU": 2, "SYS": 3}[scope], 32))])
+    body = ordered.Builder()
+    body.special(ordered.FENCE, const({"SC": 0, "ALL": 1, "nomembar_sem": 2}[sem], 32),
+                 const({"CTA": 0, "SM": 1, "GPU": 2, "SYS": 3}[scope], 32))
+    return body.block()

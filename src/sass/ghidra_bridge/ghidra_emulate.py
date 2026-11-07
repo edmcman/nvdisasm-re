@@ -13,12 +13,12 @@ import pyghidra
 from ghidra_decode import GHIDRA,java_class,load_language,parse
 from sass.emulate import schedule
 from sass.semantics.runtime import Runtime
+from sass.semantics import ordered_runtime
 
 
 def session(ldefs,langid):
     """A request handler (request dict -> result dict) for one language; the JVM must be running."""
     import jpype
-    from java.util import HashMap
     from ghidra.pcode.emu import PcodeEmulator
     from ghidra.pcode.exec import PcodeProgram,PcodeUseropLibrary,PcodeExecutorStatePiece
     from ghidra.program.model.pcode import Varnode
@@ -39,40 +39,21 @@ def session(ldefs,langid):
         v=hardwired.get(canonical,int(v))&((1<<(size*8))-1)
         state.setVar(reg,jpype.JArray(jpype.JByte)(v.to_bytes(size,'little')))
     architectural=[(name,lang.getRegister(name)) for file,(_,_,count,zero,_) in REG_FILES.items() for i in range(count) if i!=zero for name in [file+str(i)]]
-    definition=jpype.JClass('ghidra.pcode.exec.PcodeUseropLibrary$PcodeUseropDefinition')
-    refs=[]
-    class Userop:
-        def __init__(self,name):self.name=name
-        def getName(self):return self.name
-        def getInputCount(self):return -1
-        def isFunctional(self):return False
-        def canInterrupt(self):return False
-        def isOutSigned(self):return False
-        def isInSigned(self,i):return False
-        def hasSideEffects(self):return True
-        def modifiesContext(self):return False
-        def canInlinePcode(self):return False
-        def getOutputType(self):return jpype.JArray(jpype.JByte).class_
-        def getJavaMethod(self):return None
-        def getDefiningLibrary(self):return lib
-        def execute(self,*params):
-            if len(params)==3:
-                executor,library,op=params;output=op.getOutput();nodes=list(op.getInputs())[1:]
-            else:executor,library,op,output,nodes=params
-            state=executor.getState()
-            args=[int.from_bytes(bytes(state.getVar(n,reason)),'little') for n in nodes]
-            size=int(output.getSize()) if output else 0
-            try:result=runtime.call(self.name,args,size)
-            except Exception as error:
-                runtime.last_error=str(error);raise
-            if output:
-                result&=(1<<(size*8))-1
-                state.setVar(output,jpype.JArray(jpype.JByte)(result.to_bytes(size,'little')))
-    ops=HashMap()
-    for i in range(lang.getNumberOfUserDefinedOpNames()):
-        name=lang.getUserDefinedOpName(i)
-        obj=Userop(str(name));proxy=jpype.JProxy(definition,inst=obj);refs.extend((obj,proxy));ops.put(name,proxy)
-    lib=jpype.JProxy(PcodeUseropLibrary,dict(getUserops=lambda:ops))
+    from sass.ghidra_bridge import ordered, userops
+    active_execution = None
+    def call(name,args,size,output):
+        try:
+            if name.startswith(ordered.PREFIX):
+                if active_execution is None: raise RuntimeError("ordered operation outside execution")
+                return active_execution.call(name,args,output)
+            return runtime.call(name,args,size)
+        except Exception as error:
+            runtime.last_error=str(error);raise
+    def interrupts(name):
+        from sass.semantics import ordered
+        spec=ordered.OPERATIONS.get(name.removeprefix("sass_ordered_"))
+        return bool(spec and spec.suspends)
+    lib,refs=userops.library(lang,call,interrupts)
     # Attach the runtime to Ghidra's normal fetch/decode/execute loop. The thread
     # library field is protected; composing it preserves Ghidra's built-in ops.
     thread_class=jpype.JClass('ghidra.pcode.emu.DefaultPcodeThread')
@@ -89,21 +70,38 @@ def session(ldefs,langid):
     named={int(r.getOffset()):(n,r) for n,r in architectural}
     class GhidraLane:
         """A thread of a Ghidra emulator, stepped by `schedule.run_kernel`."""
-        def __init__(self,kernel,thread):self.kernel,self.thread,self.state=kernel,thread,thread.getState()
+        def __init__(self,kernel,thread,runtime_,index):
+            self.kernel,self.thread,self.state=kernel,thread,thread.getState()
+            self.runtime,self.index,self.execution,self.progressed=runtime_,index,None,False
         def pc(self):return int(self.thread.getCounter().getOffset())&((1<<64)-1)
         def read(self,file,index):return read(self.state,file+str(index))
         def store(self,space,address,data):write_memory(self.state,[dict(space=space,address=address,hex=data.hex())])
         def seed(self,name,v):seed(self.state,name,v)
         def step(self,decoded,context):
+            nonlocal active_execution
             runtime.context=context;runtime.events=[];runtime.last_error=None
-            try:self.thread.stepInstruction()
-            except Exception as error:raise schedule.Fault(runtime.last_error or str(error)) from error
+            if self.execution is None:self.execution=ordered.Execution(self.thread,self.runtime)
+            execution=self.execution
+            local=self.index%self.kernel.block
+            self.runtime.bind(execution,local%32,(local//32,self.pc()),participant=self.index)
+            frame=self.thread.getFrame()
+            before=(None if frame is None else int(frame.index()),execution.pending)
+            active_execution=execution
+            try:
+                status=execution.step()
+                frame=self.thread.getFrame()
+                self.progressed=before!=(None if frame is None else int(frame.index()),execution.pending)
+                if status.value=="fault":raise schedule.Fault(runtime.last_error or str(execution.error))
+                if status.value=="complete":self.execution=None
+                return status
+            finally:active_execution=None
         def writes(self,pc):return {n:value(self.state,r) for n,r in self.kernel.destinations(pc)}
     class KernelEngine:
         """One request's emulators: a BlockEmulator (common memory, private localmem) per interacting
         block, a PcodeEmulator per thread otherwise."""
         def __init__(self,request):
             kernel=request['kernel'];self.code=bytes.fromhex(kernel['code']);self.base=int(kernel.get('address',0x100000))
+            self.block=schedule.launch(kernel)[3]
             self.memory=request.get('memory',[])+[dict(space='ram',address=self.base,hex=self.code.hex())];self.written={}
             self.global_state=PcodeEmulator(lang).getSharedState() if kernel.get('scope','launch')=='launch' else None
             if self.global_state is not None:write_memory(self.global_state,[m for m in self.memory if m['space'] not in ('shared','localmem')])
@@ -113,12 +111,13 @@ def session(ldefs,langid):
                 case 'block':emulator=BlockEmulator(lang)
                 case _:emulator=PcodeEmulator(lang)
             lanes=[]
+            cooperative=ordered_runtime.Cooperative(provider=runtime)
             for i,t in enumerate(threads):
                 thread=emulator.newThread(f'thread {t}')
                 library_field.set(thread,thread.getUseropLibrary().compose(lib))
                 write_memory(thread.getState(),[m for m in self.memory if m['space']=='localmem' or i==0 and
                              (scope!='launch' or m['space']=='shared')])
-                thread.overrideCounter(location(space,self.base));lanes.append(GhidraLane(self,thread))
+                thread.overrideCounter(location(space,self.base));lanes.append(GhidraLane(self,thread,cooperative,t))
             return lanes
         def output(self,lane,address,size):return bytes(lane.state.getVar(Varnode(location(space,address),size),reason))
         def destinations(self,pc):
@@ -131,6 +130,7 @@ def session(ldefs,langid):
     true_registers=[(lang.getRegister(name),jpype.JArray(jpype.JByte)(b'\x01'+bytes(REG_FILES[file][1]-1)))
                     for file,name in (('P','PT'),('UP','UPT')) if file in REG_FILES]
     def instruction(request):
+        nonlocal active_execution
         emulator=PcodeEmulator(lang);thread=emulator.newThread();state=thread.getState()
         address=int(request.get('address',0x1000));addr=location(space,address)
         thread.overrideCounter(addr)
@@ -146,7 +146,11 @@ def session(ldefs,langid):
         # Execute with the actual Ghidra byte arithmetic and state machinery.
         thread.overrideCounter(location(space,address+16))
         # Composed, as in kernels: Java then runs the default methods (12.2's getSymbols), which JPype 1.5.2 proxies cannot.
-        thread.getExecutor().execute(program,thread.getUseropLibrary().compose(lib))
+        active_execution=ordered.Execution(thread,ordered_runtime.Explicit(provider=runtime))
+        try:thread.getExecutor().execute(program,thread.getUseropLibrary().compose(lib))
+        finally:
+            active_execution.release()
+            active_execution=None
         registers={}
         for name in request.get('observe',[]):
             registers[name]=read(state,name)

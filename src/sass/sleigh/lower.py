@@ -7,16 +7,17 @@ Ghidra decodes at run time, so a class's semantics must cover every word of the 
    combination gets its own body (all-PT carries leave a 32-bit add).
 3. Merge the rows by anti-unification: shared structure is kept; where rows differ, the subterm
    becomes a decode-time choice (`sel`) over the fewest static keys that determine it.
-4. Lower to p-code text through the Builder (`src/sass/semantics/operands.py`): shared nodes become locals,
-   dynamic choices labelled diamonds, every value is computed before any write. Unmodelled rows
-   keep the complete opaque fallback via `operations.dispatch`.
+4. Lower the ordered statements to p-code through the Builder (`src/sass/semantics/operands.py`).
+   Pure calculations share within their block; state accesses stay at their statement positions.
+   Unmodelled rows keep the complete opaque fallback via `operations.dispatch`.
 """
 import itertools
 from types import SimpleNamespace
 from functools import cache
 from collections import defaultdict
-from dataclasses import dataclass, replace
+from dataclasses import dataclass
 from sass.semantics import bitvec
+from sass.semantics.families import integer
 from sass.semantics.bitvec import Expr
 from sass.semantics.family import Instruction, Illegal, Unmodelled, PR_BITS, REG_TYPES, family_for, primitive_names
 import sass.semantics.families  # registers the families
@@ -43,6 +44,10 @@ SCRATCH = frozenset({"atomic.add.f32.ftz.rn", "atomic.add.f64.rn", "atomic.add.f
                          f"hmma168{k}.tf32.f32.g{group}.e{e}.l{floor}"
                          for k, group, e in ((4, 4, 1), (4, 4, 2), (8, 4, 1), (8, 8, 2))
                          for floor in (132, 133))
+SCRATCH |= frozenset({"fmnmx3", "fmnmx3.NaN", "min3.f32", "max3.f32",
+                      "min3.NaN.f32", "max3.NaN.f32", "fmnmx3.readable",
+                      "min3.readable.f32", "max3.readable.f32"})
+
 def nbytes(w): return (w + 7) // 8
 
 
@@ -75,7 +80,28 @@ class Symbolic(Instruction):
         if atom.type in REG_TYPES and (self.assignment.get(("zero", name)) is True or
                                       name in self._encoded and clauses(self.b, ("zero", name), False) is None):
             return bitvec.const(1 if REG_TYPES[atom.type] in ("P", "UP") else 0, width)
-        return bitvec.param(name, width)
+        from sass.semantics import ordered
+        if atom.type == "PR":
+            return bitvec.resize(bitvec.concat(*(bitvec.reg("P", index, 1, 1) for index in reversed(range(PR_BITS)))), width)
+        if atom.type in REG_TYPES:
+            return bitvec.resize(bitvec.reg(REG_TYPES[atom.type], ordered.DecodedRegister(name), self.span(name),
+                                           ELEMENT[REG_TYPES[atom.type]]), width)
+        if atom.type == "C" and name in self.b.addresses:
+            return bitvec.load("cbank", bitvec.param("__address:" + name, 64), width)
+        if atom.type == "CX": return self.cx(name, width)
+        value = bitvec.param(name, self.b.values[name].size * 8)
+        return bitvec.resize(value, width)
+
+    def destination(self, name):
+        from sass.semantics import ordered
+        if self.assignment.get(("zero", name)) is True: return None
+        return REG_TYPES[self.atom(name).type], ordered.DecodedRegister(name), self.span(name)
+
+    def special(self, names, w):
+        from sass.semantics import ordered
+        name = self.resolve(names)
+        self.asked.add(name)
+        return bitvec.reg("SR", ordered.DecodedRegister("__sr:" + name), w // 32)
 
     def modified(self, name, attr, v, f):
         # A decode-time choice of this value, not a branch of every row on the bit. A value holding
@@ -85,7 +111,8 @@ class Symbolic(Instruction):
         key = (name, attr)
         if key not in self._encoded: return v
         choose = lambda x, fx: [((bit,), t) for bit, t in ((0, x), (1, fx)) if clauses(self.b, key, bit) is not None]
-        if holds_load(self.b, v):
+        from sass.semantics import ordered
+        if holds_load(self.b, v) or ordered.register_inputs(v) is None:
             placeholder = bitvec.param("__modified", v.w)
             t = bitvec.lowered(f(placeholder))   # a defined modifier (abs.f32) as its mask
             if t.op not in MASKS or t.args[0] is not placeholder or not bitvec.is_const(t.args[1]): return super().modified(name, attr, v, f)
@@ -106,19 +133,33 @@ class Symbolic(Instruction):
         # One yes/no question (in the table or not), then a decode-time choice of the value.
         if not self.answer(("in", name, frozenset(values)), (True, False)): raise Unmodelled(f"{name} outside the table")
         cases = [((v,), e) for v, e in sorted(values.items()) if clauses(self.b, name, v) is not None]
-        if all(e is cases[0][1] for _, e in cases): return cases[0][1]
-        return sel((name,), cases, cases[0][1].w)
+        return self.decode_choice(name, cases)
 
     def choice_bits(self, name, lo, bits, table):
         key = ("bits", name, lo, bits)
         cases = [((v,), tree) for v, tree in sorted(table.items()) if clauses(self.b, key, v) is not None]
         if not cases: raise ValueError(f"{name}: no legal immediate slice values")
+        return self.decode_choice(key, cases)
+
+    def decode_choice(self, key, cases):
         if all(tree is cases[0][1] for _, tree in cases): return cases[0][1]
-        return sel((key,), cases, cases[0][1].w)
+        from sass.semantics import ordered
+        choice = sel((key,), cases, cases[0][1].w)
+        if ordered.accesses_state(choice) and ordered.register_inputs(choice) is None:
+            chosen = self.answer(key, [value for (value,), _ in cases])
+            return next(tree for (value,), tree in cases if value == chosen)
+        return choice
 
 
 def clauses(b, key, v):
     """Encoding clauses for static key == v; None if no encoding has that value."""
+    if isinstance(v, frozenset):
+        if len(v) == 1: return clauses(b, key, next(iter(v)))
+        match key:
+            case ("bits", name, offset, width):
+                return clauses(b, ("bits_in", name, ((offset, width, v),)), True)
+            case ("in" | "bits_in" | "zero", *_): return []
+            case _: return clauses(b, ("in", key, v), True)
     from sass.sleigh.gen import pattern
     k = b.k
     def where(name, test):
@@ -228,28 +269,28 @@ def lowered_outputs(out):
     """out with its defined operators as their expansions (bitvec.lowered): SLEIGH has none."""
     memo = {}
     x = lambda e: bitvec.lowered(e, memo, preserve=SHARED | SCRATCH)
-    return replace(out, writes={n: x(t) for n, t in out.writes.items()},
-                   stores=tuple(replace(s, address=x(s.address), value=x(s.value), cond=x(s.cond)) for s in out.stores),
-                   effects=tuple(replace(e, args=tuple(map(x, e.args))) for e in out.effects),
-                   flow=out.flow and replace(out.flow, target=x(out.flow.target), cond=x(out.flow.cond)))
+    from sass.semantics import ordered
+    return ordered.map_values(out, x)
 
 
 def readable_outputs(out):
     memo = {}
     strip = lambda e: without_nan_results(e, memo)
-    return replace(out, writes={n: strip(t) for n, t in out.writes.items()},
-                   stores=tuple(replace(s, address=strip(s.address), value=strip(s.value)) for s in out.stores))
+    from sass.semantics import ordered
+    return ordered.map_values(out, strip)
 
 
-def enumerate_rows(b, fam):
-    """[(assignment, Outputs | Unmodelled)] over the static questions the family asks."""
-    rows, todo = [], [{}]
+def enumerate_rows(b, fam, initial=None):
+    """[(assignment, Block | Unmodelled)] over the static questions the family asks."""
+    rows, todo = [], [initial or {}]
     while todo:
         assignment = todo.pop()
         try:
             out = lowered_outputs(fam(Symbolic(b, assignment)))
             if b.g.fp == "readable": out = readable_outputs(out)
-            rows.append((assignment, replace(out, writes={n: constant_slices(b, t) for n, t in out.writes.items()})))
+            from sass.semantics import ordered
+            result = ordered.map_values(out, lambda e: constant_slices(b, e))
+            rows.append((assignment, result))
         except Branch as br:
             todo += [{**assignment, br.key: v} for v in reversed(br.domain)]
         except Unmodelled as e: rows.append((assignment, e))
@@ -445,12 +486,16 @@ def operations(e, loads=frozenset()):
     time a table reads it."""
     load_ops, done = dict(loads), set()
     def path(n):
-        if not isinstance(n, Expr) or n in done or n.op in ("const", "reg"): return 0
+        if not isinstance(n, Expr) or n in done or n.op in ("const", "reg", "temp"): return 0
         done.add(n)
         if n.op == "param": return load_ops.get(n.args[0], 0)
         if n.op == "sel": return 1 + max(operations(t, loads) for _, t in n.args[1])
         return (n.op != "tuple") + sum(path(a) for a in n.args)
     return path(e)
+
+
+SCRATCH |= frozenset(f"logic3.b32.{table}" for table in range(256)
+                     if operations(integer.truth_table(table, [bitvec.param(name, 32) for name in ("a", "b", "c")])) > 3)
 
 
 def size(e):
@@ -466,16 +511,27 @@ def determining_keys(values, assignments):
     so two rows with different values must disagree on an asked key."""
     universe = sorted({k for a in assignments for k in a}, key=repr)
     rows = list(zip(values, assignments))
-    overlap = lambda a, b, keys: all(k not in a or k not in b or a[k] == b[k] for k in keys)
+    assigned, equal, results = {}, {}, {}
+    for index, (value, assignment) in enumerate(rows):
+        bit = 1 << index
+        results[value] = results.get(value, 0) | bit
+        for key, choice in assignment.items():
+            assigned[key] = assigned.get(key, 0) | bit
+            equal[key, choice] = equal.get((key, choice), 0) | bit
+    all_rows = (1 << len(rows)) - 1
+    different = {(key, choice): assigned[key] ^ mask for (key, choice), mask in equal.items()}
+    other_results = {value: all_rows ^ mask for value, mask in results.items()}
+    conflicts = [(other_results[value],
+                  tuple((key, different[key, choice]) for key, choice in assignment.items()))
+                 for value, assignment in rows]
     def determines(keys):
-        # Rows that asked every key: one value per projection (linear). Rows that didn't are
-        # wildcards on the rest and must not overlap a row of another value (pairwise, few).
-        seen, partial = {}, []
-        for v, a in rows:
-            if all(k in a for k in keys):
-                if seen.setdefault(tuple(a[k] for k in keys), v) != v: return False
-            else: partial.append((v, a))
-        return not any(v != w and overlap(a, c, keys) for v, a in partial for w, c in rows)
+        keys = frozenset(keys)
+        for candidates, differences in conflicts:
+            for key, different in differences:
+                if key in keys: candidates &= ~different
+                if not candidates: break
+            if candidates: return False
+        return True
     # A key is necessary when two rows differing only in it have different values; every
     # determining set contains the necessary keys, so try those first, then extend them.
     full = [(v, tuple(a[x] for x in universe)) for v, a in rows if len(a) == len(universe)]
@@ -617,7 +673,7 @@ class Lower:
         """The lowered value of e."""
         if (hit := self.lookup(e)) is not None: return hit
         if (folded := self.folded(e)) is not None: return folded
-        v = value_table(self.b, e) if e in self.hoisted else self.lower(e)
+        v = value_table(self.b, e, type(self)) if e in self.hoisted else self.lower(e)
         if self.uses.get(e, 0) > 1 and not v.atom: v = self.local(e.w, v)
         self.remember(e, v)
         return v
@@ -742,8 +798,9 @@ class Lower:
             case "fnan": v = self.value(a[0]); return expr(f"nan({v})", v)
             case "sel": return self.sel(e)
             case "load": v = self.value(a[1]); return self.local(e.w, expr(f"*[{a[0]}]:{n} {v}", v))
-            case "primitive":   # computed once into a local: the runtime may record an event
-                fn = bitvec.PRIMITIVE_OP + a[0]; self.b.g.pcodeops.add(fn)
+            case "primitive" | "mufu":
+                fn = bitvec.PRIMITIVE_OP + ("mufu_" + a[0].lower() if e.op == "mufu" else a[0])
+                self.b.g.pcodeops.add(fn)
                 vs = [self.value(x) for x in a[1:]]
                 return self.local(e.w, expr(f"{fn}({', '.join(v.text for v in vs)})", *vs))
             case "sar": return self.clean(e.w, self.binary("s>>", self.signed(a[0]), self.amount(a[1])))
@@ -771,15 +828,22 @@ class Lower:
         values = [(symbol, self.value(argument)) for index, (symbol, argument) in enumerate(zip(arguments, e.args))
                   if index not in fixed]
         for symbol, value in values: self.code.add(f"{symbol} = {value.text};", value)
+        self.build_call(name)
+        return self.local(e.w, Operand(result, "name"))
+
+    def build_call(self, name, export=False):
+        g = self.b.g
         self.code.calls[name] += 1
-        key = name, self.code.calls[name]
+        key = name, self.code.calls[name], export
         if key not in g.scratch_forwards:
             call = f"purecall{len(g.scratch_forwards)}"
             g.scratch_forwards[key] = call
-            g.table_lines.append(f'{call}: "" is {name} {{ build {name}; }}')
+            result = f" export {name};" if export else ""
+            g.table_lines.append(f'{call}: "" is {name} {{ build {name};{result} }}')
         call = g.scratch_forwards[key]
-        self.code.add(f"build {call};", Operand(call, "name", frozenset({("sub", call)})))
-        return self.local(e.w, Operand(result, "name"))
+        operand = Operand(call, "name", frozenset({("sub", call)}))
+        self.code.add(f"build {call};", operand)
+        return operand
 
     def shared_call(self, e):
         g = self.b.g
@@ -906,6 +970,23 @@ class Lower:
         return self.value(n)
 
     def param(self, name, w):
+        if name.startswith("__control:"):
+            from sass.sleigh import gen
+            real = name.split(":", 1)[1]
+            if found := self.b.g.control_text(self.b.k, real):
+                text, refs = found
+                constructors = [("t", gen.pattern([], refs), f" [ t = {Fold.mask(text, w)}; ]",
+                                 f"export *[const]:{nbytes(w)} t;")]
+            else:
+                field, rows = self.b.g.raw_values(self.b.k, real)
+                constructors = [('""', gen.pattern(gen.eq(self.b.g, field, raw)), "",
+                                 f"export {value & bitvec.mask(w)}:{nbytes(w)};") for raw, value in rows.items()]
+            table = self.b.g.subtable("ctl", constructors)
+            self.b.refs.append(("sub", table))
+            return Operand(table, "name", frozenset([("sub", table)]))
+        if name.startswith("__address:"):
+            v = self.b.addresses[name.split(":", 1)[1]]
+            return Operand(v.symbol, "name", frozenset([self.b.ref(v.symbol)]))
         if name == "__inst_start":
             v = Operand("inst_start", "name")
             return v if w == 64 else self.clean(w, Operand(f"inst_start:{nbytes(w)}", "piece"))
@@ -982,12 +1063,21 @@ class Lower:
     def sel(self, e):
         """A decode-time choice: a subtable with one constructor per case, exporting its value."""
         keys, cases = e.args
+        if len(keys) == 1:
+            default = next((tree for (value,), tree in cases if value is None), None)
+            groups = defaultdict(set)
+            for (value,), tree in cases:
+                if value is not None and tree is not default: groups[tree].add(value)
+            if not groups: return self.value(default)
+            if len(groups) == 1 and default is None: return self.value(next(iter(groups)))
+            cases = [((frozenset(values),), tree) for tree, values in groups.items()]
+            if default is not None: cases.append(((None,), default))
         constructors = []
         shared = shared_subtrees([t for _, t in cases], self.b)
         for values, tree in cases:
             cl = [c for k, v in zip(keys, values) if v is not None for c in clauses(self.b, k, v)]
             code = Code()
-            v = Lower(self.b, code, count_uses([tree]), shared, self.context + tuple(cl)).value(tree)
+            v = type(self)(self.b, code, count_uses([tree]), shared, self.context + tuple(cl)).value(tree)
             text = code.body(v, e.w)
             constructors.append(('""', code.pattern(cl), "", text))
         table = self.b.g.subtable("sel", constructors)
@@ -1042,7 +1132,8 @@ class Fold:
     def __init__(self, b): self.b, self.refs, self.memo = b, set(), {}
 
     def field(self, name, w):
-        found = self.b.g.immediate_text(self.b.k, name)
+        found = self.b.g.control_text(self.b.k, name.split(":", 1)[1]) if name.startswith("__control:") else \
+                self.b.g.immediate_text(self.b.k, name)
         if found is None: raise Fold.No
         text, refs = found; self.refs.update(refs)
         return self.mask(text, w)
@@ -1097,16 +1188,17 @@ class Fold:
         raise Fold.No
 
 
-def value_table(b, e):
+def value_table(b, e, lowerer=Lower):
     """A subtable exporting e (shared by every constructor that uses it), as an operand."""
     tables = b.__dict__.setdefault("value_tables", {})
-    if e not in tables:
+    key = lowerer, e
+    if key not in tables:
         code = Code()
-        v = Lower(b, code, count_uses([e])).value(e)
+        v = lowerer(b, code, count_uses([e])).value(e)
         text = code.body(v, e.w)
-        tables[e] = b.g.subtable("val", [('""', code.pattern(), "", text)])
-        b.refs.append(("sub", tables[e]))
-    return Operand(tables[e], "name", frozenset([("sub", tables[e])]))
+        tables[key] = b.g.subtable("val", [('""', code.pattern(), "", text)])
+        b.refs.append(("sub", tables[key]))
+    return Operand(tables[key], "name", frozenset([("sub", tables[key])]))
 
 
 LOADS = ("constant-load", "cx-load")   # operands whose subtable does a memory access when built
@@ -1168,71 +1260,6 @@ def count_uses(roots):
     return uses
 
 
-FIXED = {f"P{k}" for k in range(PR_BITS)}   # register symbols written directly (PR)
-FLOW = ("__flow_target", "__flow_cond")      # a control transfer, carried through merging as values
-
-
-def pseudo(n): return n.startswith("__")       # flow, store and effect values merged like outputs
-
-
-def predicate_writes(i, name, e):
-    """A PR write is one write per predicate; other writes are themselves."""
-    if i.atom(name).type != "PR": return [(name, e)]
-    return [(f"P{k}", bitvec.extract(e, k, k)) for k in range(PR_BITS)]
-
-
-def lower_body(b, names, e, context=()):
-    """Code for a merged body: a tuple writes `names`; a choice is a table of whole bodies."""
-    if e.op == "tuple": return lower_writes(b, list(zip(names, e.args)), context)
-    keys, rows = e.args
-    constructors = []
-    for values, arm in rows:
-        cl = [c for k, v in zip(keys, values) if v is not None for c in clauses(b, k, v)]
-        code = lower_body(b, names, arm, context + tuple(cl))
-        constructors.append(('""', code.pattern(cl), "", code.body()))
-    table = b.g.subtable("body", constructors)
-    b.refs.append(("sub", table))
-    out = Code(); out.lines.append(f"build {table};"); out.refs |= {("sub", table)}
-    return out
-
-
-def lower_writes(b, writes, context=()):
-    """Code writing [(output name, Expr)]: shared values computed before any branch, later values
-    captured before the first write (which may alias their inputs), the first write inline; then
-    the control transfer (b.flow_kind) to the FLOW target if its condition holds."""
-    code = Code()
-    low = Lower(b, code, count_uses([e for _, e in writes]), context=context)
-    extra = dict(w for w in writes if pseudo(w[0]))
-    # Effects (memory-ordering calls) come before any load the values do.
-    for k, (name, nargs) in enumerate(b.effect_shapes):
-        args = [low.value(extra[f"__effect{k}_{j}"]) for j in range(nargs)]
-        b.g.pcodeops.add(name); code.add(f"{name}({', '.join(a.text for a in args)});", *args)
-    low.precompute(n for n, c in low.uses.items() if c > 1 and n.op not in ("const", "param", "reg", "sel"))
-    flow = {n: extra[n] for n in FLOW if n in extra}
-    writes = [w for w in writes if not pseudo(w[0])]
-    # A value used after the first write that isn't a local, constant or direct target may be a
-    # register (a table can export one, Pv's Pp): capture it before the first write can change it.
-    keep = lambda v, e: low.local(e.w, v) if v.kind not in ("local", "const", "target") and writes else v
-    later = [keep(low.value(e), e) for _, e in writes[1:]]
-    target, cond = (keep(low.value(flow[n]), flow[n]) for n in FLOW) if flow else (None, None)
-    stores = [(space, *(keep(low.value(e), e) for e in (extra[f"__store{k}_addr"], extra[f"__store{k}_value"])), extra[f"__store{k}_value"].w,
-               None if bitvec.is_const(cond := extra[f"__store{k}_cond"], 1) else keep(low.value(cond), cond))
-              for k, space in enumerate(b.store_spaces)]
-    first = [low.value(writes[0][1])] if writes else []
-    for (n, _), v in zip(writes, first + later):
-        symbol = n if n in FIXED else b.outputs[n].symbol
-        dest = Operand(symbol, "name", frozenset([r] if (r := b.ref(symbol)) else []))
-        code.add(f"{dest.text} = {v.text};", dest, v)
-    for space, address, v, w, cond in stores:
-        if cond is None: code.add(f"*[{space}]:{nbytes(w)} {address.text} = {v.text};", address, v); continue
-        skip = low.label("skip")
-        code.add(f"if (!({cond.text})) goto <{skip}>; *[{space}]:{nbytes(w)} {address.text} = {v.text}; <{skip}>", address, v, cond)
-    if flow:
-        if target.kind != "target": target = low.named(target, flow["__flow_target"].w)
-        lower_flow(low, b.flow_kind, target, cond, bitvec.is_const(flow["__flow_cond"], 1))
-    return code
-
-
 def lower_flow(low, kind, target, cond, always):
     """goto / call / return to target (a direct target table, or an address value) if cond."""
     where = target.text if target.kind == "target" and kind != "return" else f"[{target.text}]"
@@ -1269,81 +1296,10 @@ def guard(b, rows, modelled):
 
 
 def emit(b):
-    """Lower the class's family into b.body; returns (status, reason) like operations.emit."""
-    from sass.sleigh.gen import pattern
-    from sass.semantics.operations import dispatch
-    fam = family_for(b.k)
-    rows = enumerate_rows(b, fam)
+    from sass.sleigh import ordered
+    rows = enumerate_rows(b, family_for(b.k))
     b.rows = statuses(rows)
-    native = [(a, r) for a, r in rows if not isinstance(r, Exception)]
-    why = "; ".join(sorted({str(r) for _, r in rows if isinstance(r, Exception)}))
-    if not native: return "opaque", why or "no modelled encodings"
-    used = [primitive_names(r) for _, r in native]
-    i = Symbolic(b, {})
-    kinds = {r.flow.kind if r.flow else None for _, r in native}
-    if len(kinds) > 1: raise TypeError(f"{b.k.name}: rows differ in control transfer {sorted(map(str, kinds))}")
-    b.flow_kind = kinds.pop()
-    for attr, shape in (("store_spaces", lambda r: tuple(s.space for s in r.stores)),
-                        ("effect_shapes", lambda r: tuple((e.name, len(e.args)) for e in r.effects))):
-        shapes = {shape(r) for _, r in native}
-        if len(shapes) > 1: raise TypeError(f"{b.k.name}: rows differ in {attr} {sorted(shapes)}")
-        setattr(b, attr, shapes.pop())
-    flow = lambda r: ([("__flow_target", r.flow.target), ("__flow_cond", r.flow.cond if r.flow.cond is not None else bitvec.const(1, 1))] if r.flow else []) \
-        + [w for k, s in enumerate(r.stores) for w in ((f"__store{k}_addr", s.address), (f"__store{k}_value", s.value),
-                                                       (f"__store{k}_cond", s.cond if s.cond is not None else bitvec.const(1, 1)))] \
-        + [(f"__effect{k}_{j}", a) for k, e in enumerate(r.effects) for j, a in enumerate(e.args)]
-    resolved = [(a, [w for n, e in r.ordered() if i.has_operand(n) for w in predicate_writes(i, i.resolve(n), e)] + flow(r))
-                for a, r in native]
-    for a, writes in resolved:
-        for n, e in writes:
-            if n in FIXED or pseudo(n): continue
-            if n not in b.outputs: raise TypeError(f"{b.k.name}: {n} is not an output")
-            if e.w != i.width(n): raise TypeError(f"{b.k.name}: {n} is {i.width(n)} bits, value {e!r} is {e.w}")
-    # Liveness: when every optional predicate destination is PT, those writes and the work only
-    # they need are dropped; otherwise everything is written (PT writes go to a sink).
-    names = [n for n, _ in resolved[0][1]]
-    optional = [n for n in names if n not in FIXED and not pseudo(n) and REG_TYPES.get(b.k.operand_types[n].type) in ("P", "UP")
-                and any(dict(w)[n].op != "const" for _, w in resolved)
-                and clauses(b, ("zero", n), True) not in (None, [])]
-    inputs = lambda writes: frozenset(p for _, e in writes for p in bitvec.leaves(e, "param"))
-    dead_inputs = set().union(*(inputs(writes) - inputs([(n, e) for n, e in writes if n not in optional])
-                               for _, writes in resolved))
-    def predicate_work(writes):
-        full = Expr("tuple", tuple(e for _, e in writes), 0)
-        kept = Expr("tuple", tuple(bitvec.narrow([e for n, e in writes if n not in optional])), 0)
-        return operations(full) - operations(kept)
-    if optional and all(p.args[0] in b.k.operand_types and REG_TYPES.get(b.k.operand_types[p.args[0]].type) in ("P", "UP")
-                        for p in dead_inputs) and any(n not in optional for n in names) and max(map(predicate_work, (writes for _, writes in resolved))) <= 3:
-        keys = tuple(("zero", n) for n in optional)
-        replacements = {p: sel(keys, [(values, bitvec.const(1, p.w) if all(values) else p)
-                                      for values in itertools.product((False, True), repeat=len(keys))], p.w)
-                        for p in dead_inputs}
-        def replace_input(e):
-            if e.op == "sel":
-                keys, cases = e.args
-                return sel(keys, [(v, bitvec.substitute(t, replace_input)) for v, t in cases], e.w)
-            return replacements.get(e)
-        resolved = [(a, [(n, bitvec.substitute(e, replace_input)) for n, e in writes])
-                    for a, writes in resolved]
-        optional = []
-    assignments = [a for a, _ in resolved]
-    merger = Merger(frozenset((n, LOAD_OPS[v.kind]) for n, v in b.values.items() if getattr(v, "kind", None) in LOAD_OPS))
-    def body(live):
-        if not live and not b.effect_shapes: return Code()
-        merged = merger.bodies([Expr("tuple", tuple(dict(w)[n] for n in live), 0) for _, w in resolved], assignments)
-        return lower_body(b, live, merged)
-    bodies = [([], body(names))]
-    if optional:
-        bodies.insert(0, ([c for n in optional for c in clauses(b, ("zero", n), True)], body([n for n in names if n not in optional])))
-    if len(bodies) == 1:
-        b.body += bodies[0][1].lines; refs = bodies[0][1].refs
-    else:
-        table = b.g.subtable("live", [('""', code.pattern(cond), "", code.body()) for cond, code in bodies])
-        b.refs.append(("sub", table)); b.body.append(f"build {table};"); refs = {("sub", table)}
-    # Unmodelled combinations keep the complete opaque fallback, behind the native encodings'
-    # patterns over only the keys that decide native vs unmodelled.
-    guard(b, rows, [not isinstance(r, Exception) for _, r in rows])
-    dispatch(b, refs=sorted(refs, key=repr))
-    reason = "decode-time selector guards retain complete opaque fallbacks" if len(native) < len(rows) else "semantics family"
-    if all(used): return "primitive", f"runtime primitives {', '.join(sorted(set().union(*used)))}; {reason}"
-    return "native", reason
+    if not any(not isinstance(body, Exception) for _, body in rows):
+        why = "; ".join(sorted({str(body) for _, body in rows}))
+        return "opaque", why or "no modelled encodings"
+    return ordered.emit_rows(b, rows)

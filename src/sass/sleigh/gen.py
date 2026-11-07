@@ -43,6 +43,22 @@ def split_value(f, v):
         out.append((tok, lo, hi, v & (1 << n) - 1)); v >>= n
     return out[::-1]
 
+
+def mapped_fields(gen, f, values):
+    ps = pieces(f)
+    selected = max(range(len(ps)), key=lambda index: ps[index][3])
+    tok, lo, hi, _ = ps[selected]
+    field = ir.Field("", ((hi + (64 if tok == "h" else 0), lo + (64 if tok == "h" else 0)),))
+    groups = defaultdict(dict)
+    for raw, value in values.items():
+        parts = split_value(f, raw)
+        fixed = tuple(part for index, part in enumerate(parts) if index != selected)
+        groups[fixed][parts[selected][3]] = value
+    for fixed, rows in groups.items():
+        clauses = [[lit(token, f"{gen.field(token, low, high)}={value}")] for token, low, high, value in fixed]
+        yield field, clauses, rows
+
+
 # A constraint is a list of clauses (AND); a clause is a list of literals (OR); a literal maps token -> text (AND).
 def lit(tok, text): return {tok: text}
 
@@ -236,6 +252,32 @@ def group(groups):
 
 # ---------- generator ----------
 
+def reachable_tables(lines, constructors):
+    tables = defaultdict(list)
+    for line in lines: tables[line.split(":", 1)[0]].append(line)
+    live, pending = set(), set(re.findall(r"\b\w+\b", " ".join(constructors))) & tables.keys()
+    while pending:
+        name = pending.pop()
+        if name in live: continue
+        live.add(name)
+        pending.update(set(re.findall(r"\b\w+\b", " ".join(tables[name]))) & tables.keys() - live)
+    order = {name: index for index, name in enumerate(tables)}
+    emitted, active, result = set(), set(), []
+
+    def emit(name):
+        if name in emitted: return
+        if name in active: raise ValueError(f"recursive semantics table {name}")
+        active.add(name)
+        dependencies = set(re.findall(r"\b\w+\b", " ".join(tables[name]))) & tables.keys() - {name}
+        for dependency in sorted(dependencies, key=order.get): emit(dependency)
+        active.remove(name)
+        emitted.add(name)
+        result.extend(tables[name])
+    for name in tables:
+        if name in live: emit(name)
+    return result
+
+
 class Gen:
     def __init__(self, archname, fp="exact", *, coverage=False):
         self.arch = ir.load(archname)
@@ -250,6 +292,7 @@ class Gen:
         self.scratch_forwards = {}
         self.skipped = []
         self.attach_vars = {}         # field name -> register names
+        self.register_mappings = {}
         self.spans = {file: {1} for file in REG_FILES}
         self.special_spans = set()
         self.pcodeops = set()
@@ -349,7 +392,7 @@ class Gen:
                 return self.const(text(None, {}))
             case ("table", f, t, i):
                 rows = self.table_values(f, t, i)
-                return self.enum_table([(eq(self, f, v), text(x, {})) for v, x in rows.items()])
+                return self.mapped_display(f, {raw: text(value, {}) for raw, value in rows.items()})
             case ("field", f, scale) if a.type in arch.enums or a.type == "BITSET":
                 if f.width > MAX_ENUM_BITS: raise NoMatch(f"{a.name}: {f.width}-bit enum")
                 widths = {a.name: f.width + scale.bit_length() - 1}
@@ -358,13 +401,29 @@ class Gen:
                     names = [text(v * scale, widths) for v in range(1 << f.width)]
                     fname = self.name_field(tok, lo, hi, names)
                     return fname, [(tok, fname)]
-                return self.enum_table([(eq(self, f, v), text(v * scale, widths)) for v in range(1 << f.width)])
+                return self.mapped_display(f, {v: text(v * scale, widths) for v in range(1 << f.width)})
             case ("field", f, scale):
                 return self.number(a, f, scale)
         raise NoMatch(f"{a.name}: no display for {a.type}")
 
     def const(self, s):
         return (f'"{s}"', []) if s else (None, [])
+
+    def mapped_display(self, f, values):
+        labels = defaultdict(set)
+        for raw, label in values.items(): labels[label].add(raw)
+        if len(labels) == 1:
+            label, rows = next(iter(labels.items()))
+            name = self.subtable("e", [(f'"{label}"', pattern(member(self, f, rows)), "")])
+            return name, [("sub", name)]
+        cons = []
+        for field, fixed, rows in mapped_fields(self, f, values):
+            tok, lo, hi, _ = pieces(field)[0]
+            names = [rows.get(raw, "") for raw in range(1 << field.width)]
+            fname = self.name_field(tok, lo, hi, names)
+            cons.append((fname, pattern(fixed + member(self, field, set(rows)), [(tok, fname)]), ""))
+        name = self.subtable("e", cons)
+        return name, [("sub", name)]
 
     def enum_table(self, cases):
         cons = [(f'"{s}"' if s else '""', pattern(c), "") for c, s in cases]
@@ -411,21 +470,38 @@ class Gen:
         elif atom.type == "F64Imm": return None
         else: wide = False
         _, f, scale = src
+        text, refs = self.field_text(f)
+        if atom.type.startswith("S") or atom.type == "RSImm":
+            sb = 1 << (f.width - 1)
+            text = f"(({text} ^ {sb:#x}) - {sb:#x})"
+        if scale != 1: text = f"({text} * {scale})"
+        return (f"({text} << 32)" if wide else text), refs
+
+    def field_text(self, f, scale=1):
         text, shift, refs = None, 0, []
         for tok, lo, hi, n in reversed(pieces(f)):
             fname = self.field(tok, lo, hi, "u"); refs.append((tok, fname))
             text = fname if text is None else f"(({fname} << {shift}) | {text})"
             shift += n
-        if atom.type.startswith("S") or atom.type == "RSImm":
-            sb = 1 << (f.width - 1); text = f"(({text} ^ {sb:#x}) - {sb:#x})"
         if scale != 1: text = f"({text} * {scale})"
-        return (f"({text} << 32)" if wide else text), refs
+        return text, refs
+
+    def control_text(self, k, name):
+        if name not in k.sched: raise ValueError(f"unknown scheduling control {name}")
+        match self.source(k, name):
+            case ("field", f, scale): return self.field_text(f, scale)
+            case ("table", f, t, i):
+                rows = self.table_values(f, t, i)
+                if rows == {raw: raw for raw in range(1 << f.width)}: return self.field_text(f)
+        return None
 
     def float_formats(self, k, conv):
         """[(pattern clauses, kind)]: each encoding of a convertFloatType rule's selector fields and
         the float kind it picks (F16/E8M7/E6M9 are packed 16-bit values, F64 supplies its high word);
         None when a selector is not a plain field."""
         parts = [p.strip() for p in conv.split(",")]
+        if len(kinds := set(parts[1::2] + parts[-1:])) == 1:
+            return [([], next(iter(kinds)).removesuffix("Imm"))]
         names = sorted({c.split("==")[0].strip() for p in parts[0:-1:2] for c in p.split("||")})
         sources = [self.source(k, n) for n in names]
         if any(s is None or s[0] != "field" for s in sources): return None
@@ -625,10 +701,20 @@ class Gen:
                    else f"local zero:{nbytes} = zext(0:8); export zero;" if nbytes > 8
                    else f"export {1 if file in ('P', 'UP') else 0}:{nbytes};")
         if values is not None:
+            zeros = {raw for raw, index in values.items() if index == zero}
             cons = []
-            for raw, index in values.items():
-                body = special if index == zero else f"export {reg_name(file, index, span) if 0 <= index and index + span <= n else f'SINK{nbytes}'};"
-                cons.append(('""', pattern(eq(self, f, raw)), "", body))
+            for field, fixed, rows in mapped_fields(self, f, {raw: index for raw, index in values.items() if raw not in zeros}):
+                tok, lo, hi, _ = pieces(field)[0]
+                key = field.ranges, file, span, tuple(sorted(rows.items()))
+                if key not in self.register_mappings:
+                    var = self.field(tok, lo, hi, f"_{file}{span}_map{len(self.register_mappings)}")
+                    self.register_mappings[key] = var
+                    self.attach_vars[var] = [
+                        reg_name(file, index, span) if (index := rows.get(raw, -1)) >= 0 and index + span <= n
+                        else f"SINK{nbytes}" for raw in range(1 << field.width)]
+                var = self.register_mappings[key]
+                cons.append(('""', pattern(fixed + member(self, field, set(rows)), [(tok, var)]), "", f"export {var};"))
+            if zeros: cons.append(('""', pattern(member(self, f, zeros)), "", special))
             return self.subtable("r", cons)
         (tok, lo, hi, _), = pieces(f)
         var = self.regfield(tok, lo, hi, file, span)
@@ -767,15 +853,39 @@ class Gen:
             body, refs = self.fixed_semantics(k, None, spans, known, nested=True, domain=domain)
             cons.append(('""', pattern(clauses + legality, refs + [("sub", t) for t in tables]), "", body))
         table = self.subtable("s", cons)
-        body = f"build {guard}; " if guard else ""
-        return body + f"build {table};", [("sub", table)]
+        body, refs = self.instruction_prefix(k, guard)
+        return body + f"build {table};", [*refs, ("sub", table)]
 
     def fixed_semantics(self, k, guard, spans, known, nested=False, domain=None):
         from sass.semantics.operands import emit
         if nested:return emit(self, k, guard, spans, known, domain=domain)
         body, refs = emit(self, k, None, spans, known)
         table = self.subtable("s", [('""', pattern([], refs), "", body)])
-        return (f"build {guard}; " if guard else "") + f"build {table};", [("sub", table)]
+        prefix, refs = self.instruction_prefix(k, guard)
+        return prefix + f"build {table};", [*refs, ("sub", table)]
+
+    def instruction_prefix(self, k, guard):
+        from types import SimpleNamespace
+        from sass.semantics import bitvec, family, ordered
+        import sass.sleigh.ordered
+        body, refs = f"build {guard}; " if guard else "", []
+        fam = family.family_for(k)
+        if fam is None: return body, refs
+        if k.name in family.deferred_classes(self.arch.name):
+            builder = ordered.Builder()
+            builder.special(ordered.BLOCK_WAIT_DEFERRED)
+            code = sass.sleigh.ordered.emit(builder.block(), SimpleNamespace(g=self, k=k, refs=[], serial=0))
+            table = self.subtable("deferred_wait", [('""', code.pattern(), "", code.body())])
+            body += f"build {table}; "
+            refs.append(("sub", table))
+        if "req_bit_set" not in k.sched: return body, refs
+        builder = ordered.Builder()
+        builder.special(ordered.DEPENDENCIES, bitvec.param("__control:req_bit_set", 6))
+        code = sass.sleigh.ordered.emit(builder.block(), SimpleNamespace(g=self, k=k, refs=[], serial=0))
+        source = self.source(k, "req_bit_set")[1]
+        table = self.subtable("wait", [('""', pattern(eq(self, source, 0)), "", ""),
+                                      ('""', code.pattern(), "", code.body())])
+        return f"build {table}; " + body, [("sub", table), *refs]
 
     def guard(self, k):
         g = next((a for a in k.format if a.kind == "guard"), None)
@@ -1000,32 +1110,16 @@ class Gen:
         lower.shared_tables(self)
         # Decode-time specialization leaves some eagerly registered value tables
         # unused. Emit only the graph reachable from instruction constructors.
-        tables=defaultdict(list)
-        for line in self.table_lines:
-            tables[line.split(':',1)[0]].append(line)
-        live=set();pending=set(re.findall(r'\b\w+\b',' '.join(cons))) & tables.keys()
-        while pending:
-            name=pending.pop()
-            if name in live:continue
-            live.add(name)
-            pending.update(set(re.findall(r'\b\w+\b',' '.join(tables[name]))) & tables.keys() - live)
-        order = {name: index for index, name in enumerate(tables)}
-        emitted, active, table_lines = set(), set(), []
-        def emit(name):
-            if name in emitted: return
-            if name in active: raise ValueError(f"recursive semantics table {name}")
-            active.add(name)
-            dependencies = set(re.findall(r'\b\w+\b', ' '.join(tables[name]))) & tables.keys() - {name}
-            for dependency in sorted(dependencies, key=order.get): emit(dependency)
-            active.remove(name); emitted.add(name); table_lines.extend(tables[name])
-        for name in tables:
-            if name in live: emit(name)
+        table_lines = reachable_tables(self.table_lines, cons)
+        symbols = set(re.findall(r"\b\w+\b", " ".join([*table_lines, *cons])))
+        symbols.update(name for field, names in self.attach_vars.items() if field in symbols for name in names)
         toks = defaultdict(set)
-        for (tok, lo, hi, kind), name in self.fields.items(): toks[tok].add((lo, hi, kind, name))
+        for (tok, lo, hi, kind), name in self.fields.items():
+            if name in symbols: toks[tok].add((lo, hi, kind, name))
         out = [f"# Generated by src/sass/sleigh/gen.py from src/sass/md/data/{self.arch.name}/md -- do not edit.",
                '@include "sass_common.sinc"', ""] + register_defs(self.spans) + self.special_defs() + [
                    f'define register offset={0x1000000+i*0x10000:#x} size={size} [ {name} ];'
-                   for i,(name,size) in enumerate(sorted(self.temporaries.items()))] + [""]
+                   for i,(name,size) in enumerate(sorted(self.temporaries.items())) if name in symbols] + [""]
         for tok, tname in (("l", "lo"), ("h", "hi")):
             out.append(f"define token {tname}(64)")
             out.append(f"  {tok}any = (0, 63)")
@@ -1033,10 +1127,10 @@ class Gen:
                 out.append(f"  {name} = ({lo}, {hi}){' signed' if kind == 's' else ''}")
             out.append(";")
         for fname, names in self.attach.items():
-            out.append(f"attach names [ {fname} ] [ " + " ".join(f'"{n}"' for n in names) + " ];")
+            if fname in symbols: out.append(f"attach names [ {fname} ] [ " + " ".join(f'"{n}"' for n in names) + " ];")
         for fname, names in self.attach_vars.items():
-            out.append(f"attach variables [ {fname} ] [ " + " ".join(names) + " ];")
-        out += [f"define pcodeop {op};" for op in sorted(self.pcodeops)]
+            if fname in symbols: out.append(f"attach variables [ {fname} ] [ " + " ".join(names) + " ];")
+        out += [f"define pcodeop {op};" for op in sorted(self.pcodeops) if op in symbols]
         out += [""] + table_lines + [""] + cons
         return "\n".join(out) + "\n"
 

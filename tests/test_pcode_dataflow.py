@@ -19,6 +19,34 @@ from sass.paths import variant
 REAL_SAMPLE = 2000
 
 
+@pytest.mark.parametrize('arch', ['SM90', 'SM107'])
+@pytest.mark.parametrize('lut', [0, 0xff])
+@pytest.mark.parametrize('pop', ['POR', 'PAND'])
+def test_constant_lut_reads_predicate_only_when_result_depends_on_it(arch, lut, pop):
+    word = encoding.encode(arch, 'lop3_lut__RRR_RRR', Rd=8, Pu=2, Ra=2, Rb=4, Rc=6, imm8=lut, Pp=1, pop=pop)
+    decoded = pydecode.decode(arch, bytes.fromhex(word))
+    reads, _ = dataflow.expected(Gen(arch, 'exact'), decoded, optimized=True)
+    constant = bool(lut)
+    output = (lambda p: constant or p) if pop == 'POR' else (lambda p: constant and p)
+    base, stride, *_ = REG_FILES['P']
+    assert (base + stride in reads) == (output(False) != output(True))
+
+
+@pytest.mark.parametrize('cls,selector', [('fset__RRR_RRR', 'fcomp'), ('hset2__RR', 'cmp')])
+@pytest.mark.parametrize('comparison', ['F', 'T'])
+@pytest.mark.parametrize('bop', ['AND', 'OR', 'XOR'])
+def test_constant_comparison_reads_predicate_only_when_result_depends_on_it(cls, selector, comparison, bop):
+    word = encoding.encode('SM90', cls, Rd=8, Ra=2, **{'Rb' if cls.startswith('fset') else 'Rc': 4,
+                           selector: comparison, 'bop': bop, 'Pp': 1})
+    decoded = pydecode.decode('SM90', bytes.fromhex(word))
+    reads, _ = dataflow.expected(Gen('SM90', 'exact'), decoded, optimized=True)
+    constant = comparison == 'T'
+    outcomes = {'AND': lambda p: constant and p, 'OR': lambda p: constant or p, 'XOR': lambda p: constant != p}
+    depends = outcomes[bop](False) != outcomes[bop](True)
+    base, stride, *_ = REG_FILES['P']
+    assert (base + stride in reads) == depends
+
+
 @pytest.mark.parametrize('absolute,negate', [(0, 0), (0, 1), (1, 0), (1, 1)])
 @pytest.mark.parametrize('swizzle,size', [('H1_H0', 2), ('H0_H0', 2), ('H1_H1', 4), ('F32', 4)])
 def test_sm75_f32_result_dataflow_uses_selected_input_width(swizzle, size, absolute, negate):

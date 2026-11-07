@@ -5,7 +5,7 @@ import json
 from sass.assemble import assemble_raw
 from sass.formal import k
 from sass.formal.k import execution
-from sass.semantics import evaluate, lifter
+from sass.semantics import evaluate, lifter, ordered, ordered_runtime
 
 ARCH = "SM89"
 BASE = 0x100000
@@ -29,20 +29,35 @@ class Example:
 
     def input(self, predicate):
         # Compile the exported module to give this short input its program symbol.
-        return k.input_term(self.exported, self.initial(predicate), limit=LIMIT).replace(
+        return k.input_term(self.exported, self.initial(predicate),
+                            responses=self.run(predicate)[2], limit=LIMIT).replace(
             self.exported.program, "exportedProgram()", 1)
 
     def trace(self, predicate):
-        """Record the reference evaluator's instruction-boundary states."""
+        return self.run(predicate)[:2]
+
+    def run(self, predicate):
         program = {instruction.addr: instruction for instruction in self.instructions}
-        state, rows = self.initial(predicate), []
+        state, rows, responses = self.initial(predicate), [], []
+
+        class Environment(ordered_runtime.Runtime):
+            def call(self, name, arguments):
+                if name != ordered.BLOCK_WAIT_DEFERRED.name:
+                    raise RuntimeError(f"unexpected example operation {name}")
+                responses.append(dict(step=len(rows), pc=pc, id=frame.position,
+                                      name=name, arguments=list(arguments), values=[]))
+                return ()
+
+        environment = Environment()
         while state.pc:
             if len(rows) >= LIMIT:
                 raise RuntimeError("worked example exceeded its instruction budget")
             pc, before = state.pc, state.regs["R", 0]
-            state = evaluate.execute(program[pc], state)
+            frame = ordered.Frame(program[pc].body, pc + 16)
+            if frame.run(state, environment) != ordered.Status.COMPLETE:
+                raise frame.error or RuntimeError("example operation suspended")
             rows.append((len(rows) + 1, pc, before, state.regs["R", 0], state.pc))
-        return state, rows
+        return state, rows, responses
 
     def diagram(self):
         """Typeset actual boundary states, sharing the two paths' visible prefix."""
@@ -99,14 +114,7 @@ class Example:
         listing = []
         for instruction in self.instructions:
             listing.append(f"{instruction.addr:#x}: {instruction.text}")
-            listing.append("  guard: " + (f"{instruction.guard}:{instruction.guard.w}"
-                                         if instruction.guard is not None else "always"))
-            for location, value in instruction.writes:
-                listing.append(f"  write: {location}:{location.w} <- {value}")
-            if instruction.flow:
-                listing.append(f"  flow: {instruction.flow.kind} {instruction.flow.target}")
-            else:
-                listing.append(f"  flow: fall through to {instruction.addr + 16:#x}")
+            listing.extend(f"  {statement}" for statement in ordered.linearize(instruction.body))
         traces = []
         for predicate in (0, 1):
             state, rows = self.trace(predicate)

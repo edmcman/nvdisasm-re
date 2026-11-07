@@ -68,7 +68,14 @@ class Runtime:
             except native.Failure as error:raise UnsupportedSemantics(str(error)) from error
             self.events.append(primitive.cache_event(operation,address))
             return 0
-        if name in ('sass_async_issue','sass_async_commit','sass_async_wait'):
+        if name == 'sass_dependency_wait':
+            if self.context.get('async_record'):
+                self.events.append(dict(op='dependency_wait',args=args))
+                return 0
+            state=self.context.get('async')
+            if state is not None:state.wait_slots(*args)
+            return 0
+        if name in ('sass_async_issue','sass_async_commit','sass_async_wait_groups','sass_async_wait_slots'):
             if self.context.get('async_record'):
                 self.events.append(dict(op=name.removeprefix('sass_'),args=args))
                 return 0

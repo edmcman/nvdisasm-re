@@ -135,3 +135,20 @@ def test_tensor_warp_snapshot(arch, order):
         result = reference.run_kernel(request, arch)
         assert not hardware.emulated_problems(fixture, result), (fixture.name, result)
         assert kernel.run_kernel(request, arch) == result
+
+
+@pytest.mark.ghidra
+@pytest.mark.parametrize("arch", ["SM89", "SM90"])
+@pytest.mark.parametrize("order", ["round_robin", "reverse", "seeded"])
+def test_tensor_warp_snapshot_ghidra(arch, order, pytestconfig):
+    from sass import ghidra_bridge
+    from tests.harness import gpu, hardware, select
+    fixtures = matrix.gpu_fixtures(arch)
+    requests = [gpu.request(fixture) for fixture in fixtures]
+    for request in requests: request["kernel"]["schedule"] = order
+    modes = select.modes(pytestconfig)
+    select.require_languages([(arch, mode) for mode in modes])
+    found = ghidra_bridge.emulate_sharded({mode: (arch, mode, requests) for mode in modes}, workers=len(modes))
+    for mode, results in found.items():
+        for fixture, result in zip(fixtures, results):
+            assert not hardware.emulated_problems(fixture, result), (mode, fixture.name, result)

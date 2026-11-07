@@ -7,7 +7,7 @@ from functools import cache
 
 from sass import workers
 from sass.emulate import build, definitions
-from sass.semantics import bitvec, lifter
+from sass.semantics import bitvec, lifter, ordered
 from sass.sleigh.build import ARCHES
 from tests import cases
 from tests.harness import sampling, sharded
@@ -17,11 +17,9 @@ BATCH = 48
 
 
 def roots(semantics):
-    out = [semantics.guard, *(value for _, value in semantics.writes)]
-    for store in semantics.stores: out.extend((store.cond, store.address, store.value))
-    for effect in semantics.effects: out.extend(effect.args)
-    if semantics.flow: out.extend((semantics.flow.cond, semantics.flow.target))
-    return out
+    return [] if semantics.body is None else [
+        value for statement in ordered.linearize(semantics.body)
+        for value in ordered.statement_values(statement) if isinstance(value, bitvec.Expr)]
 
 
 def representatives(job):

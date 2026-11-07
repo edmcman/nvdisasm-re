@@ -72,10 +72,12 @@ def generate(c, k, form, profiles):
                       hardware=dict(adapter="memory", expected=dict(__memory=payload.hex())))
         case "LDGSTS": return copies(c, k, form)
         case "LDGDEPBAR":
-            s = Inputs(c, k, form)
-            s.add(dict(__events=1, __event_values=[dict(op="async_commit", args=[])],
-                       __max_ops=dict(count=4, userops=["sass_async_commit"])), form,
-                  context=dict(async_record=True), hardware={"skip": "commit behavior requires copy groups; covered by fixtures"})
+            for board in range(6):
+                s = Inputs(c, k, form)
+                s.fields["dst_wr_sb"] = board
+                s.add(dict(__events=1, __event_values=[dict(op="async_commit", args=[board])],
+                           __max_ops=dict(count=4, userops=["sass_async_commit"])), form,
+                      context=dict(async_record=True), hardware={"skip": "commit behavior requires copy groups; covered by fixtures"})
         case "DEPBAR":
             for count in (0, 1, 63):
                 s = Inputs(c, k, form)
@@ -85,8 +87,10 @@ def generate(c, k, form, profiles):
                     s.operand(("cnt", "URb"), count, 6)
                 mask = 0x12 & ~(1 << board)
                 s.fields["scoreboard_list"] = mask
-                s.add(dict(__events=1, __event_values=[dict(op="async_wait", args=[board, count if board < 6 else 0, mask])],
-                           __max_ops=dict(count=8, userops=["sass_async_wait"])), form,
+                events = ([dict(op="async_wait_groups", args=[board, count])] if "le" in form else [])
+                events.append(dict(op="async_wait_slots", args=[mask]))
+                s.add(dict(__events=len(events), __event_values=events,
+                           __max_ops=dict(count=8, userops=["sass_" + event["op"] for event in events])), form,
                       context=dict(async_record=True), hardware={"skip": "wait behavior requires prior dependencies; covered by fixtures"})
         case _: raise Unsupported(f"{k.mnemonic} distinguishing behavior unresolved")
     return c

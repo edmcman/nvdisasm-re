@@ -103,8 +103,11 @@ register or memory writes; scheduler turns never interleave inside the transacti
 Since 2026-11-03, BSSY snapshots enabled participants in a warp-local convergence ID.
 BSYNC holds arrivals until the remaining live participants arrive; exited lanes are removed.
 IDs can nest and be reused after completion. BSYNC resumes at its next instruction, even
-when BSSY's target is farther away. Cooperative execution supplies synchronization handlers
-to native, Python and Ghidra lanes; isolated instruction evaluation still requires explicit context.
+when BSSY's target is farther away. Since 2026-11-06 the ordered bodies capture
+membership and issue explicit entry, arrival, wait and release operations through
+the shared coordinator in native, Python and Ghidra execution. The scheduler no
+longer performs instruction-specific convergence actions. Isolated instruction
+evaluation still requires explicit context.
 
 BAR.SYNC generations are block-local and keyed by ID. Immediate/register IDs and
 immediate/register counts are supported when they are separate operands; explicit counts must
@@ -416,3 +419,437 @@ cases). These are opt-in (`-m native`), like the Ghidra and GPU tests: the defau
 Small launches are dominated by per-request costs (the image, output assembly in Python). The
 next gains are structure-of-arrays registers with SIMD over inputs, flat per-thread memory instead of
 hashed pages, and fewer Python-side copies.
+
+## Ordered-body backend checks (2026-11-05)
+
+The ordered-body executors are exercised by `test_ordered`,
+`test_ordered_native`, `test_ordered_schedule`, `test_ordered_ghidra`, and
+`test_ordered_formal`, and `test_ordered_kernel`. Production Python and native
+memory, cache, special-register, fence, global-atomic, control-flow, query,
+asynchronous-copy issue/commit/waits, MUFU, SHFL, VOTE/VOTEU, MATCH, REDUX, LDSM,
+and HMMA instructions now execute
+direct ordered bodies alongside the converted numerical instructions. The shared callback scheduler
+retains suspended Python frames, lets peers progress, and advances counts and
+completed-instruction traces only on completion. The native kernel generator
+uses ordinary functions for non-suspending instructions and a separate resumable
+function table. Ordinary functions using runtime-owned state also share the
+per-block runtime; they do not allocate execution frames. Kernel tests retain
+snapshots through a later barrier and check
+that an earlier register increment runs once under three schedules. The migrated
+collectives capture their source values or predicates in their bodies and release
+each participant's snapshot after use. Aliased SHFL, VOTE, and 64-bit MATCH loops,
+and repeated REDUX, check reuse of the same instruction site across two warps
+under round-robin, reverse, and seeded schedules. Native standalone fragments use
+the same ordered function with an explicit warp-context provider. Synchronization
+families still need migration.
+
+LDSM and HMMA use typed retained word groups for one, two, or four source words
+per lane (2026-11-06). Each lane supplies its own captured value. Indexed snapshot
+reads validate the participant and word index. Standalone contexts are copied
+when captured; modifying a context later does not change an existing snapshot.
+The scheduler no longer scans register values, predicates, or matrix operands.
+The native snapshot-word binding returns a typed value without constructing a
+generic result record. Resumable native functions save their position at
+suspending operations and execute the intervening statements directly.
+
+LDGDEPBAR supplies its decoded dependency slot as an argument to the commit
+operation. The callback adapter no longer sets an implicit commit slot. A native
+test supplies an invalid slot in the warp context while exercising all six valid
+IR arguments, then checks that arguments 6 and 7 fault.
+
+DEPBAR executes distinct group-count and slot-mask waits in its ordered body.
+The former validates the slot before changing copy queues; both write completed
+copies at their statement positions. Native tests cover two queued groups,
+another occupied slot, counts 0/1/2/63, all encoded slot values, and four masks.
+Invalid slots preserve an earlier register write and leave queued copies intact.
+
+Ghidra's executor advances the p-code cursor before calling a user operation.
+`ghidra_bridge.ordered.Execution` retains that frame and the pending operation's
+output varnode. On completion it writes the result and calls
+`finishInstruction()`, preserving unique-space temporaries and the selected
+control path. Reissuing `stepInstruction()` would restart instruction execution
+and is therefore inappropriate for a suspended frame.
+The execution wrapper exposes the frame's next p-code index to the shared
+runtime so captures at different statement positions use distinct keys.
+A regression interleaves two pending captures at indices 3 and 7 and verifies
+their separate lane values and handle release.
+Fresh instructions begin with `stepPcodeOp()` before `finishInstruction()`
+(2026-11-06). Ghidra's `stepInstruction()` exposes its new frame only after
+execution returns or suspends. Without the explicit begin, a lane completing
+one capture immediately could enter a second capture without a visible cursor
+and join a different group from resumed peers. Cooperative matrix fixtures
+exercise this path in both modes under all three schedules.
+
+Multiple results use one runtime-owned record handle, typed result projections,
+and explicit record release. Atomic boundaries are separate user operations;
+ordinary p-code loads and stores remain between them. The isolated thirteen-form
+language, including explicit barrier-ticket release, occupies 10,647 decompressed
+bytes in exact mode and 10,382 in readable mode (2026-11-06).
+Its atomic read/update/write uses
+five operations: two boundary calls and ordinary load, add, and store. The
+decompiler retains the memory update between the boundary calls. This small
+language measurement does not establish the sizes of migrated SASS languages.
+Its numerical form passes captured operands to the existing numerical-definition
+scratch registers; it uses 69 p-code operations in exact mode and 63 in readable
+mode. A second output using that captured result adds two operations in either
+mode, without repeating the numerical calculation.
+
+Two-thread capture tests collect original operands before destination writes
+and retain the snapshots through suspension. Python and Ghidra exercise
+round-robin, reverse, and seeded orders; native tests exercise both lane orders.
+Fault tests retain earlier writes and release atomic ownership.
+Ready frames are polled before fresh instructions. A poll that makes no progress
+lets another PC in the warp run, so a fresh lane's loop cannot starve a ready
+frame. Capture identities use lane numbers within each block, including blocks
+whose sizes are not multiples of 32.
+The production lifted regression selected 973,986 shared cases across all ten
+architectures and both FP modes (12,786 tests passed). Focused native
+SM89/SM90 instruction and kernel regressions passed 1,731 tests. These checks
+establish software agreement, not new hardware observations.
+
+`nice uv run python -m tests.harness.ordered_perf` compares the existing native
+lowering with an ordinary ordered function on the same two aliased assignments.
+With Clang 18, nine alternating runs of 100 million iterations had medians of
+0.058717464 s and 0.059027684 s, a ratio of 1.00528. The difference is within the
+sample variation. This checks the small ordinary-function path, not whole-kernel
+performance after migration. Source and samples are saved under
+`.cache/ordered-gate/`.
+
+A pinned comparison on CPU 8 (2026-11-05) used the original checkout and the
+ordered checkout in separate processes and caches, checked identical outputs,
+and alternated 13 batches of 200 calls per version. The ordinary barrier-result
+and asynchronous-copy fixtures had candidate/original median ratios of 1.0180
+and 1.0133 after specializing the scheduler for native execution without
+callbacks. VOTE, MATCH, and REDUX loops remained at 1.3738, 1.4205, and 1.4007.
+These residual regressions remain unresolved; no timing baseline was updated.
+The comparison precedes the separate DEPBAR wait migration. Samples are in
+`.cache/ordered-gate/collectives-performance-specialized.json`.
+
+A later comparison using the same method (2026-11-06) included the matrix
+fixtures. Outputs agreed for every sample. Candidate/original ratios were
+1.0428 for the barrier-result fixture, 1.0310 for asynchronous copies,
+1.4240/1.4521/1.4414 for VOTE/MATCH/REDUX, and
+1.1758/1.1630/1.1967 for the F16 16816, F16 1688, and TF32 1688 matrix fixtures.
+These regressions remain unresolved. A controlled source variant removing only
+the new ordinary shared-runtime dispatch measured current/variant ratios of
+0.9483–0.9979 across those eight inputs; the dispatch did not introduce a
+slowdown in this comparison. Samples are in
+`.cache/ordered-gate/shared-runtime-{performance,ablation}.json`.
+
+Specializing generated functions to the concrete native runtime did not
+materially improve matrix performance and slowed collective fixtures by 1–2%
+in a pinned alternating comparison. The experiment was removed; source equality
+with the saved pre-experiment files was checked. Samples are in
+`.cache/ordered-gate/concrete-runtime-performance.json`. No timing baseline
+was changed.
+
+Typed snapshot-calculation bindings improved VOTE and REDUX by 2.8% and 4.2%
+against an otherwise identical source copy in a pinned alternating comparison
+(2026-11-06). Direct release bindings then improved VOTE/MATCH/REDUX by
+2.0%/5.7%/2.8% and the three matrix fixtures by 1.6–1.9%. The same runtime
+primitives compute the results; direct release still checks the opaque type and
+rejects released handles. Python/native ordering, cooperative fixtures, retained
+execution, and invalid-reply checks passed 378 tests. Samples are in
+`.cache/ordered-gate/snapshot-{binding,release}-ablation.json`.
+
+The final same-input comparison against the original checkout still measured
+regressions: 1.0767 for the barrier fixture, 1.0424 for asynchronous copies,
+1.3044/1.3176/1.2968 for VOTE/MATCH/REDUX, and
+1.1684/1.1627/1.1873 for the three matrix fixtures. These remain unresolved;
+no timing baseline was changed. Samples are in
+`.cache/ordered-gate/snapshot-release-original-performance.json`.
+
+Native operation arguments now use spans over fixed-size arrays, and common
+result tuples use two inline slots with dynamic storage for larger tuples.
+Completed captures retain their pending handle instead of allocating another
+handle. The arena keeps 64 inline records and uses a map for occupied-slot
+collisions; tests retain 257 snapshots simultaneously and reject released handles
+after subsequent generations. Non-suspending kernels omit native execution
+frames. `nice uvx py-spy` native profiles before and after these changes show
+reduced allocation overhead; scheduler turns now dominate the collective run.
+
+A same-input Python comparison ran 109,434 SM89 cases in both modes from the
+original source and the ordered source. Worker process CPU time separated case
+preparation from instruction work. Initially instruction work grew from
+413.16 CPU seconds to 491.57: validation repeatedly expanded the same numerical
+definition for different operands. Caching the state-access property by
+definition and argument types reduced that phase to 230.70 CPU seconds. Case
+preparation used 341.26 CPU seconds before and 256.05 after; wall times were
+97.17 and 98.00 seconds, dominated by the longest case-preparation shards.
+Both runs passed identical case counts. These measurements do not replace the
+historical suite timing baselines.
+
+After direct numerical migration, nine alternating runs of two million native
+calls compared IADD3, IMAD, FADD and FFMA against the original generated
+functions in the same translation unit. Functions were aligned to 64 bytes,
+checksums agreed, and candidate/baseline median ratios were 0.9800, 1.0040,
+0.9775 and 0.9904 after normalizing calculation capture. These are instruction microbenchmarks, not whole-kernel
+measurements (2026-11-05). Source and samples are in
+`.cache/ordered-gate/numerical-performance.{cpp,json}`.
+
+A controlled coordinator comparison (2026-11-06) disabled only the new block
+coordinator initialization and the warp-context pointer that enables exit
+notifications. Thirteen alternating batches of 200 calls on the same pinned
+CPU checked identical outputs before timing. Candidate/control median ratios
+were 1.0063 for BAR POPC, 0.9967 for asynchronous copies,
+1.0077/1.0074/1.0050 for VOTE/MATCH/REDUX, and
+0.9954/1.0035/0.9927 for the three matrix fixtures. This establishes no clear
+regression from these hooks; it measured the hooks before production BAR migrated
+and does not resolve earlier whole-kernel regressions.
+Samples and the saved control root are in
+`.cache/ordered-gate/coordination-ablation.json` and
+`.cache/ordered-gate/coordination-ablation-root.txt`.
+
+After direct BAR migration, thirteen alternating same-input batches against the
+original source passed output equality but exposed a regression (2026-11-06).
+Candidate/original median ratios were 1.3228 for BAR POPC, 1.1504 for asynchronous
+copies, 1.3386/1.3087/1.2957 for VOTE/MATCH/REDUX, and
+1.1815/1.1610/1.1918 for the three matrix fixtures. The BAR fixture grew from
+81.4 to 107.7 microseconds. Timing baselines were not changed.
+
+Twenty-second `nice uvx py-spy` native captures of the same BAR fixture collected
+1,996 samples each with no sampling errors. Allocation appeared in 68 original
+samples and 142 ordered samples; scheduler turns appeared in 580 and 861.
+The ordered capture includes ticket retention, separate pending-wait records,
+frame storage, and polling. These inclusive counts are not additive and do not
+isolate a single cause. They identify allocation and resumption work for the
+next optimization; the regressions remain unresolved. Results and profiles are
+`.cache/ordered-gate/bar-ordered-original-performance.json`,
+`.cache/ordered-gate/bar-original-profile.raw`, and
+`.cache/ordered-gate/bar-ordered-profile.raw`.
+
+Selective pure LOP3 definitions introduce no measured native slowdown on
+the four tested LUTs (2026-11-06). Thirteen alternating batches of 20 million
+calls compare the inline expansion and named definition in the same compiled
+library, pinned to the same CPU, with identical inputs and checked outputs.
+Candidate/baseline median ratios for XOR (`0x96`), majority (`0xe8`), `0x17`,
+and mux (`0xca`) are 1.001, 0.990, 0.981 and 0.993. Clang 18.1.8 inlines the
+definitions. This comparison concerns the naming/sharing change, and does
+not resolve the scheduler regressions above. Results and generated C++ are
+in `.cache/ordered-gate/lop3-native-performance.{json,cpp}`.
+
+Normal WARPSYNC now uses the shared coordinator from its ordered body
+(2026-11-06). Arrival returns a typed retained generation; a separate wait
+may suspend, and release removes only the original handle. Waiting records
+retain the same generation directly, so releasing a ticket cannot cancel an
+issued wait. Per-warp live and arrived masks replace repeated member scans
+within each coordinator completion check. Completed generations remain ready
+when later generations reuse the same members. The old scheduler's WARPSYNC
+instruction classification and mask/arrival/release actions are removed.
+Unsupported exclusive execution faults in its enabled ordered arm; false
+Pg or Pp skips it.
+
+Thirteen alternating batches on unchanged 32-thread immediate, register and
+uniform-register fixtures initially measured candidate/pre-migration ratios
+of 1.3031, 1.3037 and 1.3044. Sharing the generation directly between tickets
+and pending waits reduced times by 2.8–3.5%; replacing repeated membership
+scans reduced them by another 6.9–7.6%. Final same-input ratios are 1.2082,
+1.2004 and 1.1992 (63.1–63.9 to 76.2–76.7 microseconds). This is an unresolved
+regression, not a new timing baseline. Those controls already include the
+ordered BAR and collective implementations, so they isolate the WARPSYNC
+migration rather than the full refactor.
+
+Moving new WARPSYNC dispatch checks after existing collective checks reduced
+MATCH time from 95.1 to 92.9 microseconds in an identical-source comparison.
+An eight-slot inline handle arena was also measured against the retained
+64-slot arena, but increased the shared BAR/async/collective/matrix timings by
+1.5–7.3% and was discarded. The retained arena size and performance baselines
+are unchanged. Comparisons, source controls and correctness logs are under
+`.cache/ordered-gate/warpsync-*` and `arena-shared-performance.json`.
+
+The cooperative native runtime and its handle arena are shared per block.
+Captures and waits belonging to different lanes can occupy records concurrently;
+shrinking the inline arena therefore increases map use in collective fixtures.
+
+Direct convergence migration (2026-11-06) initially measured candidate/control
+ratios of 1.5588, 1.1810, 1.1672 and 1.4425 on unchanged nested, exited,
+predicated and combined 64-thread fixtures. Retaining convergence generations
+directly instead of allocating callable pending wrappers reduced the migrated
+times by 1.4–2.5% on the same inputs. These costs remain under investigation;
+performance baselines are unchanged. Raw comparisons are
+`.cache/ordered-gate/convergence-performance.json` and
+`convergence-pending-performance.json`.
+
+A final alternating comparison against the pre-convergence source measured
+ratios of 1.5256, 1.1699, 1.2062 and 1.4046; the raw samples are in
+`convergence-final-performance.json`. Two immutable-snapshot scalar reduction
+cache layouts were tested and discarded. The first reduced convergence timings
+by 1.0–1.9% (`convergence-reduction-cache-performance.json`). The smaller layout,
+tested against an otherwise identical source after validation jobs finished,
+improved REDUX by about 3%, but a TF32 matrix fixture remained about 1% slower.
+Its samples are in `snapshot-reduction-cache-final-idle-performance.json`.
+The retained implementation calculates reductions from the captured values.
+These experiments do not remove the larger migration regression.
+
+After canonical interface cleanup (2026-11-06), a fresh comparison against the
+original source used fifteen unchanged fixtures, thirteen alternating samples
+of 200 calls per variant, pinned to CPU 8. Complete results matched on every
+input. Candidate/original medians were 1.3181 for BAR POPC, 1.1089 for async copy,
+1.3008/1.3490/1.3370 for VOTE/MATCH/REDUX,
+1.1805/1.1532/1.1843 for the three matrix fixtures,
+1.8239/1.3384/1.3400/1.8889 for nested/exited/predicated/combined convergence,
+and 1.2199/1.2151/1.2166 for immediate/register/uniform WARPSYNC.
+The convergence ratios above used a pre-convergence control; these new ratios
+use the original source, so they are different comparisons. Regressions remain
+open and timing baselines are unchanged.
+
+Two 30-second `nice uvx py-spy` native profiles of the unchanged combined
+convergence input collected 3,108 ordered and 3,141 original samples without
+errors. The ordered generic operation dispatcher appeared in 20.8% of samples;
+ticket and pending-generation allocations were also visible. Inclusive stack
+counts overlap and do not apportion the full regression. Further investigation
+targets dispatch and handle allocation while preserving statement positions and
+retained suspension state. Samples, complete benchmark results, source hashes
+and input provenance are in `.cache/ordered-gate/canonical-convergence-*` and
+`canonical-runtime-original-performance*.json`.
+
+Typed deferred-wait and convergence enter/wait bindings, plus arena-owned
+interned type names, reduce some of this overhead (2026-11-06).
+The arena shares its name storage when copied, preserving the lifetime of
+retained objects after caller strings and the original arena are destroyed.
+A tree-based name pool slowed VOTE and MATCH by 2.6–2.8% and was discarded;
+the retained pool scans its small list of owned names.
+Instrumentation of the four convergence inputs found no polls of unready
+operations: nested/combined inputs each polled 370 times, including 154
+convergence polls, and exited/predicated inputs each polled 122 times,
+including 30 convergence polls. Avoiding unready scheduler turns therefore
+does not explain or fix these inputs' regression.
+
+The combined comparison against the original source, before the subsequent
+typed-capture experiment, measured 1.2772 for BAR POPC, 1.1192 for async copy,
+1.2732/1.3500/1.3068 for VOTE/MATCH/REDUX,
+1.1627/1.1569/1.1643 for matrix,
+1.6352/1.2807/1.3125/1.5966 for nested/exited/predicated/combined convergence,
+and 1.2053/1.2000/1.2090 for WARPSYNC.
+Complete results matched. All 444 combined native checks passed in
+136 seconds, including cold generated libraries. A fresh SM90 exact source
+comparison retained SHA-256
+`873374b66ea5272a29b079a3765cb40dfa496bb064e56676858622e6a13dd840`;
+these native bindings do not alter that language.
+An anomalous incremental MATCH speedup did not reproduce: isolated tests
+in both process orders instead measured about a 2.2% slowdown after the
+convergence bindings.
+Timing baselines remain unchanged. Diagnostics are in
+`.cache/ordered-gate/native-runtime-optimized-original-performance.json`,
+`type-name-*-performance.json`, `convergence-poll-counts.json`,
+`match-binding-isolated-*.json`, and `native-optimized-*`.
+
+Typed scalar, 64-bit and predicate capture bindings subsequently bypass the
+generic dispatcher while retaining the same capture/poll implementation.
+Default bindings still forward to a caller's operation handler; native
+resumption still validates result arity, width and opaque type.
+Twenty-one malformed-reply and suspension checks preserve the preceding write
+and issue the operation once. All 465 combined native checks pass in
+227 seconds with rebuilt libraries.
+Isolated comparisons in both process orders reproduce a 3–4% MATCH gain
+and a 0.6–1.5% REDUX cost relative to the pre-capture-binding source.
+The full original-source comparison measured
+1.2943/1.1025 for BAR POPC/async copy,
+1.2578/1.3135/1.3088 for VOTE/MATCH/REDUX,
+1.1610/1.1390/1.1668 for matrix,
+1.6046/1.2647/1.3042/1.6572 for convergence,
+and 1.2103/1.2117/1.2007 for WARPSYNC.
+All complete results match; the larger migration regressions remain open.
+Samples and source/input provenance are in
+`.cache/ordered-gate/capture-binding-*-performance.json` and
+`capture-binding-performance-provenance.json`.
+
+Two further frame-storage experiments (2026-11-06) were discarded. A four-value
+inline buffer improved MATCH by roughly 2–3% in repeated, reversed-order
+comparisons, but slowed the nested convergence input by about 1%. Across the
+fifteen fixtures, 119 suspending instruction bodies retained no values and
+only eighteen retained any; reserving four values enlarged the common empty
+frame. A one-value inline buffer with shared result-storage code produced mixed
+costs and no consistent improvement. Both candidates passed 276 native checks,
+and every timed complete response matched the control. Production frame storage
+and timing baselines are unchanged. Samples and source snapshots are under
+`.cache/ordered-gate/frame-values-*` and `frame-hybrid-*`.
+
+Binding SHFL's target and validity calculations once (2026-11-06) removed
+repeated Ghidra arithmetic without changing native timing materially.
+The aliased, repeated-site 64-thread kernel was compared against the preceding
+source snapshot under round-robin, reverse and seeded schedules. Thirteen
+alternating samples of 200 calls, pinned to one CPU, checked complete response
+equality throughout. Candidate/control ratios were 0.9984, 0.9957 and 0.9997
+(about 84–85 microseconds per call), within 0.5%. This isolates the SHFL change;
+the larger original-source migration regressions remain open and timing
+baselines are unchanged. Inputs, samples and immutable source paths are under
+`.cache/ordered-gate/shfl-sharing-*`.
+
+Further barrier allocation/dispatch experiments (2026-11-06) were not retained.
+Pooling boxed objects with an arena-owned shared allocator preserved all fifteen
+fixtures' complete responses, but increased BAR time by 1.7% and nested
+convergence by 4.4%. Typed block-barrier arrival/wait/defer bindings and direct
+pending-generation retention passed 364 native checks and twenty malformed
+arrival-reply checks, including invalid direct overrides and faults after writes.
+Two process orders reproduced a 5.1% BAR gain, but also a 1.7–2.4% MATCH cost
+and a 1.8–2.4% nested-convergence cost. Preserving the prior virtual-method order
+did not remove the unrelated costs. A pending-generation-only candidate avoided
+interface changes but still slowed MATCH and nested convergence.
+Each comparison used the same fifteen inputs, thirteen alternating batches of
+200 calls, one pinned CPU and complete response equality throughout. These
+trials do not justify accepting new timing baselines. Production bindings,
+object allocation and pending waits remain unchanged. Immutable candidates and
+samples are under `.cache/ordered-gate/object-pool-*`,
+`block-bindings-*` and `block-pending-*`.
+
+Inlining the small native instruction dispatcher (2026-11-06) avoids a separate
+call between the scheduler and the generated ordinary/resumable function.
+The retained change preserves the runtime bindings and frame protocol.
+Fifteen identical fixtures, thirteen alternating batches of 200 calls and one
+pinned CPU reproduce approximately 4% gains for VOTE/REDUX and 2–3% for
+WARPSYNC in both process orders. Every complete response agrees. Other changes
+are small and mixed; this does not resolve the original migration regressions
+above. A comparison run during concurrent generation showed misleading
+wall-time increases; thread CPU time and a later idle comparison did not
+reproduce them. Samples are under `.cache/ordered-gate/inline-dispatch-*`.
+Rebuilt production libraries pass 391 native frame, scheduler, barrier and
+collective checks (eleven skips) in 87 seconds. The production source matches
+the immutable benchmark candidate byte for byte.
+
+An isolated entry counter (2026-11-06) separates extra lane execution from
+completed instructions. Original/current executions are 1,152/1,215 for BAR
+POPC, 1,600/1,786 for VOTE, 1,552/1,922 for nested convergence,
+2,192/2,562 for combined synchronization, and 784/815 for WARPSYNC.
+Complete responses, including instruction counts, agree. Resuming suspended
+frames therefore adds observable scheduler work, but these counts alone do
+not account for all of the timing regression. Instrumentation remains in
+temporary copies; production has no counters. Results and source paths are
+in `.cache/ordered-gate/step-count-{diagnostic,roots}.json`.
+
+Final ordered-IR performance comparison (2026-11-06) uses the original source,
+the final production source and the same fifteen fixture inputs. Thirteen
+alternating batches of 200 calls per fixture use one pinned CPU and thread CPU
+time; complete responses agree. Candidate/original ratios are:
+
+| Workload | Ratio |
+|---|---:|
+| BAR POPC | 1.2707 |
+| Async copy | 1.0806 |
+| VOTE / MATCH / REDUX | 1.1869 / 1.2883 / 1.2499 |
+| Three matrix fixtures | 1.1560 / 1.1450 / 1.1793 |
+| Nested / exited / predicated / combined convergence | 1.6250 / 1.2740 / 1.2720 / 1.6328 |
+| Three WARPSYNC operand forms | 1.1813 / 1.1807 / 1.1848 |
+
+These cooperative costs remain material. Explicit per-lane requests, retained
+ticket/snapshot ownership, result validation and extra resume calls replace
+operations the original scheduler performed outside instruction bodies.
+The profiles and ablations above investigate those costs; they do not attribute
+every cycle or establish that further optimization is impossible. Timing
+baselines are unchanged. The native path for bodies that cannot suspend remains
+ordinary code: the final alias-capture gate agrees on every checksum and has a
+median ratio of 0.9820 over nine alternating 100-million-iteration samples.
+Results are in `.cache/ordered-gate/final-original-native-performance.json`
+and `final-fast-path-performance.log`.
+
+Caching the block runtime pointer was also tested and discarded. It preserved
+all fifteen complete responses but slowed several fixtures by 1–3% compared
+with the retained dispatcher. The production runtime lookup remains unchanged;
+the isolated candidate and samples are under `.cache/ordered-gate/runtime-cache-*`.
+
+The final standard Python suite passes 4,219 tests and 109,434 selected shared
+cases in both SM89 floating-point modes, with 180 skips. It took 674 seconds
+including fixture construction and native comparisons. An earlier invocation
+accidentally omitted the default `native_full` exclusion and was interrupted
+during optional exhaustive enumeration; it is not the final suite result.
+The final result is in `.cache/ordered-gate/final-python-sm89-standard.log`.

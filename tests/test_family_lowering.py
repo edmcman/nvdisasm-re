@@ -20,6 +20,19 @@ def test_conversion_definition_widths_across_modes():
             assert enumerate_rows(Builder(g,k,None,g.span_variants(k)[0][0]),family_for(k))
 
 
+@pytest.mark.parametrize("name", [
+    "f2i_Rd64__Ib_bf16", "f2i__Ib_bf16", "frnd__bf16_I",
+])
+def test_constant_float_formats_decode_immediates_without_environment_reads(name):
+    from sass.semantics import operands
+    from sass.sleigh import gen
+    generator = gen.Gen("SM90")
+    klass = next(klass for klass in generator.arch.classes if klass.name == name)
+    builder = operands.Builder(generator, klass, None, generator.span_variants(klass)[0][0])
+    assert builder.values["Sb"].kind == "float-bits"
+    assert "sass_operand_value" not in generator.pcodeops
+
+
 def crashes(job):
     """(arch, [crash]) over every `shards`-th class of arch, starting at `shard`."""
     from sass.sleigh.gen import Gen

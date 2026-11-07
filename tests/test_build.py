@@ -26,6 +26,17 @@ def test_coverage_is_optional(tmp_path, monkeypatch):
     assert json.loads((tmp_path / "sass_sm89_coverage.json").read_text())
 
 
+def test_unreachable_tables_leave_no_declarations():
+    g = instruction(False)
+    field = g.name_field("h", 40, 41, ["unused"] * 4)
+    g.temporaries["UNUSED_VALUE"] = 4
+    g.pcodeops.add("unused_operation")
+    g.subtable("unused", [('"unused"', f"(lany ; {field})", "",
+                          "UNUSED_VALUE = unused_operation();")])
+    spec = g.slaspec()
+    assert all(name not in spec for name in (field, "UNUSED_VALUE", "unused_operation"))
+
+
 @pytest.mark.parametrize("arch", ["SM75", "SM89", "SM90", "SM100"])
 def test_wide_load_coverage_respects_span_domains(arch):
     """Wide sizes cannot inherit opaque rows from a narrower destination variant."""
@@ -88,12 +99,96 @@ def test_constant_atomic_predicate_does_not_duplicate_body():
     k = next(k for k in g.arch.classes if k.name == "atomg_int__RaNonRZ")
     g.semantics(k, None)
     assert not any(name.startswith("live") for name in g.tables.values())
-def test_zero_argument_effect_is_retained():
+def test_async_commit_passes_its_encoded_dependency_slot():
     g = gen.Gen("SM89")
     k = next(k for k in g.arch.classes if k.name == "ldgdepbar_")
     g.build(k)
     assert "sass_async_commit" in g.pcodeops
-    assert any("sass_async_commit();" in row for row in g.table_lines)
+    assert any("sass_async_commit(" in row and "sass_async_commit();" not in row for row in g.table_lines)
+
+
+def test_dependency_wait_is_before_the_guard_and_zero_mask_uses_an_empty_constructor():
+    g = gen.Gen("SM89")
+    k = next(k for k in g.arch.classes if k.name == "nop_")
+    guard = g.guard(k)
+    body, _ = g.semantics(k, guard)
+    assert body.index("build wait") < body.index(f"build {guard}")
+    rows, = [rows for (prefix, rows) in g.tables if prefix == "wait"]
+    assert len(rows) == 2 and rows[0][-1] == ""
+    assert "sass_dependency_wait(" in rows[1][-1]
+    assert "sass_dependency_wait" in g.pcodeops
+
+
+def test_deferred_wait_is_after_the_guard_and_has_one_shared_table():
+    g = gen.Gen("SM89")
+    bodies = []
+    for name in ("lds__sImmOffset", "bar__SYNC_II_optionalCount_II"):
+        k = next(k for k in g.arch.classes if k.name == name)
+        guard = g.guard(k)
+        body, _ = g.instruction_prefix(k, guard)
+        assert body.index("build wait") < body.index(f"build {guard}") < body.index("build deferred_wait")
+        bodies.append(body.split("build deferred_wait")[1].split(";")[0])
+    assert bodies[0] == bodies[1]
+    rows, = [rows for (prefix, rows) in g.tables if prefix == "deferred_wait"]
+    assert len(rows) == 1 and "sass_ordered_block_barrier_wait_deferred()" in rows[0][-1]
+
+
+@pytest.mark.parametrize("write", [False, True])
+def test_mapped_register_fields_preserve_values_and_zero_rules(write):
+    from sass.decode import ir
+    g = gen.Gen("SM89")
+    field = ir.Field("", ((35, 32),))
+    mapping = {0: 4, 2: 255, 3: 6, 7: 255}
+    table = g.regsem(field, "R", 2, write, mapping)
+    variable, = g.register_mappings.values()
+    assert g.attach_vars[variable][0] == "R4_64"
+    assert g.attach_vars[variable][3] == "R6_64"
+    assert g.attach_vars[variable][1] == "SINK8"
+    constructors = [line for line in g.table_lines if line.startswith(table + ":")]
+    assert len(constructors) == 2
+    assert "export SINK8;" in constructors[1] if write else "export 0:8;" in constructors[1]
+    assert g.regsem(field, "R", 2, write, mapping) == table
+
+
+@pytest.mark.parametrize("write", [False, True])
+def test_mapped_zero_register_has_one_constructor(write):
+    from sass.decode import ir
+    g = gen.Gen("SM89")
+    table = g.regsem(ir.Field("", ((35, 32),)), "R", 1, write, {2: 255, 7: 255})
+    constructors = [line for line in g.table_lines if line.startswith(table + ":")]
+    assert len(constructors) == 1
+    assert "export SINK4;" in constructors[0] if write else "export 0:4;" in constructors[0]
+
+
+def test_mapped_display_preserves_names_and_domain(monkeypatch):
+    from sass.decode import ir
+    g = gen.Gen("SM89")
+    field = ir.Field("", ((35, 32),))
+    monkeypatch.setattr(g, "source", lambda *args: ("table", field, None, 0))
+    monkeypatch.setattr(g, "table_values", lambda *args: {0: 4, 2: 255, 3: 6})
+    table, refs = g.vsym(None, ir.Atom("operand", "Register", "Ra"), False)
+    variable, = g.attach
+    assert g.attach[variable][:4] == ["R4", "", "RZ", "R6"]
+    constructors = [line for line in g.table_lines if line.startswith(table + ":")]
+    assert len(constructors) == 1
+    assert variable in constructors[0]
+    assert refs == [("sub", table)]
+
+
+def test_mapped_fields_partition_discontiguous_and_cross_token_fields():
+    from sass.decode import ir
+    for field in (ir.Field("", ((80, 80), (35, 32))), ir.Field("", ((67, 60),))):
+        g = gen.Gen("SM89")
+        mapping = {raw: (raw * 3) % 255 for raw in range(1 << field.width)}
+        groups = list(gen.mapped_fields(g, field, mapping))
+        selected = max(range(len(gen.pieces(field))), key=lambda index: gen.pieces(field)[index][3])
+        assert sum(len(rows) for _, _, rows in groups) == len(mapping)
+        for raw, value in mapping.items():
+            parts = gen.split_value(field, raw)
+            key = parts[selected][3]
+            assert any(rows.get(key) == value for _, _, rows in groups)
+        table = g.regsem(field, "R", 1, False, mapping)
+        assert len([line for line in g.table_lines if line.startswith(table + ":")]) == len(groups)
 
 
 def test_pure_forwarding_reuses_tables_across_constructors():

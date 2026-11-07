@@ -60,16 +60,18 @@ def compile(backend="llvm"):
     if f"v{k.VERSION}" not in version and f" {k.VERSION}" not in version:
         raise ToolError(f"expected K {k.VERSION}, got {version.strip()}")
     digest = hashlib.sha256(version.encode())
-    for source in k.SOURCES:
-        digest.update(source.name.encode())
-        digest.update(source.read_bytes())
+    source, module = k.DEFINITION, "SASS-ORDERED"
+    digest.update(module.encode())
+    for item in k.SOURCES:
+        digest.update(item.name.encode())
+        digest.update(item.read_bytes())
     root = paths.CACHE / "formal/k" / digest.hexdigest()[:20]
     root.mkdir(parents=True, exist_ok=True)
     output = root / backend
     with (root / "build.lock").open("w") as lock:
         fcntl.flock(lock, fcntl.LOCK_EX)
         if not (output / "sass.ready").exists():
-            invoke("kompile", k.DEFINITION, "--main-module", "SASS", "--syntax-module", "SASS",
+            invoke("kompile", source, "--main-module", module, "--syntax-module", module,
                    "--backend", backend, "--output-definition", output, timeout=300)
             (output / "sass.ready").touch()
     return output

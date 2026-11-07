@@ -38,7 +38,7 @@ class Builder:
         self.g, self.k, self.spans, self.known = gen, klass, spans, known
         self.domain = domain or {}
         self.body = [f'build {guard};'] if guard else []
-        self.refs, self.values, self.outputs, self.inventory = [], {}, {}, []
+        self.refs, self.values, self.outputs, self.inventory, self.addresses = [], {}, {}, [], {}
         self.selector_guards = {}
         self.selector_combinations = {}
         self.selector_patterns = []
@@ -284,9 +284,11 @@ class Builder:
                 addr=self.g.subtable('cbank',[('t',pattern([],bank[1]+off[1]),
                     f' [ t = inst_start * 0 + (({bank[0]} << 32) | (({off[0]}) & 0xffffffff)); ]','export *[const]:8 t;')])
                 self.refs.append(('sub',addr))
+                self.addresses[name] = Value(addr, 8, 'constant-address')
                 return self.expression(size,f'*[cbank]:{size} {addr}','constant-load')
             bank=self.values[name+'_bank'].symbol;off=self.values[name+'_addr'].symbol
             addr=self.expression(8,f'(zext({bank}) << 32) | zext({off})')
+            self.addresses[name] = addr
             return self.expression(size,f'*[cbank]:{size} {addr.symbol}','constant-load')
         if atom.type == 'SpecialRegister':
             return self.unknown(atom)

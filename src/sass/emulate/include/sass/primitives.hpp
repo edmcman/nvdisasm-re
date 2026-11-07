@@ -55,6 +55,7 @@ inline Status match(const Warp &w, uint32_t need, const Lanes x, Lanes out) {
 }
 
 enum Reduction { And, Or, Xor, Add, Umin, Umax, Smin, Smax };
+inline constexpr const char *REDUCTION_NAMES[] = {"and", "or", "xor", "add", "umin", "umax", "smin", "smax"};
 
 inline Status redux(Reduction op, const Warp &w, uint32_t need, const Lanes x, Lanes out) {
   if (!w.active) return fail("redux over no active lanes");

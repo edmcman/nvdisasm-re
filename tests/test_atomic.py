@@ -3,7 +3,7 @@ import pytest
 from sass.assemble import encoding
 from sass.decode import pydecode
 from sass.emulate import machine
-from sass.semantics import evaluate, lifter
+from sass.semantics import evaluate, lifter, ordered
 from sass.semantics.runtime import Runtime
 from sass.sleigh import modifiers
 from tests.harness import autocases, autocase_profiles, lifted
@@ -63,7 +63,7 @@ def test_atomic_snapshots(arch, size, cas):
             state.store(region["space"], region["address"], len(data) * 8, int.from_bytes(data, "little"))
         sem = lifter.lift(arch, bytes.fromhex(case.request["word"]))
         assert sem.status == "native", sem.reason
-        assert sem.stores[0].atomic
+        assert any(isinstance(statement, ordered.Boundary) and statement.enter for statement in ordered.linearize(sem.body))
         out = evaluate.execute(sem, state, runtime=Runtime(int(arch[2:])))
         for name, value in case.expected.items():
             if name.startswith("__"): continue

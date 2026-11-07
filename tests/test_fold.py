@@ -45,6 +45,26 @@ class Fields:
     def __init__(self): self.g, self.k = Fields.G(), None
 
 
+@pytest.mark.parametrize("stateful", [False, True])
+def test_ordered_folding_keeps_encoded_choices_out_of_runtime_arithmetic(stateful):
+    from sass.semantics import operands, ordered
+    from sass.sleigh import gen, lower
+    import sass.sleigh.ordered
+    generator = gen.Gen("SM90")
+    klass = next(klass for klass in generator.arch.classes if klass.name == "sgxt__RuIR_RIR")
+    builder = operands.Builder(generator, klass, None, generator.span_variants(klass)[0][0])
+    width = ordered.temp(0, 32) if stateful else bitvec.param("Sb", 32)
+    selected = lower.sel(("cw",), [((0,), width & 31), ((1,), bitvec.umin(width, 32))], 32)
+    shift = (32 - selected) & 31
+    code = lower.Code()
+    value = sass.sleigh.ordered.Lower(builder, code, lower.count_uses([shift])).folded(shift)
+    assert (value is None) == stateful
+    if not stateful:
+        assert not code.lines
+        assert all(sem.startswith("export ") for _, constructors in generator.tables
+                   for _, _, _, sem in constructors)
+
+
 def expressions(rng, depth, w):
     """A random expression of width w over parameters p0..p2 (each w bits)."""
     if depth == 0 or rng.random() < 0.2:

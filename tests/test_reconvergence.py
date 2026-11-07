@@ -10,6 +10,17 @@ INVALID = (
     ('ISETP.LT.U32.AND P2, PT, R0, 32, PT; @P2 BAR.SYNC 1; @!P2 BAR.SYNC 2;', 'no thread can proceed'),
     ('BAR.SYNC R0, R0;', 'unresolved packed-register barrier'),
 )
+PARTIAL_COLLECTIVES = (
+    ("SHFL.BFLY PT, R8, R0, 0, 31;", list(range(32))),
+    ("MATCH.ANY R8, R0;", [1 << lane for lane in range(32)]),
+    ("REDUX.SUM UR0, R0; MOV R8, UR0;", [120] * 16 + [376] * 16),
+)
+
+
+def partial_deferred_body(collective):
+    return "\n".join(("ISETP.LT.U32.AND P2, PT, R0, 16, PT;",
+                      "@P2 BAR.SYNC.DEFER_BLOCKING 0, 32;", collective,
+                      "@!P2 BAR.ARV 0, 32;"))
 
 def compare(r, expected, arch):
     python = reference.run_kernel(r, arch)
@@ -55,6 +66,29 @@ def test_combined_replay_blockers(order):
             [expected[(i + 1) % 64] + 0x3f000000 & 0xffffffff for i in range(64)], 'SM89')
 
 
+@pytest.mark.parametrize("arch", ["SM89", "SM90"])
+@pytest.mark.parametrize("order", ["round_robin", "reverse", "seeded"])
+def test_deferred_barrier_before_convergence(arch, order):
+    body = "BAR.SYNC.DEFER_BLOCKING 0;\n" + synchronization.NESTED
+    compare(request(body, 64, 64, order, arch), synchronization.nested_expected(64), arch)
+
+
+@pytest.mark.parametrize("arch", ["SM89", "SM90"])
+@pytest.mark.parametrize("order", ["round_robin", "reverse", "seeded"])
+@pytest.mark.parametrize("collective,expected", PARTIAL_COLLECTIVES)
+def test_partial_deferred_barrier_excludes_blocked_collective_members(arch, order, collective, expected):
+    compare(request(partial_deferred_body(collective), 32, 32, order, arch), expected, arch)
+
+
+@pytest.mark.parametrize("arch", ["SM89", "SM90"])
+@pytest.mark.parametrize("order", ["round_robin", "reverse", "seeded"])
+@pytest.mark.parametrize("cond", ["DIV", "CONV"])
+def test_deferred_arrivals_do_not_park_divergence_branches(arch, order, cond):
+    from tests.refs.control import deferred_branch_outputs
+    compare(request(synchronization.deferred_branch(cond), 32, 32, order, arch),
+            deferred_branch_outputs(cond), arch)
+
+
 @pytest.mark.parametrize('order', ['round_robin', 'reverse', 'seeded'])
 def test_exited_block_barrier_members(order):
     compare(request(synchronization.BAR_EXITED, order=order),
@@ -82,11 +116,17 @@ def test_ghidra_synchronization_orders(arch, pytestconfig):
                 for order in ('round_robin', 'reverse', 'seeded') for r in map(gpu.request, fixtures)]
     for order in ('round_robin', 'reverse', 'seeded'):
         requests.extend(synchronization.request(synchronization.NESTED, n, 64, order, arch) for n in (7, 37))
+    partial = [(synchronization.request(partial_deferred_body(body), 32, 32, order, arch), outputs)
+               for order in ('round_robin', 'reverse', 'seeded') for body, outputs in PARTIAL_COLLECTIVES]
+    partial_start = len(requests)
+    requests.extend(r for r, _ in partial)
     requests.extend(synchronization.request(body, 64, 64, arch=arch) for body, _ in INVALID)
     expected = [reference.run_kernel(r, arch) for r in requests]
     for f, result in zip(fixtures * 3, expected): assert not hardware.emulated_problems(f, result)
     for n, result in zip((7, 37) * 3, expected[len(fixtures) * 3:]):
         assert result.get('outputs') == [x.to_bytes(4, 'little').hex() for x in synchronization.nested_expected(n)]
+    for (_, outputs), result in zip(partial, expected[partial_start:]):
+        assert result.get('outputs') == [x.to_bytes(4, 'little').hex() for x in outputs]
     for (_, error), result in zip(INVALID, expected[-len(INVALID):]): assert error in result.get('error', '')
     results = ghidra_bridge.emulate_sharded({mode: (arch, mode, requests) for mode in modes}, workers=len(modes))
     assert all(found == expected for found in results.values())

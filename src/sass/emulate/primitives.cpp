@@ -11,8 +11,6 @@
 using namespace sass;
 
 namespace {
-constexpr std::string_view REDUCTIONS[] = {"and", "or", "xor", "add", "umin", "umax", "smin", "smax"};
-
 prim::Status call(std::string_view name, const prim::Warp &w, uint32_t need, const uint64_t *args, int nargs, uint64_t *out) {
   const auto arg = [&](int i) { return args + 32 * i; };
   if (name == "read_lane" && nargs == 2) return prim::read_lane(w, need, arg(0), arg(1), out);
@@ -21,7 +19,7 @@ prim::Status call(std::string_view name, const prim::Warp &w, uint32_t need, con
   if (name == "address_space" && nargs == 1) return prim::address_space(w, need, arg(0), out);
   if (name.starts_with("redux_") && nargs == 1)
     for (int op = 0; op < 8; ++op)
-      if (name.substr(6) == REDUCTIONS[op]) return prim::redux(prim::Reduction(op), w, need, arg(0), out);
+      if (name.substr(6) == prim::REDUCTION_NAMES[op]) return prim::redux(prim::Reduction(op), w, need, arg(0), out);
   if (name.starts_with("mufu_") && (nargs == 1 || nargs == 2))
     for (int fn = 0; fn < 10; ++fn) {
       std::string upper(name.substr(5));

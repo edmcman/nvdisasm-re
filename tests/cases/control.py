@@ -9,7 +9,8 @@ from tests.harness.manual import retained
 def emulator_cases(c):
     # Physical zero-SR pair: seeded destinations prove overwrite; generated SR profiles use synthetic state.
     c.add("cs2r_", dict(Rd=8, SRa="SRZ", sz="64"), dict(R8=1, R9=2), dict(R8=0, R9=0))
-    c.add('s2ur_', dict(URd=8, SRa='SR_CTAID.X'), {'SR_CTAID.X':77}, dict(UR8=77, __native=True),
+    c.add('s2ur_', dict(URd=8, SRa='SR_CTAID.X'), {'SR_CTAID.X':77},
+          dict(UR8=77, __userops=["sass_ordered_block_barrier_wait_deferred"]),
           hardware={'adapter':'ctaid'})
     c.add("r2ur__noOR", dict(URd=8, Ra=2, Pu=0), dict(R2=1), dict(__opaque="sass_opaque_R2UR"))
     # The physical branch adapter currently supports this exact displacement.
@@ -98,7 +99,7 @@ def branch(a, b, c):
 
 
 def gpu_fixtures(arch="SM89"):
-    from tests.harness import arguments, cache_controls, scalar, synchronization
+    from tests.harness import arguments, cache_controls, scalar, synchronization, warp_sync
     return [scalar.launch("branch", branch, arch=arch), arguments.fixture(arch),
             *synchronization.reductions(arch), *synchronization.barrier_states(arch),
-            *synchronization.indirect_branches(arch), *cache_controls.fixtures(arch)]
+            *synchronization.indirect_branches(arch), *cache_controls.fixtures(arch), *warp_sync.fixtures(arch)]

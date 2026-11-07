@@ -31,7 +31,8 @@ def test_generic_access_requires_only_named_memory_effect(fp):
     assert {v for c in cases for n,v in c.expected.items() if n.startswith('R')}=={0,0xffffffef}
     for c in cases:
         assert '__native' not in c.expected
-        assert c.expected['__max_ops']==dict(count=128,userops=['sass_memory_order'],branches=True)
+        assert c.expected['__max_ops']==dict(count=129,
+            userops=['sass_ordered_block_barrier_wait_deferred','sass_memory_order'],branches=True)
 
 
 def test_explicit_branch_permission_keeps_effect_guard():

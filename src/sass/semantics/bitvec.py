@@ -84,6 +84,13 @@ def param(name, w): return Expr("param", (name, ), w)
 PRIMITIVE_OP = "sass_prim_"   # a primitive's pcodeop: PRIMITIVE_OP + name
 
 
+def mufu_value(values, widths, width):
+    from sass.emulate import native
+    from sass.semantics.runtime import UnsupportedSemantics
+    try: return native.primitive("mufu_" + values[0].lower(), values[1:]) & mask(width)
+    except native.Failure as error: raise UnsupportedSemantics(str(error)) from error
+
+
 def primitive(name, w, *args):
     """The w-bit result of the runtime primitive `name` on args: state only the execution
     environment holds (other lanes, barriers, address spaces) or an unmodelled hardware
@@ -123,6 +130,7 @@ def pair(a, b):
 # Plain (non-expression) arguments, like extract's bit positions, are passed as they are.
 
 OPS = {
+    "mufu": mufu_value,
     "add": lambda v, ws, w: (v[0] + v[1]) & mask(w),
     "sub": lambda v, ws, w: (v[0] - v[1]) & mask(w),
     "mul": lambda v, ws, w: (v[0] * v[1]) & mask(w),
@@ -183,7 +191,7 @@ def fcompare(a, b, w, test):
 
 
 def fold(name, args, w):
-    if name in OPS and all(is_const(a) or not isinstance(a, Expr) for a in args):
+    if name in OPS and name != "mufu" and all(is_const(a) or not isinstance(a, Expr) for a in args):
         return const(OPS[name]([value(a) if isinstance(a, Expr) else a for a in args],
                                [a.w if isinstance(a, Expr) else None for a in args], w), w)
     return None
@@ -501,7 +509,7 @@ def substitute(e, mapping, memo=None):
     memo = {} if memo is None else memo
     if not isinstance(e, Expr): return e
     if e in memo: return memo[e]
-    if e.op in ("param", "reg", "const", "sel"):
+    if e.op in ("param", "reg", "const", "sel", "temp"):
         m = mapping(e)
         out = e if m is None else m
     else:
@@ -654,6 +662,7 @@ def show(outputs, expand=False, describe=False):
             match e.op:
                 case "const": return Text(f"{a[0]:#x}" + ("" if e.w == 32 else f":{e.w}"))
                 case "param": return Text(a[0])
+                case "temp": return Text(f"q{a[0]}")
                 case "reg": return Text(f"{a[0]}{a[1]}" if a[2] == 1 else f"{a[0]}{a[1]}:{a[0]}{a[1] + a[2] - 1}")
                 case "load": return cat(f"{a[0]}[", text(a[1], True), f"]:{e.w}")
                 case "ite" if (m := minmax(e)): return m
@@ -665,6 +674,7 @@ def show(outputs, expand=False, describe=False):
                 case "extract": return cat(text(a[0]), f"[{a[1]}:{a[2]}]" if a[1] != a[2] else f"[{a[1]}]")
                 case "concat": return cat("concat(", joined([text(x, True) for x in a]), ")")
                 case "primitive": return cat(f"{primitive_label(a[0])}(", joined([text(x, True) for x in a[1:]]), ")")
+                case "mufu": return cat(f"mufu_{a[0].lower()}(", joined([text(x, True) for x in a[1:]]), ")")
                 case "ult" | "ule" | "slt" | "sle" if is_const(a[0]) and not is_const(a[1]):
                     # Comparisons are canonically < / <=; print `x > k` the way it is usually written.
                     s = cat(text(a[1]), f" {FLIPPED[e.op]} ", number(a[0], e.op[0] == "s"))

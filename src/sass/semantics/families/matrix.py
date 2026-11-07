@@ -1,6 +1,6 @@
-from sass.semantics import primitive
-from sass.semantics.bitvec import concat, const, extract, ite, load, op, slt, trunc, umax, zext
-from sass.semantics.family import definition, family, outputs, unmodelled
+from sass.semantics import ordered, primitive
+from sass.semantics.bitvec import concat, const, extract, ite, op, slt, trunc, umax, zext
+from sass.semantics.family import definition, family, unmodelled
 from sass.semantics.families import convert
 from sass.semantics.fp import fpformat
 
@@ -16,13 +16,25 @@ def element(lane, matrix, n, transpose):
     return concat(matrix * 8 + row, column)
 
 
-def matrix_word(lane, matrix, offset, current, uniform, transpose):
+def capture_operand(i, body, lane, active, name):
+    source = body.capture(i.value(name, modifiers=False))
+    snapshot, = body.special(ordered.CAPTURE_WORDS[source.w],
+                             const(primitive.OPERAND_GROUPS.index(name), 32), lane, active, source)
+    return snapshot
+
+
+def snapshot_word(body, snapshot, lane, word):
+    value, = body.special(ordered.READ_WORD, snapshot, lane, const(word, 32))
+    return value
+
+
+def matrix_word(body, lane, matrix, offset, current, uniform, transpose):
     def half(n):
         position = element(lane, matrix, const(n, 32), transpose)
         owner, column = extract(position, 63, 32), extract(position, 31, 0)
-        address = primitive.operand_lane("Ra", owner, 0, current) + offset
-        if uniform is not None: address = address + primitive.operand_lane("Ra_URb", owner, 0, uniform)
-        return load("shared", zext(address, 64) + zext(column * 2, 64), 16)
+        address = snapshot_word(body, current, owner, 0) + offset
+        if uniform is not None: address = address + snapshot_word(body, uniform, owner, 0)
+        return body.read_memory("shared", zext(address, 64) + zext(column * 2, 64), 16)
     return concat(half(1), half(0))
 
 
@@ -32,12 +44,17 @@ def ldsm(i):
     if size != "16" or mode not in ("M88", "MT88"):
         unmodelled(f"matrix load {size}.{mode}: packed/expanded mapping unresolved")
     if num not in ("1", "2", "4"): unmodelled(f"matrix count {num}")
-    current = i.value("Ra", modifiers=False)
-    uniform = i.value("Ra_URb", modifiers=False) if i.has_operand("Ra_URb") else None
+    body = i.body()
+    lane, = body.special(ordered.LANE)
+    active = i.active_lanes(body)
+    current = capture_operand(i, body, lane, active, "Ra")
+    uniform = capture_operand(i, body, lane, active, "Ra_URb") if i.has_operand("Ra_URb") else None
     offset = i.imm("Ra_offset")
-    words = [matrix_word(primitive.lane(), const(j, 32), offset, current, uniform, mode == "MT88")
+    words = [matrix_word(body, lane, const(j, 32), offset, current, uniform, mode == "MT88")
              for j in range(int(num))]
-    return outputs(Rd=concat(*reversed(words)) if len(words) > 1 else words[0])
+    for snapshot in (current, uniform):
+        if snapshot is not None: body.special(ordered.RELEASE_WORDS, snapshot)
+    return i.assign_from_inputs(body, Rd=concat(*reversed(words)) if len(words) > 1 else words[0])
 
 
 @definition(lambda a: (f"hmma.{a['source'].lower()}.product.e{a['extra']}", ["x", "y"]))
@@ -232,16 +249,21 @@ def hmma(i):
         mbits = i.select_lookup_const("srcfmt", PACKED_BITS, w=32)
     elif not i.select_in("srcfmt", ("TF32",)) or size not in ("1684", "1688"):
         unmodelled(f"HMMA {size}.{dst}: fragment/numerical model unresolved")
-    current = {name: i.value(name, modifiers=False) for name in ("Ra", "Rb", "Rc")}
-    lane = primitive.lane()
+    body = i.body()
+    lane, = body.special(ordered.LANE)
+    active = i.active_lanes(body)
+    snapshots = {name: capture_operand(i, body, lane, active, name) for name in ("Ra", "Rb")}
+    current = body.capture(i.value("Rc", modifiers=False))
     count = int(size[3:])
     block, extra = ((8 if packed else 4), 1) if int(i.arch.name[2:]) < 90 else (count, 2)
     sign = 0x80008000 if packed else 0x80000000
     negation = {name: i.modified(name, "negate", const(0, 32), lambda _: const(sign, 32))
                 for name in ("Ra", "Rb")}
+    words = {}
     def word(name, owner, n):
-        value = primitive.operand_lane(name, owner, n, extract(current[name], n * 32 + 31, n * 32))
-        return value ^ negation[name]
+        key = name, owner, n
+        if key not in words: words[key] = snapshot_word(body, snapshots[name], owner, n)
+        return words[key] ^ negation[name]
     row, column = lane >> 2, (lane & 3) * 2
     if packed:
         a = tuple(word("Ra", row * 4 + k % 8 // 2, r + 2 * (k // 8))
@@ -253,15 +275,16 @@ def hmma(i):
                   for r in (0, 1) for k in range(count))
         b = tuple(word("Rb", (column + col) * 4 + k % 4, k // 4)
                   for col in (0, 1) for k in range(count))
-    enabled = i.pred("UPp") if i.has_operand("UPp") else const(1, 1)
-    c = tuple(ite(enabled, extract(current["Rc"], j * 32 + 31, j * 32), const(0, 32))
+    for snapshot in snapshots.values(): body.special(ordered.RELEASE_WORDS, snapshot)
+    enabled = body.capture(i.pred("UPp")) if i.has_operand("UPp") else const(1, 1)
+    c = tuple(ite(enabled, extract(current, j * 32 + 31, j * 32), const(0, 32))
               for j in range(2 if dst == "F16" else 4))
     minimum = -132 if i.arch.name == "SM89" else -133
     if packed and count == 8:
         stage = packed_stage(a, b, half_accumulators(c) if dst == "F16" else c,
                              mbits, const(minimum, 32), const(dst == "F16", 1), extra)
-        return outputs(Rd=half_result(stage) if dst == "F16" else stage)
+        return i.assign_from_inputs(body, Rd=half_result(stage) if dst == "F16" else stage)
     result = (half_fragment(a, b, c, block, extra) if dst == "F16" else
               packed_fragment(a, b, c, mbits, const(minimum, 32), block, extra) if packed
               else tensor_fragment(a, b, c, block, extra, "TF32", count, minimum))
-    return outputs(Rd=result)
+    return i.assign_from_inputs(body, Rd=result)

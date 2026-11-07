@@ -2,7 +2,7 @@
 I2I (saturated narrowing) and I2IP (saturated/truncated integer pack)."""
 from tests.harness.manual import retained
 from tests.harness import autocase_profiles
-from tests.harness.case import cx_source, pair, put
+from tests.harness.case import cx_source, native_contract, pair, put
 from tests.refs import float
 from tests.refs.float import f2i_trunc, f2ip_byte
 from tests.refs.integer import i2ip
@@ -28,10 +28,10 @@ def scalar(c):
             for negate in (0, 1):
                 effective = (bits & 0x7fffffff if absolute else bits) ^ (0x80000000 if negate else 0)
                 c.add("f2i__Rb_32b", dict(Rd=8, Rb=2, dstfmt="S32", rnd="TRUNC", ntz="NTZ", **{"Rb@absolute": absolute, "Rb@negate": negate}),
-                      dict(R2=bits), dict(R8=f2i_trunc(effective), __native=True))
+                      dict(R2=bits), dict(R8=f2i_trunc(effective), **native_contract(c.arch, "f2i__Rb_32b")))
     if c.fp == "readable":
         for rnd in ("ROUND", "FLOOR", "CEIL"):
-            c.add("f2i__Rb_32b", dict(Rd=8, Rb=2, dstfmt="S32", rnd=rnd, ntz="NTZ"), dict(R2=0x3fe00000), dict(R8=1, __native=True))
+            c.add("f2i__Rb_32b", dict(Rd=8, Rb=2, dstfmt="S32", rnd=rnd, ntz="NTZ"), dict(R2=0x3fe00000), dict(R8=1, **native_contract(c.arch, "f2i__Rb_32b")))
 
 
 @retained("Dense byte saturation/NaN thresholds, literal opaque guards and CX layout anchors exceed the generated pack profile.")
@@ -51,7 +51,7 @@ def f2ip(c):
                 fields, regs, memory = {"Rd": rd, "dstfmt": dstfmt, "srcfmt": "F32", "rnd": "ROUND", "ntz": "NTZ", "relu": "norelu"}, {}, []
                 if all(put(k, n, v, fields, regs, memory, r, ureg=10, bank=(0, {"Sb": 0, "Sc": 4}.get(n, 8)), imm=("F32Imm", "SImm", "UImm"))
                        for n, v, r in zip(srcs, (a, b, d), (2, 4, 6))):
-                    c.add(k.name, fields, regs, {f"R{rd}": ((d & 0xffff) << 16) | (f2ip_byte(a, signed) << 8) | f2ip_byte(b, signed), "__native": True},
+                    c.add(k.name, fields, regs, {f"R{rd}": ((d & 0xffff) << 16) | (f2ip_byte(a, signed) << 8) | f2ip_byte(b, signed), **native_contract(c.arch, k.name)},
                           memory=memory)
     for k in c.of("F2IP", cx=True):
         name = cx_name(k)
@@ -59,7 +59,7 @@ def f2ip(c):
         a, b, d = 0x3fc00000, 0x40200000, 0x12345678
         fields = {"Rd": 8, "Ra": 2, "Rc": 6, "dstfmt": "S8", "srcfmt": "F32", "rnd": "ROUND", "ntz": "NTZ", "relu": "norelu"}
         cx_fields, cx_regs, memory = cx_source(c.arch, k, name, b); fields.update(cx_fields)
-        c.add(k.name, fields, {"R2": a, "R6": d, **cx_regs}, {"R8": ((d & 0xffff) << 16) | (f2ip_byte(a, True) << 8) | f2ip_byte(b, True), "__native": True},
+        c.add(k.name, fields, {"R2": a, "R6": d, **cx_regs}, {"R8": ((d & 0xffff) << 16) | (f2ip_byte(a, True) << 8) | f2ip_byte(b, True), **native_contract(c.arch, k.name)},
               memory=memory)
     c.add("f2ip__RRR", dict(Rd=8, Ra=2, Rb=4, Rc=6, dstfmt="S8", srcfmt="F32", rnd="TRUNC", ntz="NTZ", relu="norelu"),
           dict(R2=0x3f800000, R4=0x40000000, R6=0), dict(error="sass_opaque_F2IP"))
@@ -96,7 +96,7 @@ def i2ip_case(c):
                             ok = ok and put(k, n, v & 0xffffffff if k.operand_types[n].type in ("Register", "UniformRegister", "C") else v,
                                             fields, regs, memory, r, ureg=10, bank=(0, 0x20), imm=("SImm", "UImm"))
                         if ok:
-                            c.add(k.name, fields, regs, {f"R{rd}": i2ip(a, b, d, width, signed, sat, relu, extract), "__native": True}, memory=memory)
+                            c.add(k.name, fields, regs, {f"R{rd}": i2ip(a, b, d, width, signed, sat, relu, extract), **native_contract(c.arch, k.name)}, memory=memory)
     for k in c.of("I2IP", "i2ip__", cx=True):
         name = cx_name(k)
         if name not in ("Sb", "Rb"): continue
@@ -107,7 +107,7 @@ def i2ip_case(c):
             fields = {"Rd": 8, "Ra": 2, "Rc": 6, "dstfmt": "S8", "srcfmt": "S32", sat_field: "SAT", extract_field: extract}
             cx_fields, cx_regs, memory = cx_source(c.arch, k, name, b); fields.update(cx_fields)
             # Saturate each input to S8; H0/H1 selects C's preserved half.
-            c.add(k.name, fields, {"R2": a, "R6": d, **cx_regs}, {"R8": i2ip(a, b, d, 8, True, True, False, extract), "__native": True}, memory=memory)
+            c.add(k.name, fields, {"R2": a, "R6": d, **cx_regs}, {"R8": i2ip(a, b, d, 8, True, True, False, extract), **native_contract(c.arch, k.name)}, memory=memory)
 
 
 
@@ -124,7 +124,7 @@ def ieee(c):
         d, b = (n if n in k.operand_types else "U" + n for n in ("Rd", "Rb"))
         regs = pair(f"{b[:-1]}2", x) if src_w == 64 else {f"{b[:-1]}2": x & 0xffffffff}
         out = pair(f"{d[:-1]}8", value) if dst_w == 64 else {f"{d[:-1]}8": value}
-        c.add(k.name, dict(fields, **{d: 8, b: 2}), regs, dict(out, __native=True), portable=True)
+        c.add(k.name, dict(fields, **{d: 8, b: 2}), regs, dict(out, **native_contract(c.arch, k.name)), portable=True)
     register = lambda k: "Rb" in k.operand_types or "URb" in k.operand_types
     modes = lambda k: [l for l in c.labels(k, "rnd", MODES)]
     for k in c.of("FRND") + c.of("UFRND"):

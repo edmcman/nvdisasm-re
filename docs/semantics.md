@@ -33,8 +33,9 @@ Reading notes:
 
 ### Families (`src/sass/semantics/families/`, 2026-10-12)
 - A family is a Python function over the md-decoded instruction (`@family('IMAD', 'UIMAD')`,
-  `src/sass/semantics/family.py`) returning `outputs(Rd=..., Pu=...)` of `sass.semantics.bitvec`
-  bitvector expressions (widths in bits, `extract`/`concat`). One definition serves
+  `src/sass/semantics/family.py`) returning an ordered statement block. Pure calculations use
+  `sass.semantics.bitvec` expressions; `assign_from_inputs` captures inputs and calculates all
+  right-hand sides at its statement position, then writes destinations in declared order. One definition serves
   `sass.semantics.lifter.lift` (Ghidra-free semantics, evaluated by `sass.semantics.evaluate`) and the
   SLEIGH backend `src/sass/sleigh/lower.py`.
 - Every opcode with semantics is a family (Phase 6c, 2026-10-13). `src/sass/semantics/operations.py`
@@ -97,14 +98,11 @@ Reading notes:
   labels; they do not change legality, native guards or exhaustive support counts. Memory cache
   hints and consistency qualifiers remain part of three-way verification. Exact runtime event
   arguments check their emulator effect contract, independently of the value reference.
-- Runtime primitives (2026-10-22, replacing Phase 6c's `primitive()`, which passed every decoded field
-  to `sass_prim_OPCODE` and let the runtime re-decode them): `src/sass/semantics/primitive.py` builds
-  `bitvec.primitive(name, w, *args)` nodes, values a family uses like any expression
-  (`outputs(Rd=primitive.mufu("SIN", x))`), and synchronization effects. The name is only the operation
-  (the mnemonic, plus MUFU's function); selectors a primitive still needs are constant arguments (their
-  encodings); everything computable from values is native (SHFL's lane arithmetic, VOTE's modes,
-  MATCH.ALL, ELECT's leader, QSPC's address). See [section 11](#11-runtime-primitives). Fixed registers
-  (`bitvec.reg('UP', k, 1, element=1)`) lower to their names.
+- Runtime operations have shared typed definitions in `sass.semantics.ordered.OPERATIONS`.
+  Environment access uses `Special` statements with explicit arguments, results and suspension
+  behavior. Argument-only numerical functions, including MUFU calculations, remain expressions.
+  Ordered bodies reject `bitvec.primitive` environment expressions. See [section 11](#11-runtime-primitives) and
+  [the generated operation reference](runtime-operations.md).
 - Floating point in the IR: `fadd`/`fmul`/`ffma` (rounding mode, FMUL's 2^k scale),
   `flt`/`fle`/`feq`/`fnan`, `fconv`, exactly rounded (`sass.semantics.fp.softfloat`) in
   `lift`/`evaluate`. FTZ (branch-free), SAT and min/max NaN/zero rules are family IR
@@ -342,11 +340,13 @@ process, normally by lifting instructions. There is no persistent registry or pr
 ```python
 from sass.assemble import assemble_instruction
 from sass.emulate import definitions
-from sass.semantics import lifter
+from sass.semantics import lifter, ordered
 
 word = assemble_instruction("SM89", "FMNMX.FTZ R0, R2, R3, PT")
 semantics = lifter.lift("SM89", word)
-uses = definitions.definition_uses(value for _, value in semantics.writes)
+roots = (value for statement in ordered.linearize(semantics.body)
+         for value in ordered.statement_values(statement))
+uses = definitions.definition_uses(roots)
 header = definitions.definitions_header(uses)
 # Write header to a file the consuming C++ translation unit includes.
 # The consumer can emit sass::def::min_f32(sass::def::ftz(a), sass::def::ftz(b)).
@@ -354,7 +354,7 @@ header = definitions.definitions_header(uses)
 
 - `definition_uses(exprs)` returns a set of `(label, operand_widths)` pairs. It traverses the
   original expressions and their arguments, collecting nested operators without expanding them.
-  Pass all relevant expression roots, including guards, stores and effects when needed.
+  Pass the expression roots from every statement, including branches and runtime arguments.
 - `definition_name(label, widths)` returns the unqualified C++ name in `sass::def`, replacing
   dots with underscores. A label and operand count fix the operand widths. Different operand
   counts produce overloads; widths alone cannot distinguish overloads because `Bits<W>` aliases
@@ -484,12 +484,11 @@ These are backend checks; instruction-form evidence remains separate.
   `lifter`; ~2 min per arch on 32 cores).
 
 ## 2. SLEIGH lowering
-- Merging: the rows of static answers are merged by anti-unification (one key at a time, default rows,
-  rows the default reproduces absorbed, choices reused across outputs). Outputs merge jointly, so a
-  decode-time choice can select whole bodies (one constructor computes a shared constant load once).
-  `cost` (`lower.py`) = generated nodes + 8 x operations on the longest execution path, per class.
-  A subtable exporting a register exports the register itself: later outputs are captured before the
-  first write.
+- Merging: compatible statement bodies merge their expression choices jointly,
+  preserving temporary references and sharing across outputs. Incompatible
+  statement structures use decode-time body alternatives. Stateful statements
+  stay within their selected runtime branches. Register operand subtables export
+  locations; explicit reads capture their values at each statement position.
 - In SLEIGH, operand modifier bits (|x|, -x, ~x, !P) are decode-time choices of the operand value,
   except on loaded operands (c[], cx[]), whose load each table would repeat. With `select_lookup` this
   keeps the enumeration small (FFMA has 6 modifier bits).
@@ -1197,11 +1196,12 @@ These are backend checks; instruction-form evidence remains separate.
 
 ## 9. Control flow
 Family `families/control.py` (Phase 6a).
-- `outputs(flow=goto|call|ret(target, cond))`. `i.branch_target(name)` is a direct target (SLEIGH: the
+- `i.transfer(kind, target, condition)` captures a predicate and places target access and the
+  terminal `Transfer` statement inside the enabled branch. `i.branch_target(name)` is a direct target (SLEIGH: the
   branch-target subtable, `goto`/`call` without brackets; lift: the absolute address, RSImm relative to
   the next instruction); other targets are values (`call [x]`, `return [x]`).
-- The lifter normalizes a constant-true flow condition to `None`; false and dynamic conditions remain
-  explicit. Flow travels through row merging as pseudo-outputs (`__flow_target`/`__flow_cond`).
+- False and dynamic transfer conditions remain explicit conditional blocks. The instruction-form
+  merger preserves their statement structure and keeps stateful target accesses in their selected branch.
   `evaluate.execute` sets `State.pc`, so the lifted tests check `__counter`.
 - Modelled:
   - BRA, including .DIV/.CONV with a `[~]URb` lane mask (not without one, nor with a uniform predicate).
@@ -1218,9 +1218,9 @@ Family `families/control.py` (Phase 6a).
 
 ## 10. Memory and special registers
 Family `families/memory.py` (Phase 6b).
-- `outputs(stores=[store(space, addr, value, cond=None)], effects=[effect(name, args...)])`; a store
-  with `cond` is skipped when it is 0. Stores and effects merge as pseudo-outputs (a store's width
-  follows sz, so `Merger.bodies` splits rows whose output widths differ).
+- Memory reads and writes are ordered `ReadMemory` and `WriteMemory` statements with explicit
+  spaces and addresses. Conditional accesses remain inside their blocks. Widths follow `sz`;
+  incompatible statement structures retain separate decode-time body alternatives.
 - `i.encoding(name)` passes a selector's raw value (the memory-ordering controls `sass_memory_order`
   validates). `i.special(name, w)` reads the special register a SpecialRegister field selects (SRZ 0).
   `i.special_register(name)` reads a named one (`SR_SWINLO`) whatever the encoding.
@@ -1504,8 +1504,10 @@ redefining each SASS opcode. `bits.md` gives the width-explicit integer operator
 and instruction/program state transitions. The Python exporter translates the
 existing lifter's output into terms interpreted by those handwritten rules.
 
-The model supports every operator in `bitvec.OPS`, constants, parameters,
-registers, memory loads, lazy conditionals, and runtime primitive nodes. Named
+The model supports pure bitvector operators, constants, parameters and lazy
+expressions over captured temporaries. Ordered statements provide register and
+memory access, assignment, conditional blocks, atomic boundaries, terminal
+control transfers and typed runtime requests. Named
 `@definition` operators expand through their existing definitions; the manifest
 retains their names. Decode-time `sel` nodes and staging-only tuples are rejected.
 An opaque decoded instruction becomes an explicit unsupported transition, not a
@@ -1522,12 +1524,12 @@ result width. Integer leading-zero counting and floating-point rounding share
 Registers use R/UR/SR 32-bit and P/UP 1-bit elements. Memory is byte-addressed and
 partitioned by the existing space names. Both use the evaluator's zero defaults
 and little-endian wide values. Predication happens before effects or operand
-reads; a false guard still advances PC by 16. Effects precede value evaluation.
-Register and memory writes are staged until their values and the branch target
-are evaluated, so every architectural read sees the state before the instruction's
-writes. Destination overlaps retain ordered, last-write-wins behavior. Expression
-ids preserve sharing and memoization within an instruction, including primitives;
-the memo resets on the next instruction.
+reads; a false guard still advances PC by 16. Format 2 executes each statement
+immediately: a read after a write observes that write. Explicit temporaries retain
+captured inputs, and `assign_from_inputs` calculates its right-hand sides before
+writing destinations in declared order. Overlaps retain last-write-wins behavior.
+Only pure calculations over captured values may share expression evaluation;
+state reads and runtime operations execute at their statement positions.
 
 IEEE operations use exact dyadics (an integer significand times a power of two),
 with one final rounding, including fused multiply-add and FMUL scaling. The rules
@@ -1591,22 +1593,25 @@ A small branching example and direct K commands:
 
 ```sh
 nice uv run python examples/formal/export.py
-nice kompile src/sass/formal/k/sass.md --main-module SASS --syntax-module SASS \
-  --backend llvm --output-definition .cache/k-llvm
+nice kompile .cache/formal-example/program.k \
+  --main-module SASS-EXPORTED --syntax-module SASS-EXPORTED \
+  --backend llvm --output-definition .cache/k-llvm -I src/sass/formal/k
 nice krun .cache/formal-example/input.sass --definition .cache/k-llvm --output json
-nice kompile src/sass/formal/k/sass.md --main-module SASS --syntax-module SASS \
-  --backend haskell --output-definition .cache/k-haskell
+nice kompile .cache/formal-example/program.k \
+  --main-module SASS-EXPORTED --syntax-module SASS-EXPORTED \
+  --backend haskell --output-definition .cache/k-haskell -I src/sass/formal/k
 nice kprove examples/formal/claims.k --definition .cache/k-haskell \
   --spec-module SASS-CLAIMS -I src/sass/formal/k
 ```
 
 ### Published definition
 
-The three modules are literate Markdown: explanations, mathematical notation,
+The four modules are literate Markdown: explanations, mathematical notation,
 and fenced `k` blocks. K compiles these files directly, extracting the code
 blocks. Read [integer bitvectors](../src/sass/formal/k/bits.md),
 [exact floating point](../src/sass/formal/k/float.md), and
-[instruction execution](../src/sass/formal/k/sass.md) alongside the
+[instruction execution](../src/sass/formal/k/sass.md), and
+[ordered statements](../src/sass/formal/k/ordered.md) alongside the
 [reading guide](../src/sass/formal/k/reference.md).
 
 Build a complete reference document from those same sources:
@@ -1643,7 +1648,7 @@ The PDF quotes the two complete-execution claims directly from `claims.k`
 and includes the prover's actual standard output. `proof.json` records that
 output, proof status, and source fingerprint. Without the option,
 the publication explicitly marks the claims as unchecked. A state graph uses
-the generated boundary values. The executable rule listings cover all three
+the generated boundary values. The executable rule listings cover all four
 modules. The K source remains the executable definition. A K regression checks
 the final registers and instruction counts, proves the execution claims, and
 rejects a corrupted intermediate result. Reproducible assembly, bytes, manifest,
@@ -1727,3 +1732,258 @@ before installing. `SASS_K_CONTAINER` selects the tool container; alternatively
 use installed tools on PATH or `SASS_K_BIN` for a directory of K executables.
 Container executions disable networking and run as the caller. Definitions,
 inputs, and outputs are bound at their original absolute paths.
+
+## Ordered statement IR: feasibility work (2026-11-05)
+
+`sass.semantics.ordered` supplies explicit register and memory reads and writes,
+temporary assignments (`Move`), conditional blocks with typed results, atomic
+blocks, runtime operations (`Special`), and terminal transfers. Expressions in
+these bodies cannot read state. Temporaries have one definition, branch-local
+values escape only through declared results, and atomic blocks reject nesting,
+suspension, and external transfers.
+
+A `temp` expression refers to an already bound temporary; it does not execute an
+operation. `Move(q0, 5)` binds the value, and `q0 + 1` uses it. The existing
+`Expr.op` field tags expression nodes, including constants and temporary references.
+
+`Builder.assign_from_inputs` captures its right-hand sides at that point in the
+body and then writes destinations in the supplied order. Captured inputs and
+shared pure calculations are reused within this assignment. Conditional memory
+accesses remain inside their selected branch.
+
+The operation registry records argument and result types, state access,
+suspension, and documentation. [The runtime reference](runtime-operations.md) is
+generated with `python -m sass.semantics.ordered_runtime`. Warp snapshots and barrier tickets have opaque
+types; runtimes own their numeric handles until explicit runtime cleanup. A
+completed barrier generation remains available through its ticket after the
+barrier ID is reused. Captures gather every participating lane's contribution
+before returning a snapshot; a later generation does not replace a retained
+snapshot.
+
+SHFL, VOTE/VOTEU, MATCH, and REDUX use explicit capture, snapshot reads or
+calculations, and release. Each participant receives
+its own handle to the captured values; releasing one handle cannot invalidate
+another participant's pending read. The scheduler supplies lane masks but does
+not fetch these instructions' source registers or predicates. MATCH's 64-bit
+snapshots have a distinct opaque type and retain both words. Standalone evaluation uses the caller's
+explicit warp context through the same operation contracts.
+
+The Python frame records its statement position, temporaries, pending operation,
+and outcome. Earlier writes remain visible during suspension and after faults.
+Resumption polls the pending operation and continues after it, without issuing
+the operation again. PC changes only when the body completes. Native functions
+without suspension use ordinary local variables; resumable functions retain
+only temporaries needed after a possible pause. Typed native bindings cover
+retained-word reads, snapshot calculations, and handle release; they avoid the
+generic operation-name dispatcher while retaining type, lifetime, and result
+validation.
+
+The formal exporter uses format 2 and requires ordered bodies for modeled instructions
+through `sass.formal.k.ordered`. The statement rules execute statements
+immediately. Its runtime transcript returns typed result lists and keeps the
+explicit pre/post environment boundary. The K model is sequential; atomic
+boundaries do not introduce a concurrent scheduler. Both LLVM and Haskell execute
+the same ordered definition through `tools.execute(...)`. Runtime operation IDs
+are nonnegative statement positions; pure numerical response IDs are negative,
+so the two kinds cannot collide within an instruction.
+
+The production lifter supplies ordered bodies for supported numerical instructions
+and directly migrated memory, cache, special-register, MEMBAR, ATOMG, control-flow,
+QSPC, ELECT, B2R, LDGSTS, LDGDEPBAR, DEPBAR, MUFU, SHFL, VOTE/VOTEU, MATCH, REDUX,
+LDSM, and HMMA families.
+Python evaluation and native generation execute those bodies. Native instructions
+without suspension keep ordinary functions without a resumption frame. The native
+kernel generator supplies a separate function table for resumable bodies.
+Non-suspending bodies that use runtime-owned state have their own ordinary
+function table and share the same per-block runtime without allocating frames.
+The shared scheduler's callback protocol distinguishes completion,
+suspension, and faults. It retains the selected predicate through suspension and
+counts and traces instructions only on completion. Suspended lanes let peers
+proceed at later PCs.
+
+The Ghidra form merger merges pure values at compatible statement positions.
+Incompatible statement structures use decode-time body alternatives; state accesses
+remain inside their branches. Pure alternatives over captured temporaries use
+caller-written scratch arguments and an explicit build at the calculation's position.
+
+MUFU is an argument-only numerical expression. It uses captured source values and
+has no environment access or suspension. Unsupported approximation forms fail
+when evaluated, including in native code, and untaken arms remain unevaluated.
+The formal exporter retains an explicit approximation contract: its result must
+fit the declared width, and its response must contain no events or environment
+change. This does not add approximation axioms or hardware evidence.
+
+LDGDEPBAR passes its decoded `dst_wr_sb` control as an explicit argument to
+`async_commit`; neither native execution nor callbacks obtain that argument from
+the scheduler's warp context. Invalid dependency slots fail before committing.
+
+DEPBAR uses `async_wait_groups(slot, count)` for `.LE`, followed by
+`async_wait_slots(mask)` for the encoded six-slot mask (2026-11-05). Mask-only
+forms emit only the latter operation. Both apply completed copies immediately;
+the slot-7 sentinel and combined wait operation have been removed. These waits
+complete synchronously in the CPU asynchronous-copy model.
+
+LDSM and HMMA capture their own operand words in ordered bodies (2026-11-06).
+Typed retained word groups collect the participating lanes' values before any
+destination writes. LDSM emits ordinary shared-memory reads after capture;
+HMMA reads retained words and computes its numerical definitions over them.
+Standalone execution copies the explicit operand-group context into snapshots.
+The cooperative scheduler supplies lane masks and does not scan source registers.
+
+`barrier_release_ticket` explicitly drops a participant's opaque handle.
+It does not cancel an arrival or a wait already issued; the runtime retains
+the generation until its remaining arrivals and waits complete. Released handles
+fail subsequent waits and releases. The shared ordinary native path lets an
+arrival in one instruction participate in a wait at a later PC (2026-11-06).
+
+Encoded dependency waits precede predication in migrated ordered bodies
+(2026-11-06). `dependency_wait(mask)` completes the selected asynchronous-copy
+groups immediately in the CPU model; it does not require a resumable native
+function. An isolated execution without asynchronous state has an empty
+scoreboard. SLEIGH selects an empty constructor for mask zero, or emits the
+explicit wait before the guard. Migrated instructions have no metadata-driven
+dependency wait. SM89/SM90 cooperative fixtures cover predicated-off waits in
+slots 0 and 3 under round-robin, reverse, and seeded schedules; their copies
+remain pending until the operation executes, once per lane. Python/native,
+both Ghidra modes, formal environment transcripts, and SM89 hardware pass.
+
+The shared C++ block-barrier coordinator is available to ordered operations
+through native execution and the Python/Ghidra callback interface (2026-11-06).
+`block_barrier_arrive_implicit` and `block_barrier_arrive_counted` return a
+distinct typed ticket. Waiting, deferring, releasing, result reads, and state
+reads are separate operations. Implicit generations exclude exited threads that
+have not arrived; explicit counts remain fixed positive multiples of 32.
+Exit supplies the coordinator with the participant's liveness change.
+Tickets retain their generation after handle release, barrier ID reuse, or an
+issued wait. An old completed ticket cannot discard a newer deferred generation.
+The formal backend consumes explicit responses for these operations and does
+not acquire a concurrent scheduler.
+
+Fifteen BAR classes on every architecture now use these operations directly
+(2026-11-06): SYNC, RED and ARV with immediate or independent register operands,
+including deferred SYNC/RED. Packed-register forms remain unresolved in
+cooperative scope. Immediate zero counts select implicit arrival at decode time;
+register counts use a conditional block with a typed ticket result. RED
+participants contribute their captured predicate even when it is false.
+ARV releases the ticket after arrival; SYNC waits before releasing it; deferred
+forms retain the generation in the coordinator before releasing the handle.
+B2R reads the coordinator's result/state through separate ordered operations.
+The old scheduler BAR arrival, completion, result publication, and state
+snapshots have been removed.
+
+Every ordered instruction with an md DECOUPLED type waits for its pending
+deferred generation after predication and before operand reads. This wait does
+not execute in an untaken body. A suspended wait retains its selected predicate;
+operands are read when it resumes. Native kernel generation may remove these
+waits only when the fresh kernel coordinator has no possible deferred arrivals.
+Canonical bodies remain unchanged for callbacks, Ghidra and formal export, and
+validation precedes this specialization. Standalone synchronization still
+requires explicit environment acknowledgement; its completed ticket and
+explicitly supplied result/state do not introduce a concurrent scheduler.
+
+DECOUPLED collective bodies now read barrier eligibility before capturing warp
+operands (2026-11-06). The explicit query filters their captured active mask
+against the coordinator's pending bound generations without consuming waits.
+It accounts for peers that have already issued a deferred wait and peers that
+have not reached it yet. A half-warp deferred barrier followed by an identity
+SHFL previously deadlocked after migration because capture still required the
+blocked peers; the original source completed all 32 identity outputs. The
+ordered query restores separate participating cohorts. SHFL, MATCH and REDUX
+regressions pass under all three schedules in Python/native and both production
+Ghidra modes on SM89/SM90. VOTE is not DECOUPLED in these machine descriptions
+and keeps its full executing cohort. These tests preserve the software model;
+they do not establish new hardware behavior for partially predicated barriers.
+
+Normal immediate, register and uniform-register WARPSYNC classes now use
+ordered arrival, wait and ticket release (2026-11-06). The body captures Pp
+and the mask after its deferred barrier gate, then enters the protocol only
+when Pp is true. ALL supplies the explicit full mask. The shared coordinator
+requires each participating live lane to arrive with the same mask, ignores
+absent or exited members, and retains completed generations across later
+arrivals. The scheduler's WARPSYNC metadata, arrival and release actions are
+removed. Suspension keeps earlier writes, temporaries and the selected path
+in Python, native execution and Ghidra.
+
+Exclusive WARPSYNC has a distinct standalone acknowledgement operation;
+cooperative execution remains unsupported when its predicate is enabled.
+Untaken Pg or Pp makes no request. COLLECTIVE/REL selectors and constant-bank
+mask classes retain their existing standalone boundary and remain unsupported
+cooperatively. The formal backend uses explicit operation responses rather
+than a concurrent scheduler.
+
+BSSY and BSYNC now use direct ordered bodies (2026-11-06). An explicit
+environment query selects cooperative execution or standalone acknowledgement.
+BSSY captures enabled predicates across participating lanes, obtains the member
+mask, releases the snapshot, and enters the convergence ID only for enabled
+lanes. BSYNC arrives, waits, and releases a typed ticket. Tickets and issued
+waits retain their generation across ID reuse. Exit removes live membership
+requirements; repeated entry and unmatched arrivals fault. Encoded reliability
+modes have distinct operations that preserve the existing coordinator rules.
+The scheduler's convergence classification, entry, parking, and release actions
+are removed. These changes do not establish additional hardware behavior for
+reliability modes.
+
+BREAK and BMOV also use direct ordered bodies. BREAK guards an explicit
+convergence ID request with its captured predicate. BMOV has distinct operations
+for state reads, reads with clearing, barrier copies, state imports, exit-PC
+writes, state writes, and barrier-source writes. Captured numerical inputs and
+encoded state selectors are explicit. These operations preserve the standalone
+environment's acknowledgement, read values, and event inputs; cooperative
+BREAK/BMOV execution remains unsupported.
+
+All modeled families now return ordered blocks (2026-11-06), including the
+standalone acknowledgements for unresolved BAR and WARPSYNC forms. Distinct
+typed operations carry packed barrier operands, reduction contributions,
+collective targets and REL controls. Constant-bank WARPSYNC reads its mask only
+when its captured predicate is enabled. Cooperative interpretation of these
+forms remains unsupported.
+The scheduler's legacy dependency-wait and deferred-gate metadata and actions
+are removed; bodies issue those operations at their explicit positions.
+`Outputs` and its helper are removed from the family interface.
+The family wrapper requires an ordered block; the temporary `ordered=True` flag
+and symbolic operand fallbacks are removed. Native expression and definition
+fixtures use explicit reads, and the old `ordered_lift` converter is removed.
+The `Semantics` simultaneous-write, store, effect, flow and supported-instruction
+guard fields are removed, along with the Python, C++ and formal fallback paths.
+Unresolved instructions retain an explicit reason and unsupported predicate;
+supported predicates are captured and branched on within their bodies.
+Formal fixtures now use explicit captures and typed operation transcripts.
+The old formal staged-write syntax, rules and pending-write cells are removed.
+All 64 formal execution/contract checks pass on SM89 in both FP modes; LLVM and
+Haskell share the ordered model. The publication includes all four executable
+modules and eleven proved worked-example reachability claims. Its taken BRA and
+EXIT waits require explicit environment completion responses. Reusing an already
+lowered defined expression preserves its existing node ID, preventing memoized
+predicate values from colliding with captured temporaries.
+SHFL releases snapshots after their final use; feasibility fixtures retain them
+until runtime cleanup. Bulk migration has passed language-size checks for all
+twenty languages. The original p-code count review, coverage/evidence refresh
+and backend acceptance audit are complete. Native comparisons and profiling
+document the remaining cooperative cost in `docs/emulation.md`; the ordinary
+path for bodies that cannot suspend remains intact. The full control-family
+production Ghidra check passes on all twenty languages, including exact named
+deferred waits.
+
+LOP3 and ULOP3 now expose `logic3.b32.<table>` as a pure definition over
+three captured 32-bit values (2026-11-06). Its expansion is the existing
+Shannon truth-table expression; no runtime operation or new state access is
+introduced. SLEIGH shares the larger expansions across operand forms, while
+keeping expressions with at most three bitwise operations inline. Separate
+decode alternatives prevent a shared calculation's capture requirements from
+adding copies to the inline forms. All 256 definitions match the independent
+bit-by-bit reference. SM89/SM90 native and both Ghidra modes, four aliased-input
+K contracts, and the SM89 hardware reference group pass.
+
+Definition-inspection tests now consume ordered statements (2026-11-06).
+Pure-expression display checks reconstruct only captured register inputs,
+temporary calculations and conditional block results. This test-only
+inspection rejects memory/state operations, repeated temporary definitions,
+and register reads after writes. SHFL inspection checks its explicit deferred
+wait, lane/active reads, capture, snapshot read and release instead of a nested
+state-reading expression. All 342 definition tests pass, including PLOP3
+aliases across ten architectures and both FP modes. Constant F/T comparisons
+and PRMT's unselected input are replaced with zero arguments without reading
+the unused source registers; focused checks preserve their numerical outputs.
+Production dataflow passes in all four SM89/SM90 variants, while operation-count
+ratchets still differ from the pre-refactor baselines and require review.
+No baselines were updated.

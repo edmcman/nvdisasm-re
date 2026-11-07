@@ -1,8 +1,5 @@
-"""Runtime primitives: what only the execution environment computes. Families build them like any
-other expression (`outputs(Rd=primitive.mufu("SIN", x))`); SLEIGH calls each as the pcodeop
-`sass_prim_<name>`, and src/sass/semantics/runtime.py implements it by name. The name is the
-operation; every input is an argument, so everything computable from values stays native."""
-from sass.semantics.bitvec import PRIMITIVE_OP, Expr, const, primitive
+"""Numerical approximation constructors and the remaining legacy environment expressions."""
+from sass.semantics.bitvec import PRIMITIVE_OP, Expr, const, op, primitive
 from sass.semantics.family import effect
 
 MUFU = ("COS", "SIN", "EX2", "LG2", "RCP", "RSQ", "RCP64H", "RSQ64H", "SQRT", "TANH")
@@ -18,8 +15,8 @@ def mufu(fn, x, half=None):
     """MUFU.fn: a hardware approximation of x (F32; the 64H forms on a double's high word), or of
     a 16-bit half in format `half` (F16, BF16)."""
     if fn not in MUFU: raise ValueError(f"MUFU.{fn}")
-    if half is None: return primitive(f"mufu_{fn.lower()}", 32, width(x, 32))
-    return primitive(f"mufu_{fn.lower()}", 16, width(x, 16), const(HALVES[half], 1))
+    if half is None: return op("mufu", fn.lower(), width(x, 32), w=32)
+    return op("mufu", fn.lower(), width(x, 16), const(HALVES[half], 1), w=16)
 
 
 # The warp: this lane, its executing and its waiting lanes (alive, not at this instruction). A
