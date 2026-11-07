@@ -209,8 +209,8 @@ def finish(c, native):
     native = native and not getattr(c, 'discovery', False)
     unique = {}
     for case in c:
-        if native or '__max_ops' in case.expected:
-            guard = native_contract(c.arch, case.cls, case.expected.get('__max_ops'))
+        if native or {'__max_ops', '__userops'} & case.expected.keys():
+            guard = native_contract(c.arch, case.cls, case.expected.get('__max_ops'), case.expected.get('__userops', ()))
             case = case._replace(expected={**case.expected, **guard}, request={**case.request, 'inspect_pcode':True})
         identity = case.id
         if identity in unique and unique[identity] != case: raise ValueError(f'{identity}: conflicting generated expectations')

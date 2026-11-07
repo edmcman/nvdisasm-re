@@ -185,6 +185,35 @@ def test_absent_forms_have_no_native_contract():
     assert native_contract("SM120", "dadd__RRC_RC") == {}
 
 
+@pytest.mark.parametrize("native", [False, True])
+@pytest.mark.parametrize("cls,fields,effects", [
+    ("b2r__BAR", {"mode": "BAR"}, ["block_barrier_state"]),
+    ("b2r__WARP", {"mode": "WARP"}, ["block_barrier_result"]),
+    ("bar__SYNC_IR_optionalCount_IR", {"barmode": "SYNC"},
+     ["block_barrier_arrive_implicit", "block_barrier_arrive_counted", "block_barrier_wait_ready", "block_barrier_release_ticket"]),
+    ("warpsync__RRR", {"ex": "EXCLUSIVE"},
+     ["warp_sync_arrive_exclusive", "warp_sync_wait", "warp_sync_release_ticket"]),
+    ("bsync_", {}, ["cooperative_context", "convergence_arrive", "convergence_wait",
+                    "convergence_release_ticket", "convergence_ack_wait"]),
+    ("bssy_", {}, ["cooperative_context", "sass_prim_lane", "sass_prim_active", "barrier_eligible_lanes",
+                   "warp_capture_predicate", "snapshot_ballot", "snapshot_release",
+                   "convergence_enter", "convergence_ack_enter"]),
+    ("bmov_clear__Rd", {"sz": "32", "clear": "CLEAR", "cbu_state": "B0"}, ["convergence_state_read_clear"]),
+])
+def test_synchronization_contracts_preserve_named_effects(native, cls, fields, effects):
+    k = Cases("SM89").classes[cls]
+    operands = {n: 0 for n, a in k.operand_types.items() if a.type in ("SImm", "UImm", "RSImm")}
+    word = encoding.encode("SM89", cls, **(operands | fields))
+    form = settings("SM89", pydecode.decode("SM89", bytes.fromhex(word)))
+    cases = autocases.generate("SM89", cls, form, native=native)
+    names = ["sass_ordered_block_barrier_wait_deferred",
+             *[name if name.startswith("sass_") else "sass_ordered_" + name for name in effects]]
+    assert cases
+    for case in cases:
+        assert "__native" not in case.expected
+        assert case.expected["__userops"] == names
+
+
 def test_zero_special_pair_keeps_its_physical_overwrite_anchor():
     from tests.cases import control
     from tests.harness import device_cases

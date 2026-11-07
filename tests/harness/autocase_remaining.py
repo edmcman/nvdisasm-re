@@ -122,8 +122,59 @@ def environment(c,k,form):
                 s.registers['R8']=0
             context={'synchronization':{k.mnemonic.lower():handler}}
             expected['__events']=int(bool(active))
+            expected['__userops'] = ['sass_prim_' + name if name in ('lane', 'active') else 'sass_ordered_' + name
+                                    for name in synchronization_effects(k, form, s.fields)]
         s.add(expected,form,context=context,hardware={'skip':'environment synchronization contract or unresolved MUFU approximation'})
     return c
+
+
+def synchronization_effects(k, form, fields):
+    deferred = 'defer_blocking' in k.operand_types
+    match k.mnemonic:
+        case 'BAR':
+            mode = form['barmode']
+            if mode in ('ARV', 'SYNC', 'RED') and not {'Rb', 'Rc'} <= k.operand_types.keys():
+                count = 'Sc' if 'Sc' in k.operand_types else 'Rc'
+                arrivals = ['implicit', 'counted'] if count == 'Rc' else ['implicit' if fields.get(count, 0) == 0 else 'counted']
+                return ['block_barrier_arrive_' + name for name in arrivals] + (
+                    [] if mode == 'ARV' else ['block_barrier_defer' if deferred else 'block_barrier_wait_ready']
+                ) + ['block_barrier_release_ticket']
+            match mode:
+                case 'ARV': name = 'packed_arrive'
+                case 'SYNC': name = 'packed_defer' if deferred else 'packed_wait'
+                case 'RED': name = 'packed_reduce_defer' if deferred else 'packed_reduce'
+                case 'SYNCALL': name = 'all_defer' if deferred else 'all'
+                case 'SCAN': name = 'scan'
+                case _: raise ValueError(mode)
+            return ['barrier_' + name + '_ack']
+        case 'WARPSYNC':
+            if k.name in ('warpsync__RIR', 'warpsync__RRR', 'warpsync__RUR'):
+                exclusive = 'EXCLUSIVE' in (form.get('ex'), form.get('div'))
+                return ['warp_sync_arrive_exclusive' if exclusive else 'warp_sync_arrive',
+                        'warp_sync_wait', 'warp_sync_release_ticket']
+            if 'sImm' not in k.operand_types: return ['warp_mask_ack']
+            name = ('relative_' if 'rel' in k.operand_types else 'collective_') + ('all' if 'all' in k.operand_types else 'mask')
+            return ['warp_' + name + '_ack']
+        case 'BSSY' | 'BSYNC':
+            mode = form.get('reliability')
+            suffix = '_' + mode.lower() if mode else ''
+            if k.mnemonic == 'BSSY':
+                return ['cooperative_context', 'lane', 'active', 'barrier_eligible_lanes', 'warp_capture_predicate',
+                        'snapshot_ballot', 'snapshot_release', 'convergence_enter' + suffix,
+                        'convergence_ack_enter_mode' if mode else 'convergence_ack_enter']
+            return ['cooperative_context', 'convergence_arrive' + suffix,
+                    'convergence_wait', 'convergence_release_ticket',
+                    'convergence_ack_wait_mode' if mode else 'convergence_ack_wait']
+        case 'BREAK': return ['convergence_break']
+        case 'BMOV':
+            match k.name:
+                case 'bmov_clear__Rd': name = 'state_read_clear' if form['clear'] == 'CLEAR' else 'state_read'
+                case 'bmov_clear_barrier_': name = 'barrier_copy'
+                case 'bmov_clear_bd__Bd': name = 'state_import'
+                case name if name.startswith('bmov_dst64__'): name = 'exit_pc_write'
+                case _: name = 'barrier_write' if 'barReg' in k.operand_types else 'state_write'
+            return ['convergence_' + name]
+        case _: raise ValueError(k.mnemonic)
 
 
 def collective(c,k,form):

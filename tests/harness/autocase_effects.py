@@ -31,6 +31,7 @@ def generate(c, k, form, profiles):
                         case _: raise Unsupported("unknown barrier-state mode")
                     outputs = {f"R{dest}": expected if dest != 255 else 0}
                     if form["mode"] == "RESULT": outputs["P1"] = int(result != 0)
+                    outputs["__userops"] = ["sass_ordered_block_barrier_" + ("state" if form["mode"] == "BAR" else "result")]
                     s.add(outputs, form, context=context,
                           hardware={"skip": "barrier state requires prior cooperative arrivals; covered by fixtures"})
         case "MEMBAR":

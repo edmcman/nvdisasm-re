@@ -38,7 +38,7 @@ def source(k, *names):
     return next((n for n in names if n in k.operand_types), None)
 
 
-def native_contract(arch, cls, limit=None):
+def native_contract(arch, cls, limit=None, userops=()):
     from sass.md import parse
     classes = parse.arch_classes(arch)
     if cls not in classes: return {}
@@ -50,7 +50,8 @@ def native_contract(arch, cls, limit=None):
         case dict(): return {}
         case int() if deferred:
             return {"__max_ops": dict(count=limit + 1, userops=[wait])}
-        case _ if deferred: return {"__userops": [wait]}
+        case _ if deferred or userops:
+            return {"__userops": ([wait] if deferred and wait not in userops else []) + list(userops)}
         case _: return {"__native": True}
 
 

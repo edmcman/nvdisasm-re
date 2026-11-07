@@ -964,7 +964,16 @@ The imported-program label harness registers the shared ordered runtime
 instead of executing against an empty user-operation library. Numerical
 expectations and comparison functions are unchanged.
 
-Focused contract regressions pass 16 tests. FP64 Ghidra validation passes
+Synchronization profiles declare exact arrival, wait, ticket release,
+convergence capture and state-operation names. Contract normalization retains
+those effects and adds the deferred wait once, including when a profile is
+generated without a native-only check.
+
+Focused contract regressions pass 30 tests. FP64 Ghidra validation passes
 390 tests and 66,425 shared cases across all twenty language variants in
 110 seconds. SM89 FP64 and cache hardware validation passes 29 tests and
 4,074 shared cases, with six emulator-only launch-constant cases.
+The all-language synchronization audit passes 2,152 shared cases. SM89
+control hardware validation passes nine tests and 153 shared cases, with
+193 emulator-only environment and synthetic-state cases. Full coverage and
+evidence regeneration leaves the committed artifacts unchanged.
