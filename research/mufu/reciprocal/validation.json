@@ -1,0 +1,83 @@
+{
+ "models_sha256": "cd1c797b411114739a0c63cb9a778456c25b77d9baade70c132deb588ae49767",
+ "findings": [
+  {
+   "capture": "SM89-rcp-64H-full.json",
+   "sha256": "52f531c526882aa37d5bfde6f43c36c437e7655d086e3676394426991b3dbb0b",
+   "arch": "SM89",
+   "precision": "64H",
+   "op": "RCP",
+   "findings": [
+    {
+     "parity": 0,
+     "n": 1048576,
+     "model_mismatches": 0,
+     "runtime_mismatches": 0,
+     "examples": []
+    }
+   ]
+  },
+  {
+   "capture": "SM89-rcp-F32-full.json",
+   "sha256": "daed1ceea2e79e8eed34c60727f2b05c80c4668f834d725b297f7e59bc52c24c",
+   "arch": "SM89",
+   "precision": "F32",
+   "op": "RCP",
+   "findings": [
+    {
+     "parity": 0,
+     "n": 8388608,
+     "model_mismatches": 0,
+     "runtime_mismatches": 0,
+     "examples": []
+    }
+   ]
+  },
+  {
+   "capture": "SM89-rsq-64H-full.json",
+   "sha256": "cbafad34c7b6b0789915f1692ae9371831f7b5a0efeae5281bdcfa07044a3a7d",
+   "arch": "SM89",
+   "precision": "64H",
+   "op": "RSQ",
+   "findings": [
+    {
+     "parity": 0,
+     "n": 1048576,
+     "model_mismatches": 0,
+     "runtime_mismatches": 0,
+     "examples": []
+    },
+    {
+     "parity": 1,
+     "n": 1048576,
+     "model_mismatches": 0,
+     "runtime_mismatches": 0,
+     "examples": []
+    }
+   ]
+  },
+  {
+   "capture": "SM89-rsq-F32-full.json",
+   "sha256": "8b165c005269f70e79322a338d85f61d780409507bd72603c0f1750f462a91b7",
+   "arch": "SM89",
+   "precision": "F32",
+   "op": "RSQ",
+   "findings": [
+    {
+     "parity": 0,
+     "n": 8388608,
+     "model_mismatches": 0,
+     "runtime_mismatches": 0,
+     "examples": []
+    },
+    {
+     "parity": 1,
+     "n": 8388608,
+     "model_mismatches": 0,
+     "runtime_mismatches": 0,
+     "examples": []
+    }
+   ]
+  }
+ ]
+}

@@ -1,6 +1,6 @@
 """Float to packed bytes: F2IP (two F32 to S8/U8 bytes). F2I is in src/sass/semantics/families/convert.py."""
 from sass.semantics.bitvec import *
-from sass.semantics.family import definition, family, outputs, unmodelled
+from sass.semantics.family import definition, family, unmodelled
 
 
 @definition(lambda a: (f"cvt.rni.sat.{'s' if a['signed'] else 'u'}8.f32", ["bits"]))
@@ -37,4 +37,4 @@ def f2ip(i):
     if i.width('Rd') != 32: unmodelled('width')
     signed = fmt == 'S8'
     a, b = f32_to_8bit(i.fvalue('Ra'), signed), f32_to_8bit(i.fvalue('Rb|Sb'), signed)
-    return outputs(Rd=concat(extract(i.value('Rc|Sc', modifiers=False), 15, 0), a, b))
+    return i.assign_from_inputs(Rd=concat(extract(i.value('Rc|Sc', modifiers=False), 15, 0), a, b))

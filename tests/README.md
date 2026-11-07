@@ -52,6 +52,9 @@ an RTX 4070 selects SM89. An explicit architecture list must include the detecte
 device; only its architecture runs on hardware. CPU-only tests still default to SM89.
 Both shared cases and compiled whole-kernel fixtures use the selected architecture.
 Whole-kernel Ghidra tests support `--arch SM89,SM90 --fp all` without a GPU.
+Explicit `--arch` selection also limits numeric-definition discovery and the
+barrier, async, cache and matrix runtime checks. Without that option, these
+checks retain their full architecture domains; `--arch all` runs every domain.
 The MUFU sample fixtures compare the same 1,462 recorded inputs per operation on
 both devices; their GPU pass records remain architecture-specific.
 
@@ -67,6 +70,24 @@ tests, example proofs and formal-definition artifact generation. Pushes, pull re
 and manual runs with the checkbox left off skip the K job.
 
 ### Cost
+
+The ordered-body feasibility checks (2026-11-05) run independently of opcode
+family migration:
+
+```sh
+nice uv run pytest tests/test_ordered.py tests/test_ordered_formal.py
+nice uv run pytest tests/test_ordered_native.py tests/test_ordered_schedule.py -m native
+nice uv run pytest tests/test_ordered_ghidra.py -m ghidra
+SASS_K_CONTAINER=nvdisasm-re-k:7.1.337 nice uv run pytest tests/test_ordered_formal.py -m k
+nice uv run python -m tests.harness.ordered_perf
+```
+
+Python/export checks take under a second, native checks about one second with
+the small gate library, and the isolated Ghidra language compile/emulation/
+decompiler checks take about seven seconds for both FP modes. The combined
+Python/export/native/scheduler checks passed 64 tests in 0.93 seconds with warm
+caches. Five ordered and existing K contract/branch checks took 26 seconds with
+the pinned container already present.
 
 Rough wall times and peak memory (summed PSS) on a 32-core, 93 GiB machine with other work running
 (2026-10-16):
@@ -97,6 +118,20 @@ These historical timings precede the current shared-case workload. The
 records affected-family validation and an isolated planner/evidence comparison.
 The selected SM89 GPU suite took 222 seconds alongside two software suites;
 that includes CPU case preparation and is not an isolated hardware timing.
+
+The ordered-IR source-frozen full Python run (2026-11-06) passed 15,759 tests
+with two skips and 973,986 selected shared cases in 2,768 seconds. Profiling
+identified shared-case preparation, all-language definition discovery, and cold
+native matrix/synchronization library rebuilds. This records that run's scope
+and costs; it does not replace the historical timing baselines.
+
+After the constant LOP3 dependency and half-FMA `.RELU` fixes, focused working-source
+checks passed 252 tests in 12.6 seconds. Affected-family Python checks passed
+2,760 tests over 209,634 shared cases in 94.6 seconds; native checks on SM89/SM90
+and both modes passed 708 tests in 75.7 seconds. Existing SM89 hardware cases for
+the same families passed 12,412 scenarios (174 test items) in 64 seconds, with
+two scenarios remaining emulator-only. These are regression checks, not new
+opcode-discovery evidence.
 
 Ghidra results are cached per program by the sources it imports (`ghidra_bridge.sources`), so an
 edit elsewhere in `src/sass` keeps them. Generator modules (families, operations, operands,
@@ -291,6 +326,54 @@ Softfloat functions compare with Python `evaluate`; host and CUDA functions comp
 the compiled softfloat functions. Compilation batches contain at most 48 definitions.
 CUDA dispatch sizes rows to the batch's argument count and carries every operand/result
 as two 64-bit limbs, including a five-argument regression with two 128-bit inputs.
+
+On 2026-11-04, isolated `test_real_expansions_accept_parameters` runs took 324 seconds
+before packed F16 HMMA outputs and 378 seconds afterward. Discovery setup accounts for
+323 and 377 seconds respectively; parameter validation itself takes under a second.
+The additional output form and boundary profiles explain the 17% increase. Matrix-only
+discovery on SM89/SM90 increased from 21–22 seconds to 28–30 seconds. Running full
+discovery alongside coverage refresh and Ghidra took 607 seconds; that contended run
+is not the standalone timing baseline.
+
+Adding packed `1688` forms took 465 seconds for discovery and under a second for
+parameter validation, with YOLO replay briefly running alongside it. An isolated
+SM89 phase comparison against the pushed commit found no regression on the same
+7,108 cases: 28.0 seconds before, 27.4 seconds afterward. The expanded 9,964-case
+profile took 38.7 seconds: generation increased from 13.9 to 19.0 seconds, lifting
+from 14.1 to 19.6 seconds, and definition traversal remained below 0.05 seconds.
+Use roughly eight minutes for the expanded full discovery; the 465-second
+measurement is not an isolated all-architecture baseline.
+
+The E6M9 extension (2026-11-04) passed 216 matrix/generator checks in 557 seconds
+and 82 native checks in 233 seconds while rebuilding native fragments, languages
+and case plans. Those contended measurements are not new standalone baselines.
+A quiet comparison on the same 9,964 cases took 40.6 seconds on `4e99cda` and
+40.0 seconds afterward. The expanded 11,844-case profile took 55.7 seconds:
+generation 28.7 seconds, lifting 26.9 seconds, and traversal under 0.1 seconds.
+Real parameter discovery and validation took 511 seconds. Matrix-only validation
+in all twenty Ghidra languages took 866 seconds, including 180,000 shared cases,
+120 whole-kernel fixture tests and full dataflow checks. Plan about fifteen minutes
+for that run; its earlier 8–10 minute estimate was too low.
+
+The B2R extension (2026-11-04) passed 1,414 lifted checks and 6,236 shared control
+cases in 16 seconds. The broader Python/native barrier, reconvergence and matrix
+run took 710 seconds; six async schedule checks took 200 seconds. All-architecture
+exact/readable Ghidra control validation took 1,021 seconds, passing 2,008 tests and
+6,336 shared cases before updating twenty WARP-mask operation-count baselines.
+These runs overlapped other validation and are not isolated timing baselines.
+Plan about 2–4 minutes for the focused final barrier Ghidra checks and about
+twenty minutes for the broader control run.
+
+The final barrier Ghidra and coverage checks took 323 seconds after changing the
+ABI snapshot flag: callback libraries rebuilt, and definition discovery competed
+for CPU time. Allow 6–8 minutes with those cold libraries and concurrent discovery.
+The twenty operation-count checks passed without updates in nine seconds.
+
+Repeated reduction kernels revealed unnecessary barrier snapshots in ordinary
+instructions. Snapshots now occur only for B2R BAR readers. On identical requests,
+with CPU affinity fixed and process CPU time measured, 100 Python repetitions took
+29.01 seconds before and 29.53 afterward; 1,000 native repetitions took 1.68 and
+1.46 seconds. Competing jobs explained the larger initial wall-clock difference.
 
 ```sh
 nice uv run pytest tests/test_definition_functions.py
@@ -679,6 +762,13 @@ SM75 LDS's `.U` sizes use the same independent load reference as their plain siz
 - An explicit `branches: true` in a structured limit permits generic-memory window routing; its
   exact named-effect guard still rejects value/opaque primitives.
 
+`__userops` requires nonempty inspected p-code and exactly the named runtime calls, including
+their multiplicities. DECOUPLED native profiles require
+`sass_ordered_block_barrier_wait_deferred`; profiles with an operation bound add one operation
+and that exact name to their existing contract. The MD instruction type determines this
+expectation, independently of the lifted body. Missing inspection metadata, duplicate waits,
+value primitives and opaque fallbacks still fail.
+
 The `__native` assertion stays strict. QSPC values run in Ghidra's explicit provenance context and
 remain marked as primitive checks rather than native Python value validation.
 
@@ -832,6 +922,326 @@ Current results (CUDA 13.4 `nvdisasm`):
 committed baselines in `baseline/`: a class that regresses fails, and a newly passing class is
 reported until accepted with `--update-baseline`. Review the diff of any baseline update; op-count
 increases (`pcode_<variant>.json`) should come only from classes the change touched.
+
+The 2026-11-04 cache-control changes were checked with:
+
+```sh
+nice uv run pytest tests/test_cache_control.py tests/test_ghidra_bridge.py tests/test_pcode_semantics.py tests/test_pcode_dataflow.py --family control --family conversions --family f2fp -m ghidra --arch all --fp all -q
+nice uv run pytest tests/test_pcode_dataflow.py -k pcode_ops -m ghidra --arch all --fp all -q
+nice uv run pytest tests/test_cases_on_gpu.py tests/test_refs_on_gpu.py --family control -m gpu --require-gpu --exhaustive -q
+nice uv run pytest tests/test_cache_control.py -m gpu --require-gpu -q
+nice uv run pytest tests/test_cases_on_gpu.py tests/test_refs_on_gpu.py --family memory --family atomic --family asynchronous -m gpu --require-gpu -q
+```
+
+The first command took 681 seconds alongside coverage refresh, passing 4,508
+tests and 191,390 shared cases; only the twenty operation-count ratchets needed
+their reviewed CCTL/conversion changes. The second passed all twenty ratchets
+in six seconds. The GPU commands took 25, nine and 52 seconds respectively.
+These contended measurements are validation records, not timing baselines.
+The direct cache-profile checks cover every retained input beyond the
+planner's interaction coverage; cooperative tests exercise two blocks under
+round-robin, reverse and seeded launch schedules.
+
+The subsequent D.IVALL validation uses the same cache-profile and GPU commands,
+plus this focused all-language check:
+
+```sh
+nice uv run pytest tests/test_cache_control.py tests/test_pcode_semantics.py tests/test_pcode_dataflow.py --family control -m ghidra --arch all --fp all -q
+```
+
+The final uninterrupted run passed 1,509 tests and 6,580 shared control cases in
+51 seconds with populated caches. All operation-count baselines passed without
+updates. The finalized source check passed 66 tests in 113 seconds alongside
+coverage work; the exhaustive control GPU suite passed 160 tests in 14 seconds.
+Cross-block invalidation fixtures require launch scope. Their readiness counter
+orders cache warm-up before the producer's release handoff; all outputs are
+compared exactly, without timing or polling-count expectations.
+
+The CI architecture-selection fix was checked with:
+
+```sh
+nice uv run pytest tests/test_definition_functions.py tests/test_barrier_result.py tests/test_asynchronous.py tests/test_cache_control.py tests/test_matrix.py tests/test_evidence.py --arch SM89 --fp all -q
+```
+
+This passed 128 tests with 173 unselected-architecture skips in 576 seconds,
+including native compilation and cooperative matrix checks. The initial
+2–4 minute estimate omitted most of that work; this is a validation record,
+not a revised timing baseline. Two discovery-contract checks preserve the
+default twenty-variant domain and explicit subsets. Three representative
+matrix checks pass with explicit SM89 parameters; selecting SM90 skips all
+152 SM89-only matrix checks.
+
+The ordered-capture size fix (2026-11-05; `docs/sleigh.md`) rebuilt all twenty
+languages with zero dead temporaries. The SM89/SM90/SM107 numerical, memory,
+atomic and dataflow run passed 3,528 tests and 246,662 shared cases except four
+dataflow checks: SHF's unused constant-memory high word and LOP3's constant
+predicate result. After those fixes, the focused fp32/dataflow run passed all
+242 tests and 38,383 shared cases in 78 seconds. Existing numerical operation
+limits were unchanged; the per-class p-code dictionaries still require review.
+The isolated exact/readable ordered gate passed in seven seconds. Integer
+checks passed 604 Python tests (17,562 shared cases) in twelve seconds, 604
+native tests in 28 seconds, and 108 GPU tests (3,167 scenarios) in 22 seconds.
+These are validation records, not timing baselines.
+
+The next ordered-body migrations (2026-11-05) cover control transfers, QSPC,
+ELECT, B2R, async-copy issue/commit, pure MUFU, and explicit snapshots for SHFL,
+VOTE/VOTEU, MATCH, and REDUX. Encoded commit slots are explicit IR arguments.
+Focused collective Python/type/form tests passed 163 checks, including 474
+shared instruction cases; later type and retained-wide-snapshot checks passed
+106 checks. Native collective instruction/kernel fixtures passed 224 checks in
+95 seconds. Aliased collective loops and same-site reuse passed 27 native/Python
+checks under all three schedules. All ten ordered K execution checks passed
+in 27 seconds, including production VOTE, MATCH, and REDUX contracts.
+
+All twenty languages compiled below the supported limit with zero dead
+temporaries. Collective Ghidra checks passed 206 tests and 2,272 shared cases in
+108 seconds across all architectures and both modes. GPU regressions passed
+137 tests, including 525 shared scenarios; three emulator-only class checks were skipped.
+Hardware-invalid and unresolved cases retained their emulator-only classification.
+Logs, size measurements, and before/after performance samples are under
+`.cache/ordered-gate/`. The operation-count dictionaries and timing baselines
+have not been updated.
+
+DEPBAR now uses distinct ordered group-count and slot-mask waits (2026-11-05).
+The slot-7 sentinel and combined runtime wait entry point were removed.
+Focused Python/type/control checks passed 145 tests and 1,642 shared cases;
+native wait, kernel, and retained-collective checks passed 343 tests in 80 seconds.
+The wait test covers every encoded slot, counts 0/1/2/63, four masks, copy order,
+and preservation of an earlier write when an invalid slot faults. The corrected
+ordered control and definition-discovery checks passed 120 tests. Definition
+discovery now traverses statement expressions instead of ignoring ordered bodies.
+
+All twenty languages rebuilt with zero dead temporaries; SM90 exact is
+16,192,864 bytes. Ghidra asynchronous checks passed 160 tests and 25,024 shared
+cases across all architectures and both modes in 55 seconds. Separate dataflow
+and collective-loop checks passed eight tests. Mask-only DEPBAR expects one wait
+userop and `.LE` expects two; the existing eight-op bound was retained. Ordered
+K checks passed twelve tests, and five production contracts passed a further
+event-transcript check. GPU checks passed 47 tests and 409 shared scenarios,
+with three emulator-only class checks skipped.
+
+Pinned native scheduler comparisons and `nice uvx py-spy` profiles are recorded
+in `docs/emulation.md`. Collective performance regressions remain unresolved.
+These are verification records; neither timing nor per-class p-code baselines
+were changed. Logs are under `.cache/ordered-gate/depbar-*` and
+`.cache/ordered-gate/collectives-specialized-*`.
+
+The Ghidra execution wrapper now exposes its p-code position to collective
+capture keys. A focused regression interleaves two captures at distinct
+positions and checks separate values and released handles. The combined
+Python/native/real-Ghidra ordered gate and collective-loop run passed 90 tests
+in eleven seconds (`ghidra-capture-position-fixed.log`). Its isolated snapshot
+fixture was updated to the runtime's lane-indexed representation; numerical,
+memory, atomic, suspension, and decompiler checks passed in both modes.
+
+Ordered LDSM/HMMA migration (2026-11-06) passed 47,376 shared lifted cases across
+SM89/SM90 and both modes. Six cooperative Python/native fixture checks passed
+under all three schedules in 262 seconds; native standalone contexts and
+snapshot contracts passed 153 checks in 28 seconds. Word-group snapshots cover
+one, two, and four words, retained generations, copied standalone contexts,
+invalid participant/word indices, and released handles. Eight ordered K checks
+passed in 17 seconds. GPU regressions passed 35 tests and 11,844 scenarios in
+273 seconds.
+
+The first Ghidra run passed all 47,376 shared cases and dataflow checks but failed
+six cooperative fixture checks: immediately completing a capture could enter
+the next capture before Ghidra exposed the fresh instruction frame. Explicitly
+beginning the frame before execution fixed the grouping. The subsequent real
+Ghidra gate and cooperative kernel/matrix run passed twelve checks in 181 seconds,
+including both modes and all three schedules. All twenty languages compiled
+below the size cap with zero dead temporaries.
+
+After typed native snapshot-word reads and resume positions restricted to
+suspending operations, 191 native scheduler/resumption checks passed in
+19 seconds. Pinned alternating comparisons against the original checkout
+returned identical outputs but retained 18–20% matrix overhead. Performance
+remains unresolved; timing and per-class operation-count baselines are unchanged.
+Logs are under `.cache/ordered-gate/matrix-*` and
+`.cache/ordered-gate/native-pause-resumption-tests.log`.
+
+Shared native runtime state now spans ordinary and resumable instructions
+(2026-11-06). The ordinary path allocates no execution frame. A two-instruction
+regression arrives in one instruction and waits at a later PC, compares native
+and Python traces, and checks all three schedules. Explicit ticket release
+preserves arrivals and existing pending waits while invalidating subsequent
+handle use; Python and C++ tests also reject wrong-type handles.
+
+The focused Python/native/export run passed 268 checks in five seconds with warm
+caches. The isolated thirteen-form Ghidra language passed both modes in seven
+seconds, including handle release. All sixteen ordered K execution contracts
+passed in 36 seconds using the documented container, including release after a
+wait and preservation of earlier writes. Logs are under
+`.cache/ordered-gate/shared-runtime-*`; the first K command omitted the container
+setting and failed because `kompile` was absent from PATH.
+
+After removing the concrete-runtime optimization experiment, the retained
+version passed 22 production native checks in 213 seconds. These include all
+cooperative matrix fixtures for SM89/SM90 under three schedules, standalone
+matrix contexts, ordinary runtime sharing, and generated-definition parity.
+Source equality with the saved pre-experiment files was verified. Results are
+in `.cache/ordered-gate/shared-runtime-production-native.log`.
+
+Ordered block-barrier feasibility (2026-11-06) adds separate implicit/counted
+arrival, waiting, deferral, release, and state/result operations backed by one
+C++ coordinator. The Python/native scheduler cases run on SM89/SM90 under
+round-robin, reverse, and seeded schedules. They check effects before suspension,
+instruction counts, two-warp explicit counts, deferred waits after releasing
+the ticket handle, and completion after a peer executes EXIT.
+Coordinator tests cover reductions, ID reuse, invalid counts and arrivals,
+ticket ownership, publication, and old tickets preserving newer deferred state.
+The broader ordered software run passed 453 checks in 51 seconds; six
+ordinary-arrival checks passed in three seconds after extending them to the
+production block-ticket protocol.
+The isolated Ghidra language now has seventeen forms; both modes passed in
+seven seconds, including actual coordinator suspension and deferred waits.
+Its decompressed sizes are 12,438 exact and 12,173 readable bytes. The added
+implicit-arrival/wait, deferred-arrival, deferred-wait, and early-exit forms have
+5, 4, 3, and 9 p-code operations respectively, including 4, 3, 2, and 4 user
+operations. These are isolated gate measurements, not production language sizes.
+Three formal barrier transcripts passed in seven seconds using
+`SASS_K_CONTAINER=nvdisasm-re-k:7.1.337`. Production BAR migration and deferred
+instruction gates remain pending; these checks verify the operation protocol.
+Logs and Ghidra results are under `.cache/ordered-gate/block-coordination-*`.
+
+Production BAR migration (2026-11-06) passed 33 selected SM89 coordinator,
+standalone-read, reduction/state and indirect-branch checks in 311 seconds,
+with cold native libraries. The same barrier/state fixtures passed both Ghidra
+modes on SM89/SM90 under three schedules in 265 seconds. Fifty software
+reconvergence checks passed in 63 seconds, including deferred BAR before
+legacy BSSY, independent counted/deferred barriers, and fault diagnostics.
+The broader ordered run passed 456 checks in 81 seconds. Three additional
+checks verify native memory specialization and rejection of atomic suspension
+before empty-wait elimination. Eleven formal production instruction contracts
+passed in 23 seconds. All 232 control/thread hardware fixtures passed on the
+local SM89 GPU in five seconds, including the added deferred-convergence fixture.
+All twenty languages build below the supported limit with zero dead temporaries;
+SM90 exact is largest at 16,311,101 bytes. Logs are in
+`.cache/ordered-gate/bar-ordered-*`. These cold-run times do not replace existing
+performance baselines; whole-kernel regressions remain under investigation.
+
+Selective LOP3/ULOP3 sharing (2026-11-06) passed fourteen selected SM90 Python
+groups in three seconds, twenty-eight native groups on SM89/SM90 in 24 seconds,
+and twenty-eight Ghidra groups in both modes in 29 seconds. The selected SM89
+hardware group passed in three seconds; four aliased-input formal contracts
+passed in nine seconds. All twenty languages compile with zero dead temporaries;
+SM90 exact is largest at 15,917,261 bytes. Full SM89/SM90 dataflow passes in all
+four variants. Operation-count ratchets still require refactor-wide review,
+and legacy definition-inspection tests still need migration from `.writes`.
+A pre-sharing source snapshot reproduces the same 75 failures in the selected
+legacy definition tests. The focused new definition/merger checks pass.
+The four-LUT native timing comparison retains the original baselines.
+Logs and inspected p-code/decompiler artifacts are under
+`.cache/ordered-gate/lop3-*`.
+
+Direct WARPSYNC migration (2026-11-06) passed 298 SM89/SM90 control checks
+covering 1,344 shared cases in seven seconds. Production Ghidra checks passed
+90 kernels in both modes on SM89/SM90 under three schedules in 41 seconds.
+Fifteen production formal instruction contracts passed in 33 seconds; sixteen
+selected WARPSYNC hardware fixtures passed on the local SM89 GPU in five seconds.
+All twenty languages compile below the unchanged limit with zero dead
+temporaries, with SM90 exact largest at 15,918,723 decompressed bytes.
+
+After retained-wait and coordinator membership optimizations, 335 native
+ordered/runtime/scheduler checks passed in 66 seconds (two Ghidra-marked checks
+skipped in that selection). The Python/cooperative/merger selection passed
+256 checks in 142 seconds with cold rebuilt kernels. Twenty additional checks
+enumerate and type-check every normal WARPSYNC class on ten architectures in
+both modes. Thirty-one coordinator checks and the native ticket-release
+retention check passed in two seconds. Both isolated Ghidra gates passed in
+eight seconds, including WARPSYNC position retention and a preceding write
+executed once. Whole-kernel timing remains about 20% above the pre-WARPSYNC
+control; no timing baseline was changed. Logs are `.cache/ordered-gate/warpsync-*`.
+
+All 342 definition-inspection tests now pass against ordered captures and
+statements in five seconds (2026-11-06). This replaces the unfinished `.writes`
+inspection reported above, including PLOP3 alias cases on all architectures
+and both modes. Pure display inspection rejects stateful bodies and reads
+after writes; SHFL is inspected as separate ordered operations.
+The log is `.cache/ordered-gate/ordered-definition-inspection.log`.
+
+Direct BSSY/BSYNC and BREAK/BMOV migration (2026-11-06) passed 1,468 selected
+Python control groups covering 6,444 shared cases across all architectures and
+both modes in 25 seconds. Sixty checks enumerate and type-check the normal
+WARPSYNC, convergence and environment classes across all twenty languages.
+Thirty-two focused native checks preserve BREAK/BMOV inputs, state-read values,
+events and disabled predicates. Twenty-eight production formal contracts passed
+against the explicit environment in the K 7.1.337 container.
+Focused production Ghidra checks passed 692 SM89 and 680 SM90 shared cases in
+both modes. The broader SM89 run initially had 36 failing pure-p-code
+assertions because the explicit deferred wait is a CALLOTHER. MD-driven
+named-operation contracts now require that exact wait, reject duplicate or
+unknown calls, and add one operation to existing bounded-effect profiles.
+All 252 adapter checks pass in fourteen seconds. The complete control run
+passes 1,666 Python checks (6,444 shared cases) in seventeen seconds and
+1,466 Ghidra checks (6,580 shared cases) in seventy-five seconds across all
+architectures and both modes. The full operation-count review remains open.
+Logs are `.cache/ordered-gate/deferred-wait-*`.
+
+Typed native capture bindings (2026-11-06) pass 465 combined native,
+coordinator and cooperative checks, including 21 malformed-reply and
+suspension regressions, in 227 seconds with rebuilt libraries.
+The broader control/thread hardware selection passes 275 checks with
+69 unsupported or inapplicable skips in 475 seconds. This command also
+selects numerical-definition discovery and CUDA tests; its cost is not
+the earlier warm 241-check fixture selection's five seconds.
+Logs are `.cache/ordered-gate/capture-binding-combined-verification.log`
+and `deferred-wait-contract-hardware.log`.
+
+Partial deferred-barrier capture regressions (2026-11-06) passed eighteen
+SHFL/MATCH/REDUX fixtures across SM89/SM90 and three schedules, plus a coordinator
+query test, in 29 seconds. Definition and merger checks passed all 446 tests
+in 39 seconds. The expanded production Ghidra convergence suite passed 200
+kernels across both architectures, both modes and three schedules in 70 seconds.
+The final native/coordinator/cooperative selection passed 431 checks in
+139 seconds, including compilation of new kernel translation units. All 241
+existing control/thread hardware fixtures passed on the local SM89 GPU in
+five seconds. The partial-barrier fixtures preserve the software model and
+do not claim new hardware verification of partially predicated barriers.
+All twenty languages compile with zero dead temporaries; SM90 exact is largest
+at 15,927,146 bytes. Runtime cache experiments were discarded, and performance
+baselines remain unchanged. Logs are `.cache/ordered-gate/convergence-*` and
+`partial-deferred-*`.
+
+Canonical family interface cleanup (2026-11-06) passed 618 framework, merger,
+definition and formal-export checks in 33 seconds, plus the family return-type
+contract test. Every family now returns an ordered block without a migration flag;
+symbolic operands always use explicit captures. Regenerated SM90 exact source was
+byte-for-byte identical to the source of the compiled language.
+The native fixtures passed all 2,400 random expression cases and 63 definition
+checks; the final warm native/ordered selection passed 172 tests in 3.44 seconds.
+Random-tree constants that exceeded their declared widths now receive
+enough bits to hold the original numbers; all generated numerical inputs and
+random-generator states were compared with the previous fixtures and preserved.
+The assignment benchmark retains the original generated baseline function instead
+of invoking the removed legacy converter: nine alternating runs of 100 million
+assignments gave medians of 0.056509 seconds (baseline) and 0.056613 seconds
+(ordered), ratio 1.00184. This does not close the larger kernel performance
+regressions or establish a new timing baseline.
+Fourteen ordered export checks and three K parameter-execution checks passed;
+parameters are typed consistently, skipped branches need no missing parameter,
+and parameter faults retain earlier writes. Logs are
+`.cache/ordered-gate/canonical-*`.
+
+Canonical formal migration (2026-11-06) passed 65 plain export/publication checks
+across all architectures and 64 K execution/contract checks on SM89 in both FP
+modes. LLVM and Haskell use the same ordered model. The worked example supplies
+explicit completion responses for deferred-barrier waits; all eleven generated
+reachability claims pass, and deliberately false claims still fail. The rebuilt
+PDF contains all 228 rules from the four source modules, the response assumption,
+and the actual prover output. A repeated defined floating comparison exposed
+colliding expression IDs; reuse of its lowered expression now preserves unique
+IDs and the independent DSETP results. Logs are
+`.cache/ordered-gate/formal-canonical-*`.
+
+The two partial deferred-BAR/BRA fixtures (2026-11-06) pass 12 Python/native
+checks across SM89/SM90 and round-robin, reverse and seeded schedules. Production
+Ghidra synchronization checks pass in both FP modes on both architectures.
+Both synthetic 32-thread SM89 fixtures pass hardware regression and have recorded
+fingerprints: DIV is untaken everywhere, CONV is taken everywhere. The original
+emulator's split lane-group results disagree with these GPU observations; the
+ordered body required no change. This does not establish behavior with lanes
+parked at blocking BAR or WARPSYNC, or hardware verification on SM90. Logs are
+`.cache/ordered-gate/deferred-branch-*`.
 
 ## Caches
 

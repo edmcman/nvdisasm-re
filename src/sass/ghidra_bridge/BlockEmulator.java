@@ -9,8 +9,26 @@ import ghidra.program.model.lang.Language;
 
 /** One thread block: memory spaces are shared by its threads, except per-thread local memory. */
 public class BlockEmulator extends PcodeEmulator {
+	private PcodeExecutorState<byte[]> global;
+
 	public BlockEmulator(Language language) {
 		super(language);
+	}
+
+	public BlockEmulator(Language language, PcodeExecutorState<byte[]> global) {
+		this(language);
+		this.global = global;
+	}
+
+	@Override
+	protected PcodeExecutorState<byte[]> createSharedState() {
+		PcodeExecutorState<byte[]> block = super.createSharedState();
+		return global == null ? block : new ThreadPcodeExecutorState<>(global, block) {
+			@Override
+			protected boolean isThreadLocalSpace(AddressSpace space) {
+				return space.getName().equals("shared");
+			}
+		};
 	}
 
 	@Override

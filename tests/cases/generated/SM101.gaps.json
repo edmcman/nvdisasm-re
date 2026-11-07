@@ -1,12 +1,12 @@
 {
   "counts": {
     "legal": 1040531,
-    "unresolved_semantics": 532992,
-    "requirements": 136789,
+    "unresolved_semantics": 518198,
+    "requirements": 156492,
     "manual": 0,
-    "blocked": 10315,
-    "covered_requirements": 126474,
-    "generated": 11494
+    "blocked": 10167,
+    "covered_requirements": 146325,
+    "generated": 13874
   },
   "gaps": [
     {
@@ -186,62 +186,62 @@
     },
     {
       "cls": "atomg_cas__RaNonRZ",
-      "count": 384,
+      "count": 96,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_cas__RaRZ",
-      "count": 384,
+      "count": 96,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_fp__RaNonRZ",
-      "count": 2400,
+      "count": 2184,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_fp__RaRZ",
-      "count": 2400,
+      "count": 2184,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_fp_uniform__Ra32",
-      "count": 2400,
+      "count": 2184,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_fp_uniform__Ra64",
-      "count": 1200,
+      "count": 1092,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_fp_uniform__memdesc",
-      "count": 1200,
+      "count": 1092,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_int__RaNonRZ",
-      "count": 2568,
+      "count": 696,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_int__RaRZ",
-      "count": 2568,
+      "count": 696,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_int_uniform__Ra32",
-      "count": 2568,
+      "count": 696,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_int_uniform__Ra64",
-      "count": 1284,
+      "count": 348,
       "reason": "unresolved semantics"
     },
     {
       "cls": "atomg_int_uniform__memdesc",
-      "count": 1284,
+      "count": 348,
       "reason": "unresolved semantics"
     },
     {
@@ -297,21 +297,6 @@
     {
       "cls": "atoms_uniform_",
       "count": 76,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "b2r__BAR",
-      "count": 1,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "b2r__RESULT",
-      "count": 1,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "b2r__WARP",
-      "count": 1,
       "reason": "unresolved semantics"
     },
     {
@@ -391,7 +376,7 @@
     },
     {
       "cls": "brx_",
-      "count": 6,
+      "count": 4,
       "reason": "unresolved semantics"
     },
     {
@@ -431,17 +416,17 @@
     },
     {
       "cls": "cctl__IVALL_WBALL_D_U_noSrc",
-      "count": 8,
+      "count": 7,
       "reason": "unresolved semantics"
     },
     {
       "cls": "cctl__sImmOffset",
-      "count": 24,
+      "count": 18,
       "reason": "unresolved semantics"
     },
     {
       "cls": "cctl__sImmOffset_pf2",
-      "count": 4,
+      "count": 2,
       "reason": "unresolved semantics"
     },
     {
@@ -627,21 +612,6 @@
     {
       "cls": "csmtest_bop_",
       "count": 144,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "depbar__LE",
-      "count": 1,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "depbar__noLE",
-      "count": 1,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "depbar_ur_",
-      "count": 1,
       "reason": "unresolved semantics"
     },
     {
@@ -1685,11 +1655,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "hmma_x8_",
-      "count": 64,
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "hmma_x8_indexedRF_",
       "count": 64,
       "reason": "unresolved semantics"
@@ -2076,11 +2041,6 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldgdepbar_",
-      "count": 1,
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "ldgmc_fp__Ra32",
       "count": 64,
       "reason": "unresolved semantics"
@@ -2111,38 +2071,13 @@
       "reason": "unresolved semantics"
     },
     {
-      "cls": "ldgsts__RR32U",
-      "count": 1152,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldgsts__RR64U",
-      "count": 1152,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldgsts__RUR",
-      "count": 1152,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldgsts__desc_RRU",
-      "count": 1152,
-      "reason": "unresolved semantics"
-    },
-    {
-      "cls": "ldgsts_memdesc_",
-      "count": 1152,
-      "reason": "unresolved semantics"
-    },
-    {
       "cls": "ldsm__UR_sI_R",
-      "count": 30,
+      "count": 24,
       "reason": "unresolved semantics"
     },
     {
       "cls": "ldsm__sImmOffset",
-      "count": 30,
+      "count": 24,
       "reason": "unresolved semantics"
     },
     {
@@ -2172,7 +2107,7 @@
     },
     {
       "cls": "membar_",
-      "count": 24,
+      "count": 12,
       "reason": "unresolved semantics"
     },
     {
@@ -2226,33 +2161,17 @@
     },
     {
       "cls": "mufu__RIR_RI",
-      "count": 8,
+      "count": 6,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 8
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 4,
+        "Sb: 18442240474082181120 outside [0, 4294967295]": 1,
+        "Sb: 4607182418800017408 outside [0, 4294967295]": 1
       }
     },
     {
       "cls": "mufu__RRR_RR",
-      "count": 32,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 32
-      }
-    },
-    {
-      "cls": "mufu__RUR_RU",
-      "count": 32,
-      "reason": "no usable reference/operand adapter",
-      "unit": "interactions",
-      "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 32
-      }
-    },
-    {
-      "cls": "mufu_fp16__RI",
       "count": 16,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
@@ -2261,21 +2180,39 @@
       }
     },
     {
-      "cls": "mufu_fp16__RR",
-      "count": 224,
+      "cls": "mufu__RUR_RU",
+      "count": 16,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 128
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 16
+      }
+    },
+    {
+      "cls": "mufu_fp16__RI",
+      "count": 14,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 14
+      }
+    },
+    {
+      "cls": "mufu_fp16__RR",
+      "count": 168,
+      "reason": "no usable reference/operand adapter",
+      "unit": "interactions",
+      "attempts": {
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 112
       }
     },
     {
       "cls": "mufu_fp16__RU",
-      "count": 224,
+      "count": 168,
       "reason": "no usable reference/operand adapter",
       "unit": "interactions",
       "attempts": {
-        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 128
+        "MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage": 112
       }
     },
     {

@@ -1,8 +1,8 @@
 # Reading the definition
 
 This document defines the executable bitvector IR used by nvdisasm-re's SASS
-lifter. It includes every handwritten rule in the three modules:
-`SASS-BITS`, `SASS-FLOAT`, and `SASS`.
+lifter. It includes every handwritten rule in the four modules:
+`SASS-BITS`, `SASS-FLOAT`, `SASS`, and `SASS-ORDERED`.
 
 Each module's Markdown file is also its executable K source. K extracts the
 fenced `k` blocks and compiles them directly. The mathematical expressions and
@@ -40,13 +40,14 @@ Named operators expand through their existing definitions before export.
 The model specifies how that IR executes; it does not independently define
 NVIDIA's instruction set or prove the lifter correct.
 
-Runtime primitives and effects cross an explicit environment boundary. Concrete
+Ordered runtime operations cross an explicit environment boundary. Concrete
 execution needs a response transcript; symbolic proofs need explicitly stated
-environment assumptions if they use primitives. This document supplies neither
+environment assumptions if they use runtime operations. Numerical approximation
+responses preserve the environment. This document supplies neither
 GPU approximation axioms nor a warp scheduler or concurrent memory model.
 
 The regression suite compares K execution with the existing evaluator and
 samples shared instruction cases. Four example symbolic claims cover false
-predication, modular addition, simultaneous aliased reads, and a branching
+predication, modular addition, explicitly captured aliased reads, and a branching
 program. Those claims are properties of this model. Hardware verification
 continues to depend on independent references and GPU observations.

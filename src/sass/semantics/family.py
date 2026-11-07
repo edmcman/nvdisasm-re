@@ -2,7 +2,7 @@
 
     @family('IADD3', 'UIADD3')
     def iadd3(i): ...
-        return outputs(Rd=..., Pu=...)
+        return i.assign_from_inputs(Rd=..., Pu=...)
 
 `i` answers questions about the instruction. Static answers (class facts, modifier bits, enum
 selectors, yes/no questions about numeric fields) are Python values; dynamic ones (operand values)
@@ -24,6 +24,12 @@ from sass.semantics.bitvec import Expr
 FAMILIES = {}   # opcode -> [(class filter or None, family function)]
 
 
+@cache
+def deferred_classes(arch):
+    return frozenset(name for name, record in parse.arch_classes(arch).items()
+                     if "DECOUPLED" in record["props"].get("INSTRUCTION_TYPE", ""))
+
+
 # ---- results ----------------------------------------------------------------------------------
 
 class Unmodelled(Exception):
@@ -40,33 +46,6 @@ def unmodelled(reason): raise Unmodelled(reason)
 def illegal(reason, evidence): raise Illegal(reason, evidence)
 
 
-@dataclass
-class Outputs:
-    writes: dict                 # operand name -> Expr, evaluated simultaneously
-    order: tuple = ()            # write order for aliased destinations (last wins)
-    flow: "Flow | None" = None   # control transfer after the writes
-    stores: tuple = ()           # Store(space, address, value), after the register writes
-    effects: tuple = ()          # Effect(name, args): side-effecting calls, before everything else
-
-    def ordered(self):
-        names = [n for n in self.writes if n not in self.order] + [n for n in self.order if n in self.writes]
-        return [(n, self.writes[n]) for n in names]
-
-
-def outputs(order=(), flow=None, stores=(), effects=(), **writes):
-    return Outputs(writes, tuple(order), flow, tuple(stores), tuple(effects))
-
-
-@dataclass(frozen=True)
-class Store:
-    """Write value (a whole number of bytes) to memory space `space` at byte `address` (64 bits),
-    when cond (1 bit) is nonzero or always (None)."""
-    space: str
-    address: Expr
-    value: Expr
-    cond: Expr | None = None
-
-
 @dataclass(frozen=True)
 class Effect:
     """A call to the pcodeop `name` with Expr arguments and no result (memory ordering events,
@@ -75,31 +54,18 @@ class Effect:
     args: tuple
 
 
-def store(space, address, value, cond=None): return Store(space, address, value, cond)
 def effect(name, *args): return Effect(name, tuple(args))
 
 
 def primitive_names(result):
-    """The runtime primitives an Outputs needs: its primitive values' and primitive effects' names."""
-    memo = {}
-    roots = [bitvec.lowered(r, memo) for r in (*result.writes.values(), *(e for s in result.stores for e in (s.address, s.value, s.cond)),
-             *(a for e in result.effects for a in e.args), *((result.flow.target, result.flow.cond) if result.flow else ()))]
-    return {e.name.removeprefix(bitvec.PRIMITIVE_OP) for e in result.effects if e.name.startswith(bitvec.PRIMITIVE_OP)} | \
-        {n.args[0] for r in roots if isinstance(r, Expr) for n in bitvec.leaves(r, "primitive")}
-
-
-@dataclass(frozen=True)
-class Flow:
-    """A control transfer: kind goto | call | return, to a 64-bit absolute target, taken when
-    cond (1 bit) is nonzero or always (None). A target from i.branch_target is a direct edge."""
-    kind: str
-    target: Expr
-    cond: Expr | None = None
-
-
-def goto(target, cond=None): return Flow("goto", target, cond)
-def call(target, cond=None): return Flow("call", target, cond)
-def ret(target, cond=None): return Flow("return", target, cond)
+    """Named runtime p-code calls, including pure numerical approximations."""
+    from sass.semantics import ordered
+    statements = ordered.linearize(result)
+    return {statement.operation.runtime.removeprefix(bitvec.PRIMITIVE_OP)
+            for statement in statements if isinstance(statement, ordered.Special) and
+            statement.operation.runtime and statement.operation.runtime.startswith(bitvec.PRIMITIVE_OP)} | \
+           {"mufu_" + node.args[0] for statement in statements for value in ordered.statement_values(statement)
+            if isinstance(value, Expr) for node in bitvec.leaves(value, "mufu")}
 
 
 # ---- native conditionals: the rewrite target --------------------------------------------------
@@ -172,10 +138,10 @@ def rewrite(fn):
 
 
 def family(*opcodes, classes=None, modifier_roles=None):
-    """Register fn for every md class of `opcodes`, or only those `classes(klass)` accepts (while an
-    opcode is partly migrated, the other classes keep their old emitter). Unmodelled encodings use
-    the opaque call. `modifier_roles` declares family-local value/hint/effect verification roles;
+    """Register an ordered body for every md class of `opcodes`, or those `classes(klass)` accepts.
+    Unmodelled encodings use the opaque call. `modifier_roles` declares family-local value/hint/effect verification roles;
     undeclared modifiers affect values. Roles do not alter semantic guards."""
+    from sass.semantics import ordered
     roles = dict(modifier_roles or {})
     if any(role not in ("value", "hint", "effect") for role in roles.values()):
         raise ValueError("modifier roles must be value, hint or effect")
@@ -183,6 +149,8 @@ def family(*opcodes, classes=None, modifier_roles=None):
         staged = rewrite(fn)
         def checked(i):
             result = staged(i)
+            if not isinstance(result, ordered.Block):
+                raise TypeError(f"{fn.__name__}: family did not return an ordered body")
             i.require_unasked_defaults()
             return result
         checked.__name__, checked.__wrapped__ = fn.__name__, fn
@@ -401,6 +369,70 @@ class Instruction:
     def span(self, name):
         """Register count of a register operand."""
         raise NotImplementedError
+
+    def destination(self, name):
+        raise NotImplementedError
+
+    def body(self):
+        from sass.semantics import ordered
+        return ordered.Builder()
+
+    def active_lanes(self, body):
+        from sass.semantics import ordered
+        active, = body.special(ordered.ACTIVE)
+        if self.cls in deferred_classes(self.arch.name):
+            active, = body.special(ordered.BARRIER_ELIGIBLE, active)
+        return active
+
+    def emit_effects(self, body, effects):
+        from sass.semantics import ordered
+        for effect_ in effects:
+            spec = ordered.bound_operation(effect_.name, effect_.args)
+            body.special(spec, *(body.capture(argument) for argument in effect_.args))
+
+    def assign_from_inputs(self, body=None, order=(), **writes):
+        from sass.semantics import ordered
+        body = body or self.body()
+        names = [name for name in writes if name not in order] + [name for name in order if name in writes]
+        destinations = []
+        for name in names:
+            if not self.has_operand(name): continue
+            name_ = self.resolve(name)
+            if self.atom(name_).type == "PR":
+                destinations += [(("P", index, 1), bitvec.extract(writes[name], index, index)) for index in range(PR_BITS)]
+            elif (location := self.destination(name_)) is not None:
+                destinations.append((location, writes[name]))
+        body.assign_from_inputs(destinations)
+        return body.block()
+
+    def transfer(self, kind, target, condition=None, body=None):
+        from sass.semantics import ordered
+        body = body or self.body()
+        if condition is None:
+            body.emit(ordered.Transfer(kind, body.capture(target)))
+        else:
+            condition = body.capture(condition)
+            arm = ordered.Builder(body.count)
+            arm.emit(ordered.Transfer(kind, arm.capture(target)))
+            body.count = arm.count
+            body.emit(ordered.If(condition, arm.block()))
+        return body.block()
+
+    def cx(self, name, width):
+        if self.arch.name not in ("SM75", "SM80", "SM86", "SM89", "SM90"):
+            unmodelled(f"CX header layout on {self.arch.name}")
+        children = []
+        for child in self.k.format[self.k.format.index(self.atom(name)) + 1:]:
+            if child.kind == "lit" and child.name == ",": break
+            if child.kind == "operand": children.append(child)
+        ur = next(child.name for child in children if child.type in
+                  ("UniformRegister", "NonZeroUniformRegister", "ZeroUniformRegister"))
+        off = next(child.name for child in children if child.type in ("UImm", "SImm"))
+        header, offset = self.operand(ur, 64), bitvec.zext(self.operand(off, 32), 64)
+        bits, shift = (51, 6) if self.arch.name == "SM90" else (45, 4)
+        limit = (header >> bits) << 4
+        address = ((header & ((1 << bits) - 1)) << shift) + offset
+        return bitvec.ite(limit < offset + width // 8, bitvec.const(0, width), bitvec.load("ram", address, width))
 
     # Names. Each name also matches its uniform-register spelling (Ra: URa, Pu: UPu), so one
     # family covers an opcode and its uniform twin (IADD3, UIADD3).
@@ -626,6 +658,10 @@ class Instruction:
         (memory-ordering controls): the family models every label."""
         name = self.resolve(names); self.asked.add(name)
         return bitvec.param(f"__enc:{name}", w)
+
+    def control(self, name, w=32):
+        if name not in self.k.sched: raise ValueError(f"unknown scheduling control {name}")
+        return bitvec.param(f"__control:{name}", w)
 
     def special(self, names, w):
         """The special register (view of w bits) a SpecialRegister operand names; SRZ reads 0."""

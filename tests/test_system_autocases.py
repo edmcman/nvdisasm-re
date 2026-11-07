@@ -111,6 +111,65 @@ def test_integer_pcode_limits_keep_their_existing_guards():
         assert problems({'__max_ops':1},dict(one,pcode_ops=ops))
 
 
+@pytest.mark.parametrize("operations,names", [
+    ({}, []),
+    ({"COPY": 1}, []),
+    ({"CALLOTHER": 1}, ["sass_opaque_S2UR"]),
+    ({"CALLOTHER": 2}, ["sass_ordered_block_barrier_wait_deferred"] * 2),
+    ({"CALLOTHER": 1}, None),
+    (None, ["sass_ordered_block_barrier_wait_deferred"]),
+])
+def test_deferred_wait_contract_rejects_missing_duplicate_and_unknown_calls(operations, names):
+    from tests.harness.checks import problems
+    expected = {"__userops": ["sass_ordered_block_barrier_wait_deferred"]}
+    assert problems(expected, dict(registers={}, pcode_ops=operations, pcode_userops=names))
+
+
+def test_deferred_wait_contract_preserves_the_strict_native_check():
+    from tests.harness.checks import problems
+    names = ["sass_ordered_block_barrier_wait_deferred"]
+    result = dict(registers={}, pcode_ops={"CALLOTHER": 1, "COPY": 1}, pcode_userops=names)
+    assert not problems({"__userops": names}, result)
+    assert problems({"__native": True}, result)
+
+
+@pytest.mark.parametrize("fp", ["exact", "readable"])
+def test_manual_conversion_cases_require_the_deferred_wait(fp):
+    from tests.cases import conversions
+    from tests.harness.case import Cases
+    cases = Cases("SM90", fp)
+    conversions.scalar(cases)
+    conversions.ieee(cases)
+    classes = {"f2i__Rb_32b", "frnd__f32_R", "frnd__f32_URb", "frnd__f64_R", "frnd__f64_URb"}
+    inspected = [case for case in cases if case.cls in classes and case.request.get("inspect_pcode")]
+    assert {case.cls for case in inspected} == classes
+    for case in inspected:
+        assert "__native" not in case.expected
+        assert case.expected["__userops"] == ["sass_ordered_block_barrier_wait_deferred"]
+
+
+@pytest.mark.parametrize("cls,fields,names,count", [
+    ("s2ur_", {}, ["sass_ordered_block_barrier_wait_deferred"], None),
+    ("membar_", {"sem": "SC", "sco": "CTA"},
+     ["sass_ordered_block_barrier_wait_deferred", "sass_fence"], 5),
+    ("nop_", {}, [], 0),
+])
+def test_generated_wait_contracts_preserve_named_effects_and_operation_bounds(cls, fields, names, count):
+    from tests.harness import device_cases
+    from tests.harness.case import Cases
+    cases = generated("SM89", cls, fields, "exact")
+    for case in cases:
+        expected = case.expected
+        assert "__native" not in expected
+        if count is None:
+            assert expected["__userops"] == names
+            assert "__userops" in lifted.PCODE_ONLY and "__userops" in device_cases.BACKEND_CHECKS
+        else:
+            assert expected["__max_ops"] == dict(count=count, userops=names)
+        assert case.request["inspect_pcode"]
+        assert Cases.request("00", {}, expected)["inspect_pcode"]
+
+
 def test_zero_special_pair_keeps_its_physical_overwrite_anchor():
     from tests.cases import control
     from tests.harness import device_cases

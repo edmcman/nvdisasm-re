@@ -4,8 +4,7 @@ import pytest
 
 from sass.assemble import encoding
 from sass.formal import k
-from sass.semantics import bitvec, evaluate, lifter
-from sass.semantics.family import Flow, Store, Effect
+from sass.semantics import bitvec, evaluate, lifter, ordered
 from tests.harness.select import arches
 
 
@@ -14,12 +13,16 @@ def pytest_generate_tests(metafunc):
         metafunc.parametrize("export_arch", arches(metafunc.config))
 
 
-def semantics(**kwargs):
-    return lifter.Semantics("SM89", "ir", "IR example", 0x100000, "native", **kwargs)
+def semantics(body=None, writes=()):
+    if body is None:
+        builder = ordered.Builder()
+        builder.assign_from_inputs((location.args, value) for location, value in writes)
+        body = builder.block()
+    return lifter.Semantics("SM89", "ir", "IR example", 0x100000, "native", body=body)
 
 
 def test_vocabulary_and_package_data():
-    assert k.OPERATORS == set(bitvec.OPS) | {"const", "param", "reg", "load", "ite", "primitive"}
+    assert k.OPERATORS == set(bitvec.OPS) | {"const", "param", "reg", "ite"}
     assert k.DEFINITION.is_file()
     for source in k.SOURCES:
         assert source.is_file()
@@ -36,33 +39,64 @@ def test_named_expansion_and_shared_nodes():
     assert '"mul"' in exported.program
     assert k.export_instruction(sem) == exported
     assert exported.contracts == ()
+    assert any(name.startswith("mul.wide") for name in exported.instructions[0]["definitions"])
     encoder = k.Encoder()
     encoder.instruction(sem)
-    lowered = bitvec.lowered(value)
-    assert exported.program.count(encoder.nodes[lowered][1]) == 2
+    assert sum(node.op == "mul" for node in encoder.nodes) == 1
+    assert exported.program.count('orderedWrite("R"') == 2
+
+
+def test_repeated_defined_expression_preserves_unique_node_ids():
+    from sass.semantics.families.floating import float_test
+    builder = ordered.Builder()
+    a, b = builder.read_register("R", 0, 2), builder.read_register("R", 2, 2)
+    comparison = float_test("LT", a, b)
+    for index, value in enumerate((~comparison, comparison)):
+        captured = builder.move(value)
+        builder.emit(ordered.WriteRegister(("P", index, 1), captured))
+    encoder = k.Encoder()
+    encoder.instruction(semantics(builder.block()))
+    ids = [ident for ident, _ in encoder.nodes.values()]
+    assert len(set(ids)) == len(ids)
+    assert sum(node.op == "flt" for node in encoder.nodes) == 1
 
 
 def test_contracts_and_effects():
-    value = bitvec.primitive("read_lane", 32, bitvec.reg("R", 1, 1), bitvec.const(3, 32))
-    sem = semantics(writes=[(bitvec.reg("R", 2, 1), value)],
-                    effects=[Effect("sass_prim_bar", (bitvec.const(1, 1),))])
+    builder = ordered.Builder()
+    builder.special(ordered.BARRIER_ACKS["all"])
+    source = builder.read_register("R", 1)
+    snapshot, = builder.special(ordered.CAPTURE, bitvec.const(0, 32), bitvec.const(15, 32), source)
+    value, = builder.special(ordered.READ_LANE, snapshot, bitvec.const(3, 32))
+    builder.special(ordered.RELEASE_SNAPSHOT, snapshot)
+    builder.emit(ordered.WriteRegister(("R", 2, 1), value))
+    sem = semantics(builder.block())
     sem.status = "primitive"
     exported = k.export_instruction(sem)
     manifest = exported.manifest()
-    assert {c["name"] for c in manifest["contracts"]} == {"sass_prim_read_lane", "sass_prim_bar"}
-    assert 'effect(-1, "sass_prim_bar"' in exported.program
+    assert manifest["contracts"] == []
+    assert {c["name"] for c in manifest["operations"]} == {
+        ordered.BARRIER_ACKS["all"].name, ordered.CAPTURE.name,
+        ordered.READ_LANE.name, ordered.RELEASE_SNAPSHOT.name}
+    sites = manifest["instructions"][0]["runtime_sites"]
+    assert [site["id"] for site in sites] == [0, 2, 3, 4]
+    assert [site["results"] for site in sites] == [[], ["warp_snapshot"], [32], []]
     assert manifest["instructions"][0]["status"] == "primitive"
-    assert json.loads(json.dumps(manifest))["format"] == 1
+    assert json.loads(json.dumps(manifest))["format"] == 2
 
 
 def test_machine_transition_export():
-    sem = semantics(guard=bitvec.reg("P", 0, 1, element=1),
-                    writes=[(bitvec.reg("R", 1, 1), bitvec.reg("R", 2, 1))],
-                    stores=[Store("ram", bitvec.const(0x100, 64), bitvec.const(0x1234, 16))],
-                    flow=Flow("goto", bitvec.const(0, 64)))
+    builder = ordered.Builder()
+    guard = builder.read_register("P", 0)
+    arm = ordered.Builder(builder.count)
+    value = arm.read_register("R", 2)
+    arm.emit(ordered.WriteRegister(("R", 1, 1), value))
+    arm.emit(ordered.WriteMemory("ram", bitvec.const(0x100, 64), bitvec.const(0x1234, 16)))
+    arm.emit(ordered.Transfer("goto", bitvec.const(0, 64)))
+    builder.emit(ordered.If(guard, arm.block()))
+    sem = semantics(builder.block())
     exported = k.export_instruction(sem)
-    assert 'store("ram"' in exported.program
-    assert 'flow("goto"' in exported.program
+    assert 'orderedStore("ram"' in exported.program
+    assert 'orderedControl("goto"' in exported.program
     state = evaluate.State(regs={("R", 2): 9}, memory={"ram": {256: 12}})
     term = k.input_term(exported, state, params={"x": 3}, limit=7)
     assert 'location("R", 2) |-> 9' in term
@@ -81,8 +115,8 @@ def test_opaque_is_explicit():
 
 @pytest.mark.parametrize("operator", ["sel", "tuple", "future_operator"])
 def test_unexecutable_nodes_rejected(operator):
-    sem = semantics(writes=[(bitvec.reg("R", 0, 1), bitvec.Expr(operator, (), 32))])
-    with pytest.raises(k.ExportError, match="unexecutable"):
+    sem = semantics(ordered.Block((ordered.WriteRegister(("R", 0, 1), bitvec.Expr(operator, (), 32)),)))
+    with pytest.raises(k.ExportError):
         k.export_instruction(sem)
 
 
@@ -111,7 +145,7 @@ def test_zero_address_is_not_silently_skipped():
 ])
 def test_malformed_ir_rejected(expr):
     with pytest.raises(k.ExportError):
-        k.export_instruction(semantics(writes=[(bitvec.reg("R", 0, 1), expr)]))
+        k.export_instruction(semantics(ordered.Block((ordered.WriteRegister(("R", 0, 1), expr),))))
 
 
 def test_leading_zero_count_export():

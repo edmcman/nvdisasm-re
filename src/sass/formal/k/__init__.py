@@ -6,7 +6,7 @@ from pathlib import Path
 from sass.decode import pydecode
 from sass.semantics import bitvec, lifter
 
-SOURCES = tuple(Path(__file__).with_name(name) for name in ("bits.md", "float.md", "sass.md"))
+SOURCES = tuple(Path(__file__).with_name(name) for name in ("bits.md", "float.md", "sass.md", "ordered.md"))
 DEFINITION = SOURCES[-1]
 VERSION = "7.1.337"
 IMAGE = "nvdisasm-re-k:7.1.337"
@@ -15,7 +15,7 @@ IMAGE = "nvdisasm-re-k:7.1.337"
 OPERATORS = frozenset("""
 add sub mul and or xor not neg lzcount shl shr sar eq ne ult ule slt sle
 zext sext extract concat fadd fmul ffma nanresult flt fle feq fnan fconv
-const param reg load ite primitive
+const param reg ite mufu
 """.split())
 ELEMENT = {"R": 32, "UR": 32, "P": 1, "UP": 1, "SR": 32}
 
@@ -62,13 +62,21 @@ class Export:
     program: str
     contracts: tuple[Contract, ...]
     instructions: tuple[dict, ...]
+    operations: tuple = ()
 
     def manifest(self):
         """JSON-compatible provenance and runtime assumptions; no verification claim."""
         from dataclasses import asdict
-        return dict(format=1, k_version=VERSION,
+        return dict(format=2, k_version=VERSION,
                     contracts=[asdict(c) for c in self.contracts],
+                    operations=[asdict(spec) for spec in self.operations],
                     instructions=list(self.instructions))
+
+    def response(self, response, environment):
+        if any(spec.name == response["name"] for spec in self.operations):
+            from sass.formal.k import ordered
+            return ordered.Export(self.source, self.program, self.operations).response(response, environment)
+        return response_term(response, environment)
 
 
 class Encoder:
@@ -78,6 +86,8 @@ class Encoder:
         self.contracts = set()
         self.checked = set()
         self.definitions = set()
+        self.operations = {}
+        self.runtime_sites = []
 
     def check(self, expr):
         if not isinstance(expr, bitvec.Expr): raise ExportError("expected an expression")
@@ -95,13 +105,13 @@ class Encoder:
         binary = {"add", "sub", "mul", "and", "or", "xor", "eq", "ne", "ult", "ule", "slt", "sle",
                   "shl", "shr", "sar", "nanresult", "flt", "fle", "feq"}
         arity = {**dict.fromkeys(unary, 1), **dict.fromkeys(binary, 2),
-                 "const": 1, "param": 1, "reg": 3, "load": 2, "ite": 3, "extract": 3,
+                 "const": 1, "param": 1, "reg": 3, "ite": 3, "extract": 3,
                  "fadd": 3, "fmul": 4, "ffma": 4, "fconv": 2}
         if op in arity and len(args) != arity[op]:
             raise ExportError(f"{op}: invalid argument count")
         expressions = [a for a in args if isinstance(a, bitvec.Expr)]
         expected = (1 if op in unary else 2 if op in binary else
-                    {"const": 0, "param": 0, "reg": 0, "load": 1, "ite": 3, "extract": 1,
+                    {"const": 0, "param": 0, "reg": 0, "ite": 3, "extract": 1,
                      "fadd": 2, "fmul": 2, "ffma": 3, "fconv": 1}.get(op))
         if expected is not None and len(expressions) != expected:
             raise ExportError(f"{op}: invalid expression arguments")
@@ -109,8 +119,6 @@ class Encoder:
             raise ExportError(f"{op}: invalid leaf")
         if op == "const" and not 0 <= args[0] < 1 << width:
             raise ExportError("const: value outside its width")
-        if op == "load" and (not isinstance(args[0], str) or width % 8):
-            raise ExportError("invalid memory load")
         if op == "reg":
             file, index, count = args
             if file not in ELEMENT or type(index) is not int or type(count) is not int or index < 0 or count <= 0:
@@ -143,8 +151,10 @@ class Encoder:
             raise ExportError(f"{op}: invalid IEEE input format")
         if op == "nanresult" and width not in (16, 32, 64):
             raise ExportError("nanresult: invalid IEEE format")
-        if op == "primitive" and (not args or not isinstance(args[0], str) or len(expressions) != len(args) - 1):
-            raise ExportError("invalid primitive signature")
+        if op == "mufu":
+            from sass.semantics import ordered
+            try: ordered.check_expression(expr)
+            except TypeError as error: raise ExportError(str(error)) from error
 
     def expr(self, expr):
         if expr is None: return "absent"
@@ -159,10 +169,8 @@ class Encoder:
             file, index, count = expr.args
             if file not in ELEMENT or index < 0 or count <= 0 or expr.w != count * ELEMENT[file]:
                 raise ExportError("invalid register location")
-        if expr.op == "load" and (expr.w % 8 or not isinstance(expr.args[0], str)):
-            raise ExportError("invalid memory load")
         if expr in self.nodes: return self.nodes[expr][1]
-        ident = len(self.nodes)
+        ident = -len(self.nodes) - 1
         self.nodes[expr] = (ident, None)
         args = []
         for arg in expr.args:
@@ -170,12 +178,13 @@ class Encoder:
             elif isinstance(arg, str): args.append(string(arg))
             elif type(arg) is int: args.append(str(arg))
             else: raise ExportError(f"unsupported argument of {expr.op}: {type(arg).__name__}")
-        if expr.op == "primitive":
+        if expr.op == "mufu":
             name, *values = expr.args
+            name = "mufu_" + name.lower()
             if not isinstance(name, str) or any(not isinstance(v, bitvec.Expr) for v in values):
                 raise ExportError("invalid primitive signature")
             self.contracts.add(Contract(bitvec.PRIMITIVE_OP + name,
-                                        tuple(v.w for v in values), expr.w, "value",
+                                        tuple(v.w for v in values), expr.w, "pure",
                                         context(bitvec.PRIMITIVE_OP + name)))
         result = f"node({ident}, {string(expr.op)}, {expr.w}, {klist(args)})"
         self.nodes[expr] = (ident, result)
@@ -184,62 +193,44 @@ class Encoder:
     def instruction(self, sem):
         if sem.status not in ("native", "primitive", "opaque"):
             raise ExportError(f"unknown semantics status {sem.status!r}")
-        guard = self.expr(sem.guard)
         if sem.status == "opaque":
+            guard = self.expr(sem.unsupported_guard)
             return f"unsupported({sem.addr}, {guard}, {string(sem.reason or 'opaque semantics')})"
-        writes = []
-        for loc, value in sem.writes:
-            if loc.op != "reg" or loc.w != value.w: raise ExportError("invalid register write")
-            self.expr(loc)  # validate its shape
-            file, index, count = loc.args
-            writes.append(f"write({string(file)}, {index}, {count}, {self.expr(value)})")
-        stores = []
-        for store in sem.stores:
-            if store.value.w % 8: raise ExportError("store width must be a multiple of eight")
-            stores.append(f"store({string(store.space)}, {self.expr(store.address)}, "
-                          f"{self.expr(store.value)}, {self.expr(store.cond)})")
-        effects = []
-        for index, effect in enumerate(sem.effects):
-            args = [self.expr(a) for a in effect.args]
-            self.contracts.add(Contract(effect.name, tuple(a.w for a in effect.args), 0,
-                                        "effect", context(effect.name)))
-            # Negative ids distinguish effects from expression ids.
-            effects.append(f"effect({-index - 1}, {string(effect.name)}, {klist(args)})")
-        flow = "noFlow" if sem.flow is None else (
-            f"flow({string(sem.flow.kind)}, {self.expr(sem.flow.target)}, {self.expr(sem.flow.cond)})")
-        return (f"instruction({sem.addr}, {guard}, {klist(effects)}, "
-                f"{klist(writes)}, {klist(stores)}, {flow})")
+        if sem.body is None: raise ExportError("modeled instruction requires an ordered body")
+        from sass.formal.k import ordered
+        encoder = ordered.Encoder(self)
+        term = encoder.instruction(sem.body, sem.addr)
+        self.operations.update(encoder.operations)
+        return term
 
 
 def _export(instructions, base):
-    terms, contracts, metadata = [], set(), []
+    terms, contracts, metadata, operations = [], set(), [], {}
     for sem in instructions:
         if type(sem.addr) is not int or not 0 < sem.addr < 1 << 64 or sem.addr % 16:
             raise ExportError("instruction address must be aligned and nonzero; PC zero terminates execution")
         encoder = Encoder()
         terms.append((str(sem.addr), encoder.instruction(sem)))
         contracts.update(encoder.contracts)
+        operations.update(encoder.operations)
         metadata.append(dict(arch=sem.arch, address=sem.addr, cls=sem.cls,
                              text=sem.text, status=sem.status, reason=sem.reason,
                              definitions=sorted(encoder.definitions),
-                             runtime_sites=[
-                                 dict(id=ident, name=bitvec.PRIMITIVE_OP + node.args[0],
-                                      kind="value", width=node.w,
-                                      arguments=[encoder.expr(a) for a in node.args[1:]])
+                             runtime_sites=encoder.runtime_sites + [
+                                 dict(id=ident, name=bitvec.PRIMITIVE_OP +
+                                      ("mufu_" + node.args[0].lower() if node.op == "mufu" else node.args[0]),
+                                      kind="pure" if node.op == "mufu" else "value", width=node.w,
+                                      arguments=[encoder.nodes[a][1] for a in node.args[1:]])
                                  for node, (ident, _) in list(encoder.nodes.items())
-                                 if node.op == "primitive"
-                             ] + [
-                                 dict(id=-index - 1, name=effect.name, kind="effect", width=0,
-                                      arguments=[encoder.expr(a) for a in effect.args])
-                                 for index, effect in enumerate(sem.effects)
+                                 if node.op == "mufu"
                              ]))
     if not terms: raise ExportError("program is empty")
     program = f"program({kmap(terms)}, {base})"
     comments = "\n".join("// " + string(m["text"]) for m in metadata)
-    source = (f'requires "sass.md"\n\nmodule SASS-EXPORTED\n  imports SASS\n'
+    source = (f'requires "ordered.md"\n\nmodule SASS-EXPORTED\n  imports SASS-ORDERED\n'
               f'  syntax Program ::= exportedProgram() [function]\n'
               f'  {comments}\n  rule exportedProgram() => {program}\nendmodule\n')
-    return Export(source, program, tuple(sorted(contracts)), tuple(metadata))
+    return Export(source, program, tuple(sorted(contracts)), tuple(metadata), tuple(operations.values()))
 
 
 def export_instruction(semantics):
@@ -281,18 +272,27 @@ def input_term(export, state=None, *, params=None, responses=(), environment=Non
                   for s, values in sorted((state.memory if state else {}).items())
                   for a, v in sorted(values.items()))
     bindings = kmap((string(k), str(v)) for k, v in sorted((params or {}).items()))
+    return (f"run({export.program}, {regs}, {memory}, {bindings}, "
+            f"{responses_term(export, responses, environment)}, {environment or '.Map'}, {limit})")
+
+
+def responses_term(export, responses, environment=None):
     replies, keys = [], set()
+    encode = getattr(export, "response", response_term)
     for response in responses:
         key = response["step"], response["pc"], response["id"]
         if key in keys: raise ExportError("duplicate runtime response")
         keys.add(key)
-        if response["width"] < 0 or not 0 <= response["value"] < 1 << response["width"]:
-            raise ExportError("runtime response outside its result width")
         replies.append((f"request({key[0]}, {key[1]}, {key[2]})",
-                        f"response({string(response['name'])}, "
-                        f"{klist(map(str, response['arguments']))}, {response['width']}, "
-                        f"{response['value']}, {response.get('events', '.List')}, "
-                        f"{response.get('before', environment or '.Map')}, "
-                        f"{response.get('environment', environment or '.Map')})"))
-    return (f"run({export.program}, {regs}, {memory}, {bindings}, {kmap(replies)}, "
-            f"{environment or '.Map'}, {limit})")
+                        encode(response, environment)))
+    return kmap(replies)
+
+
+def response_term(response, environment):
+    if response["width"] < 0 or not 0 <= response["value"] < 1 << response["width"]:
+        raise ExportError("runtime response outside its result width")
+    return (f"response({string(response['name'])}, "
+            f"{klist(map(str, response['arguments']))}, {response['width']}, "
+            f"{response['value']}, {response.get('events', '.List')}, "
+            f"{response.get('before', environment or '.Map')}, "
+            f"{response.get('environment', environment or '.Map')})")

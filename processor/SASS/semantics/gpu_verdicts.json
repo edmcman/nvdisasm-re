@@ -1,5 +1,11 @@
 {
  "SM89": {
+  "asynchronous": {
+   "pass": 409
+  },
+  "atomic": {
+   "pass": 1090
+  },
   "bmsk": {
    "pass": 486
   },
@@ -7,7 +13,7 @@
    "pass": 681
   },
   "control": {
-   "pass": 149
+   "pass": 153
   },
   "conversions": {
    "pass": 3939
@@ -30,11 +36,14 @@
   "int_simd": {
    "pass": 102
   },
+  "matrix": {
+   "pass": 11844
+  },
   "memory": {
    "pass": 4034
   },
   "mufu": {
-   "pass": 678
+   "pass": 778
   },
   "predicates": {
    "pass": 762
@@ -44,6 +53,12 @@
   }
  },
  "SM90": {
+  "asynchronous": {
+   "unobserved": 405
+  },
+  "atomic": {
+   "unobserved": 1195
+  },
   "bmsk": {
    "pass": 486
   },
@@ -51,7 +66,8 @@
    "pass": 681
   },
   "control": {
-   "pass": 147
+   "pass": 147,
+   "unobserved": 4
   },
   "conversions": {
    "pass": 3352,
@@ -79,11 +95,16 @@
   "int_simd": {
    "pass": 371
   },
+  "matrix": {
+   "unobserved": 11844
+  },
   "memory": {
-   "pass": 3527
+   "pass": 3514,
+   "unobserved": 13
   },
   "mufu": {
-   "pass": 678
+   "pass": 678,
+   "unobserved": 108
   },
   "predicates": {
    "pass": 762

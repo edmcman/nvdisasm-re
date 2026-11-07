@@ -1,9 +1,9 @@
 """Control flow: BRA, EXIT, CALL, RET, NOP. Branch-stack depth changes (CALL's default INC, RET's
 DEC), BRA.DIV/.CONV without a lane mask, uniform-register targets and uniform predicates are
 unmodelled."""
-from sass.semantics import primitive
+from sass.semantics import ordered
 from sass.semantics.bitvec import const, lnot, sext, zext
-from sass.semantics.family import call, family, goto, outputs, ret, unmodelled
+from sass.semantics.family import family, unmodelled
 
 
 def required(i, name, *labels):
@@ -30,13 +30,17 @@ def bra(i):
     if i.has_operand("UPq"): unmodelled("uniform predicate")
     if not i.has_operand("URb"):
         required(i, "cond", i.default("cond"), "U")
-        return outputs(flow=goto(i.branch_target("sImm"), condition(i)))
-    diverged = (i.value("URb") & primitive.waiting()) != 0
+        return i.transfer("goto", i.branch_target("sImm"), condition(i))
+    body = i.body()
+    predicate = body.capture(condition(i))
+    mask = body.capture(i.value("URb"))
+    waiting, = body.special(ordered.WAITING)
+    diverged = (mask & waiting) != 0
     match i.select_fork("cond"):
         case "DIV": taken = diverged
         case "CONV": taken = lnot(diverged)
         case other: unmodelled(f"cond {other}")
-    return outputs(flow=goto(i.branch_target("sImm"), condition(i) & taken))
+    return i.transfer("goto", i.branch_target("sImm"), predicate & taken, body)
 
 
 @family("EXIT")
@@ -44,7 +48,7 @@ def exit_(i):
     """The thread ends (return to 0) if Pp; .NO_ATEXIT changes no control flow here."""
     if i.has_operand("Ra|URa"): unmodelled("exit with a register operand")
     if i.has_operand("no_atexit"): required(i, "no_atexit", "nono_atexit", "NO_ATEXIT")
-    return outputs(flow=ret(const(0, 64), condition(i)))
+    return i.transfer("return", const(0, 64), condition(i))
 
 
 @family("CALL")
@@ -55,10 +59,10 @@ def call_(i):
     absolute = i.has_operand("abs")
     required(i, "abs" if absolute else "rel", "ABS" if absolute else "REL")   # one-label selectors
     if i.has_operand("Sa"):
-        if i.kind("Sa") == "immediate": return outputs(flow=call(i.branch_target("Sa"), condition(i)))
-        return outputs(flow=call(zext(i.value("Sa", modifiers=False), 64), condition(i)))   # c[][]: a loaded address
+        if i.kind("Sa") == "immediate": return i.transfer("call", i.branch_target("Sa"), condition(i))
+        return i.transfer("call", zext(i.value("Sa", modifiers=False), 64), condition(i))
     if not absolute: unmodelled("relative register target")
-    return outputs(flow=call(address(i, "Ra", "Ra_offset|Sa_offset"), condition(i)))
+    return i.transfer("call", address(i, "Ra", "Ra_offset|Sa_offset"), condition(i))
 
 
 @family("RET")
@@ -72,9 +76,15 @@ def ret_(i):
         case "ABS": pass
         case "REL": target = target + i.addr() + 16
         case other: unmodelled(f"addr {other}")
-    return outputs(flow=ret(target, condition(i)))
+    return i.transfer("return", target, condition(i))
 
 
 @family("NOP")
 def nop(i):
-    return outputs()
+    return i.body().block()
+
+
+@family("BRX")
+def brx(i):
+    required(i, "depth", "nodepth", "nodepth_bra")
+    return i.transfer("goto", i.addr() + 16 + address(i, "Ra", "Ra_offset"), condition(i))

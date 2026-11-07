@@ -76,8 +76,7 @@ EXIT;
     assert kernel.run_kernel(r, 'SM89') == reference.run_kernel(r, 'SM89')
 
 
-@pytest.mark.parametrize('space,block,want', [('S', 1, ['00000000', '07000000']), ('S', 2, ['07000000'] * 2), ('L', 2, ['00000000', '07000000'])])
-def test_storage_isolation(space, block, want):
+def storage_request(space, block):
     image = cubin.kernel_image(assemble_cubin(f'''.target SM89
 .kernel isolation
 .registers 8, 0
@@ -92,13 +91,32 @@ LD{space} R4, [RZ];
 EXIT;
 .endkernel
 '''), 'isolation')
-    r = launch.kernel_request(image, (), [], 2, block, dict(address=0x200000))
+    return launch.kernel_request(image, (), [], 2, block, dict(address=0x200000))
+
+
+@pytest.mark.parametrize('space,block,want', [('S', 1, ['00000000', '07000000']), ('S', 2, ['07000000'] * 2), ('L', 2, ['00000000', '07000000'])])
+def test_storage_isolation(space, block, want):
+    r = storage_request(space, block)
     expected = reference.run_kernel(r, 'SM89')
     assert expected.get('outputs') == want, expected
     assert kernel.run_kernel(r, 'SM89') == expected
 
 
-def test_unsupported_ordering():
+@pytest.mark.ghidra
+def test_ghidra_launch_storage(pytestconfig):
+    from sass import ghidra_bridge
+    from tests.harness import select
+    if 'SM89' not in select.arches(pytestconfig): pytest.skip('SM89 not selected')
+    modes = select.modes(pytestconfig)
+    select.require_languages([('SM89', mode) for mode in modes])
+    requests = [request('SM89', order=order) for order in ('round_robin', 'reverse', 'seeded')]
+    requests += [storage_request(space, block) for space, block in (('S', 1), ('S', 2), ('L', 2))]
+    expected = [reference.run_kernel(r, 'SM89') for r in requests]
+    results = ghidra_bridge.emulate_sharded({mode: ('SM89', mode, requests) for mode in modes}, workers=len(modes))
+    assert all(found == expected for found in results.values())
+
+
+def test_launch_fence():
     image = cubin.kernel_image(assemble_cubin('''.target SM89
 .kernel ordering
 .registers 4, 0
@@ -108,7 +126,7 @@ EXIT;
 '''), 'ordering')
     r = launch.kernel_request(image, (), [], 1, 1, dict(address=0x200000))
     expected = reference.run_kernel(r, 'SM89')
-    assert 'unsupported ordering' in expected['error']
+    assert 'error' not in expected
     assert kernel.run_kernel(r, 'SM89') == expected
 
 

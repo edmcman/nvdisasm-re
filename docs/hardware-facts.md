@@ -408,7 +408,69 @@ independent regression reference (`tests/refs/mufu.py`) enumerates square terms 
 rationals; production uses the fast high/low decomposition and integer float encoding. Runtime
 tests compare every captured reduced grid point with `--exhaustive`, and the shared cases target
 all 64 segment boundaries, retained-square thresholds, source modifiers and operand forms. MUFU
-remains a runtime primitive; other MUFU operations and FP16 remain unresolved.
+remains a runtime primitive. Reciprocal support added on 2026-11-03 is described below;
+the other MUFU operations remain unresolved.
+
+### Reciprocal precisions (2026-11-03)
+
+`research/mufu/reciprocal_observe.py` collects raw autocase observations without computing
+expectations. The SM89 RTX 4070 Laptop captures are in `research/mufu/reciprocal/`.
+These discovery files alone earn no verification evidence; independent references and
+precision-specific fixtures promote the established behavior.
+
+Both RCP and RSQ were observed for all 65,536 F16 inputs with H0 and H1 extraction.
+The other half contains different poison values in the two captures; selected results agree
+for every input and occupy Rd[15:0], with Rd[31:16] zero. RCP matches precision-specific
+round-toward-zero arithmetic exactly, with overflow to infinity and preserved subnormal
+inputs. RSQ follows the same rule except for 15 positive finite inputs whose low 11 bits are
+`0x713`: those outputs are one F16 ulp above the truncated result. NaNs and negative
+nonzero RSQ inputs produce `0x7fff`; signed zeros produce signed infinities. The shared
+integer runtime matches all four complete captures exactly.
+
+F32 captures contain 8,962 inputs per operation: regular normalized-mantissa grids in
+both exponent parities, every finite exponent boundary and its neighbors, and exceptional
+values. The 64H captures contain 14,338 inputs per operation over the corresponding
+double-high-word domains. The high-word contract is a 32-bit source interpreted as
+`source << 32` in binary64, and a high-word destination; neither input nor output consumes
+the neighboring register. F64 immediate encodings convert to this high-word contract.
+Generated hardware cases cover the available register, immediate, constant, CX and uniform
+forms, source modifiers, predicates, aliases and zero-register destinations.
+
+The initial implementation used bounded integer division/square-root models. Investigation
+of the existing SIN quantization notes then identified the same 15-bit retained-partial-product
+square in reciprocal observations: ordinary squaring, or truncating after a complete square,
+cannot satisfy all the observed rounding intervals. RCP has 128 mantissa segments;
+RSQ has 64, with separate tables for the two exponent parities.
+
+`reciprocal_fit.py` fits interval constraints and solves coefficient grids using exact integer
+output-rounding bounds. Sparse fits initially matched their fitting inputs but missed independent
+random captures; `reciprocal_refine.py` selects new autocase inputs where feasible coefficient
+sets disagree, rather than consulting a reference. The resulting fixed-point representation
+uses a 57-bit accumulator, 42 fractional constant bits, `57-local_width` linear bits and
+40 quadratic bits. These widths describe a fitted realization, not recovered physical ROM
+storage. F32 uses nearest-even output rounding; 64H keeps the high word with truncation.
+Powers with a unit normalized significand use the separately observed exact result.
+
+The shared runtime and independent rational reference reproduce the captured words exactly.
+Complete normalized-domain observations are delta-encoded, with device identity, target form
+and SHA-256 in each `*-full.json`. `reciprocal_verify.py` compares both the fitted model and
+the actual C++ runtime against every captured output; `validation.json` records the domains
+and mismatch counts. The complete RCP mantissa domain and both RSQ exponent parities
+contain 25,165,824 F32 words and 3,145,728 64H words. All 28,311,552 observed words
+have zero model or runtime mismatches. This establishes the normalized domains on SM89;
+exponent transitions, exceptional inputs and operand forms are checked separately.
+
+The hardware operations themselves remain approximations to mathematical reciprocal and
+reciprocal square root. The earlier exhaustive survey's IEEE-reference distances—1 F32 ulp
+for RCP, 2 for RSQ and 1 high-word ulp for 64H—are separate from model-versus-hardware
+accuracy. Exact comparisons remain local to the modeled reciprocal forms.
+
+F16's limit is zero ulps on the complete observed domain; it does not inherit an F32
+tolerance. BF16 reciprocals remain explicit unresolved runtime errors. SM103's
+SIMD MUFU classes permit EX2 only, not reciprocal operations; EX2 remains unresolved.
+BF16 forms permitted by the machine descriptions are generated as error contracts and
+do not acquire numerical verification credit. SM90 and the other architectures have
+software support inferred from their descriptions, without new hardware verification.
 
 ## Memory
 
@@ -539,6 +601,16 @@ remains a runtime primitive; other MUFU operations and FP16 remain unresolved.
   diverged, CONV when none is, and neither when Pp is false; whether the observer lane is in URb
   doesn't matter. Tested with every inactive lane exited or every one waiting at a `BSSY`/`BSYNC`
   barrier; lanes parked at other barriers (WARPSYNC, BAR) are untested.
+- BRA after a partial deferred BAR arrival (2026-11-06, SM89): the two synthetic
+  `sync_deferred_branch_div`/`conv` cooperative fixtures have lanes 0–15 issue
+  `BAR.SYNC.DEFER_BLOCKING 0, 32`, all lanes execute `BRA.DIV` or `BRA.CONV`
+  with UR0 = `0xffff`, and lanes 16–31 subsequently issue `BAR.ARV 0, 32`.
+  DIV is untaken in all 32 lanes; CONV is taken in all 32 lanes. This establishes
+  these deferred-arrival sequences, not the behavior of BRA with participants
+  parked at a blocking BAR or WARPSYNC. The pre-ordered emulator incorrectly
+  split the two lane groups; the ordered body matches the GPU. The raw discovery
+  observations are in `.cache/ordered-gate/deferred-branch-gpu-observation.json`;
+  the retained independent expected outputs are in `tests/refs/control.py`.
 - LEPC (2026-10-14, one-off probe; no fixture): in a whole-program kernel whose function pointers
   come from `c[0x2]`, `LEPC R4` at offset 0xe0 minus the pointer to a callee at kernel offset 0x130
   gave -0x130 in every thread, i.e. the kernel's start, if `c[0x2]` holds absolute code addresses.
@@ -835,3 +907,463 @@ WARPSYNC; on SM89 it uses immediate mask `0xffffffff`.
 
 The SM90 fixtures have independent reference expectations and run in the CPU
 engines; this run adds no SM90 hardware observation.
+
+### Reconvergence and deferred barriers (2026-11-03)
+
+The nine `sync_*` fixtures in `tests/harness/synchronization.py` passed on the SM89
+RTX 4070 Laptop GPU. They exercise divergent and nested BSSY/BSYNC, ID reuse,
+predicated membership, exited participants, ordinary and deferred BAR generations,
+independent IDs with 32-thread counts, register/immediate ID and count operands,
+and a shared-memory exchange combining reconvergence, deferred BAR and MUFU.RCP.
+Each fixture asserts that its target instructions were visited in emulation.
+The BSSY-target fixture establishes that BSYNC falls through to its next instruction
+even when the recorded target is farther away. Exited lanes do not prevent convergence
+or a default-count block barrier from completing.
+
+`research/deferred_barrier.py` compiles the divergent timing kernels in
+`tests/kernels/deferred_barrier.cu`, verifies the compiler's DEFER_BLOCKING encoding,
+then compares patches retaining the original scheduling controls except where named.
+`research/deferred-barrier-SM89.json` records code, patches, tool versions/hashes and
+eight raw repetitions per variant. One warp delays its arrival by 200,000 clock ticks.
+With DEFER_BLOCKING, the earlier warp's subsequent global-timer sample precedes the
+delayed arrival by about 91–92 microseconds. Replacing it with ordinary BAR.SYNC
+removes that lead. Assigning a read scoreboard to the deferred BAR and waiting for it
+in the timer's request bits does not force the timer to wait.
+
+Inserting LDS, MUFU.RCP, S2R or BRA before the timer removes the lead even without
+an explicit dependency wait; replacing LDS with a fixed MOV preserves it. The timing
+consumer's data operand is zeroed in every variant so that a loaded value cannot be
+mistaken for elapsed time. These observations establish blocking at subsequent
+decoupled instruction issue on these SM89 forms, rather than at every following
+instruction or solely at an explicit scoreboard wait. The runtime applies the machine
+description's decoupled classification to other instructions by inference.
+
+Python, native and Ghidra run the fixtures under round-robin, reverse and reproducible
+seeded orders, including partial warps and invalid/incompatible waits. The form sharing
+one physical register for both BAR ID and count is explicitly unresolved; reductions,
+arrival-only forms, BREAK and BMOV remain unsupported. This run adds no SM90
+hardware evidence and does not establish full YOLO replay.
+## Additional opcode investigation (2026-11-03, SM89)
+
+The observations and tool hashes are retained in `research/additional-opcodes/`.
+The GPU is an RTX 4070 Laptop GPU. Compiler probes use CUDA 13.0.88 ptxas;
+decoding uses CUDA 13.4.92 nvdisasm. Other architectures' implementations are
+inferences from their corrected machine descriptions, not hardware verification.
+
+- `ATOMG`: 384 integer discovery cases distinguish ADD, signed MIN, unsigned MAX,
+  INC, DEC, EXCH, and CAS, including destination aliases with the address/source
+  registers and RZ sinks. Ordinary completion clears Pu. Returned values and
+  memory updates agree with `tests/refs/atomic.py`'s integer rules.
+- Floating atomic ADD: FP32 flushes input and result subnormals, rounds RN-even,
+  and produces positive `0x7fffffff` for NaN/invalid results. Packed FP16 retains
+  subnormals and produces `0x7fff` independently per half. FP64 retains
+  subnormals; it preserves a NaN operand's bits without quieting signaling NaNs,
+  preferring the source value over old memory when both are NaNs. Opposite
+  infinities give `0xfff8000000000000`. The 136 initial observations and 56 FP64
+  follow-up observations cover signed zero, ties, overflow, cancellation, and
+  exceptional values. These rules have independent references.
+- `SAFEADD.64` is not ordinary integer ADD: 48 discovery observations include
+  changed returned bits and memory tag bits. Its encoding, update, and returned
+  predicate require further investigation; it remains opaque.
+- `LDSM.16.M88/MT88`: row-owning lanes provide shared addresses; each lane
+  receives two halfwords per matrix. Direct and uniform-address observations
+  agree with the mapping in `tests/refs/matrix.py`. The adapter snapshots the
+  address operand of every lane before destination writes. Packed/expanded
+  modes remain unresolved.
+- `BAR.RED` and `B2R.RESULT`: POPC returns the number of true input predicates.
+  AND/OR return `0xffffffff` for true and 0 for false. Pu is result != 0.
+  Every participant arrives even when its reduction predicate is false.
+  Thirteen cooperative regression fixtures cover predicate inversion, 64
+  participants, sinks, and barrier reuse. Their GPU passes are recorded.
+  BAR/WARP were unresolved in this initial investigation; the 2026-11-04
+  cooperative discovery below establishes their state encoding.
+- `BRX` without a depth modifier uses next PC + a 64-bit register pair + the
+  signed immediate byte offset. Three cooperative GPU fixtures distinguish
+  positive/negative targets and Pp inversion. INC/DEC depth forms are unresolved.
+- Async copies: ptxas lowers cp.async issue/commit/wait to LDGSTS,
+  LDGDEPBAR (with an assigned write scoreboard), and DEPBAR.LE. False Pnz
+  zero-fills in both ordinary and ZFILL forms. Dependency waits and encoded
+  scoreboard waits make completed copies visible in shared memory. The
+  cooperative regressions cover 4/8/16-byte copies, two blocks, thresholds 1/0,
+  empty groups, scoreboard 3, deferred barriers, and packed uniform operands.
+  In the packed form URn is the 32-bit shared address component and URn+1 is
+  the high word of the cache policy; adding the entire UR pair as an address is
+  incorrect. The tested nonzero policy high word is `0x10000000`.
+- `HMMA.16816.F32` with F16 inputs: 60 raw autocase observations establish
+  lane ownership for coordinate/identity matrices and retention of accumulator
+  fragments. Sixteen products `1 * 2^-24` added to accumulator 1 give
+  `0x3f800008`; sixteen products split equally between +1 and -1 with accumulator
+  `2^-24` give +0. Repeated scalar FMA and an exact dot rounded only once cannot
+  both explain these results. The numerical reference was unresolved at this
+  stage; later probes below establish the direct F16/F32 model. Sparse/indexed
+  forms and other formats remain unresolved. Discovery earns no verification credit.
+
+Further autocase probes on 2026-11-03:
+
+- All 1,102 hardware-runnable atomic/matrix shared cases passed their independent
+  references. Four atomic contention fixtures also passed: 32/64-bit ADD within
+  one warp and across two blocks. Each returned old value selects an output slot,
+  so the comparison checks unique, contiguous old values without assuming a
+  hardware thread order.
+- Twenty-four LDGSTS observations explicitly capture P0 and shared bytes after
+  commit/wait. P0 retains its original value for both predicate inversions,
+  ordinary/ZFILL, and 4/8/16-byte copies. This supports an identity write to Pnz,
+  matching the md's read/write role. The dependency-aware `async` device adapter
+  now permits referenced single-instruction regression captures.
+- `hmma-grouping-SM89.json` contains 85 raw observations. Two half-ulp products
+  at K=0 and K=1, 2, or 4 increment accumulator 1 by one FP32 ulp; placing them
+  at K=0 and K=8 or 15 loses both. Products +1 at K=0 and -1 at K=1 through 7
+  retain accumulator `2^-24`; placing -1 at K=8 through 15 loses it.
+  Alternating +1/-1 also retains it. These observations distinguish the two
+  eight-term halves. They do not establish the precision or rounding of each
+  half's sum.
+- `hmma-rounding-SM89.json` adds 103 raw observations. With one product
+  `A * 2^-24`, A = 0.5, 1, or 1.5 leaves accumulator 1 unchanged; A = 2.5,
+  3, or 3.5 increments it by one FP32 ulp. The same increments occur with
+  accumulator `1 + 2^-23`. This rules out round-to-nearest-even for these
+  positive additions and agrees with truncation. NaNs in A, B, or C and
+  opposite infinities produce `0x7fffffff`; a minimum FP32 subnormal
+  accumulator survives zero products, while negative-zero products with
+  a negative-zero accumulator produce positive zero. Negative additions,
+  internal precision, overflow, and other matrix forms remain unestablished.
+- `async-packed-SM89.json` contains 32 raw LDGSTS.32 observations across
+  UR6/UR7 and UR12/UR13, ordinary/ZFILL, predicate inversion, and true/false
+  P0. Every zero packed policy traps with CUDA status 715; every policy
+  `0x10000000` completes normally. This validity check precedes Pnz's
+  zero-fill decision. Unlike ordinary 64-bit cache-policy operands, the
+  packed high-word form cannot use zero as its policy. Other packed policy
+  values and hardware beyond SM89 are unverified.
+
+HMMA model refinement on 2026-11-03:
+
+- `hmma-alignment-SM89.json` distinguishes two factorizations of product 2.25.
+  With four additional products `2^-24`, `1.5 * 1.5` gives `0x40100001`,
+  whereas `1 * 2.25` gives `0x40100000`. Products remain unnormalized during
+  alignment. Sixteen products `±0.5 * 2^-24` with accumulator 1 are all discarded.
+  This establishes individual truncation with one extra alignment bit rather
+  than an exact eight-term sum.
+- `hmma-model-SM89.json` retains 628 raw observations, including sixteen seeded
+  matrices across every lane, cancellation/rounding inputs, half subnormals and
+  maximum finite halves, signaling NaNs, zero times infinity, infinities and
+  signed zero. All 2,512 outputs match the candidate integer model. The independent
+  reference now quantizes exact rational products at the common exponent and
+  truncates the summed result; it does not use the implementation's integer formula.
+  The inputs are promoted to the `hmma_forms` autocase profile; these raw files
+  themselves still earn no verification credit.
+- The direct `HMMA.16816.F32` F16 form uses consecutive K=0..7 and K=8..15
+  blocks, each including its incoming accumulator, with one extra fractional
+  alignment bit and truncation after normalization. NaN/invalid results are
+  `0x7fffffff`; an exactly zero sum is positive zero. Other selectors are guarded.
+  The implementation also supports other architectures by inference from
+  [Khattak and Mikaitis, Accurate Models of NVIDIA Tensor Cores, v3](https://arxiv.org/html/2512.07004v3):
+  SM80/86 use the same eight-term model, while SM90 and Blackwell use one
+  sixteen-term block with two extra alignment bits. No non-SM89 hardware
+  verification is claimed. SM75's different shapes and selectors remain opaque.
+
+Whole-warp HMMA fixtures on 2026-11-04:
+
+- All three direct F16/F32 source/destination alias fixtures pass the independent
+  reference on SM89. An immediately following vector store captured unchanged
+  upper destination registers; two fifteen-cycle NOP slots before the store
+  resolve the fixture hazard. This establishes a valid probe schedule, not an
+  exact latency or scoreboard-completion model.
+- The planner now admits explicitly constrained partial-primitive operand
+  adapters. HMMA uses UPp=UPT where that operand exists; other accumulator
+  predicate values retain unresolved semantics and are not verified by these cases.
+
+Dense TF32 and HMMA operand controls on 2026-11-04:
+
+- On the RTX 4070 Laptop GPU (SM89), `HMMA.1684.F32.TF32` uses one four-product
+  block; `HMMA.1688.F32.TF32` uses two consecutive four-product blocks. Each
+  block includes its incoming accumulator, leaves products unnormalized, aligns
+  with one extra fractional bit, truncates each aligned term, then normalizes
+  and rounds the sum toward zero. The lower thirteen input bits are ignored,
+  including NaN payload bits: a NaN whose entire payload is in those bits becomes
+  infinity. Retained NaNs and invalid operations produce `0x7fffffff`; zero
+  sums produce positive zero. Accumulator subnormals survive, finite overflow
+  produces infinity, and overflowing intermediate products can cancel within
+  a block. The two `hmma-tf32-168*-SM89.json` discovery files retain the mapping,
+  cancellation, exceptional-value and seeded-matrix observations.
+- `hmma-tf32-precision-SM89.json` and `hmma-tf32-alignment-SM89.json` distinguish
+  the smallest alignment quantum when C is zero. Thirteen precision probes and
+  nineteen cancellation probes establish a minimum alignment exponent of
+  **-132**, hence a quantum of `2^-156`, on this device. This differs from the
+  **-133** reported for A100, L40S, RTX Ada 1000, H100 and B200 in
+  [Khattak and Mikaitis, v3](https://arxiv.org/html/2512.07004v3).
+  The reference retains the published floor on other architectures and the
+  observed floor on SM89. Neither this device's result nor the model verifies
+  every other SM89 device. SM80/86's four-term grouping and SM90/Blackwell's
+  eight-term grouping with two extra bits are specification/paper inferences,
+  not local hardware verification.
+- The 178 observations in `hmma-controls-SM89.json` establish that UPp gates
+  only the initial C input, with inversion honored. Disabled C contributes
+  zero even when its registers contain NaNs. Negating Ra or Rb negates the
+  corresponding matrix entries; negating both preserves the product.
+  Predicate probes cover F16/16816 and TF32/1684; negation probes cover those
+  shapes and TF32/1688. These discovery files earn no verification credit.
+  Their inputs are promoted into independent rational references and the
+  `hmma_forms` / `hmma_tf32_forms` autocase profiles.
+- Exhaustive dense-form regression exposed 168 negative-underflow cases where
+  IEEE round-toward-zero packing returned negative zero but SM89 HMMA returned
+  positive zero. All 672 output words differ only in that sign bit. HMMA clears
+  the sign of a result that becomes zero during final normalization/truncation,
+  as well as of an exactly zero aligned sum. The matrix reference and TF32
+  implementation apply this operation-specific rule; shared IEEE packing retains
+  its ordinary signed-zero behavior.
+- CUDA 13.0.88 `ptxas` emits the two TF32 shapes from the retained
+  `tests/ptx/hmma/tf32_1684.ptx` and `tf32_1688.ptx` `mma.sync.aligned` probes.
+  Compiler emission establishes encoding, not the accumulation model.
+
+Dense BF16 and physical source aliases on 2026-11-04:
+
+- SM89 `HMMA.16816.F32.BF16` uses the packed F16 lane/register ownership
+  with BF16 operands. It performs two consecutive eight-product blocks, one
+  extra alignment bit, truncation of aligned terms and round-toward-zero
+  normalization. Products remain unnormalized through each block, permitting
+  overflowing products to cancel. Subnormal inputs and accumulators, infinities,
+  signaling/quiet NaNs, finite overflow and zero signs are included in the
+  independent rational reference and autocase profile.
+- `research/additional-opcodes/hmma-bf16-SM89.json` retains 704 autocase-derived
+  discovery observations with no harness errors. Eight precision probes
+  distinguish a minimum alignment exponent of -132: q=1..6 produce the least
+  positive F32 subnormal, while q=7..8 produce zero. Other architectures retain
+  the published -133 floor and inferred grouping/precision; local hardware
+  verification covers SM89 only. Discovery records themselves earn no credit.
+- The promoted SM89 shared suite passes 5,892 cases across F16/16816,
+  BF16/16816 and TF32/1684/1688, including all source-negation and accumulator
+  predicate-inversion combinations. Lane-distinguishing coordinate and identity
+  inputs also cover seven legal source-overlap placements, plus destination
+  overlaps, RZ sources/sinks and predication. The strict encoder rejects
+  misaligned spans: F32 C requires four-register alignment; overlapping B can
+  begin at R18 because its span requires two-register alignment.
+- Twelve whole-warp SM89 GPU fixtures pass, with each of the four shapes writing
+  separately or over either source register group. Python/native cooperative
+  fixtures additionally exercise round-robin, reverse and seeded schedules.
+- CUDA 13.0.88 `ptxas` emits `HMMA.16816.F32.BF16` for the retained
+  `tests/ptx/hmma/bf16.ptx` instruction
+  `mma.sync.aligned.m16n8k16.row.col.f32.bf16.bf16.f32`. Compiler traces pin
+  version and hashes separately from numerical hardware evidence.
+- Final exact/readable Ghidra matrix validation passes 106 tests and 99,880
+  selected shared cases over all ten architectures in 408 seconds. Architecture
+  coverage is distinct from the SM89-only numerical hardware evidence.
+
+Control discovery on 2026-11-04:
+
+- CUDA 13.0.88 ptxas inserts `YIELD` and `CCTL.IVALL` between an acquire GPU
+  load and its consumer in the bounded loop retained as
+  `research/additional-opcodes/control-acquire.ptx`. The producer uses a release
+  GPU store. Compiler lowering alone does not establish either instruction's
+  state transitions.
+- `nice uv run python -m research.control_observe --out PATH` reproduces 32 SM89 launches with
+  producer threads 0, 15, 31 or 63 and blocks of 64 or 128 threads. All consumers
+  observe one with the original YIELD, a NOP replacement, a false Pp operand,
+  or a false instruction guard. Each polling loop has a 1024-iteration cap.
+  `yield-scheduling-SM89.json` pins compiler and image hashes and retains these
+  outputs. The test is inconclusive about distinguishing scheduler behavior;
+  YIELD and CCTL remain unresolved and these observations earn no verification
+  credit.
+- The revised probe records the number of polling loads in
+  `yield-poll-counts-SM89.json`, separately from those original captures.
+  All 32 launches execute the polling path: each consumer loads one or
+  three times, and every producer has zero polling loads. The four YIELD
+  variants produce identical per-lane flags and counts for each launch
+  geometry. This confirms activity on the path containing YIELD in the
+  original kernel but still does not distinguish its scheduling behavior.
+  The compiler, PTX source and original/patched instruction words are pinned;
+  no semantics or verification credit is inferred from these observations.
+
+Dense F16 tensor outputs on 2026-11-04:
+
+- `HMMA.16816.F16` uses the same A/B lane ownership as the F32-output form.
+  Each lane's four C/D half values occupy two packed registers, in the same
+  matrix-coordinate order as the four F32 registers. The retained 738 raw
+  observations in `research/additional-opcodes/hmma-f16-output-SM89.json`
+  establish layout, staging, rounding boundaries, exceptional values and
+  accumulator predicates. They are synthetic instruction probes, without
+  verification credit.
+- SM89 performs K=0..7 and K=8..15 as separate stages, rounding C back to
+  F16 with RN-even after each stage. Products are unnormalized and terms are
+  truncated on the 24-significand-bit plus one-extra-bit alignment grid.
+  The aligned sum rounds directly to F16; an intermediate F32 RZ result
+  incorrectly loses information needed for the half rounding.
+- With C=1, products `1 * 2^-11` and `2^-24 * 1` produce `0x3c01`.
+  Rounding through F32 instead predicts `0x3c00`. Replacing the second
+  product with `2^-24 * 0.5` gives `0x3c00`, distinguishing the alignment
+  grid from an exact dot. Half-ULP pairs within one stage combine; pairs
+  straddling K=7/8 round independently. Seeded full-range finite half
+  inputs distinguish four-product stages and scalar half FMAs.
+- NaNs become positive `0x7fff`, infinities propagate unless an invalid
+  product or opposing infinities produce NaN, and exact or underflowed
+  zeros are positive. Input and accumulator half subnormals are preserved
+  before alignment and final rounding.
+- The promoted matrix regression passes 7,108 SM89 shared cases across
+  all forty supported dense selector forms and fifteen whole-warp fixtures.
+  The F16-output fixtures overwrite each source group in turn. The retained
+  PTX probe `tests/ptx/hmma/f16_output.ptx` uses
+  `mma.sync.aligned.m16n8k16.row.col.f16.f16.f16.f16`; compiler emission
+  remains separate from numerical hardware evidence.
+- Other architectures' F16 output staging is inferred from their existing
+  tensor grouping models and these SM89 observations, not numerically
+  hardware-verified here. Legacy SM75, other shapes, sparse metadata and
+  indexed-register forms remain unresolved.
+
+Dense eight-product tensor forms on 2026-11-04:
+
+- SM89 `HMMA.1688.F32`, `HMMA.1688.F32.BF16` and `HMMA.1688.F16`
+  use two packed A registers and one packed B register per lane. The row,
+  column and half ownership follows PTX `mma.m16n8k8`. F32 C/D occupies
+  four registers; F16 C/D occupies two packed registers.
+- A single eight-product stage uses the same unnormalized products and
+  one-extra-bit alignment grid as the corresponding `16816` stages.
+  F32 normalization truncates; F16 rounds directly RN-even. Pair probes
+  at K=0 and K=4 distinguish the eight-product stage from two four-product
+  stages. BF16 retains SM89's previously established minimum alignment
+  exponent of -132.
+- The retained raw discovery captures contain 686 F16/F32, 704 BF16/F32
+  and 725 F16/F16 observations, with no device errors. They match the
+  independently referenced candidate model but earn no verification credit.
+  Source profiles omit K indices outside the shorter matrix.
+- Promoted regression passes 9,964 SM89 shared cases across all 64
+  supported dense selector forms and 24 whole-warp source-overlap fixtures.
+  This includes source negation, accumulator predicates and their inversion.
+  SM90+ precision remains inferred from the published models; these SM89
+  runs do not numerically verify other devices.
+
+Dense E6M9 tensor inputs on 2026-11-04:
+
+- SM89 `HMMA.1688.F32.E6M9` and `HMMA.16816.F32.E6M9` use the same packed
+  lane/register ownership as F16/BF16. E6M9 inputs have one sign bit, six exponent
+  bits with bias 31, and nine fraction bits. Exceptional values follow the
+  existing tensor NaN/infinity model.
+- The 1688 instruction performs one eight-product stage; 16816 performs two.
+  Unnormalized products align with C on the one-extra-bit grid, then each stage
+  truncates to F32. Cancellation, product normalization, rounding-boundary and
+  lane-distinguishing cases agree with the independent rational reference.
+- Retained discovery contains 686 and 699 observations respectively, with no
+  device errors or reference mismatches. The files retain actual operand groups
+  and lane register inputs, with shared contexts deduplicated. Reproduce their
+  reference comparison with `nice uv run python -m research.matrix_observe
+  --check-capture research/additional-opcodes/hmma-e6m9-1688-SM89.json`
+  and the corresponding `16816` file.
+- These synthetic SASS observations earn no verification credit and do not
+  establish PTX compiler emission. Other architecture staging remains inferred;
+  they are not hardware-verified by the SM89 captures.
+- Full-exponent random inputs and explicit format boundaries add 523 discovery
+  observations per shape, also with no errors or reference mismatches. These
+  include the minimum subnormal, largest subnormal, minimum normal, maximum
+  finite value and zero-times-infinity. Actual inputs are retained in the
+  corresponding `hmma-e6m9-*-wide-SM89.json` files.
+- Promoted SM89 matrix regression passes 11,844 shared cases covering all 80
+  direct dense HMMA selector combinations, plus 30 whole-warp alias fixtures.
+  Hardware evidence remains SM89-specific. The other supported architecture
+  forms pass independent reference and exact/readable Ghidra checks. Native
+  arithmetic and cooperative fixtures were checked on SM89; the cooperative
+  scheduler fixtures also pass on SM90.
+
+B2R cooperative discovery on 2026-11-04:
+
+- Initial BAR, WARP and RESULT reads return zero. `WARPSYNC` leaves WARP zero.
+  Completed ordinary `BAR.SYNC` sets RESULT to its actual participant count,
+  including partial warps (17, 33 and 45 threads). Later ordinary barriers
+  overwrite earlier reduction results.
+- WARP returns RESULT's low eleven bits. True AND/OR reductions return
+  RESULT=0xffffffff and WARP=0x7ff; mixed AND returns zero, and mixed OR returns
+  the true encoding. POPC returns the number of true lane predicates.
+- Pending BAR state is
+  `tag << 28 | expected_warps << 20 | accumulated_threads << 8 | arrived_warps`.
+  The expected field is the explicit encoded count in warps, or zero for an
+  implicit count. Tags are 8 for SYNC/ARV, 9 for POPC, 10 for AND and 11 for OR. Staggering
+  arrivals in both orders distinguishes arrival counts from warp identities.
+  `b2r-pending-values-SM89.json` distinguishes the true-thread accumulator
+  from an arrival counter: POPC counts 0, 1, 2, 15, 16, 17 and 31 increment
+  it in units of 256. SYNC, ARV, POPC and OR count true inputs; AND counts
+  false inputs.
+  Completion clears the selected BAR state.
+- Retained whole-kernel sources and actual outputs are in
+  `research/additional-opcodes/b2r-*-SM89.json`. Reproduce with
+  `nice uv run python -m research.barrier_state_observe --extended --out /tmp/b2r.json`
+  and `--partial-warps` for mixed reductions and partial CTAs. These are discovery
+  observations and earn no verification credit. `b2r-exited-SM89.json`
+  establishes that ordinary results exclude exited threads, including whole
+  exited warps and partially exited warps. Overlapping generations remain
+  unestablished.
+- `b2r-arrival-results-SM89.json` establishes result delivery. An earlier
+  nonblocking ARV retains its prior RESULT even after the BAR state clears;
+  the completing warp receives the result. Blocking and deferred barriers
+  deliver results to all waiting participants.
+
+Cache-control compiler discovery on 2026-11-04:
+
+- Pinned ptxas 13.4.92 emits CCTL.D.PF1 for global L1 prefetch and CCTL.D.PF2
+  for global L2 prefetch. On SM80 and newer, L2 evict-last prefetch emits PML2;
+  applypriority L2 evict-normal emits DML2, and discard L2 emits RML2.
+  SM75 rejects the latter PTX operations. These mappings establish compiler
+  intent, not numerical or cache-state verification.
+- Full instruction streams distinguish apparently missing CCTL operations:
+  local L1 prefetch emits CCTLL.PF1, and the PTX 9.4 32-byte valid-address
+  prefetch emits a destination-sink LDG.U8 on SM90 and newer. The uniform
+  prefetch probes emit CCTL.D.PF1; they do not establish cache-selector U.
+- Sources, compiler hashes and decoded words are retained in
+  `research/additional-opcodes/cache-controls-13.4.json` and
+  `cache-standalone-13.4.json`. Reproduce using
+  `PTXAS=/tmp/additional-cuda-13.4/ptxas nice uv run python -m research.cache_controls_trace
+  --out /tmp/cache.json --sources /tmp/cache-sources`, adding `--standalone`
+  to omit the preceding global load.
+- PTX 9.4 specifies prefetch and priority operations as cache effects, while
+  discard permits unstable indeterminate values in the selected 128-byte
+  range. RML2 therefore cannot be treated as an ordinary prefetch or an
+  unconditional no-op. RML2 remains unimplemented.
+
+Cache-control value validation on 2026-11-04:
+
+- `cache-controls-SM89.json` retains compiler-generated before/after volatile
+  global-load observations for six cache operations, three repetitions each.
+  Reproduce with `PTXAS=/tmp/additional-cuda-13.4/ptxas nice uv run python
+  -m research.cache_controls_observe --out /tmp/cache-controls.json`.
+  These discovery observations earn no verification credit.
+- Twelve independent cooperative regression kernels pass on SM89: ordinary
+  CCTL.D.PF1/PF2/PML2/DML2 with P0, inverted P0 and an always-true predicate.
+  Every kernel executes its target and compares 64 outputs across two CTAs.
+  The requests preserve memory values; this does not establish physical
+  cache residency, eviction timing or cache performance.
+- The implementation records explicit requests completed under the existing
+  SC model. Its ordinary 32-bit address behavior is inferred from the address
+  encoding; hardware probes use paired E addresses. Other architectures have
+  compiler/specification evidence, not these SM89 observations.
+- The generated numeric-definition CUDA test passes for all 1,072 discovered
+  signatures, plus wide/mixed-argument ABI regressions, across ten architectures
+  and both lowering modes. It took 652 seconds with competing cold validation
+  work. This checks generated functions against independent numeric expectations;
+  it does not grant HMMA-instruction hardware evidence.
+
+Whole-cache invalidation on 2026-11-04:
+
+- `cache-invalidation-13.4.json` pins eighty successful compiler probes across
+  ten architectures, varying only the polling load's semantics and scope.
+  GPU/system acquire loads emit CCTL.D.IVALL; the corresponding relaxed loads
+  do not. Both emit YIELD. Reproduce with the pinned compiler selected through
+  `PTXAS`: `nice uv run python -m research.cache_invalidation_trace --out
+  /tmp/invalidation.json --sources /tmp/invalidation-sources`.
+- A one-block warmed-payload probe does not distinguish the original CCTL
+  from a NOP replacement or a false instruction guard. The cross-block probe
+  does: consumers cache zero and announce readiness through an atomic counter;
+  the producer waits for every consumer, writes 42, then publishes a release
+  flag. Consumers acquire the flag before reloading the cached payload.
+  All warm-up values are zero, every consumer observes the release flag, and
+  no bounded loop exhausts its limit.
+- Across three repetitions of sixteen and thirty-two blocks, all 4,416
+  consumers read 42 with CCTL.D.IVALL. Every consumer reads stale zero with
+  NOP or a false guard instead. Producer outputs remain 42. The retained
+  `cache-invalidation-cross-SM89.json` includes source, image hashes, patched
+  words, readiness/flag values and polling counts. Reproduce with
+  `nice uv run python -m research.cache_invalidation_observe --cross-block
+  --out /tmp/invalidation-cross.json`. Discovery captures earn no credit.
+- Three independent SASS regression fixtures pass on SM89, each comparing
+  all 64 lane outputs after a two-block handoff. The invalidation is
+  unconditional, enabled by an inverted producer predicate, or enabled by
+  the acquired flag. These fixtures omit YIELD and establish this cache form
+  separately from unresolved scheduling behavior.
+- The SC runtime records the invalidation and advances an internal generation
+  for each enabled request. Logical memory already exposes the latest stores;
+  physical cache contents, weak-memory outcomes and timing are not simulated.
+  Other cache selectors and whole-cache operations remain unresolved.

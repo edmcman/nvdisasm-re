@@ -1,6 +1,6 @@
 """Integer families."""
 from sass.semantics.bitvec import *
-from sass.semantics.family import definition, family, helper, outputs, unmodelled
+from sass.semantics.family import definition, family, helper, unmodelled
 
 
 def addend(i, names, v, x):
@@ -19,7 +19,7 @@ def iadd3(i):
     term = lambda names: addend(i, names, i.value(names, modifiers=False), x)
     total = term('Ra') + term('Rb|Sb') + term('Rc|Sc')
     if x: total = total + zext(i.pred('Pp'), 64) + zext(i.pred('Pq'), 64)
-    return outputs(Rd=trunc(total, 32), Pu=total >= 1 << 32, Pv=total >= 1 << 33,
+    return i.assign_from_inputs(Rd=trunc(total, 32), Pu=total >= 1 << 32, Pv=total >= 1 << 33,
                    order=('Pv', 'Pu'))  # aliased Pu/Pv: Pu wins (SM89)
 
 
@@ -44,7 +44,7 @@ def bit_mask(pos, width, mode):
 def bmsk(i):
     """A mask of `width` ones starting at bit `pos`; .W wraps both to 5 bits, .C clamps the width."""
     pos, width = i.value('Ra'), i.value('Rb|Sb')
-    return outputs(Rd=bit_mask(pos, width, cw(i)))
+    return i.assign_from_inputs(Rd=bit_mask(pos, width, cw(i)))
 
 
 @family('MOV', 'UMOV', 'MOV64IUR')
@@ -54,7 +54,7 @@ def mov(i):
     if i.has_operand('indexURd|indexURb'): unmodelled('indexed register file')
     if i.has_operand('size') and i.select_fork('size') not in ('64', '_64'): unmodelled('size')
     if i.has_operand('nonconformity') and i.select_fork('nonconformity') != 'SPILL': unmodelled('nonconformity')
-    return outputs(Rd=resize(i.value('Sb|Sa|Ra|Rb'), i.width('Rd')))
+    return i.assign_from_inputs(Rd=resize(i.value('Sb|Sa|Ra|Rb'), i.width('Rd')))
 
 
 @family('R2UR')
@@ -62,7 +62,7 @@ def r2ur(i):
     """URd = Ra (the executing thread's value). Pu (whether Ra was warp-uniform), .OR and the
     SM100+ fill/broadcast forms are unmodelled."""
     if not i.is_true('Pu'): unmodelled('predicate output')
-    return outputs(Rd=i.value('Ra'))
+    return i.assign_from_inputs(Rd=i.value('Ra'))
 
 
 @family('SEL', 'USEL')
@@ -70,7 +70,7 @@ def sel(i):
     """Rd = Pp ? Ra : Rb."""
     if i.has_operand('size') and i.select_fork('size') not in ('64', '_64'): unmodelled('size')
     w = i.width('Rd')
-    return outputs(Rd=resize(i.value('Ra'), w) if i.pred('Pp') else resize(i.value('Rb|Sb'), w))
+    return i.assign_from_inputs(Rd=resize(i.value('Ra'), w) if i.pred('Pp') else resize(i.value('Rb|Sb'), w))
 
 
 @definition(lambda a: (f"abs.s{a['x'].w}", ["x"]))
@@ -83,7 +83,7 @@ def absolute(x):
 def iabs_(i):
     """Rd = |source| (two's complement: |-2^31| = -2^31)."""
     if i.width('Rd') != 32: unmodelled('width')
-    return outputs(Rd=absolute(i.value('Sb|Rb|Ra')))
+    return i.assign_from_inputs(Rd=absolute(i.value('Sb|Rb|Ra')))
 
 
 @family('IADD', 'VIADD')
@@ -93,7 +93,7 @@ def iadd(i):
     if i.width('Rd') != 32: unmodelled('width')   # IADD.64 (SM120)
     if i.has_operand('fmt') and i.select_fork('fmt') not in ('32', '_32', 'U32', 'S32'): unmodelled(f"{i.select_fork('fmt')} format")
     if i.has_operand('Pu') and not i.is_true('Pu'): unmodelled('carry out')
-    return outputs(Rd=i.value('Ra|Sa') + i.value('Rb|Sb'))
+    return i.assign_from_inputs(Rd=i.value('Ra|Sa') + i.value('Rb|Sb'))
 
 
 @family('LEA', 'ULEA')
@@ -113,7 +113,7 @@ def lea(i):
             word = trunc((wide << n) >> 32, 32)
     total = addend(i, 'Ra', word, x) + addend(i, 'Rb|Sb', i.value('Rb|Sb', modifiers=False), x)
     if x: total = total + zext(i.pred('Pp'), 64)
-    return outputs(Rd=trunc(total, 32), Pu=total >= 1 << 32)
+    return i.assign_from_inputs(Rd=trunc(total, 32), Pu=total >= 1 << 32)
 
 
 @definition(lambda a: (f"mul.wide.{'s' if a['signed'] else 'u'}32", ["a", "b"]))
@@ -137,7 +137,7 @@ def imad(i):
     if max(a.w, b.w, c.w) > 64: unmodelled('wide source')
     cin = zext(i.pred('Pp'), 64) if x else const(0, 64)
     mode = i.select_fork('wide')
-    if mode == 'LO': return outputs(Rd=a * b + resize(c, 32) + trunc(cin, 32))
+    if mode == 'LO': return i.assign_from_inputs(Rd=a * b + resize(c, 32) + trunc(cin, 32))
     product = wide_product(a, b, fmt == 'S32')
     # A negated addend enters as ~c + 1, so -0 carries (SM89 GPU, like IADD3).
     negated = i.operand_negated('Rc|Sc')
@@ -146,11 +146,11 @@ def imad(i):
     pair = i.kind('Rc|Sc') in ('register', 'uniform') and c.w == 64
     if mode == 'HI' and not pair and c.w <= 32:
         full = zext(trunc(product >> 32, 32), 64) + zext(addend(32), 64) + cin
-        return outputs(Rd=trunc(full, 32), Pu=full >= 1 << 32)
+        return i.assign_from_inputs(Rd=trunc(full, 32), Pu=full >= 1 << 32)
     summed = product + addend(64)
     full = summed + cin
     overflow = (summed < product) | (full < summed) if x or negated else summed < product
-    return outputs(Rd=resize(full >> 32 if mode == 'HI' else full, i.width('Rd')), Pu=overflow)
+    return i.assign_from_inputs(Rd=resize(full >> 32 if mode == 'HI' else full, i.width('Rd')), Pu=overflow)
 
 
 def truth_table(bits, inputs):
@@ -174,18 +174,25 @@ def truth_table(bits, inputs):
     return (v & hi) | (~v & lo)
 
 
+@definition("logic3.b32.{table}")
+def logic3(a, b, c, table):
+    """The bitwise 32-bit function with truth table `table`, indexed by 4a+2b+c."""
+    return truth_table(table, [a, b, c])
+
+
 @family('LOP3', 'ULOP3')
 def lop3(i):
     """Rd = the bitwise function of Ra, Rb, Rc with truth table imm8 (bit 4a+2b+c is f(a, b, c)).
     Pu = Rd != 0, combined with Pp by .POR/.PAND."""
     if i.select_fork('lut') != 'LUT': unmodelled('lut')
-    rd = truth_table(i.static('imm8'), [i.value('Ra|Sa'), i.value('Rb|Sb'), i.value('Rc|Sc')])
-    pu = rd != 0
+    table = i.static('imm8')
+    rd = logic3(i.value('Ra|Sa'), i.value('Rb|Sb'), i.value('Rc|Sc'), table)
+    pu = const(int(table != 0), 1) if table in (0, 0xff) else rd != 0
     if i.has_operand('Pp'):
         match i.select_fork('pop'):
             case 'POR': pu = pu | i.pred('Pp')
             case 'PAND': pu = pu & i.pred('Pp')
-    return outputs(Rd=rd, Pu=pu)
+    return i.assign_from_inputs(Rd=rd, Pu=pu)
 
 
 @definition("lut3")
@@ -204,7 +211,7 @@ def plop3(i):
     if i.select_fork('lut') != 'LUT': unmodelled('lut')
     xs = [i.pred('Pp'), i.pred('Pq'), i.pred('Pr')]
     bit = lambda table: lut3(trunc(i.imm(table), 8), *xs)
-    return outputs(Pu=bit('uimm8'), Pv=bit('vimm8'), order=('Pv', 'Pu'))   # aliased: Pu wins (SM89)
+    return i.assign_from_inputs(Pu=bit('uimm8'), Pv=bit('vimm8'), order=('Pv', 'Pu'))   # aliased: Pu wins (SM89)
 
 
 PRMT_MODES = ('IDX', 'F4E', 'B4E', 'RC8', 'RC16', 'ECL', 'ECR')
@@ -278,8 +285,8 @@ def prmt(i):
         bits = prmt_bits(mode)
         code = lambda lo: i.select_bits('Rb|Sb', lo, bits, {v: const(v, bits) for v in range(1 << bits)})
         s = concat(*(code(4 * j) for j in reversed(range(4)))) if mode == 'IDX' else code(0)
-        return outputs(Rd=permute(a, zext(s, 32), b, mode))
-    return outputs(Rd=permute(a, i.value('Rb|Sb'), b, mode))
+        return i.assign_from_inputs(Rd=permute(a, zext(s, 32), b, mode))
+    return i.assign_from_inputs(Rd=permute(a, i.value('Rb|Sb'), b, mode))
 
 
 @definition(lambda a: (f"shf.{a['dir'].lower()}.{a['mode']}{'.hi' if a['hi'] else ''}.{a['fmt'].lower()}", ["lo", "hi_word", "n"]))
@@ -299,13 +306,14 @@ def shf(i):
     (.W) or clamped (.C) to the format width; .HI takes the high word."""
     fmt = str(i.select_fork('fmt'))
     if fmt not in ('U32', 'S32', 'U64', 'S64'): unmodelled(f'{fmt} format')
-    n = i.value('Rb|Sb')
-    mode = cw(i)
-    lo, hi = i.value('Ra|Sa'), i.value('Rc|Sc')
     direction, half = str(i.select_fork('dir')), str(i.select_fork('hilo'))
     if direction not in ('L', 'R'): unmodelled(f'{direction} direction')
     if half not in ('LO', 'HI'): unmodelled(f'{half} half')
-    return outputs(Rd=funnel(lo, hi, n, fmt, mode, direction, half == 'HI'))
+    n = i.value('Rb|Sb')
+    mode = cw(i)
+    lo = i.value('Ra|Sa')
+    hi = const(0, 32) if direction == 'L' and half == 'LO' else i.value('Rc|Sc')
+    return i.assign_from_inputs(Rd=funnel(lo, hi, n, fmt, mode, direction, half == 'HI'))
 
 
 def word_source(i):
@@ -325,7 +333,7 @@ def reversed_bits(x):
 @family('BREV', 'UBREV')
 def brev(i):
     """Rd = the source's bits in reverse order."""
-    return outputs(Rd=reversed_bits(word_source(i)))
+    return i.assign_from_inputs(Rd=reversed_bits(word_source(i)))
 
 
 @definition("popc.b32")
@@ -342,7 +350,7 @@ def population(x):
 @family('POPC', 'UPOPC')
 def popc(i):
     """Rd = the number of set bits of the source."""
-    return outputs(Rd=population(word_source(i)))
+    return i.assign_from_inputs(Rd=population(word_source(i)))
 
 
 def leading_zeros(x):
@@ -376,7 +384,7 @@ def flo(i):
     if fmt not in ('S32', 'U32', '32'): unmodelled(f'{fmt} format')
     sh = str(i.select_fork('sh'))
     if sh not in ('nosh', 'SH'): unmodelled(f'{sh}')
-    return outputs(Rd=find_leading(word_source(i), fmt == 'S32', sh == 'SH'))
+    return i.assign_from_inputs(Rd=find_leading(word_source(i), fmt == 'S32', sh == 'SH'))
 
 
 @definition(lambda a: (f"szext.{a['mode']}.{'s' if a['signed'] else 'u'}32", ["a", "width"]))
@@ -398,7 +406,7 @@ def sgxt(i):
     mode = cw(i)
     fmt = str(i.select_fork('fmt'))
     if fmt not in ('S32', 'U32', '32'): unmodelled('fmt selector')
-    return outputs(Rd=extended(a, width, mode, fmt == 'S32'))
+    return i.assign_from_inputs(Rd=extended(a, width, mode, fmt == 'S32'))
 
 
 def compare(label, a, b, signed):
@@ -440,7 +448,7 @@ def isetp(i):
         if comparison not in ('F', 'T'): cond = cond if a != b else low
     elif i.has_operand('Pr'): i.ignore('Pr')
     p, bop = i.pred('Pp'), i.select_fork('bop')
-    return outputs(Pu=boolean(bop, cond, p), Pv=boolean(bop, lnot(cond), p),
+    return i.assign_from_inputs(Pu=boolean(bop, cond, p), Pv=boolean(bop, lnot(cond), p),
                    order=('Pv', 'Pu'))  # equal destinations: Pu wins (SM89)
 
 
@@ -461,7 +469,7 @@ def imnmx(i):
     a, b = i.value('Ra|Sa'), i.value('Rb|Sb')
     if a.w != 32 or b.w != 32 or i.width('Rd') != 32: unmodelled('width')
     p, signed = i.pred('Pp'), fmt == 'S32'
-    return outputs(Rd=pick(p, a, b, signed) if is_const(p) else select_minmax(p, a, b, signed))
+    return i.assign_from_inputs(Rd=pick(p, a, b, signed) if is_const(p) else select_minmax(p, a, b, signed))
 
 
 def lanes(x, width):
@@ -519,7 +527,7 @@ def vimnmx(i):
     width, signed = packed(fmt)
     p = i.pred('Pp')
     xs, ys = lanes(i.value('Ra'), width), lanes(i.value('Rb|Sb'), width)
-    return outputs(Rd=vector_result(i, fmt, relu, [pick(p, widen(x, signed), widen(y, signed), signed) for x, y in zip(xs, ys)]))
+    return i.assign_from_inputs(Rd=vector_result(i, fmt, relu, [pick(p, widen(x, signed), widen(y, signed), signed) for x, y in zip(xs, ys)]))
 
 
 @family('VISET')
@@ -532,7 +540,7 @@ def viset(i):
     width, signed = packed(fmt)
     icmp = i.select_fork('icmp')
     xs, ys = lanes(i.value('Ra'), width), lanes(i.value('Rb|Sb'), width)
-    return outputs(Rd=concat(*reversed([-zext(compare(icmp, x, y, signed), width) for x, y in zip(xs, ys)])))
+    return i.assign_from_inputs(Rd=concat(*reversed([-zext(compare(icmp, x, y, signed), width) for x, y in zip(xs, ys)])))
 
 
 @family('VIMNMX3', 'UVIMNMX3')
@@ -544,7 +552,7 @@ def vimnmx3(i):
     xs, ys, zs = (lanes(i.value(n), width) for n in ('Ra', 'Rb|Sb', 'Rc|Sc'))
     values = [pick(p, pick(p, widen(x, signed), widen(y, signed), signed), widen(z, signed), signed)
               for x, y, z in zip(xs, ys, zs)]
-    return outputs(Rd=vector_result(i, fmt, relu, values))
+    return i.assign_from_inputs(Rd=vector_result(i, fmt, relu, values))
 
 
 @family('VIADDMNMX', 'UVIADDMNMX')
@@ -557,7 +565,7 @@ def viaddmnmx(i):
     ys = lanes(i.value('Rb|Sb', modifiers=False), width)
     if i.operand_negated('Rb|Sb'): ys = [-y for y in ys]
     values = [pick(p, widen(x + y, signed), widen(z, signed), signed) for x, y, z in zip(xs, ys, zs)]
-    return outputs(Rd=vector_result(i, fmt, relu, values))
+    return i.assign_from_inputs(Rd=vector_result(i, fmt, relu, values))
 
 
 @definition(lambda a: (f"vabsdiff4.{'s' if a['signed'] else 'u'}8.{'add' if a['c'] is not None else 'merge'}", ["a", "b", *(["c"] if a["c"] is not None else [])]))
@@ -582,8 +590,8 @@ def vabsdiff4(i):
     match i.select_fork('red'):
         case 'SIMD_MRG':
             if i.has_operand('Rc|Sc'): i.ignore('Rc|Sc')   # not read by the merge
-            return outputs(Rd=byte_differences(a, b, signed))
-        case 'ACC': return outputs(Rd=byte_differences(a, b, signed, i.value('Rc|Sc')))
+            return i.assign_from_inputs(Rd=byte_differences(a, b, signed))
+        case 'ACC': return i.assign_from_inputs(Rd=byte_differences(a, b, signed, i.value('Rc|Sc')))
         case other: unmodelled(f'{other} reduction')
 
 
@@ -617,7 +625,7 @@ def idp(i):
     afmt, bfmt = i.select_fork('SrcAFmt'), i.select_fork('SrcBFmt')
     if afmt not in ((('S16', 'U16') if aw == 16 else ('S8', 'U8'))) or bfmt not in ('S8', 'U8'): unmodelled('formats')
     if i.width('Rd') != 32: unmodelled('width')
-    return outputs(Rd=dot_product(i.value('Ra'), i.value('Rb|Sb'), i.value('Rc'), str(mode), afmt[0] == 'S', bfmt[0] == 'S'))
+    return i.assign_from_inputs(Rd=dot_product(i.value('Ra'), i.value('Rb|Sb'), i.value('Rc'), str(mode), afmt[0] == 'S', bfmt[0] == 'S'))
 
 
 def clamped(x, width, signed):
@@ -638,7 +646,7 @@ def i2i(i):
     """Rd = Rb converted from S32 to U8/S8/U16/S16 with saturation, as a 32-bit value (SM89 GPU)."""
     if i.select_fork('srcfmt') != 'S32' or i.select_fork('SAT') != 'SAT': unmodelled('format')
     fmt = i.select_fork('dstfmt')
-    return outputs(Rd=saturated_narrow(i.value('Rb|Sb|URb'), int(fmt[1:]), fmt[0] == 'S'))
+    return i.assign_from_inputs(Rd=saturated_narrow(i.value('Rb|Sb|URb'), int(fmt[1:]), fmt[0] == 'S'))
 
 
 def pack_name(a):
@@ -679,7 +687,7 @@ def i2ip(i):
     else: sat, relu = i.select_fork('SAT') == 'SAT', False   # SM75/SM80: /SATONLY
     if relu and not signed: unmodelled('RELU of an unsigned format')
     a, b = i.value('Ra'), i.value('Rb|Sb')
-    return outputs(Rd=packed_pair(a, b, None if width == 16 else i.value('Rc'), width, signed, sat, relu, width == 8 and half == 'H1'))
+    return i.assign_from_inputs(Rd=packed_pair(a, b, None if width == 16 else i.value('Rc'), width, signed, sat, relu, width == 8 and half == 'H1'))
 
 
 def byte_offset(label):
@@ -693,7 +701,7 @@ def p2r(i):
     there is no P7, so mask bit 7 clears bit 7 (SM89 GPU)."""
     at = byte_offset(i.select_fork('insert'))
     mask = zext(trunc(i.value('Rb|Sb'), 8), 32) << at
-    return outputs(Rd=(i.value('Ra') & ~mask) | ((zext(i.value('Pr'), 32) << at) & mask))
+    return i.assign_from_inputs(Rd=(i.value('Ra') & ~mask) | ((zext(i.value('Pr'), 32) << at) & mask))
 
 
 @family('R2P')
@@ -701,7 +709,7 @@ def r2p(i):
     """P0-P6 (PR) = bits of byte `a_bsel` of Ra where the mask Rb is set; others keep their value."""
     at = byte_offset(i.select_fork('a_bsel'))
     mask, old = trunc(i.value('Rb|Sb'), 7), i.value('PR')
-    return outputs(PR=(extract(i.value('Ra'), at + 6, at) & mask) | (old & ~mask))
+    return i.assign_from_inputs(PR=(extract(i.value('Ra'), at + 6, at) & mask) | (old & ~mask))
 
 
 @family("UP2UR")
@@ -715,4 +723,4 @@ def up2ur(i):
     v = i.value("URa", modifiers=False) & ~zext(trunc(i.value("Sb"), 8), 32)
     for k in range(7):
         if mask >> k & 1: v = v | (zext(reg("UP", k, 1, element=1), 32) << k)
-    return outputs(URd=v)
+    return i.assign_from_inputs(URd=v)

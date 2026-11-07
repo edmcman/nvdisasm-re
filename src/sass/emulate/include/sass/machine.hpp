@@ -12,6 +12,9 @@
 #include "sass/bits.hpp"
 #include "sass/primitives.hpp"
 #include "sass/fp.hpp"
+#include "sass/async.hpp"
+#include "sass/cache.hpp"
+#include "sass/coordination.hpp"
 
 namespace sass {
 enum Space : int { Ram, Shared, Localmem, Cbank, SPACES };
@@ -24,11 +27,18 @@ struct Thread {
 
 // Sparse pages over an optional read-only base image (copied on first write).
 struct Memory {
+  Memory() = default;
+  Memory(const Memory &) = delete;
+  Memory &operator=(const Memory &) = delete;
+  Memory(Memory &&) = default;
+  Memory &operator=(Memory &&) = default;
   static constexpr int PAGE = 8;  // small, since each thread copies a page on its first write to it
   using Page = std::array<uint8_t, 1 << PAGE>;
   std::unordered_map<uint64_t, std::unique_ptr<Page>> pages[SPACES];
   const Memory *base = nullptr;
   Memory *global = nullptr;
+  CacheState cache;
+  const Thread *atomic_owner = nullptr;
 
   const Page *find(int s, uint64_t n) const {
     if (s == Ram && global) return global->find(s, n);
@@ -57,9 +67,21 @@ struct Memory {
   }
 };
 
+struct OperandGroups {
+  uint32_t spans[8], words[8][32][8];
+};
+
 struct WarpContext {
   uint32_t present, lane, active, has_waiting, waiting, has_values, has_predicates, pad;
   uint64_t values[32], predicates[32];
+  const OperandGroups *groups;
+  uint32_t has_bar_result, bar_result;
+  AsyncState *async;
+  uint32_t write_dependency;
+  uint32_t async_ready;
+  uint32_t has_bar_states, bar_states[16];
+  CacheState *cache;
+  Coordination *coordination;
 };
 
 enum Sync { Bar, Bssy, Bsync, Break, Warpsync, Bmov };
@@ -73,13 +95,62 @@ struct Environment {
   uint64_t bmov_keys[16], bmov_values[16];
 };
 
-struct Fault { std::string message; };
-
 // m: the memory the lane shares (a block's); local: its own localmem (m when alone).
 struct Ctx {
   Thread &t; Memory &m, &local; const WarpContext &warp; const Environment &env;
   Memory &space(int s) const { return s == Localmem ? local : m; }
 };
+
+struct Atomic {
+  const Ctx &context;
+  bool held = false;
+  explicit Atomic(const Ctx &c) : context(c) {}
+  void enter() {
+    if (held || context.m.atomic_owner) throw Fault{"atomic block already owned"};
+    context.m.atomic_owner = &context.t;
+    held = true;
+  }
+  void leave() {
+    if (!held || context.m.atomic_owner != &context.t) throw Fault{"atomic block owner mismatch"};
+    context.m.atomic_owner = nullptr;
+    held = false;
+  }
+  ~Atomic() { if (held) context.m.atomic_owner = nullptr; }
+};
+
+inline AsyncState &async(const Ctx &c) {
+  if (!c.warp.async) throw Fault{"async-copy state required"};
+  return *c.warp.async;
+}
+
+inline void complete_async(const Ctx &c) {
+  auto &state = async(c);
+  for (const auto &copy : state.ready) {
+    for (uint32_t byte = 0; byte < copy.size; ++byte)
+      c.m.write(Shared, copy.address + byte, uint8_t((byte < 8 ? copy.low : copy.high) >> ((byte % 8) * 8)));
+  }
+  state.ready.clear();
+}
+
+inline void async_issue(const Ctx &c, uint64_t address, uint64_t low, uint64_t high, uint32_t size, bool enabled) {
+  if (enabled) async(c).open.push_back({address, low, high, size});
+}
+inline void async_commit(const Ctx &c, uint32_t board) {
+  if (board >= 6) throw Fault{"async commit needs a write scoreboard"};
+  async(c).commit(board);
+}
+inline void async_wait_groups(const Ctx &c, uint32_t board, uint32_t count) {
+  if (board >= 6) throw Fault{"invalid dependency slot"};
+  async(c).wait(board, count);
+  complete_async(c);
+}
+inline void async_wait_slots(const Ctx &c, uint32_t mask) {
+  async(c).waits(mask);
+  complete_async(c);
+}
+inline void dependency_wait(const Ctx &c, uint32_t mask) {
+  if (c.warp.async) async_wait_slots(c, mask);
+}
 
 inline void check(const prim::Status &s) { if (!s) throw Fault{s.message()}; }
 
@@ -109,7 +180,20 @@ inline std::array<uint64_t, 32> lanes(const Ctx &c, bool predicates, uint64_t x)
 
 inline prim::Warp env_warp(const WarpContext &w) { return {w.active, w.waiting, nullptr, 0}; }
 
+inline uint64_t mufu_value(prim::Mufu fn, bool half, uint64_t x, uint32_t format = 0) {
+  uint64_t in[32] = {x};
+  return one(0, [&](uint32_t need, uint64_t *out) { return prim::mufu(fn, half, need, in, out, format); });
+}
+
 namespace lane {
+inline uint64_t bar_result(const Ctx &c) {
+  if (!c.warp.has_bar_result) throw Fault{"barrier reduction result required"};
+  return c.warp.bar_result;
+}
+inline uint64_t bar_state(const Ctx &c, uint32_t index) {
+  if (!c.warp.has_bar_states || index >= 16) throw Fault{"sixteen barrier states required"};
+  return c.warp.bar_states[index];
+}
 inline uint64_t lane(const Ctx &c) { return warp(c).lane; }
 inline uint64_t active(const Ctx &c) { return warp(c).active; }
 inline uint64_t waiting(const Ctx &c) {
@@ -122,6 +206,17 @@ inline uint64_t read_lane(const Ctx &c, uint64_t x, uint64_t src) {
   uint64_t s[32] = {};
   s[w.lane] = src;
   return one(w.lane, [&](uint32_t need, uint64_t *out) { return prim::read_lane(env_warp(w), need, v.data(), s, out); });
+}
+inline uint64_t operand_lane(const Ctx &c, uint64_t group, uint64_t source, uint64_t word) {
+  const WarpContext &w = warp(c);
+  if (!w.groups || group >= 8 || source >= 32 || word >= w.groups->spans[group])
+    throw Fault{"warp operand group required or out of range"};
+  if (!(w.active >> source & 1)) throw Fault{"warp operand source is inactive"};
+  return w.groups->words[group][source][word];
+}
+inline uint64_t operand_lane(const Ctx &c, uint64_t group, uint64_t source, uint64_t word, uint64_t current) {
+  const auto value = operand_lane(c, group, source, word);
+  return source == c.warp.lane ? current : value;
 }
 inline uint64_t ballot(const Ctx &c, uint64_t p) {
   const auto v = lanes(c, true, p);
@@ -138,9 +233,8 @@ inline uint64_t redux(const Ctx &c, prim::Reduction op, uint64_t x) {
   const WarpContext &w = warp(c);
   return one(w.lane, [&](uint32_t need, uint64_t *out) { return prim::redux(op, env_warp(w), need, v.data(), out); });
 }
-inline uint64_t mufu(const Ctx &, prim::Mufu fn, bool half, uint64_t x) {
-  uint64_t in[32] = {x};
-  return one(0, [&](uint32_t need, uint64_t *out) { return prim::mufu(fn, half, need, in, out); });
+inline uint64_t mufu(const Ctx &, prim::Mufu fn, bool half, uint64_t x, uint32_t format = 0) {
+  return mufu_value(fn, half, x, format);
 }
 inline uint64_t address_space(const Ctx &c, uint64_t address) {
   if (c.env.ranges_error) throw Fault{c.env.ranges_error};

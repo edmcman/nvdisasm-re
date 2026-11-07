@@ -17,6 +17,52 @@ def scenario(value=19, expected=None, **kwargs):
     return device_cases.Scenario('unit', case, *device_cases.classify(case))
 
 
+def reciprocal_scenarios(arch, precision, op, destination=8):
+    from sass.decode import ir
+    from tests.harness import autocases
+    from tests.harness.autocase_half_requests import Inputs
+    cls = 'mufu_fp16__RR' if precision == 'F16' else 'mufu__RRR_RR'
+    k = next(k for k in ir.load(arch).classes if k.name == cls)
+    fields = dict(mufuop=op)
+    if precision == 'F16': fields.update(width='F16', extract='H1')
+    form = autocases.encoded_form(arch, k, fields)
+    cases = autocases.generate(arch, cls, form, discovery=True,
+                              input_profile=Inputs(values=tuple(range(0, 65536, 509)), destination=destination))
+    return [device_cases.Scenario('probe', c, 'scalar', arch=arch) for c in cases]
+
+
+def test_parallel_discovery_preserves_target_and_padding():
+    scenarios = reciprocal_scenarios('SM89', 'F16', 'RSQ', 2)
+    probe, = device_cases.kernels(scenarios, raw=True)
+    assert probe.grid == 2 and probe.threads == 128
+    assert len(probe.observations) == len(scenarios) == 129
+    offset, target = probe.code.targets[0]
+    image = device_cases.image([probe])
+    actual = int.from_bytes(cubin.kernel_image(image, 'probe_0')['code'][offset:offset + 16], 'little')
+    assert actual & device_cases.ENCODING == int.from_bytes(bytes.fromhex(target), 'little') & device_cases.ENCODING
+    assert len(device_cases.kernels(scenarios)) == 3
+    guarded = scenarios[0].case._replace(request=dict(scenarios[0].case.request, registers={'P0': 0}))
+    assert device_cases.parallel_word(device_cases.Scenario('probe', guarded, 'scalar')) is None
+
+
+@pytest.mark.gpu
+def test_parallel_discovery_matches_serial_gpu(request):
+    from tests.harness import gpu
+    arch = gpu.target(request.config)
+    if arch is None: pytest.skip(request.config._gpu_unavailable)
+    driver = gpu.Driver(arch)
+    try:
+        for precision, ops in [('F32', ('RCP', 'RSQ')), ('64H', ('RCP64H', 'RSQ64H')), ('F16', ('RCP', 'RSQ'))]:
+            for op in ops:
+                for destination in (2, 8):
+                    scenarios = reciprocal_scenarios(arch, precision, op, destination)
+                    parallel = device_cases.execute(driver, device_cases.kernels(scenarios, raw=True))
+                    serial = device_cases.execute(driver, [device_cases.scalar_probe(scenarios[i:i + 64], f'serial_{i}', raw=True)
+                                                           for i in range(0, len(scenarios), 64)])
+                    assert parallel == serial, (precision, op, destination)
+    finally: driver.close()
+
+
 def test_target_encoding_and_scratch_preserve_aliases():
     c = Cases('SM89')
     c.add('imad_wide__RRR_RRR', dict(Rd=2, Ra=2, Rb=4, Rc=6, fmt='U32'), dict(R2=3, R4=4, R6=5), dict(R2=17, R3=0))
@@ -52,6 +98,52 @@ def test_memory_binding_preserves_single_register_addresses(cls):
     assert len(writes) == 1 and writes[0].klass.name == "mov__RI"
     if "uniform" in cls:
         assert not any(d.klass.name == "r2ur__noOR" and d.env["URd"] == 5 for d in before)
+    device_cases.image([probe])
+
+
+@pytest.mark.parametrize("operation", ["PF1", "DML2"])
+def test_memory_probe_relocates_wrapped_address(operation):
+    c = Cases("SM89")
+    address = 0xffffffff80000180
+    c.add("cctl__sImmOffset", dict(cop=operation, cache="D", e="E", Ra=2, Ra_offset=-0x80000000),
+          dict(R2=0x180, R3=0), dict(__memory="13" * 128),
+          memory=[dict(space="ram", address=address, hex="13" * 128)],
+          observe_memory=[dict(space="ram", address=address, size=128)],
+          hardware=dict(adapter="memory"))
+    case = c.complete()[0]
+    probe = device_cases.scalar_probe([device_cases.Scenario("unit", case, "memory")], "probe")
+    assert len(probe.arena) < 1024
+    device_cases.image([probe])
+
+
+@pytest.mark.parametrize("arch", ["SM89", "SM90"])
+@pytest.mark.parametrize("offset", [-0x80000000, -128, -1, 0, 128, 0x7fffffff, 0xffffffff])
+def test_pointer_relocation_keeps_signed_offset(arch, offset):
+    from sass.assemble import elf
+    from sass.semantics import evaluate, lifter
+    from sass.semantics.runtime import Runtime
+    from tests.harness import device_setup
+    code, state = device_cases.Code(arch), evaluate.State()
+    pointer = 0x0000123400000040
+    state.store("cbank", elf.PROFILES[arch].parameter_base + 72, 64, pointer)
+    device_setup.add_pointer(code, 2, 4, offset)
+    for value in code.words:
+        state = evaluate.execute(lifter.lift(arch, value.to_bytes(16, "little")), state, runtime=Runtime(arch[2:]))
+    assert state.read("R", 2, 2) == (pointer + offset) % (1 << 64)
+
+
+def test_async_uniform_source_binding():
+    from sass.decode import ir
+    from tests.harness import autocases, device_setup
+    k = next(k for k in ir.load("SM89").classes if k.name == "ldgsts__RR32U")
+    form = autocases.encoded_form("SM89", k, dict(sz="32"))
+    case = autocases.generate("SM89", k.name, form, sample=100)[0]
+    case = case._replace(request=dict(case.request, registers=dict(case.request["registers"], UR6=0x40)))
+    assert device_setup.memory_binding(case) == ("ram", 0x140, 4, "Ra_URc")
+    probe = device_cases.scalar_probe([device_cases.Scenario("unit", case, "async")], "probe")
+    target, _ = probe.code.targets[0]
+    before = [pydecode.decode("SM89", w.to_bytes(16, "little")) for w in probe.code.words[:target // 16]]
+    assert {d.env["URd"] for d in before if d.klass.name == "r2ur__noOR"} >= {6, 7}
     device_cases.image([probe])
 
 
@@ -201,6 +293,20 @@ def test_raw_memory_capture_reassembles_multiple_regions():
     case = s.case._replace(request=dict(s.case.request, observe_memory=[dict(space='ram', address=0x100, size=8), dict(space='shared', address=0x20, size=1)]))
     result = device_cases.observation(case, ['R8', '__memory:0:0:4', '__memory:0:4:4', '__memory:1:0:1'], [19, 0x12345678, 0x90abcdef, 0x55])
     assert result == dict(registers={'R8':19}, memory=[dict(space='ram', address=0x100, size=8, hex='78563412efcdab90'), dict(space='shared', address=0x20, size=1, hex='55')])
+
+
+def test_memory_capture_preserves_initialized_bytes():
+    from tests.harness import device_setup
+    c = Cases('SM89')
+    c.add('ldg__sImmOffset', dict(Rd=8, Ra=4, e='E'), dict(R4=0x100), dict(R8=19),
+          memory=[ram(0x100, 19)], observe_memory=[dict(space='ram', address=0x100, size=8)],
+          hardware=dict(adapter='memory'))
+    c.complete()
+    arena = bytearray()
+    code = device_cases.Code()
+    _, _, base, start = device_setup.memory(code, c[0], 16, arena)
+    offset = start + 0x100 - base
+    assert arena[offset:offset + 8] == b'\x13\0\0\0\0\0\0\0'
 
 
 def test_observations_are_judged_by_current_expectations(tmp_path, monkeypatch):

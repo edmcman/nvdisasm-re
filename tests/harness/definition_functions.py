@@ -7,7 +7,7 @@ from functools import cache
 
 from sass import workers
 from sass.emulate import build, definitions
-from sass.semantics import bitvec, lifter
+from sass.semantics import bitvec, lifter, ordered
 from sass.sleigh.build import ARCHES
 from tests import cases
 from tests.harness import sampling, sharded
@@ -17,11 +17,9 @@ BATCH = 48
 
 
 def roots(semantics):
-    out = [semantics.guard, *(value for _, value in semantics.writes)]
-    for store in semantics.stores: out.extend((store.cond, store.address, store.value))
-    for effect in semantics.effects: out.extend(effect.args)
-    if semantics.flow: out.extend((semantics.flow.cond, semantics.flow.target))
-    return out
+    return [] if semantics.body is None else [
+        value for statement in ordered.linearize(semantics.body)
+        for value in ordered.statement_values(statement) if isinstance(value, bitvec.Expr)]
 
 
 def representatives(job):
@@ -44,13 +42,13 @@ def representatives(job):
 
 
 @cache
-def discover():
-    """Discover once per session at the default sample, independent of CLI sampling."""
+def discover(variants=VARIANTS):
+    """Discover the requested variants at the default sample, independent of CLI sampling."""
     begin = time.monotonic()
     uses, origins, lifted, result_widths = set(), set(), set(), {}
     current_arch = None
     for arch, fp, generated, found in sharded.run(
-        representatives, VARIANTS, cases.FAMILIES, sampling.DEFAULT,
+        representatives, variants, cases.FAMILIES, sampling.DEFAULT,
         workers=workers.fitting(2, os.cpu_count() or 1),
     ):
         if arch != current_arch:
@@ -70,7 +68,7 @@ def discover():
                 params = [bitvec.param(f"a{k}", width) for k, width in enumerate(widths)]
                 assert bitvec.DEFINED[label].expand(*params).w == result_width, (arch, fp, use)
                 uses.add(use)
-    assert origins == {(arch, fp, generated) for arch, fp in VARIANTS for generated in (False, True)}
+    assert origins == {(arch, fp, generated) for arch, fp in variants for generated in (False, True)}
     print(f"\ndefinition discovery: {len(uses)} signatures in {time.monotonic() - begin:.2f}s", flush=True)
     return sorted(uses)
 

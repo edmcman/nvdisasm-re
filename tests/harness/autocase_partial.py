@@ -20,6 +20,7 @@ ROWS = {
     'HADD2': 'F32 widening; negative zero register operand where required',
     'HFMA2': 'ordinary register factors plus literal half lanes; default literal-move row',
     'HFMA2.MMA': 'ordinary register factors plus literal half lanes; default literal-move row',
+    'HMMA': 'direct F16/BF16/TF32 inputs with F32 or F16/1688/16816 accumulators',
 }
 
 

@@ -11,7 +11,7 @@ from tests.harness import autocases, lifted
 @pytest.mark.parametrize("arch", ARCHES)
 def test_normal_plans_represent_each_added_variant(arch):
     plan = json.loads((autocases.PLANS / f"{arch}.json").read_text())
-    assert plan["verification"] == {"default_strength": 3, "opcode_strength": {}}
+    assert plan["verification"] == {"default_strength": 3, "opcode_strength": {"HMMA": "exhaustive"}}
     md = ir.load(arch)
     classes = {k.name: k for k in md.classes}
     chosen = {}

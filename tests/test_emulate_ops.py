@@ -4,7 +4,7 @@ operator reaches the backend: their values, written to registers, match bit for 
 import random
 import pytest
 from sass.emulate import machine
-from sass.semantics import bitvec, evaluate, lifter
+from sass.semantics import bitvec, evaluate, lifter, ordered
 from sass.semantics.bitvec import Expr
 
 pytestmark = pytest.mark.native  # opt-in: -m native
@@ -32,7 +32,10 @@ def tree(rng, w, depth):
         case "unary": return Expr(rng.choice(("not", "neg")), (sub(w),), w)
         case "shift":
             n = rng.choice((5, 8, 32, 64))
-            count = Expr("const", (rng.randrange(w + 3),), n) if rng.random() < 0.6 else sub(n)
+            if rng.random() < 0.6:
+                value = rng.randrange(w + 3)
+                count = Expr("const", (value,), max(n, value.bit_length()))
+            else: count = sub(n)
             return Expr(rng.choice(("shl", "shr", "sar")), (sub(w), count), w)
         case "ite": return Expr("ite", (sub(1), sub(w), sub(w)), w)
         case "ext": return Expr(rng.choice(("zext", "sext")), (sub(rng.randrange(1, w)),), w)
@@ -62,7 +65,17 @@ def tree(rng, w, depth):
 def semantics(value):
     count = -(-value.w // 32)
     widened = value if value.w == 32 * count else Expr("zext", (value,), 32 * count)
-    return lifter.Semantics("SM89", "tree", "tree", 0x1000, "native", writes=[(bitvec.reg("R", 16, count), widened)])
+    builder, reads = ordered.Builder(), {}
+    def capture(expression):
+        match expression.op:
+            case "reg":
+                if expression.args not in reads: reads[expression.args] = builder.read_register(*expression.args)
+                return reads[expression.args]
+            case _:
+                return Expr(expression.op, tuple(capture(arg) if isinstance(arg, Expr) else arg
+                                                for arg in expression.args), expression.w)
+    builder.emit(ordered.WriteRegister(("R", 16, count), capture(widened)))
+    return lifter.Semantics("SM89", "tree", "tree", 0x1000, "native", body=builder.block())
 
 
 @pytest.mark.parametrize("seed", range(4))
@@ -72,17 +85,17 @@ def test_random_trees(seed):
     states = [evaluate.State({("R", i): rng.getrandbits(32) for i in range(INPUTS)}) for _ in trees]
     library = machine.Fragments([semantics(t) for t in trees], semantics=True)
     for i, (t, state) in enumerate(zip(trees, states)):
-        want = evaluate.execute(semantics(t), state)
+        want = evaluate.evaluate(t, state)
         got = library.execute(i, state, {})
         count = -(-t.w // 32)
-        assert got.read("R", 16, count) == want.read("R", 16, count), f"tree {i}: {bitvec.show([(None, t)])}"
+        assert got.read("R", 16, count) == want, f"tree {i}: {bitvec.show([(None, t)])}"
 
 
 def test_wider_than_128_bits_is_not_compiled():
     """A node over 128 bits fails its instruction (`not compiled`) instead of being truncated."""
     from sass.emulate import codegen, cxx
     wide = Expr("concat", (bitvec.reg("R", 0, 4), bitvec.reg("R", 4, 4)), 256)
-    s = lifter.Semantics("SM89", "tree", "tree", 0x1000, "native", writes=[(bitvec.reg("R", 16, 8), wide)])
+    s = semantics(wide)
     with pytest.raises(NotImplementedError, match="256-bit concat"): cxx.instruction(s, "f", None)
     generated = codegen.compiled("SM89", s, None, "f")
     assert generated.startswith("SASS_HD static void f(")

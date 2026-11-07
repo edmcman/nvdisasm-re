@@ -1,7 +1,8 @@
 # How to read the K rules
 
-The following three chapters include the executable K source as written:
-integer and floating-point functions, followed by machine transitions.
+The following four chapters include the executable K source as written:
+integer and floating-point functions, followed by machine state and ordered
+statement transitions.
 The code blocks preserve the source syntax, grouping, quoted strings,
 conditions, and attributes. Syntax highlighting and visual line wrapping
 make the listings fit the page.

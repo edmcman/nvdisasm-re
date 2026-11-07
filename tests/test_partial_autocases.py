@@ -37,14 +37,14 @@ def test_partial_rows_have_independent_values_and_native_guards(arch, cls, field
     cases = tests.harness.autocases.generate(arch, cls, form, fp, sample=100)
     assert cases and all(case.request['inspect_pcode'] for case in cases)
     for case in cases:
-        assert '__native' in case.expected or isinstance(case.expected.get('__max_ops'), dict)
+        assert {'__native', '__userops'} & case.expected.keys() or isinstance(case.expected.get('__max_ops'), dict)
         status, errors = lifted.run(arch, fp, case)
         assert status == 'native' and not errors, (case, status, errors)
         # Even correct values cannot excuse an opaque P-code fallback.
         failures = checks.problems(case.expected, dict(
             registers={n: v for n, v in case.expected.items() if not n.startswith('__')},
             pcode_ops={'CALLOTHER': 1}, pcode_userops=['sass_opaque_' + cls]))
-        assert {'native p-code', 'p-code op count'} & set(failures)
+        assert {'native p-code', 'named userops', 'p-code op count'} & set(failures)
 
 
 def test_partial_planner_uses_normal_profiles_and_native_flag(monkeypatch):

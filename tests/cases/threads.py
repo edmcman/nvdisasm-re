@@ -183,8 +183,8 @@ def gpu_fixtures(arch="SM89"):
     vs = [(rng.getrandbits(32), rng.getrandbits(32), 0) for _ in range(4 * 128)]
     out.append(fixture("shared_exchange", vs, [shared_exchange(vs[b:b + 128])[t] for b in range(0, len(vs), 128) for t in range(128)],
                        ("STS", "LDS", "BAR.SYNC.DEFER_BLOCKING"), output_size=4, block=128))
-    from tests.harness import launch_geometry
-    return out + launch_geometry.fixtures(arch)
+    from tests.harness import launch_geometry, synchronization
+    return out + launch_geometry.fixtures(arch) + synchronization.fixtures(arch)
 
 
 def shared_exchange(block):

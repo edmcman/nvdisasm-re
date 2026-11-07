@@ -7,21 +7,28 @@ import re
 from sass.formal import k
 
 CONSTRUCTORS = {
+    "orderedInstruction": ("Instruction", ("Int", "OptionalExpr", "Map", "Int")),
+    "orderedMove": ("KItem", ("Int", "Expr")),
+    "orderedRead": ("KItem", ("Int", "String", "Int", "Int")),
+    "orderedWrite": ("KItem", ("String", "Int", "Int", "Expr")),
+    "orderedLoad": ("KItem", ("Int", "String", "Expr", "Int")),
+    "orderedStore": ("KItem", ("String", "Expr", "Expr")),
+    "orderedSpecial": ("KItem", ("Int", "String", "List", "List", "List")),
+    "orderedBranch": ("KItem", ("Expr", "Int", "Int")),
+    "orderedJump": ("KItem", ("Int",)),
+    "orderedBoundary": ("KItem", ("Int",)),
+    "orderedControl": ("KItem", ("String", "Expr")),
+    "orderedResponse": ("KItem", ("String", "List", "List", "List", "List", "Map", "Map")),
     "node": ("Expr", ("Int", "String", "Int", "List")),
-    "instruction": ("Instruction", ("Int", "OptionalExpr", "List", "List", "List", "OptionalFlow")),
     "unsupported": ("Instruction", ("Int", "OptionalExpr", "String")),
     "program": ("Program", ("Map", "Int")),
     "run": ("Input", ("Program", "Map", "Map", "Map", "Map", "Map", "Int")),
     "location": ("KItem", ("String", "Int")),
     "byte": ("KItem", ("String", "Int")),
-    "write": ("KItem", ("String", "Int", "Int", "Expr")),
-    "store": ("KItem", ("String", "Expr", "Expr", "OptionalExpr")),
-    "effect": ("KItem", ("Int", "String", "List")),
     "request": ("KItem", ("Int", "Int", "Int")),
     "response": ("KItem", ("String", "List", "Int", "Int", "List", "Map", "Map")),
-    "flow": ("OptionalFlow", ("String", "Expr", "OptionalExpr")),
 }
-LITERALS = {"absent": "absent_SASS_OptionalExpr", "noFlow": "noFlow_SASS_OptionalFlow",
+LITERALS = {"absent": "absent_SASS_OptionalExpr",
             ".List": ".List", ".Map": ".Map"}
 TOKEN = re.compile(r'\s*("(?:\\.|[^"\\])*"|-?[0-9]+|[A-Za-z_.][A-Za-z_0-9.]*|\|->|[(),])')
 
@@ -101,7 +108,8 @@ class Parser:
             return apply("ListItem", args)
         result, sorts = CONSTRUCTORS[value]
         if len(args) != len(sorts): raise k.ExportError(f"{value} has the wrong arity")
-        label = f"{value}({','.join('_' for _ in sorts)})_SASS_{result}_{'_'.join(sorts)}"
+        module = "SASS-ORDERED" if value.startswith("ordered") else "SASS"
+        label = f"{value}({','.join('_' for _ in sorts)})_{module}_{result}_{'_'.join(sorts)}"
         return apply(label, args)
 
 

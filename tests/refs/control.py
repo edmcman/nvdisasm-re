@@ -13,3 +13,8 @@ def divergence_branch(cond, mask, waiting, pp=True):
     neither when Pp is false."""
     diverged = any(mask >> lane & waiting >> lane & 1 for lane in range(32))
     return bool(pp) and diverged == (cond == "DIV")
+
+
+def deferred_branch_outputs(cond):
+    """SM89 cooperative fixture: a deferred arrival leaves every lane executing BRA."""
+    return [int(cond == "CONV")] * 32

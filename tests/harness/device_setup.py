@@ -28,8 +28,10 @@ def cx_operand(case, arch="SM89"):
 def add_pointer(code, dest, temp, offset=0):
     code.parameter(dest, 72); code.parameter(dest + 1, 76)
     if offset:
+        if not -(1 << 31) <= offset < 1 << 32: raise ValueError("pointer relocation exceeds a 32-bit offset")
         code.mov(f'R{temp}', offset)
-        code.emit('imad_wide__RsIR_RIR', Rd=dest, Ra=temp, Sb=1, Rc=dest, fmt='U32')
+        code.emit('imad_wide__RsIR_RIR', Rd=dest, Ra=temp, Sb=1, Rc=dest,
+                  fmt='S32' if offset < 0 else 'U32')
 
 
 def cx(code, case, temp, arena):
@@ -53,7 +55,7 @@ def cx(code, case, temp, arena):
     code.emit('ulop3_lut__URuIUR_URIR', URd=ur + 1, URa=ur + 1, Sb=units << (bits - 32), URc='URZ', imm8=0xfc, UPp='UPT')
 
 
-ADDRESSED = ('LD', 'ST', 'LDG', 'STG', 'LDL', 'STL', 'LDS', 'STS')
+ADDRESSED = ('LD', 'ST', 'LDG', 'STG', 'LDL', 'STL', 'LDS', 'STS', 'ATOMG', 'LDGSTS', 'CCTL')
 
 
 def address_span(d, name, arch):
@@ -80,13 +82,15 @@ def memory_binding(case, arch="SM89"):
     address = regs.get(f'R{ra}', 0) if ra != 255 else 0
     if 'Ra' in d.env and address_span(d, 'Ra', arch) == 2:
         address |= regs.get(f'R{ra + 1}', 0) << 32 if ra != 255 else 0
-    uniform = next((n for n in ('Ra_URb', 'Ra_URc') if n in d.env and d.klass.mnemonic in ADDRESSED and '_uniform' in d.klass.name), None)
+    uniform = next((n for n in ('Ra_URb', 'Ra_URc') if n in d.env and d.klass.mnemonic in ADDRESSED
+                    and ('_uniform' in d.klass.name or d.klass.mnemonic == 'LDGSTS')
+                    and 'memoryDescriptor' not in d.klass.operand_types), None)
     if uniform:
         u = d.env[uniform]
         address += regs.get(f'UR{u}', 0) if u != 63 else 0
         if address_span(d, uniform, arch) == 2:
             address += regs.get(f'UR{u + 1}', 0) << 32 if u != 63 else 0
-    if d.klass.mnemonic in ('LDG', 'STG'): space, logical = 'ram', address
+    if d.klass.mnemonic in ('LDG', 'STG', 'ATOMG', 'LDGSTS', 'CCTL'): space, logical = 'ram', address
     elif d.klass.mnemonic in ('LDL', 'STL'): space, logical = 'localmem', address
     elif d.klass.mnemonic in ('LDS', 'STS'): space, logical = 'shared', address
     elif d.klass.mnemonic in ('LD', 'ST'):
@@ -133,9 +137,11 @@ def memory(code, case, temp, arena):
     arch = code.arch
     d = device_cases.decoded(case.request['word'], arch)
     binding = memory_binding(case, arch)
-    regions = case.request.get('memory', []) + [dict(m, hex='00' * m['size']) for m in case.request.get('observe_memory', [])]
+    regions = [dict(m, hex='00' * m['size']) for m in case.request.get('observe_memory', [])] + case.request.get('memory', [])
     if binding and binding[0] == 'ram':
         offset = memory_offset(d)
+        space, logical, ra, uniform = binding
+        binding = space, ((logical + offset) & ((1 << 64) - 1)) - offset, ra, uniform
         if not any(m['space'] == 'ram' and m['address'] <= binding[1] + offset < m['address'] + len(bytes.fromhex(m['hex'])) for m in regions):
             regions.append(dict(space='ram', address=binding[1] + offset, hex='00' * 16))
     ram = [m for m in regions if m['space'] == 'ram']
@@ -261,6 +267,40 @@ def warp(code, case, temp, arena):
         code.emit('ldg__sImmOffset', Rd=d.env['Ra'], Ra=temp, Ra_offset=0,
                   sz='64' if any(v > 0xffffffff for v in values) else '32', e='E')
     return lane_guard(code, temp, context['active'], mask=True)
+
+
+def matrix(code, case, temp, arena):
+    context = case.request["context"]["warp"]
+    if context["active"] != 0xffffffff: raise ValueError("matrix probe requires a full warp")
+    d = device_cases.decoded(case.request["word"], code.arch)
+    code.emit("s2r_", Rd=temp + 4, SRa="SR_LANEID")
+    code.emit("isetp__RsIR_RIR_noEX", Pu=6, Pv="PT", Ra=temp + 4, Sb=0, Pp="PT", icmp="EQ", fmt="U32", bop="AND")
+    shared = 0
+    for region in case.request.get("memory", []):
+        if region["space"] != "shared": raise ValueError("matrix probe requires shared storage")
+        data = bytes.fromhex(region["hex"])
+        for j in range(0, len(data), 4):
+            code.mov(f"R{temp}", region["address"] + j)
+            code.mov(f"R{temp + 3}", int.from_bytes(data[j:j + 4], "little"))
+            code.emit("sts__sImmOffset", Ra=temp, Rb=temp + 3, Pg=6)
+        shared = max(shared, region["address"] + len(data))
+    code.emit("bar__SYNC_II_optionalCount_II", Sb=0, Sc=0)
+    for name, rows in context["operand_groups"].items():
+        span = len(rows[0])
+        start = (len(arena) + 255) & ~255
+        arena.extend(bytes(start - len(arena)))
+        arena.extend(b"".join(int(v).to_bytes(4, "little") for row in rows for v in row))
+        add_pointer(code, temp, temp + 2, start)
+        code.emit("imad_wide__RsIR_RIR", Rd=temp, Ra=temp + 4, Sb=span * 4, Rc=temp, fmt="U32")
+        code.emit("uldc_const__RCR", URd=4, Sa_bank=0, Sa_addr=launch.GLOBAL_DESCRIPTOR[code.arch], sz="64")
+        for word in range(span):
+            code.emit("ldg__sImmOffset", Rd=temp + 3, Ra=temp, Ra_offset=word * 4, e="E")
+            destination = d.env[name] + word
+            if name.startswith("Ra_UR"):
+                code.emit("r2ur__noOR", URd=destination, Ra=temp + 3, Pu="PT")
+            else: code.copy(destination, f"R{temp + 3}")
+    device_cases.predicates(code, case.request["registers"], temp + 2)
+    return shared
 
 
 def qspc(code, case, temp, arena):

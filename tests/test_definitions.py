@@ -4,7 +4,7 @@ import random
 from itertools import product
 import pytest
 from sass.assemble import assemble_instruction
-from sass.semantics import bitvec, family, lifter
+from sass.semantics import bitvec, family, lifter, ordered
 from sass.semantics.bitvec import const, param, reg
 from sass.semantics.evaluate import State, evaluate, execute
 from sass.semantics.family import definition
@@ -17,6 +17,38 @@ SPECIAL32 = [0, 0x80000000, 1, 0x80000001, 0x007fffff, 0x00800000, 0x3f800000, 0
 VALUES32 = SPECIAL32 + [random.Random(7).getrandbits(32) for _ in range(200)]
 F16_DEST = fpformat.Dest(10, -14, 0x7bff, 0, 0x7fff, 1, 0x7c00)
 X, Y, P = param("x", 32), param("y", 32), param("p", 1)
+
+
+def pure_writes(semantics):
+    writes = []
+    def block(body, captures):
+        def value(expression):
+            return bitvec.substitute(expression, lambda node: captures.get(node) if node.op == "temp" else None)
+        for statement in body.statements:
+            match statement:
+                case ordered.ReadRegister(target, location):
+                    assert not writes and target not in captures
+                    captures[target] = reg(*location, element=target.w // location[2])
+                case ordered.Move(target, expression):
+                    assert target not in captures
+                    captures[target] = value(expression)
+                case ordered.If(condition, yes, no, results) if results:
+                    assert not ordered.written_locations(yes) and not ordered.written_locations(no)
+                    selected = [block(arm, dict(captures)) for arm in (yes, no)]
+                    for target, first, second in zip(results, *selected, strict=True):
+                        assert target not in captures
+                        captures[target] = bitvec.ite(value(condition), first, second)
+                case ordered.If(_, yes, no):
+                    assert not no.statements
+                    block(yes, captures)
+                case ordered.WriteRegister(location, expression):
+                    writes.append((reg(*location, element=expression.w // location[2]), value(expression)))
+                case ordered.Special(spec):
+                    assert spec in (ordered.DEPENDENCIES, ordered.BLOCK_WAIT_DEFERRED)
+                case _: pytest.fail("pure definition inspection cannot represent stateful statements")
+        return tuple(map(value, body.results))
+    block(semantics.body, {})
+    return writes
 
 
 def test_lut3_complete_domain():
@@ -38,6 +70,23 @@ def test_lut3_complete_domain():
     assert bitvec.lowered(constant) is const(1, 1)
 
 
+def test_logic3_complete_domain():
+    from tests.refs import integer
+    from sass.semantics.families.integer import logic3
+    inputs = [param(name, 32) for name in ("a", "b", "c")]
+    rng = random.Random(17)
+    samples = [(0xf0f0f0f0, 0xcccccccc, 0xaaaaaaaa)] + [
+        tuple(rng.getrandbits(32) for _ in range(3)) for _ in range(8)]
+    for table in range(256):
+        expression = logic3(*inputs, table)
+        expanded = bitvec.lowered(expression)
+        for values in samples:
+            expected = integer.lop3(*values, table, 0, "POR")[0]
+            arguments = dict(zip(("a", "b", "c"), values))
+            assert evaluate(expression, None, arguments) == expected
+            assert evaluate(expanded, None, arguments) == expected
+
+
 @pytest.mark.parametrize("arch", ("SM75", "SM80", "SM86", "SM89", "SM90",
                                   "SM100", "SM101", "SM103", "SM107", "SM120"))
 @pytest.mark.parametrize("fp", ("exact", "readable"))
@@ -52,7 +101,7 @@ def test_plop3_lut3_names_and_writes(arch, fp, instruction, file, third, aliased
     source = ("UPT" if file == "UP" else "PT") if constant else f"{prefix}2"
     text = f"{instruction}.LUT {prefix}{dest}, {prefix}{second}, !{source}, {prefix}3, !{third}, 0xa8, 0x96"
     sem = lifter.lift(arch, assemble_instruction(arch, text), fp=fp)
-    calls = [node for _, value in sem.writes for node in defined(value)]
+    calls = [node for _, value in pure_writes(sem) for node in defined(value)]
     assert len(calls) == 2
     assert all(node.op == "lut3" and node.w == 1 and
                tuple(arg.w for arg in node.args) == (8, 1, 1, 1) for node in calls)
@@ -100,7 +149,7 @@ def defined(e):
 def operators(arch, text, fp="exact"):
     """{name: [arguments]} of the defined operators in a lifted instruction's writes."""
     found = {}
-    for _, v in lifter.lift(arch, assemble_instruction(arch, text), fp=fp).writes:
+    for _, v in pure_writes(lifter.lift(arch, assemble_instruction(arch, text), fp=fp)):
         for n in defined(v): found.setdefault(n.op, []).append(n.args)
     return found
 
@@ -133,7 +182,7 @@ def operators(arch, text, fp="exact"):
     ("BMSK R0, R2, R3", "bmsk.clamp.b32", [(R(2), R(3))]),
     ("IABS R0, R2", "abs.s32", [(R(2),)]),
     ("IMAD.WIDE R0, R2, R3, R4", "mul.wide.s32", [(R(2), R(3))]),
-    ("PRMT R0, R2, 0x3210, R3", "prmt.b32", [(R(2), const(0x3210, 32), R(3))]),
+    ("PRMT R0, R2, 0x3210, R3", "prmt.b32", [(R(2), const(0x3210, 32), const(0, 32))]),
     ("PRMT R0, R2, R4, R3", "prmt.b32", [(R(2), R(4), R(3))]),
     ("SHF.L.W.U32.HI R0, R2, R4, R3", "shf.l.wrap.hi.u32", [(R(2), R(3), R(4))]),
     ("BREV R0, R2", "brev.b32", [(R(2),)]),
@@ -174,7 +223,23 @@ def test_comparison_names(fp, arch, text, width, arguments, endpoints):
         name = f"setp.{label.lower()}.f{width}"
         found = operators(arch, text.format(cmp=label), fp)
         assert set(found) == {name}, (label, found)
-        assert all(len(args) == 2 and all(g is w for g, w in zip(args, arguments)) for args in found[name])
+        captured = (const(0, width),) * 2 if label in ("F", "T") else arguments
+        assert all(len(args) == 2 and all(g is w for g, w in zip(args, captured)) for args in found[name])
+
+
+@pytest.mark.parametrize("text,unused,expected", [
+    ("PRMT R0, R2, 0x3210, R3", {("R", 3, 1)}, {("R", 0): 0x12345678}),
+    ("FSETP.F.AND P0, P1, R2, R3, P2", {("R", 2, 1), ("R", 3, 1)}, {("P", 0): 0, ("P", 1): 1}),
+    ("FSETP.T.AND P0, P1, R2, R3, P2", {("R", 2, 1), ("R", 3, 1)}, {("P", 0): 1, ("P", 1): 0}),
+])
+def test_pure_definition_capture_omits_semantically_unused_inputs(text, unused, expected):
+    semantics = lifter.lift("SM89", assemble_instruction("SM89", text))
+    reads = {statement.location for statement in ordered.linearize(semantics.body)
+             if isinstance(statement, ordered.ReadRegister)}
+    assert not reads & unused
+    for third in (0, 0xffffffff):
+        state = execute(semantics, State({("R", 2): 0x12345678, ("R", 3): third, ("P", 2): 1}))
+        assert all(state.read(file, index, 1) == value for (file, index), value in expected.items())
 
 
 @pytest.mark.parametrize("width", [32, 64])
@@ -211,9 +276,10 @@ def test_comparison_modifiers_and_show(fp):
     assert [a.op for a in args] == ["neg.f32", "abs.f32"]
     assert set(found) == {"setp.gtu.f32", "neg.f32", "abs.f32"} | ({"ftz"} if fp == "exact" else set())
     sem = lifter.lift("SM89", assemble_instruction("SM89", "FSETP.GTU.AND P0, PT, R2, R3, PT"), fp=fp)
-    assert bitvec.show([(str(l), v) for l, v in sem.writes]) == "P0 := setp.gtu.f32(R2, R3)"
-    assert sem.writes[0][1].w == 1
-    expanded = bitvec.lowered(sem.writes[0][1])
+    writes = pure_writes(sem)
+    assert bitvec.show([(str(l), v) for l, v in writes]) == "P0 := setp.gtu.f32(R2, R3)"
+    assert writes[0][1].w == 1
+    expanded = bitvec.lowered(writes[0][1])
     assert expanded is (bitvec.fnan(R(2)) | bitvec.fnan(R(3))) | bitvec.flt(R(3), R(2))
     assert floating.float_test("GTU", const(0x7fc00000, 32), const(0, 32)).op == "setp.gtu.f32"
     assert bitvec.lowered(floating.float_test("GTU", const(0x7fc00000, 32), const(0, 32))) is const(1, 1)
@@ -263,7 +329,7 @@ def test_f64_nan_sources():
 
 def test_readable_names():
     sem = lifter.lift("SM89", assemble_instruction("SM89", "FMNMX R0, R2, R3, PT"), fp="readable")
-    assert {n.op for _, v in sem.writes for n in defined(v)} == {"min.readable.f32"}
+    assert {n.op for _, v in pure_writes(sem) for n in defined(v)} == {"min.readable.f32"}
 
 
 def test_expansion_integer():
@@ -544,14 +610,14 @@ def test_lowered_is_the_eager_expansion():
 
 def test_show():
     sem = lifter.lift("SM89", assemble_instruction("SM89", "FADD.FTZ R0, R2, R3"))
-    writes = [(str(l), v) for l, v in sem.writes]
+    writes = [(str(l), v) for l, v in pure_writes(sem)]
     assert bitvec.show(writes) == "R0 := ftz(nanresult(fadd(ftz(R2), ftz(R3), 'RN'), 0x7fffffff))"
     described = bitvec.show(writes, describe=True).splitlines()
     assert described[1].startswith("# ftz: Flush to zero")
     expanded = bitvec.show(writes, expand=True).splitlines()
     assert "ftz(" not in expanded[0]   # once-used expansions inline, pointed at where they are
     assert {"╰ ftz(R2)", "╰ ftz(R3)", "╰ ftz(t0)"} <= {l.strip(" │") for l in expanded}
-    fmnmx = bitvec.show([(str(l), v) for l, v in lifter.lift("SM89", assemble_instruction("SM89", "FMNMX.FTZ R0, R2, R3, PT")).writes], expand=True).splitlines()
+    fmnmx = bitvec.show([(str(l), v) for l, v in pure_writes(lifter.lift("SM89", assemble_instruction("SM89", "FMNMX.FTZ R0, R2, R3, PT")))], expand=True).splitlines()
     assert fmnmx[0].startswith("t0 = R2 & ") and fmnmx[2].strip() == "╰ ftz(R2)"   # a shared tN's line points at its operator
 
 
@@ -563,8 +629,10 @@ def test_show_distinguishes_runtime_primitives(expand):
     assert bitvec.primitive_label("sass_prim_bar") == "primitive_bar"
     assert bitvec.show([(None, param("ballot", 32))]) == "ballot"
     sem = lifter.lift("SM89", assemble_instruction("SM89", "SHFL.BFLY PT, R5, R2, 0x1, 0x1f"))
-    text = bitvec.show(sem.writes, expand=expand)
-    assert all(name in text for name in ("primitive_lane()", "primitive_active()", "primitive_read_lane(R2,"))
+    operations = [statement.operation for statement in ordered.linearize(sem.body)
+                  if isinstance(statement, ordered.Special)]
+    assert operations == [ordered.BLOCK_WAIT_DEFERRED, ordered.LANE, ordered.ACTIVE, ordered.BARRIER_ELIGIBLE, ordered.CAPTURE,
+                          ordered.READ_LANE, ordered.RELEASE_SNAPSHOT]
 
 
 @definition("test.duplicate")

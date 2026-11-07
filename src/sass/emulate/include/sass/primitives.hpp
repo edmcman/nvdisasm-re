@@ -55,6 +55,7 @@ inline Status match(const Warp &w, uint32_t need, const Lanes x, Lanes out) {
 }
 
 enum Reduction { And, Or, Xor, Add, Umin, Umax, Smin, Smax };
+inline constexpr const char *REDUCTION_NAMES[] = {"and", "or", "xor", "add", "umin", "umax", "smin", "smax"};
 
 inline Status redux(Reduction op, const Warp &w, uint32_t need, const Lanes x, Lanes out) {
   if (!w.active) return fail("redux over no active lanes");
@@ -77,14 +78,23 @@ inline Status redux(Reduction op, const Warp &w, uint32_t need, const Lanes x, L
   return ok();
 }
 
-// MUFU.fn over F32 lanes (the 64H forms on a double's high word); only SIN/COS are modelled.
+// MUFU.fn over F32 lanes, F16 halves, or a double's high word.
 enum Mufu { Cos, Sin, Ex2, Lg2, Rcp, Rsq, Rcp64h, Rsq64h, Sqrt, Tanh };
 inline constexpr const char *MUFU_NAMES[] = {"COS", "SIN", "EX2", "LG2", "RCP", "RSQ", "RCP64H", "RSQ64H", "SQRT", "TANH"};
 
-inline Status mufu(Mufu fn, bool half, uint32_t need, const Lanes x, Lanes out) {
-  if (half || (fn != Sin && fn != Cos))
+inline Status mufu(Mufu fn, bool half, uint32_t need, const Lanes x, Lanes out, uint32_t format = 0) {
+  const bool reciprocal = fn == Rcp || fn == Rsq || fn == Rcp64h || fn == Rsq64h;
+  if ((half && (format != 0 || fn != Rcp && fn != Rsq)) || (!half && !reciprocal && fn != Sin && fn != Cos))
     return {nullptr, std::string("MUFU approximation is unresolved for ") + MUFU_NAMES[fn] + (half ? " (16-bit)" : "")};
-  each(need, [&](int l) { out[l] = mufu::sincos(uint32_t(x[l]), fn == Cos); });
+  each(need, [&](int l) {
+    switch (fn) {
+      case Rcp: case Rsq:
+        out[l] = half ? mufu::reciprocal<16>(x[l], fn == Rsq) : mufu::reciprocal<32>(x[l], fn == Rsq);
+        break;
+      case Rcp64h: case Rsq64h: out[l] = mufu::reciprocal<64>(x[l] << 32, fn == Rsq64h) >> 32; break;
+      default: out[l] = mufu::sincos(uint32_t(x[l]), fn == Cos);
+    }
+  });
   return ok();
 }
 
@@ -103,7 +113,8 @@ inline Status address_space(const Warp &w, uint32_t need, const Lanes address, L
 }
 
 // Bit 59 marks a range-form L2 policy; some of those trap on SM89 and which ones is unknown.
-inline Status memory_descriptor(uint64_t descriptor) {
+inline Status memory_descriptor(uint64_t descriptor, bool packed_async = false) {
+  if (packed_async && !descriptor) return {nullptr, "zero packed async descriptor"};
   if (!(descriptor >> 59 & 1)) return ok();
   char text[64];
   std::snprintf(text, sizeof text, "range-form memory descriptor %#llx", (unsigned long long)descriptor);

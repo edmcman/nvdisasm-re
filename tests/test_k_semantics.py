@@ -7,8 +7,7 @@ import pytest
 from sass.assemble import encoding
 from sass.formal import k
 from sass.formal.k import tools
-from sass.semantics import bitvec, evaluate, lifter
-from sass.semantics.family import Flow, Store, Effect
+from sass.semantics import bitvec, evaluate, lifter, ordered
 from tests.harness import lifted, select
 
 pytestmark = pytest.mark.k
@@ -20,9 +19,14 @@ def require_k():
     if not tools.available(): pytest.fail("K is required: see docs/semantics.md, K backend")
 
 
-def sem(**kwargs):
-    return lifter.Semantics("SM89", "IR", "IR", BASE, "native",
-                           flow=kwargs.pop("flow", Flow("return", bitvec.const(0, 64))), **kwargs)
+def sem(body=None, *, writes=(), transfer="return"):
+    if body is None:
+        builder = ordered.Builder()
+        builder.assign_from_inputs((location.args, value) for location, value in writes)
+        body = builder.block()
+    if transfer is not None:
+        body = ordered.Block((*body.statements, ordered.Transfer(transfer, bitvec.const(0, 64))))
+    return lifter.Semantics("SM89", "IR", "IR", BASE, "native", body=body)
 
 
 def run_one(instruction, state=None, **kwargs):
@@ -31,20 +35,15 @@ def run_one(instruction, state=None, **kwargs):
 
 def run_expressions(expressions, params=None):
     """Compare actual numeric results, without testing equality inside the K model."""
-    writes, observations = [], []
-    for index, expr in enumerate(expressions):
-        count = (expr.w + 31) // 32
-        file, location = ("P", bitvec.reg("P", index, 1, element=1)) if expr.w == 1 else (
-            "R", bitvec.reg("R", index * 8, count))
-        value = expr if location.w == expr.w else bitvec.zext(expr, location.w)
-        writes.append((location, value))
+    builder, observations = ordered.Builder(), []
+    for expr in expressions:
+        result = builder.move(expr)
         expected = evaluate.evaluate(expr, evaluate.State(), params)
-        observations.append((expr, file, location.args[1], count, expected))
-    result = run_one(sem(writes=writes), params=params)
+        observations.append((expr, ordered.temp_index(result), expected))
+    result = run_one(sem(builder.block()), params=params)
     assert result["status"] == "halted"
-    for expr, file, index, count, expected in observations:
-        element = 1 if file == "P" else 32
-        actual = sum(result["regs"].get((file, index + j), 0) << (j * element) for j in range(count))
+    for expr, index, expected in observations:
+        actual = result["temporaries"][index]
         assert actual == expected, f"{expr.op}, width {expr.w}: {actual:#x} != {expected:#x}"
 
 
@@ -131,21 +130,28 @@ def test_aliasing_and_memory_snapshot():
     r0, r1 = bitvec.reg("R", 0, 1), bitvec.reg("R", 1, 1)
     state = evaluate.State(regs={("R", 0): 0x1234, ("R", 1): 0x5678})
     state.store("ram", 0x80, 32, 0xaabbccdd)
-    instruction = sem(
-        writes=[(r0, r1), (r1, r0), (r0, r0 + 1)],
-        stores=[Store("ram", bitvec.const(0x80, 64), r0),
-                Store("ram", bitvec.const(0x81, 64), bitvec.load("ram", bitvec.const(0x80, 64), 16))])
+    builder = ordered.Builder()
+    before = builder.read_register("R", 0)
+    memory = builder.read_memory("ram", bitvec.const(0x80, 64), 16)
+    builder.assign_from_inputs([(r0.args, r1), (r1.args, r0), (r0.args, r0 + 1)])
+    builder.emit(ordered.WriteMemory("ram", bitvec.const(0x80, 64), before))
+    builder.emit(ordered.WriteMemory("ram", bitvec.const(0x81, 64), memory))
+    instruction = sem(builder.block())
     expected = evaluate.execute(instruction, state)
     result = run_one(instruction, state)
     assert result["regs"] == expected.regs
+    assert result["regs"] == {("R", 0): 0x1235, ("R", 1): 0x1234}
     assert result["memory"] == {(space, address): value for space, memory in expected.memory.items()
                                 for address, value in memory.items()}
+    assert [result["memory"]["ram", address] for address in range(0x80, 0x84)] == [0x34, 0xdd, 0xcc, 0]
 
 
 def test_predicated_off_does_not_read_inputs():
-    instruction = sem(guard=bitvec.const(0, 1),
-                      writes=[(bitvec.reg("R", 0, 1), bitvec.param("missing", 32))],
-                      effects=[Effect("sass_prim_bar", (bitvec.const(1, 1),))])
+    arm = ordered.Builder()
+    arm.emit(ordered.WriteRegister(("R", 0, 1), bitvec.param("missing", 32)))
+    arm.special(ordered.BARRIER_ACKS["all"])
+    arm.emit(ordered.Transfer("return", bitvec.const(0, 64)))
+    instruction = sem(ordered.Block((ordered.If(bitvec.const(0, 1), arm.block()),)), transfer=None)
     result = run_one(instruction, evaluate.State(regs={("R", 0): 17}), limit=1)
     assert result["regs"] == {("R", 0): 17}
     assert result["events"] == []
@@ -154,17 +160,20 @@ def test_predicated_off_does_not_read_inputs():
 
 
 def test_explicit_contracts_and_shared_primitive():
-    value = bitvec.primitive("lane", 32)
-    instruction = sem(writes=[(bitvec.reg("R", 0, 1), value), (bitvec.reg("R", 1, 1), value)],
-                      effects=[Effect("sass_prim_bar", (bitvec.const(1, 1),))])
+    builder = ordered.Builder()
+    operation = ordered.BARRIER_ACKS["packed_wait"]
+    builder.special(operation, bitvec.const(0, 32), bitvec.const(32, 32))
+    value, = builder.special(ordered.LANE)
+    for index in (0, 1): builder.emit(ordered.WriteRegister(("R", index, 1), value))
+    instruction = sem(builder.block())
     instruction.status = "primitive"
     exported = k.export_instruction(instruction)
     sites = exported.instructions[0]["runtime_sites"]
-    node = next(s for s in sites if s["kind"] == "value")
+    assert [site["name"] for site in sites] == [operation.name, ordered.LANE.name]
     responses = [
-        dict(step=0, pc=BASE, id=-1, name="sass_prim_bar", arguments=[1], width=0, value=0,
+        dict(step=0, pc=BASE, id=0, name=operation.name, arguments=[0, 32], values=[],
              events='ListItem("BAR")', environment='("acknowledged" |-> 1)'),
-        dict(step=0, pc=BASE, id=node["id"], name="sass_prim_lane", arguments=[], width=32, value=7,
+        dict(step=0, pc=BASE, id=1, name=ordered.LANE.name, arguments=[], values=[7],
              before='("acknowledged" |-> 1)',
              environment='("acknowledged" |-> 1)'),
     ]
@@ -174,7 +183,7 @@ def test_explicit_contracts_and_shared_primitive():
     assert result["environment"] == {"acknowledged": 1}
     missing = tools.execute(k.input_term(exported))
     assert missing["status"] == "runtime response missing"
-    mismatch = tools.execute(k.input_term(exported, responses=[{**responses[0], "arguments": [0]}]))
+    mismatch = tools.execute(k.input_term(exported, responses=[{**responses[0], "arguments": [1, 32]}]))
     assert mismatch["status"] == "runtime response mismatch"
 
 
@@ -184,16 +193,20 @@ def test_program_branches_and_limits():
         encoding.encode("SM89", "bra_", sImm=16) +
         encoding.encode("SM89", "nop_") +
         encoding.encode("SM89", "exit_"))
-    result = tools.execute(k.input_term(k.export_program("SM89", code)))
+    exported = k.export_program("SM89", code)
+    responses = [dict(step=step, pc=BASE + offset, id=0,
+                      name=ordered.BLOCK_WAIT_DEFERRED.name, arguments=[], values=[])
+                 for step, offset in ((0, 0), (1, 32))]
+    result = tools.execute(k.input_term(exported, responses=responses))
     assert result["status"] == "halted"
     assert result["step"] == 2
-    loop = sem(flow=Flow("goto", bitvec.const(BASE, 64)))
+    loop = sem(ordered.Block((ordered.Transfer("goto", bitvec.const(BASE, 64)),)), transfer=None)
     result = run_one(loop, limit=3)
     assert result["status"] == "instruction limit"
     assert result["step"] == 3
     opaque = replace(sem(), status="opaque", reason="unmodelled modifier")
     assert run_one(opaque)["status"] == "unmodelled modifier"
-    assert run_one(sem(flow=None))["status"] == "PC outside program"
+    assert run_one(sem(transfer=None))["status"] == "PC outside program"
 
 
 def test_haskell_execution():
@@ -212,7 +225,10 @@ def test_generated_module(tmp_path):
                  "--backend", "haskell", "--output-definition", definition, "-I", k.DEFINITION.parent,
                  timeout=180)
     input = tmp_path / "input.sass"
-    input.write_text("run(exportedProgram(), .Map, .Map, .Map, .Map, .Map, 10)")
+    response = dict(step=0, pc=BASE, id=0, name=ordered.BLOCK_WAIT_DEFERRED.name,
+                    arguments=[], values=[])
+    input.write_text(k.input_term(exported, responses=[response], limit=10).replace(
+        exported.program, "exportedProgram()", 1))
     result = tools.invoke("krun", input, "--definition", definition, "--output", "json")
     assert '\\"halted\\"' in result.stdout
 
@@ -221,10 +237,11 @@ def test_document_example(tmp_path):
     from sass.formal.k import example, execution
     worked = example.make()
     for predicate, value, steps in ((0, 2, 4), (1, 0, 3)):
-        state, trace = worked.trace(predicate)
+        state, trace, responses = worked.run(predicate)
         assert state.pc == 0 and state.regs == {("R", 0): value, ("P", 0): predicate}
         assert len(trace) == steps
-        result = tools.execute(k.input_term(worked.exported, worked.initial(predicate), limit=example.LIMIT))
+        result = tools.execute(k.input_term(worked.exported, worked.initial(predicate),
+                                           responses=responses, limit=example.LIMIT))
         assert result["status"] == "halted" and result["pc"] == 0
         assert result["step"] == steps and result["regs"] == state.regs
         assert result["memory"] == {} and result["events"] == []
@@ -279,7 +296,9 @@ def test_shared_native_cases(shared_arch, request):
                 if "word" not in case.request or not lifted.applies(case): continue
                 try:
                     instruction = lifter.lift(shared_arch, bytes.fromhex(case.request["word"]), BASE, fp=mode)
-                    if instruction.status != "native" or instruction.effects: continue
+                    if instruction.status != "native" or \
+                            any(isinstance(statement, ordered.Special) for statement in ordered.linearize(instruction.body)):
+                        continue
                     state = lifted.state(shared_arch, case.request)
                     expected = evaluate.execute(instruction, state)
                 except (ValueError, evaluate.Unknown): continue

@@ -1,12 +1,45 @@
 # Open questions and roadmap
 
+- Remove size-driven SLEIGH sharing ([#120](https://github.com/edmcman/nvdisasm-re/issues/120),
+  2026-11-05) once every supported Ghidra release includes the upstream `.sla` loader fix
+  (GP-7358, `dea9863592465937a4714ac33112638f3af9c06c`). Restore constant specialization
+  and remove argument/result copies introduced solely to fit below 16 MiB. Keep reusable
+  pure numerical definitions and arithmetic improvements. Review the broader
+  [size compromises](sleigh.md), with numerical/dataflow checks, operation counts,
+  representative decompiler output and measured performance before retaining any sharing.
 - Consumer warp/MUFU APIs (#75 design decision, 2026-10-25): retain lane-scoped IR and
   the existing runtime primitives. A typed warp context and supported SIN/COS wrappers
   remain follow-up API work. Defer the returning ATOMS.POPC.INC form until it is found
   in real code; its SM89 result is a common old value, not old plus lane rank
   ([hardware finding](hardware-facts.md#memory)). A pre-instruction `read_init` snapshot
   primitive remains a possible extension if a supported instruction requires it.
-- Cooperative scheduling covers one interleaving: round-robin lockstep keeps warps in step, so `shared_exchange` likely passes even with BAR.SYNC as a no-op. Run cooperative kernels under adversarial schedules (warp-greedy until blocked, reverse, seeded random) and require identical results: that tests barrier enforcement and that fixture kernels are race-free. Timing proper matters only for racy code, fence-based ordering (memory model, not cycles) and scoreboards: the emulator completes instructions instantly, trusting control bits, and GPU fixtures keep the original controls on patched words, so a patched slot with longer or variable latency could read stale values on the GPU.
+- Cooperative scheduling (2026-11-03): round-robin, reverse and seeded warp orders now exercise
+  BSSY/BSYNC and block barrier generations in Python, native and Ghidra. Warp-greedy scheduling
+  remains a possible adversarial order. Timing proper matters for racy code, fence-based ordering
+  and scoreboards: instructions complete instantly in the emulator, and GPU patches retain
+  controls unless the experiment explicitly changes them.
+- Replay blockers (#117, 2026-11-04): 249 retained YOLO launches compare all 470 captured
+  memory regions exactly and 65 stop on unresolved instructions. Forty-eight passing launches
+  execute HMMA, LDSM, LDGSTS, LDGDEPBAR and DEPBAR. Remaining blockers are 59 launches
+  reaching MUFU.EX2, five reaching YIELD in a global-memory polling loop, and one reaching
+  a system-scope load. YIELD occurs before the now-supported CCTL.D.IVALL
+  in the polling loop; its scheduling obligations remain unresolved.
+  `research/additional-opcodes/yolo-replay.json` records actual memory comparisons and visited
+  instructions. Physical SFU coefficient-table formats, BF16/SIMD MUFU numerical behavior,
+  packed-register BAR ID/count, BREAK and BMOV remain unresolved. SM89 observations do not
+  establish SM90 numerical or synchronization behavior.
+- Additional opcode forms (#117, updated 2026-11-04): HMMA shapes/formats beyond dense
+  F16/BF16/E6M9/1688/16816 and TF32/1684/1688 with F32 accumulators, or F16/1688/16816 with F16 outputs;
+  legacy SM75 HMMA, sparse metadata and indexed registers;
+  packed/expanded LDSM; SAFEADD, newer floating atomic types/operations and
+  MMIO; BRX depth changes; CCTL operations beyond ordinary D-cache
+  prefetch/priority address forms and D.IVALL, ERRBAR and YIELD remain unfinished. B2R reads
+  all three modes; packed-register BAR producers and overlapping arrival
+  generations remain unresolved. MEMBAR's
+  async/MMIO obligations and a complete ordinary-instruction scoreboard model are unresolved.
+  `research/additional-opcodes/inventory-current.json` and the per-architecture plan-gap reports
+  distinguish implemented forms, references, and evidence. Discovery observations are retained
+  without assigning guessed regression expectations.
 - Native emulator (2026-10-23, `docs/emulation.md`). Next:
   - Speed: structure-of-arrays registers with SIMD across inputs, flat per-thread memory instead of
     hashed pages, a converged-warp fast path (run until a sync instead of a turn per instruction;
@@ -19,16 +52,15 @@
     effects, and `sass_memory_order`'s sem/sco decoded into (semantics, scope) per access; validate
     with MP/SB/LB/IRIW litmus kernels against the PTX model's allowed outcomes. Equivalence under it
     compares sets of outcomes (refinement), not one output per input.
-  - Atomics and fences raise in every engine until those families exist.
+  - Unsupported atomic types and MMIO/async fence forms still raise in every engine.
   - Launch-wide SC global memory is implemented (2026-11-03, #114), through one C++ scheduler
-    for every backend. Ghidra comparisons explicitly select block/thread scope.
-  - Adversarial schedules (seeded warp order, reverse, warp-greedy) in the shared scheduler, then
-    the C++ port.
+    for every backend, including Ghidra launch scope.
+  - Warp-greedy adversarial scheduling; reverse and seeded orders share the C++ scheduler.
   - A standalone libFuzzer harness linking both kernels of an equivalence pair.
 - Generic LD/ST (2026-10-15) model only the CTA's own shared window. On SM90+ the shared window may also hold distributed (cluster) shared memory, and ptxas builds the base from `SR_SWINHI` alone, so `SR_SWINSZ` and the rank layout there need hardware. Faults (window addresses beyond the allocation, unmapped global addresses) and 32-bit generic stores are not modelled. LD's 32-bit address sum and zero-extension were established on SM89 on 2026-10-25 (#79); SM90 hardware validation is pending.
 - LDG/LD `Pu` (2026-10-15; updated 2026-10-25): ordinary completed LDG now models Pu=0, confirmed again on SM89 with generated probes including Pu/Pnz aliases and a predicated-off instruction (which preserves it). What exceptional condition sets Pu=1 remains unknown; the earlier unmapped-address experiment trapped rather than returning a flag. LD's predicate result stays opaque. ptxas writes PT there on every path it was seen to take, so nothing it compiles uses `Pu`. Its only operand-driven encoders are in Mercury class 0xe6, whose creator is unknown (`research/ptxas/ptxas-finalizer-notes.md`, "LDG's Pu operand"). `Pnz` is modelled as zero-fill (`docs/hardware-facts.md`).
-- Memory descriptors (2026-10-15): which range-form descriptors (bit 59) trap is unknown, so the runtime rejects them all. Value neutrality and the format were established only on SM89. The SM90+ default descriptors (`c[0x0][0x208]`, `0x358`) are unknown, and the emulator leaves them 0. ATOM/RED/LDGSTS descriptor forms have no family.
-- Memory order inside one instruction (2026-10-16). `Outputs` computes every value, address and condition from the state before the instruction, then applies the register writes and then the stores in list order, so no load sees the same instruction's store. Instructions that would need that: a data write followed by an mbarrier read-modify-write (`STAS`, `REDAS`, `UTMALDG`), an overlapping `UBLKCP` (all reads first is memmove), and aliasing accesses of the dual-register (`Rd2`/`Rb2`) forms. If one is modelled, version memory rather than making `Outputs` an ordered statement list: `load(space, addr, w, after=k)` reads after the first `k` stores, and every existing load is `after=0`. Loads stay pure, so hash-consing, row merging, `narrow`/`specialize` and precompute stay sound, and register writes stay simultaneous; an ordered list would lose both and reorder every class's p-code.
+- Memory descriptors (2026-10-15; updated 2026-11-03): which range-form descriptors (bit 59) trap is unknown, so the runtime rejects them all. Value neutrality and the format were established only on SM89. The SM90+ default descriptors (`c[0x0][0x208]`, `0x358`) are unknown, and the emulator leaves them 0. ATOMG/LDGSTS descriptor forms now have families; ATOM/RED remain unresolved. Zero packed LDGSTS policy traps on SM89, independently of its zero-fill predicate.
+- Memory order inside one instruction (2026-10-16; updated 2026-11-06). The ordered IR now makes reads and writes explicit, so a later read can observe an earlier write without memory-state version variables. Captured inputs preserve simultaneous-assignment behavior where needed. Hardware behavior remains unresolved for data writes followed by mbarrier updates (`STAS`, `REDAS`, `UTMALDG`), overlapping `UBLKCP`, and aliasing accesses in unmodeled dual-register forms; the IR change supplies a representation, not their missing semantics.
 - Trace the `-plr` (`--print-life-ranges`) liveness code that consumes connectors (start at the "Cannot %s as flow analysis is disabled" check, Ghidra 0x10a327; `docs/nvdisasm-binary.md`).
 - Why nvdisasm prints some decodable instructions blank (GATHER, SCATTER, `__HIR*`, BPT.PAUSE, E6M9 immediates, SM75 HMMA .BF16/.TF32) and silently drops some modifier values (SM75 HMMA `altfmt=INVALID3`). Not a name table in the binary; never seen in real code.
 - Semantics roadmap, ordered by `src/sass/check/census.py` (`sass-census`; 2026-10-08; share = average fraction of all real-corpus instructions across SM75-SM120). After the control-flow fix: native 58-76% per arch, opaque 16-36%, primitive 6-8%. Done since: control flow, cheap uniform/alias coverage, PRMT/FSEL/FMNMX, fp64, packed fp16x2 and carry chains (see `docs/semantics.md`). Remaining:

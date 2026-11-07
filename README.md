@@ -31,8 +31,11 @@ The `sass` package installs from git like any other dependency; the wheel carrie
 descriptions, and needs no CUDA tools, Ghidra or GPU:
 
 ```sh
-uv add git+https://github.com/edmcman/nvdisasm-re   # or: pip install git+https://github.com/edmcman/nvdisasm-re
+uv add git+https://github.com/edmcman/nvdisasm-re --tag v0.1.0
 ```
+
+To install the current default branch instead, omit `--tag v0.1.0`.
+Release tags are published from `main` after the release PR merges and CI passes.
 
 It caches derived data (decode tables, `nvdisasm` results) in `$SASS_CACHE`, else `.cache/` in a
 checkout, else `$XDG_CACHE_HOME/sass` (`~/.cache/sass`). Lifting every instruction of a cubin
@@ -42,7 +45,7 @@ to semantics ([`examples/lift_cubin.py`](examples/lift_cubin.py)):
 import sys
 from pathlib import Path
 from sass.decode import cubin, pydecode
-from sass.semantics import lifter
+from sass.semantics import lifter, ordered
 
 data = Path(sys.argv[1]).read_bytes()
 arch = cubin.elf_arch(data)
@@ -53,9 +56,8 @@ for name, body in cubin.text_sections(data).items():
         try: sem = lifter.lift(arch, word, addr)
         except pydecode.NoMatch as e: print(f"  {addr:#06x} undecodable: {e}"); continue
         print(f"  {addr:#06x} {sem.text:40} {sem.status} {sem.reason}")
-        for loc, v in sem.writes: print(f"      {loc} <- {v}")
-        for s in sem.stores: print(f"      {s.space}[{s.address}] <- {s.value}")
-        if sem.flow: print(f"      flow {sem.flow.kind} -> {sem.flow.target}")
+        if sem.body is not None:
+            for statement in ordered.linearize(sem.body): print(f"      {statement}")
 ```
 
 On [`examples/assembler/write_value.sass`](examples/assembler/write_value.sass) (`sass-assemble` it to a cubin first):
@@ -63,12 +65,17 @@ On [`examples/assembler/write_value.sass`](examples/assembler/write_value.sass) 
 ```
 SM89 .text.write_value
   0x0000 MOV R1, c[0x0][0x28]                     native
-      R1 <- cbank[0x28:64]:32
+      ...
+      ReadMemory(target=q0, space='cbank', address=0x28:64)
+      Move(target=q1, value=q0)
+      WriteRegister(location=('R', 1, 1), value=q1)
   ...
   0x0050 STG.E [R2.64], R5                        native
-      ram[R2:R3] <- R5
+      ...
+      WriteMemory(space='ram', address=q2, value=q4)
   0x0060 EXIT                                     native
-      flow return -> 0x0:64
+      ...
+      Transfer(kind='return', target=0x0:64)
 ```
 
 `sem.status` is `native` when the instruction has modelled semantics and `opaque` otherwise

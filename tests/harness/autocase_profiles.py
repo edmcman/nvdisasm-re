@@ -119,15 +119,19 @@ SUPPLEMENTS = (
 
 
 def names(op, cls, form):
+    if op in ('B2R', 'MEMBAR', 'LDGSTS', 'LDGDEPBAR', 'DEPBAR', 'CCTL', 'ERRBAR', 'YIELD'): return ['effect_forms']
     from tests.harness import autocase_remaining
-    if op == 'MUFU' and not autocase_remaining.blocked_reason(op, cls, form): return ['mufu_sincos']
+    if op == 'ATOMG': return ['atomic_forms']
+    if op in ('HMMA', 'LDSM'): return ['matrix_forms']
+    if op == 'MUFU' and not autocase_remaining.blocked_reason(op, cls, form):
+        return ['mufu_sincos' if form.get('mufuop', form.get('op')) in ('SIN', 'COS') else 'mufu_reciprocal']
     if op in autocase_remaining.OPS: return ['remaining_forms']
     from tests.harness import autocase_extended, autocase_conversions, autocase_packed_fp, autocase_wide_fp
     if op in ('FHADD2','FHMUL2','FHFMA2'): return ['mixed_pair_forms']
     if op in ('LDC','LDCU','ULDC'): return ['constant_load_forms']
     if op in ('S2R','CS2R','S2UR'): return ['special_register_forms']
     if op == 'QSPC': return ['address_query_forms']
-    if op in ('BRA','CALL','RET','EXIT','NOP'): return ['control_flow_forms']
+    if op in ('BRA','BRX','CALL','RET','EXIT','NOP'): return ['control_flow_forms']
     if op == 'MOV64IUR': return ['move64']
     if op == 'I2I': return ['integer_narrowing']
     if op == 'UI2IP': return ['packed_conversion_forms']
@@ -568,6 +572,98 @@ PROFILES['remaining_forms'] = {
     'words': (0, 0x89abcdef, 0xffffffff),
     'wide_words': (0, 0xfedcba98765432100123456789abcdef, (1 << 128) - 1),
 }
+PROFILES['atomic_forms'] = dict(values=(
+    (0, 0, 1), (1, 1, 7), (1, 0, 9), (0xffffffff, 1, 0),
+    (0x80000000, 0x7fffffff, 0x12345678), (0x7fffffff, 0x80000000, 0),
+    (0xffffffffffffffff, 1, 0), (1 << 63, (1 << 63) - 1, 0),
+    (0xaaaaaaaa55555555, 0x55555555aaaaaaaa, 0x123456789abcdef0),
+    (3, 2, 7), (2, 2, 7), (0, 2, 7)))
+PROFILES['atomic_float_forms'] = {
+    "F32.FTZ.RN": tuple((a, b, 0) for a, b in (
+        (0, 0), (0x80000000, 0x80000000), (0, 0x80000000), (1, 1), (0x80000001, 0),
+        (0x007fffff, 0x00800000), (0x00800000, 0x80800001), (0x3f800000, 0x33800000),
+        (0x3f800001, 0x33800000), (0x7f7fffff, 0x7f7fffff),
+        (0x7f800000, 0xff800000), (0x7fc12345, 0x3f800000), (0x3f800000, 0xff812345),
+        (0x7fc12345, 0xffc54321))),
+    "F64.RN": tuple((a, b, 0) for a, b in (
+        (0, 0), (1 << 63, 1 << 63), (0, 1 << 63), (1, 1),
+        (0x0010000000000000, 0x8010000000000001), (0x3ff0000000000000, 0x3ca0000000000000),
+        (0x7fefffffffffffff, 0x7fefffffffffffff), (0x7ff0000000000000, 0xfff0000000000000),
+        (0x7ff8123456789abc, 0x3ff0000000000000), (0x3ff0000000000000, 0xfff0123456789abc),
+        (0x7ff0123456789abc, 0x3ff0000000000000), (0x7ff8123456789abc, 0xfff8fedcba987654),
+        (0x7ff0123456789abc, 0xfff8fedcba987654), (0x7ff8123456789abc, 0xfff0fedcba987654))),
+    "F16x2.RN": tuple((a, b, 0) for a, b in (
+        (0, 0), (0x80008000, 0x80008000), (0, 0x80008000), (0x00010001, 0x00010001),
+        (0x04000400, 0x84018401), (0x3c003c00, 0x10001000), (0x7bff7bff, 0x7bff7bff),
+        (0x7c007c00, 0xfc00fc00), (0x7e157e15, 0x3c003c00), (0x3c003c00, 0xfc15fc15)))}
+PROFILES['matrix_forms'] = dict(lanes=(0, 1, 2, 3, 4, 7, 8, 15, 16, 31))
+PROFILES['hmma_forms'] = dict(patterns=(
+    "ones", "coordinates", "identity", "accumulator", "small", "cancel", "cancel_even",
+    *(f"pair_{a}_{b}" for a, b in ((0, 1), (0, 2), (0, 4), (0, 8), (0, 15), (2, 3), (7, 8), (8, 9), (14, 15))),
+    *(f"cancel_pair_{j}" for j in range(1, 16)),
+    *(f"round_{a}_{parity}" for a in (0.5, 1, 1.5, 2.5, 3, 3.5) for parity in ("even", "odd")),
+    "nan_a", "nan_b", "nan_c", "infinity_cancel", "subnormal_c", "negative_zero",
+    "quarter_products", "negative_quarters", "unnormalized_product", "normalized_product",
+    "snan_a", "snan_b", "snan_c", "zero_times_inf", "positive_inf", "negative_inf",
+    "max_half", "min_half", "half_subnormals",
+    *(f"random_{seed}" for seed in range(16))))
+PROFILES['hmma_f16_output_forms'] = dict(patterns=PROFILES['hmma_forms']['patterns'] + (
+    *(f"half_boundary_{tail}_{sign}_{parity}" for tail in (-24, -25, -26, -27, -35, -45, -48)
+      for sign in (1, -1) for parity in ("even", "odd")),
+    *(f"raw_{a:04x}_{b:04x}_{c:04x}" for a, b, c in (
+        (0, 0, 0x8000), (0x8001, 1, 0), (0x03ff, 0x3c00, 0),
+        (0x0400, 0x1000, 0), (0, 0, 1), (0, 0, 0x8001),
+        (0, 0, 0x7c01),
+        (0x7bff, 0x3c00, 0), (0x7bff, 0x3c00, 0x7bff),
+        (0x7c00, 0xfc00, 0), (0x7c00, 0, 0)))))
+PROFILES['hmma_bf16_forms'] = dict(patterns=(
+    "ones", "coordinates", "identity", "accumulator", "small", "cancel", "cancel_even",
+    "nan_a", "nan_b", "nan_c", "snan_a", "snan_b", "snan_c", "negative_zero",
+    "zero_times_inf", "positive_inf", "negative_inf", "half_subnormals",
+    "quarter_products", "negative_quarters", "unnormalized_product", "normalized_product",
+    *(f"random_{n}" for n in range(16)), *(f"tiny_precision_{q}" for q in range(1, 9))) + tuple(
+    f"raw_{a:04x}_{b:04x}_{c:08x}" for a, b, c in (
+        (0x7f80, 0, 0), (0xff80, 0x3f80, 0),
+        (0xffff, 0x3f80, 0), (0x0001, 0x3f80, 0),
+        (0x007f, 0x3f80, 0), (0x0080, 0x0080, 0), (0x7f7f, 0x4000, 0),
+        (0x8001, 0x3f80, 0), (0, 0, 1), (0, 0, 0x80000001),
+        (0, 0, 0x80000000), (0x3fc0, 0x3fc0, 0x3f800000),
+        *((e << 7, e << 7, 0) for e in range(40, 65)))))
+
+PROFILES['hmma_e6m9_forms'] = dict(patterns=PROFILES['hmma_forms']['patterns'] + tuple(
+    f"raw_{a:04x}_{b:04x}_{c:08x}" for a, b, c in (
+        (0x0001, 0x3e00, 0), (0x01ff, 0x3e00, 0), (0x0200, 0x3e00, 0),
+        (0x7dff, 0x3e00, 0), (0x7e00, 0, 0),
+        (0xffff, 0x3e00, 0), (0x3e01, 0x3e01, 0), (0x8001, 0x3e00, 0),
+        (0, 0, 1), (0, 0, 0x80000001), (0, 0, 0x80000000))))
+
+PROFILES['hmma_tf32_forms'] = dict(patterns=(
+    "ones", "coordinates", "identity", "accumulator",
+    "tiny_join", "tiny_split", "overflow_cancel", "overflow_groups", "wide_cancel", "unnormalized",
+    *(f"tiny_precision_{q}" for q in range(1, 12)),
+    *(f"tiny_alignment_{e}" for e in range(-138, -119)),
+    *(f"tiny_power_{power}_{c:08x}" for power in range(-120, -161, -1) for c in (0, 1, 0x007fffff)),
+    *(f"basis_{k}" for k in range(8)),
+    *(f"pair_{a}_{b}" for a, b in ((0, 1), (0, 2), (0, 3), (0, 4), (0, 7), (2, 3), (3, 4), (6, 7))),
+    *(f"cancel_{k}" for k in range(1, 8)),
+    *(f"raw_{a:08x}_{b:08x}_{c:08x}" for a, b, c in (
+        (0, 0, 0x80000000), (0x80000000, 0x3f800000, 0x80000000),
+        (0x3f800001, 0x3f800000, 0), (0x3f801fff, 0x3f800000, 0),
+        (0x3f802000, 0x3f800000, 0), (0x3fc00000, 0x3fc00000, 0),
+        (0, 0, 1), (0, 0, 0x007fffff), (1, 0x3f800000, 0),
+        (0x00002000, 0x3f800000, 0), (0x007fffff, 0x3f800000, 0),
+        (0x00800000, 0x3f800000, 0), (0x00800000, 0x00800000, 0),
+        (0x3f800000, 0x33800000, 0x3f800000), (0x3f000000, 0x33800000, 0x3f800000),
+        (0x7f7fe000, 0x40000000, 0), (0x7f7fe000, 0x7f7fe000, 0),
+        (0x7f800000, 0x3f800000, 0), (0x7f800000, 0, 0),
+        (0x7f800001, 0x3f800000, 0), (0x7f802000, 0x3f800000, 0),
+        (0x7fffffff, 0x3f800000, 0), (0x3f800000, 0xff800001, 0),
+        (0, 0, 0xff800001), (0x7f800000, 0x3f800000, 0xff800000))),
+    *(f"random_{seed}" for seed in range(16))))
+PROFILES['effect_forms'] = dict(results=(0, 1, 16, 32, 64, 0x7ff, 0x800, 0x801,
+                                       0x80202001, 0x90202001, 0xa0202001, 0xb0202001, 0xffffffff),
+                              words=(0, 0x12345678, 0xfedcba98765432100123456789abcdef),
+                              descriptors=((6, 0x10000000), (12, 0x10000000), (6, 0), (12, 0)))
 PROFILES['integer_narrowing'] = dict(values=(
     0, 1, -1, 127, 128, -128, -129, 255, 256, 32767, 32768,
     -32768, -32769, 65535, 65536, 0x7fffffff, -0x80000000,
@@ -580,3 +676,15 @@ PROFILES['mufu_sincos'] = {'words': (
     0x3effffff, 0x3f000000, 0x3f000001, 0x3f400000, 0xbf800000,
     0x4a7fffff, 0x4a800000, 0x4a800001, 0x4b000000, 0x7f7fffff,
     0x7f800000, 0xff800000, 0x7fc00000, 0xff800001)}
+PROFILES['mufu_reciprocal'] = {'words': (
+    0, 0x80000000, 1, 0x807fffff, 0x00800000, 0x00800001,
+    0x3f7fffff, 0x3f800000, 0x3f800001, 0x40000000, 0xbf800001,
+    0x7e7fffff, 0x7e800000, 0x7e800001, 0x7f7fffff,
+    0x7f800000, 0xff800000, 0x7fc12345, 0xff800001),
+    'high_words': (0, 0x80000000, 1, 0x800fffff, 0x00100000, 0x00100001,
+                   0x3fefffff, 0x3ff00000, 0x3ff00001, 0x40000000, 0xbff00001,
+                   0x7fcfffff, 0x7fd00000, 0x7fd00001, 0x7fefffff,
+                   0x7ff00000, 0xfff00000, 0x7ff12345, 0xfff00001),
+    'halves': (0, 0x8000, 1, 0x8001, 0x100, 0x101, 0x3ff, 0x400, 0x401,
+               0x712, 0x713, 0x714, 0x3bff, 0x3c00, 0x3c01,
+               0x4000, 0xbc01, 0x7713, 0x7bff, 0x7c00, 0xfc00, 0x7e01, 0xfc01)}

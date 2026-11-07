@@ -1,0 +1,414 @@
+{
+ "arch": "SM89",
+ "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+ "observations": [
+  {
+   "id": "ldgsts__RR64U-d9a2d431c0b2ce1d",
+   "word": "ae7f08041000ffff4608120800c00f00",
+   "instruction": "LDGSTS.E [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-70e74df5d38aeaf1",
+   "word": "ae7f08041000ffff4608120800c00f00",
+   "instruction": "LDGSTS.E [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-44b5f898de71084e",
+   "word": "ae7f08041000ffff4608120c00c00f00",
+   "instruction": "LDGSTS.E [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-ecba32ac83bdbbb0",
+   "word": "ae7f08041000ffff4608120c00c00f00",
+   "instruction": "LDGSTS.E [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-891e928750239296",
+   "word": "ae7f08041000ffff4608160800c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-ab802d2d02997e60",
+   "word": "ae7f08041000ffff4608160800c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-3245a9433bc05609",
+   "word": "ae7f08041000ffff4608160c00c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-0836b0eed42672fb",
+   "word": "ae7f08041000ffff4608160c00c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-56d8e0814d095701",
+   "word": "ae7f08041000ffff460a120800c00f00",
+   "instruction": "LDGSTS.E.64 [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 8,
+     "hex": "0000000000000000"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-1da6dbe401acf0d6",
+   "word": "ae7f08041000ffff460a120800c00f00",
+   "instruction": "LDGSTS.E.64 [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 8,
+     "hex": "7856341200000000"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-a2c5ca0d6ffb463c",
+   "word": "ae7f08041000ffff460a120c00c00f00",
+   "instruction": "LDGSTS.E.64 [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 8,
+     "hex": "7856341200000000"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-41458f18901e7c7f",
+   "word": "ae7f08041000ffff460a120c00c00f00",
+   "instruction": "LDGSTS.E.64 [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 8,
+     "hex": "0000000000000000"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-a4026ec4b1b78cd1",
+   "word": "ae7f08041000ffff460a160800c00f00",
+   "instruction": "LDGSTS.E.64.ZFILL [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 8,
+     "hex": "0000000000000000"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-26eb6082b7a028ac",
+   "word": "ae7f08041000ffff460a160800c00f00",
+   "instruction": "LDGSTS.E.64.ZFILL [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 8,
+     "hex": "7856341200000000"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-af08355fc771c339",
+   "word": "ae7f08041000ffff460a160c00c00f00",
+   "instruction": "LDGSTS.E.64.ZFILL [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 8,
+     "hex": "7856341200000000"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-81350891236f135a",
+   "word": "ae7f08041000ffff460a160c00c00f00",
+   "instruction": "LDGSTS.E.64.ZFILL [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 8,
+     "hex": "0000000000000000"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-95f08fa166a32213",
+   "word": "ae7f08041000ffff460c120800c00f00",
+   "instruction": "LDGSTS.E.128 [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 16,
+     "hex": "00000000000000000000000000000000"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-008145ea3f558e56",
+   "word": "ae7f08041000ffff460c120800c00f00",
+   "instruction": "LDGSTS.E.128 [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 16,
+     "hex": "78563412000000000000000000000000"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-d0a09f16ab7276ad",
+   "word": "ae7f08041000ffff460c120c00c00f00",
+   "instruction": "LDGSTS.E.128 [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 16,
+     "hex": "78563412000000000000000000000000"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-c5097fbc1848c535",
+   "word": "ae7f08041000ffff460c120c00c00f00",
+   "instruction": "LDGSTS.E.128 [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 16,
+     "hex": "00000000000000000000000000000000"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-0597495f18acbae9",
+   "word": "ae7f08041000ffff460c160800c00f00",
+   "instruction": "LDGSTS.E.128.ZFILL [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 16,
+     "hex": "00000000000000000000000000000000"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-65a437618bc22aee",
+   "word": "ae7f08041000ffff460c160800c00f00",
+   "instruction": "LDGSTS.E.128.ZFILL [R8+-0x10], [R4.64+UR6+0x10], P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 16,
+     "hex": "78563412000000000000000000000000"
+    }
+   ],
+   "input_predicate": 1
+  },
+  {
+   "id": "ldgsts__RR64U-4dbe37db1f0de9ca",
+   "word": "ae7f08041000ffff460c160c00c00f00",
+   "instruction": "LDGSTS.E.128.ZFILL [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 16,
+     "hex": "78563412000000000000000000000000"
+    }
+   ],
+   "input_predicate": 0
+  },
+  {
+   "id": "ldgsts__RR64U-5e90e9dec3080063",
+   "word": "ae7f08041000ffff460c160c00c00f00",
+   "instruction": "LDGSTS.E.128.ZFILL [R8+-0x10], [R4.64+UR6+0x10], !P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 16,
+     "hex": "00000000000000000000000000000000"
+    }
+   ],
+   "input_predicate": 1
+  }
+ ]
+}

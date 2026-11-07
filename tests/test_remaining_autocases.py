@@ -31,7 +31,8 @@ def test_generic_access_requires_only_named_memory_effect(fp):
     assert {v for c in cases for n,v in c.expected.items() if n.startswith('R')}=={0,0xffffffef}
     for c in cases:
         assert '__native' not in c.expected
-        assert c.expected['__max_ops']==dict(count=128,userops=['sass_memory_order'],branches=True)
+        assert c.expected['__max_ops']==dict(count=129,
+            userops=['sass_ordered_block_barrier_wait_deferred','sass_memory_order'],branches=True)
 
 
 def test_explicit_branch_permission_keeps_effect_guard():
@@ -44,7 +45,7 @@ def test_explicit_branch_permission_keeps_effect_guard():
 
 
 def test_mufu_error_contract_does_not_claim_values():
-    cases=generated('SM89','mufu__RRR_RR',{'mufuop':'RCP'},'exact')
+    cases=generated('SM89','mufu__RRR_RR',{'mufuop':'EX2'},'exact')
     assert cases
     assert all(c.expected=={'error':'MUFU approximation'} for c in cases)
 
@@ -64,11 +65,22 @@ def test_mufu_error_checks_never_enter_value_coverage(monkeypatch):
     from tests import autocases
     monkeypatch.setattr(autocases,'emulator_cases',lambda *a,**kw: {})
     row=dict(cls='mufu__RRR_RR',opcode='MUFU',combinations=dict(
-        labels={'mufuop':['RCP']},decides=[],table=[['primitive']],free=1))
+        labels={'mufuop':['EX2']},decides=[],table=[['primitive']],free=1))
     plan,report=autocases.plan('SM89',[row])
     assert not plan['forms']
     assert report['counts']['blocked']==1
     assert any('numerical approximation oracle unavailable' in reason for reason in report['gaps'][0]['attempts'])
+
+
+@pytest.mark.parametrize('op', ['RCP', 'RSQ', 'RCP64H', 'RSQ64H'])
+def test_reciprocal_guard_preserves_independent_input(op):
+    from tests.harness import lifted
+    normal, guarded, sink, *_ = generated('SM89', 'mufu__RRR_RR', {'mufuop': op}, 'exact')
+    assert normal.request['registers']['R2'] == 0
+    assert guarded.request['registers']['R2'] == 0x13579bdf
+    assert normal.expected['R2'] == (0x7ff00000 if op.endswith('64H') else 0x7f800000)
+    assert sink.expected == {'R255': 0}
+    assert all(not lifted.run('SM89', 'exact', c)[1] for c in (normal, guarded, sink))
 
 
 def test_ordering_event_payload_is_checked_and_gpu_eligible():

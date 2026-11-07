@@ -5,7 +5,7 @@ from functools import cache
 from tests.harness.case import Cases
 from tests.harness import sampling
 
-FAMILIES = ("int_alu", "int_simd", "carry", "bmsk", "fp32", "fp32x2", "fp64", "fp16", "f2fp", "conversions", "predicates", "memory", "control", "threads", "mufu")
+FAMILIES = ("int_alu", "int_simd", "carry", "bmsk", "fp32", "fp32x2", "fp64", "fp16", "f2fp", "conversions", "predicates", "memory", "atomic", "matrix", "asynchronous", "control", "threads", "mufu")
 
 
 def module(family):
