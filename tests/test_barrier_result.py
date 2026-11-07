@@ -15,8 +15,8 @@ def test_barrier_read_profiles(arch, mode):
     library = machine.Fragments([(arch, bytes.fromhex(case.request["word"]), 0x1000) for case in cases])
     for index, case in enumerate(cases):
         assert not lifted.run(arch, "exact", case)[1]
-        found = library.execute(index, lifted.state(arch, case.request), case.request["context"])
-        assert lifted.observe(found, case.expected) == case.expected
+        execute = lambda arch, semantics, case, runtime: library.execute(index, lifted.state(arch, case.request), case.request["context"])
+        assert not lifted.run(arch, "exact", case, execute)[1], case.id
 
 
 @pytest.mark.parametrize("arch", ["SM89", "SM90"])

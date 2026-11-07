@@ -977,3 +977,8 @@ The all-language synchronization audit passes 2,152 shared cases. SM89
 control hardware validation passes nine tests and 153 shared cases, with
 193 emulator-only environment and synthetic-state cases. Full coverage and
 evidence regeneration leaves the committed artifacts unchanged.
+Native B2R profile checks use the shared evaluator comparison path, which
+excludes P-code requirements from native result checks; comparing observed
+registers with the complete expectation dictionary incorrectly treated
+operation-name metadata as register values. All thirty architecture/mode
+profile checks pass.
