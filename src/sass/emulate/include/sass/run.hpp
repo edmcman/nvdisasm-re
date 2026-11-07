@@ -6,6 +6,7 @@
 #include <map>
 #include <numeric>
 #include <random>
+#include <span>
 #include <type_traits>
 #include "sass/machine.hpp"
 #include "sass/ordered_runtime.hpp"
@@ -252,26 +253,33 @@ template<bool NativeRuntime = true, bool Callbacks = true, bool NativeResumption
     if (pc == UINT64_MAX)
       for (Lane *u : warp) if (u->live() && !(polled >> lane_id(*u) & 1)) pc = std::min(pc, u->t.pc);
     if (pc == UINT64_MAX) return Done;
-    std::vector<Lane *> active, taking;
-    for (Lane *u : warp) if (u->live() && u->t.pc == pc && !(polled >> lane_id(*u) & 1)) active.push_back(u);
+    std::array<Lane *, 32> storage;
+    size_t count = 0;
+    for (Lane *u : warp) if (u->live() && u->t.pc == pc && !(polled >> lane_id(*u) & 1)) storage[count++] = u;
+    const std::span<Lane *> active(storage.data(), count);
     uint64_t i; uint32_t o;
     if (!fetch(pc, active[0]->index, i, o)) return o;
     if constexpr (Resumption) moved = std::any_of(active.begin(), active.end(), [](Lane *u) { return !u->suspended; });
     else moved = true;
     const Info &info = p.info[i];
+    Lane *first_taken = nullptr;
+    uint32_t taking = 0;
     for (Lane *u : active) {
       bool taken;
       if constexpr (Resumption) taken = u->suspended ? u->taken : !info.guard.kind || (read(u->t, info.guard) ^ info.guard_not);
       else taken = !info.guard.kind || (read(u->t, info.guard) ^ info.guard_not);
-      if (taken) taking.push_back(u);
+      if (taken) {
+        if (!first_taken) first_taken = u;
+        if (info.collective) taking |= 1u << lane_id(*u);
+      }
     }
-    if (l.scope >= info.unsupported_scope && info.unsupported && !taking.empty())
-      return stop(Faulted, taking.front()->index, pc, info.unsupported);
+    if (l.scope >= info.unsupported_scope && info.unsupported && first_taken)
+      return stop(Faulted, first_taken->index, pc, info.unsupported);
     WarpContext w{};
     w.coordination = &coordination;
     if (info.collective) {
       w.present = 1, w.has_waiting = 1;
-      for (Lane *u : taking) w.active |= 1u << lane_id(*u);
+      w.active = taking;
       for (Lane *u : warp)
         if (u->live() && std::find(active.begin(), active.end(), u) == active.end()) w.waiting |= 1u << lane_id(*u);
     }
@@ -324,9 +332,7 @@ template<bool NativeRuntime = true, bool Callbacks = true, bool NativeResumption
       for (size_t j : order(n)) {
         auto &b = blocks[j];
         group = b.lanes.front().index;
-        std::vector<Lane *> live;
-        for (auto &u : b.lanes) if (u.live()) live.push_back(&u);
-        if (live.empty()) continue;
+        if (std::none_of(b.lanes.begin(), b.lanes.end(), [](const Lane &u) { return u.live(); })) continue;
         alive = true;
         for (size_t index : order(b.warps.size())) {
           bool moved;

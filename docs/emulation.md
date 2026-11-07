@@ -853,3 +853,157 @@ including fixture construction and native comparisons. An earlier invocation
 accidentally omitted the default `native_full` exclusion and was interrupted
 during optional exhaustive enumeration; it is not the final suite result.
 The final result is in `.cache/ordered-gate/final-python-sm89-standard.log`.
+
+## Cooperative scheduler profiling (2026-11-07)
+
+An isolated worktree on `perf/cooperative-exec` compares against an immutable
+snapshot of `67b05ca`. This is an incremental comparison against the ordered
+runtime, distinct from the original-source migration comparisons above.
+The inputs are the same fifteen cooperative fixtures used there, the aliased
+SHFL kernel, and a non-suspending integer kernel that stores its results.
+Warm timings use SM89 exact mode. All seventeen complete responses also agree
+across native, reference and Ghidra execution. Validation separately covers
+SM89/SM90, both FP modes and all three schedules.
+
+Each worker has a separate runtime cache. Measurements run sequentially under
+`nice`, pinned to CPU 8, with thirteen alternating baseline/candidate batches.
+Batch sizes target 80 ms, bounded to 1–1,000 calls, after an untimed warmup.
+A second run reverses process startup and batch order. Wall and process CPU
+time are recorded; process CPU includes JVM threads and setup subprocesses.
+Ghidra requests call the session handler directly, bypassing result caching.
+Setup records separate imports/JVM startup, first requests, lifting, native
+library setup and compiler subprocesses. Instrumentation is removed before
+warm measurements. The four SM89/SM90 exact/readable languages are generated
+and compiled before loading them.
+
+`nice uvx py-spy` profiles identify native allocation in scheduler turns,
+Python instruction evaluation and lifting, and Ghidra decoding, execution and
+JPype callbacks. An eight-second JVM Flight Recorder tail contains 210 Java
+execution samples and 49 native-method samples, including instruction-prototype
+construction, p-code userops and reference-queue activity. Ghidra's native
+sampling had 637 errors over 4,352 collected samples, so it is diagnostic
+rather than a complete cycle attribution. The language build took about
+three minutes with two workers: stack inspection identified CPU-bound SLEIGH
+specialization/merging, followed by compilation; the generator is unchanged.
+
+The retained scheduler uses a stack array for up to 32 active lanes, a mask
+and first-lane pointer instead of a second lane vector, and an existence check
+instead of constructing a vector of live block lanes. Traversal order,
+predication, suspension/resumption, instruction issuance, retained objects,
+validation and failure reporting use the existing paths.
+
+The unchanged-source native control spans ratios 0.990–1.020. The candidate
+improves every native input in both process orders: median ratios 0.933 and
+0.915 (about 7% and 9% faster). Python median ratios are 0.993 and 0.987;
+these small changes do not establish a substantial Python gain. Ratios below
+are candidate/baseline process CPU time, first/reversed order. Absolute native
+values are the first run's warm wall-time medians.
+
+| Input | Native before / after (µs) | Native ratio | Python ratio | Ghidra ratio (one JVM) |
+|---|---:|---:|---:|---:|
+| bar_result_POPC_P0 | 105.3 / 98.2 | 0.933 / 0.900 | 0.985 / 0.984 | 0.940 / 0.803 |
+| async_128_False_True_False_False | 174.0 / 160.4 | 0.922 / 0.893 | 0.989 / 0.983 | 1.018 / 1.004 |
+| vote | 84.2 / 77.9 | 0.923 / 0.920 | 1.007 / 0.995 | 0.999 / 1.003 |
+| match | 93.4 / 82.5 | 0.884 / 0.871 | 0.989 / 0.985 | 0.997 / 0.996 |
+| redux | 91.5 / 81.8 | 0.894 / 0.881 | 0.977 / 0.986 | 1.003 / 1.004 |
+| hmma_f16_16816_alias_16 | 96.8 / 93.1 | 0.961 / 0.950 | 0.981 / 0.978 | 1.007 / 1.003 |
+| hmma_f16_1688_alias_16 | 85.8 / 83.2 | 0.969 / 0.960 | 0.986 / 0.983 | 0.449 / 0.669 |
+| hmma_tf32_1688_alias_16 | 89.6 / 86.2 | 0.962 / 0.965 | 0.986 / 0.987 | 0.997 / 0.994 |
+| nested | 162.4 / 146.6 | 0.903 / 0.914 | 0.989 / 0.998 | 1.007 / 1.002 |
+| exited | 97.8 / 90.7 | 0.927 / 0.903 | 0.998 / 0.993 | 0.995 / 0.998 |
+| predicated | 98.2 / 92.5 | 0.943 / 0.915 | 0.996 / 0.987 | 1.001 / 1.008 |
+| combined | 182.2 / 167.3 | 0.918 / 0.911 | 0.996 / 0.992 | 1.004 / 1.003 |
+| warp_sync_immediate | 73.3 / 68.9 | 0.939 / 0.924 | 0.998 / 0.984 | 0.996 / 1.004 |
+| warp_sync_register | 74.4 / 69.9 | 0.941 / 0.920 | 0.995 / 0.992 | 0.997 / 1.000 |
+| warp_sync_uniform | 73.8 / 69.8 | 0.946 / 0.924 | 0.994 / 0.993 | 0.994 / 1.012 |
+| aliased_shfl_round_robin | 85.7 / 77.4 | 0.903 / 0.900 | 0.996 / 0.989 | 0.991 / 0.995 |
+| ordinary_integer | 39.7 / 38.3 | 0.965 / 0.952 | 0.993 / 0.994 | 1.001 / 0.989 |
+
+Independent Ghidra processes were not stationary. The two orders measured
+nested convergence at ratios 1.211/0.431 and exited convergence at 1.033/3.101;
+TF32 measured 1.320/1.307. JVM compilation/collection counters expose some
+activity, but do not explain every change. Within an unchanged baseline's
+single-JVM F16 matrix samples, CPU time also shifted from about 0.19 to 0.97 s
+without a recorded Java collection or compilation. These are measurement
+limitations, not accepted speedups or new baselines.
+
+The one-JVM columns alternate the exact original and candidate callback
+libraries through the same handler, with a second JVM reversing library load
+and sample order. All complete responses agree. Median ratios are 0.997 and
+1.002, and no input is over 2% slower in either order. The apparent F16 matrix
+gains (ratios 0.449/0.669) overlap shifting execution-time phases; neither
+is credited as a reliable scheduler gain.
+Temporary thread-CPU timers on BAR, TF32, nested and exited convergence bound
+time outside callbacks to at most 0.43% of `sass_run`, including timer overhead.
+Thus the scheduler contributes little to Ghidra's total request cost;
+decoding, p-code execution, bridge calls and their allocation/collection remain.
+The timers observe identical callback counts for both libraries (1,215 BAR,
+574 TF32, 1,922 nested and 1,114 exited).
+
+Temporary counters on the unchanged native source count 1,039 removed vector
+growth allocations per nested-convergence call, 1,349 per combined call and
+186 per integer control call. The per-round ordering vectors remain (71, 91
+and 13 allocations respectively). Retained captures, tickets and frames use
+the existing ownership machinery. The final pinned native profile has 3,255
+samples and no sampling errors. Python launch/memory/output handling remains
+material natively; instruction evaluation and per-request lifting dominate
+the reference path. No runtime counters or timers are retained.
+
+Fresh-cache setup for the BAR fixture is separate from the warm table above.
+The first-request column includes its nested lifting/library setup columns;
+these columns must not be added together. Native/Python import setup is about
+0.14 s. Ghidra initialization includes JVM startup, language loading and Java
+helper compilation, before its first kernel request.
+
+| Engine | Initialization before / after (s) | First request before / after (s) | Lifting before / after (s) | Native library setup before / after (s) |
+|---|---:|---:|---:|---:|
+| Native | 0.136 / 0.135 | 7.339 / 7.348 | 4.330 / 4.330 | 2.583 / 2.595 |
+| Python | 0.137 / 0.134 | 7.513 / 7.466 | 4.688 / 4.628 | 2.335 / 2.348 |
+| Ghidra | 5.853 / 5.859 | 4.617 / 4.155 | — | 2.453 / 2.546 |
+
+JVM startup alone takes 2.702/2.882 s. Compiler subprocess time accounts for
+2.582/2.593 s natively, 2.333/2.346 s in Python and 2.452/2.544 s in Ghidra's
+native callback/runtime libraries. Ghidra decoding is included in request
+handling rather than Python lifting. The initial identical-source full native
+input setup took 49.7/51.4 s with separate cold caches. These single setup
+observations characterize costs, not a setup-performance improvement.
+
+Raw inputs, source hashes, samples, profiles, temporary instrumentation and
+scripts remain untracked in the worktree's `.cache/perf/`: `provenance.json`,
+`scheduler-{native,python,ghidra}.json`, `reverse-{native,python,ghidra}.json`,
+`ghidra-isolated-{0,1}.json`, `scheduler-counts.json`, `ghidra-exclusive.json`,
+`cold-setup.json` and `profile-*.raw`. The native gains are incremental; the
+larger original-source migration costs documented above remain separate.
+
+Cold validation exposed eight existing failures at two assertion sites, reproduced
+unchanged on `67b05ca` (eight failures, 24 skips in 36.8 s). The launch-geometry
+test expected `thread 18:` although the canonical diagnostic includes
+`thread 18 at 0x30:`; it now checks the complete error string. The native B2R
+profile test compared register values with p-code-only metadata added to its
+case contracts. It now projects expectations using the existing
+`lifted.PCODE_ONLY` policy; register expectations and shared p-code contracts
+are unchanged. The first broad cold run was interrupted for this diagnosis
+after 892 passes, eight failures and 24 skips in 559 s. Its long tail was
+serial compilation of the barrier-state fixture matrix, not an accepted
+execution-time regression. Logs are `baseline-failures.log` and
+`validation-initial-focused.log` under `.cache/perf/`.
+
+Final validation passes 3,132 pytest items: 1,108 native fixture checks in
+139.5 s, 907 focused checks in 76.9 s (24 skips, 18 deselections), and 1,117
+Ghidra checks in 348.7 s (93 deselections). The focused selection includes
+ordered runtime/definitions, frame suspension, object lifetimes, barriers,
+async operations, launch scope, partial warps, geometry, faults and aliases.
+The native/Ghidra fixture selections cover control, threads, asynchronous
+operations and matrix instructions on SM89/SM90 in both FP modes. Ghidra's
+largest phases were fixture emulation (157.5 s) and SM89/SM90 geometry
+(40.1/84.0 s); these validation costs are separate from the benchmark table.
+
+An additional 84 cases compare complete responses across all three engines:
+SM89/SM90 × exact/readable × round-robin/reverse/seeded × VOTE/MATCH/REDUX,
+SHFL and three aliased F16/TF32 matrix fixtures. All agree, with fixture
+outputs also checked against their independent references. The closing
+pinned baseline profile has 3,204 samples with no sampling errors. Final
+stage statuses/times are in `.cache/perf/validation.json`, with
+`validation-{native-fixtures,focused,ghidra,combinations}.log` and
+`combinations.json`. Shared cases, references, fixture inputs and generated
+semantics are unchanged; this run adds no hardware-verification claim.

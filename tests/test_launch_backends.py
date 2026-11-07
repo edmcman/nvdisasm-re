@@ -42,7 +42,7 @@ EXIT;
 """), "diagnostic"), (), [], 34, 17, dict(address=0x200000000),
                                   dict(synchronization=dict(warpsync=True)), scope="block")
     expected = reference.run_kernel(fault, arch)
-    assert "thread 18:" in expected["error"] and "omits the lane" in expected["error"]
+    assert expected["error"] == "kernel diagnostic thread 18 at 0x30: WARPSYNC mask omits the lane"
     assert run({arch: (arch, "exact", [fault])})[arch][0] == expected
 
 
