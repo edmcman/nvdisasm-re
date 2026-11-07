@@ -982,3 +982,35 @@ excludes P-code requirements from native result checks; comparing observed
 registers with the complete expectation dictionary incorrectly treated
 operation-name metadata as register values. All thirty architecture/mode
 profile checks pass.
+
+### Ghidra suspension retention (2026-11-07)
+
+PR #119's SM89 and SM90 Ghidra jobs reached the 60-minute limit while
+evaluating whole-kernel fixtures. Other architectures completed their Ghidra
+suites in 182–440 seconds. A cold SM89 reproduction with two workers and
+2 GiB Java heaps filled a heap during the matrix fixtures: the live-object
+histogram contained about six million p-code operations and 1,828 execution
+frames. CPU time went into garbage collection.
+
+JPype 1.5.2 constructs synthetic Java traceback frames when Ghidra's
+suspension exception crosses back into Python. Those frames retain the Python
+callers, including the lane adapter's captured Java frame and executor.
+Clearing exception tracebacks, collecting Python cycles and releasing runtime
+context references did not remove that retention.
+
+`BlockEmulator.advance` catches normal suspension inside Java and returns
+completion or suspension to the ordered executor. The existing Ghidra frame,
+temporaries and instruction position remain available for resumption; ordinary
+faults still propagate. The gate captures a weak reference to a suspended
+frame and requires its release after completion. That check fails with the
+original Python boundary and passes with the Java boundary in both FP modes.
+Two focused matrix kernels retain zero Python execution frames after collection,
+compared with 62 additional frames per kernel before the fix.
+
+The complete cold Ghidra-result SM89 fixture batch passes all 1,841 variants
+in 500.69 seconds with two workers and 2 GiB Java heaps. Native compilation
+caches were partly populated by the diagnostic runs; sampled process resident
+memory peaks at 1.66 GiB. Both FP-mode gates pass, including frame collection,
+and the SM90 matrix checks pass three tests. Focused ordered/cache Python
+validation passes 115 tests. These diagnose and verify the retention fix;
+they do not replace the existing suite timing baselines.

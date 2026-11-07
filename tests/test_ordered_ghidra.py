@@ -105,6 +105,7 @@ def test_ordered_ghidra_gate(tmp_path, fp):
     assert results["registers"][12][0] == 42 and results["ticket_released"]
     assert len(results["pcode"][11]) <= len(results["pcode"][7]) + 4
     assert not results["record_leaks"]
+    assert results["suspended_frames_released"]
     assert results["cooperative_snapshots"] == [[11, 10], [11, 10], [11, 10]]
     assert results["cooperative_synchronization"] == [
         {"schedule": schedule, "protocol": protocol,

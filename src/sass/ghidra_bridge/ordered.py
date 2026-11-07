@@ -1,3 +1,4 @@
+from functools import cache
 from sass.semantics import ordered
 
 
@@ -5,9 +6,16 @@ PREFIX = "sass_ordered_"
 RECORD = ordered.Opaque("result_record")
 
 
+@cache
+def advance():
+    from sass.ghidra_bridge import ghidra_decode
+    return ghidra_decode.java_class("BlockEmulator").advance
+
+
 class Execution:
     def __init__(self, thread, runtime):
         self.thread, self.runtime = thread, runtime
+        self.step_instruction = None
         self.pending = None
         self.output = None
         self.atomic = False
@@ -83,8 +91,10 @@ class Execution:
                     return ordered.Status.SUSPENDED
                 self.write(self.output, self.result(name, values))
                 self.pending = self.output = None
-            if self.thread.getFrame() is None: self.thread.stepPcodeOp()
-            self.thread.finishInstruction()
+            if self.step_instruction is None: self.step_instruction = advance()
+            if not self.step_instruction(self.thread):
+                if self.pending is None: raise RuntimeError("suspended p-code has no pending operation")
+                return ordered.Status.SUSPENDED
             self.status = ordered.Status.COMPLETE
             return ordered.Status.COMPLETE
         except Exception as error:

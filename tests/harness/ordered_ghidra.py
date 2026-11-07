@@ -24,9 +24,17 @@ def run(ldefs):
     library_field = jpype.JClass("ghidra.pcode.emu.DefaultPcodeThread").class_.getDeclaredField("library")
     library_field.setAccessible(True)
     output = dict(registers=[], memory=[], pcode=[], predicates=[], record_leaks=False,
+                  suspended_frames_released=True,
                   suspended_positions_retained=True, fault_atomic_released=False, ticket_released=False)
 
     def bytes_(value, size): return jpype.JArray(jpype.JByte)(value.to_bytes(size, "little"))
+
+    def step(execution):
+        status = execution.step()
+        if status.value == "suspended":
+            frame = execution.thread.getFrame()
+            assert frame is not None
+        return status
     def read(state, node): return int.from_bytes(bytes(state.getVar(node, reason)), "little")
 
     for mode in range(13):
@@ -68,21 +76,30 @@ def run(ldefs):
             name.removeprefix(ordered.PREFIX), ordered_gate.FAIL).suspends
         library, refs = userops.library(language, lambda name, args, size, dest: execution.call(name, args, dest), interrupts)
         library_field.set(thread, thread.getUseropLibrary().compose(library))
-        status = execution.step()
+        status = step(execution)
         if mode in (3, 4):
             assert status.value == "suspended", str(execution.error)
             frame = thread.getFrame()
+            from java.lang.ref import WeakReference
+            suspended_frame = WeakReference(frame)
             position = int(frame.index())
             assert int(thread.getCounter().getOffset()) == 0x1000
             initial = read(state, language.getRegister("R0"))
             assert counts == ["arrive", "wait"]
-            assert execution.step().value == "suspended"
+            assert step(execution).value == "suspended"
             output["suspended_positions_retained"] &= int(thread.getFrame().index()) == position
             assert read(state, language.getRegister("R0")) == initial
             ready.append(True)
-            status = execution.step()
+            status = step(execution)
+            frame = None
             assert counts == ["arrive", "wait"]
         assert status.value == ("fault" if mode == 5 else "complete"), (mode, str(execution.error))
+        if mode in (3, 4):
+            import gc
+            from java.lang import System
+            gc.collect()
+            System.gc()
+            output["suspended_frames_released"] &= suspended_frame.get() is None
         if mode != 5: assert int(thread.getCounter().getOffset()) == 0x1001
         else:
             output["fault_atomic_released"] = runtime.owner is None
