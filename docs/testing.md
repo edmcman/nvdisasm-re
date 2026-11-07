@@ -947,3 +947,24 @@ Unqualified discovery still covers twenty variants; the CI matrix and
 unchanged. The focused SM89 suite passes 128 tests with 173 architecture
 skips; default/subset discovery contracts and selected matrix execution pass
 separately. Fresh CI results must establish whether every job finishes.
+
+### Ordered semantics CI contracts (2026-11-07)
+
+PR #119's first ordered-IR CI run exposed stale generated plans and retained
+P-code expectations. Regenerating all ten architecture plans changes 1,036
+`native` classifications from false to true; the selected forms, profiles,
+settings and selection policy are identical.
+
+P-code checks for decoupled instructions require exactly one named deferred
+barrier wait, in addition to each instruction's declared effects. Cache
+operation bounds account for that wait even when the profile is generated
+without a native-only check. Retained FP64 cases use the same contract, and
+absent architecture forms have no contract before `Cases.add` skips them.
+The imported-program label harness registers the shared ordered runtime
+instead of executing against an empty user-operation library. Numerical
+expectations and comparison functions are unchanged.
+
+Focused contract regressions pass 16 tests. FP64 Ghidra validation passes
+390 tests and 66,425 shared cases across all twenty language variants in
+110 seconds. SM89 FP64 and cache hardware validation passes 29 tests and
+4,074 shared cases, with six emulator-only launch-constant cases.

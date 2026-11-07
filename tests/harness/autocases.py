@@ -209,7 +209,7 @@ def finish(c, native):
     native = native and not getattr(c, 'discovery', False)
     unique = {}
     for case in c:
-        if native:
+        if native or '__max_ops' in case.expected:
             guard = native_contract(c.arch, case.cls, case.expected.get('__max_ops'))
             case = case._replace(expected={**case.expected, **guard}, request={**case.request, 'inspect_pcode':True})
         identity = case.id

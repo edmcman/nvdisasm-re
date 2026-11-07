@@ -170,6 +170,21 @@ def test_generated_wait_contracts_preserve_named_effects_and_operation_bounds(cl
         assert Cases.request("00", {}, expected)["inspect_pcode"]
 
 
+@pytest.mark.parametrize("native", [False, True])
+def test_cache_effect_contract_includes_the_deferred_wait(native):
+    cases = autocases.generate("SM89", "cctl__IVALL_WBALL_D_U_noSrc", {"cache": "D", "cop": "IVALL"},
+                              profiles=["effect_forms"], native=native)
+    for case in cases:
+        assert case.expected["__max_ops"] == dict(count=5, branches=True,
+            userops=["sass_ordered_block_barrier_wait_deferred", "sass_cache_control"])
+
+
+def test_absent_forms_have_no_native_contract():
+    from tests.harness.case import native_contract
+    assert "dadd__RRC_RC" not in Cases("SM120").classes
+    assert native_contract("SM120", "dadd__RRC_RC") == {}
+
+
 def test_zero_special_pair_keeps_its_physical_overwrite_anchor():
     from tests.cases import control
     from tests.harness import device_cases

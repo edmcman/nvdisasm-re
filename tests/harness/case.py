@@ -40,7 +40,9 @@ def source(k, *names):
 
 def native_contract(arch, cls, limit=None):
     from sass.md import parse
-    deferred = "DECOUPLED" in parse.arch_classes(arch)[cls]["props"].get("INSTRUCTION_TYPE", "")
+    classes = parse.arch_classes(arch)
+    if cls not in classes: return {}
+    deferred = "DECOUPLED" in classes[cls]["props"].get("INSTRUCTION_TYPE", "")
     wait = "sass_ordered_block_barrier_wait_deferred"
     match limit:
         case dict() if deferred and wait not in limit["userops"]:
