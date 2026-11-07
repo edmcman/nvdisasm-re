@@ -31,8 +31,11 @@ The `sass` package installs from git like any other dependency; the wheel carrie
 descriptions, and needs no CUDA tools, Ghidra or GPU:
 
 ```sh
-uv add git+https://github.com/edmcman/nvdisasm-re   # or: pip install git+https://github.com/edmcman/nvdisasm-re
+uv add git+https://github.com/edmcman/nvdisasm-re --tag v0.1.0
 ```
+
+To install the current default branch instead, omit `--tag v0.1.0`.
+Release tags are published from `main` after the release PR merges and CI passes.
 
 It caches derived data (decode tables, `nvdisasm` results) in `$SASS_CACHE`, else `.cache/` in a
 checkout, else `$XDG_CACHE_HOME/sass` (`~/.cache/sass`). Lifting every instruction of a cubin
