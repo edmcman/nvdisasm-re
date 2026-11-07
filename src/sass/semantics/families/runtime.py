@@ -2,6 +2,7 @@
 from sass.semantics import ordered, primitive
 from sass.semantics.bitvec import concat, const, extract, ite, sext, sle, trunc, zext
 from sass.semantics.family import family, unmodelled
+from sass.semantics.primitive import supported_warp_sync
 from sass.semantics.families.integer import leading_zeros
 
 
@@ -195,10 +196,6 @@ def barrier(i):
     if mode != "ARV": body.special(ordered.BLOCK_DEFER if deferred else ordered.BLOCK_WAIT_READY, ticket)
     body.special(ordered.BLOCK_RELEASE, ticket)
     return body.block()
-
-
-def supported_warp_sync(k):
-    return k.name in ("warpsync__RIR", "warpsync__RRR", "warpsync__RUR")
 
 
 @family("WARPSYNC", classes=supported_warp_sync)

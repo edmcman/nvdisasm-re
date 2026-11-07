@@ -2,8 +2,7 @@
 import json
 from sass.decode import ir, pydecode
 from sass.emulate import schedule
-from sass.semantics.families import runtime
-import sass.semantics.families
+from sass.semantics import primitive
 
 FILE_IDS = {"R": 0, "UR": 1, "SR": 2, "P": 3, "UP": 4}
 
@@ -41,7 +40,7 @@ class Instruction:
             return 'unresolved packed-register barrier: ' + d.text
         if k.mnemonic in ('BREAK', 'BMOV'):
             return 'unsupported synchronization in cooperative scope: ' + d.text
-        if k.mnemonic == 'WARPSYNC' and not runtime.supported_warp_sync(k):
+        if k.mnemonic == 'WARPSYNC' and not primitive.supported_warp_sync(k):
             return 'unsupported warp synchronization in cooperative scope: ' + d.text
         if self.unsupported_scope(arch) == 2 and k.mnemonic not in ('ATOMG', 'MEMBAR'):
             return 'unsupported ordering in launch scope: ' + d.text

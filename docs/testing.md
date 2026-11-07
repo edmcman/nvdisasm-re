@@ -1014,3 +1014,14 @@ memory peaks at 1.66 GiB. Both FP-mode gates pass, including frame collection,
 and the SM90 matrix checks pass three tests. Focused ordered/cache Python
 validation passes 115 tests. These diagnose and verify the retention fix;
 they do not replace the existing suite timing baselines.
+
+The subsequent CI run completes the SM90 Ghidra suite in 22:06 and SM89 in
+33:09, including cold fixture and numerical results. Both pass their semantic
+checks; SM89's import audit catches scheduler metadata loading every semantics
+family to check supported WARPSYNC classes. The class predicate now lives in
+`semantics.primitive`, shared by the family and scheduler without importing
+generators into the Ghidra process. These cold runs cannot establish a regression
+against main's cached four-minute run.
+The corrected import audit, unsigned-address regressions and both suspension
+gates pass five Ghidra tests in 106.85 seconds; focused merger, launch and cache
+checks pass 135 Python/native tests.

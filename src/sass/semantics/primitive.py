@@ -74,6 +74,10 @@ def address_space(address):
 SYNCHRONIZATION = ("bar", "bssy", "bsync", "break", "warpsync", "bmov")
 
 
+def supported_warp_sync(k):
+    return k.name in ("warpsync__RIR", "warpsync__RRR", "warpsync__RUR")
+
+
 def synchronize(op, *args):
     """The synchronization event `op` (an effect the environment acknowledges), with its inputs."""
     if op not in SYNCHRONIZATION: raise ValueError(f"synchronization {op}")
