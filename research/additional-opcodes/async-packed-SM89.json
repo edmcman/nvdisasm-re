@@ -1,0 +1,678 @@
+{
+ "arch": "SM89",
+ "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+ "observations": [
+  {
+   "id": "ldgsts_memdesc_-ebd6525c9c81e5cc",
+   "word": "ae7d08041000ffff4618120800c00f00",
+   "instruction": "LDGSTS.E [R8+UR6+-0x10], [R4.64+0x10], P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR7": 0,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-d8afca54819d22ca",
+   "word": "ae7d08041000ffff4618120800c00f00",
+   "instruction": "LDGSTS.E [R8+UR6+-0x10], [R4.64+0x10], P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR7": 268435456,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-e113b6f0a22fce1f",
+   "word": "ae7d08041000ffff4c18120800c00f00",
+   "instruction": "LDGSTS.E [R8+UR12+-0x10], [R4.64+0x10], P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR13": 0,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-b61dd5a80febfc78",
+   "word": "ae7d08041000ffff4c18120800c00f00",
+   "instruction": "LDGSTS.E [R8+UR12+-0x10], [R4.64+0x10], P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR13": 268435456,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-4699b6f435d41cf2",
+   "word": "ae7d08041000ffff4618120800c00f00",
+   "instruction": "LDGSTS.E [R8+UR6+-0x10], [R4.64+0x10], P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR7": 0,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-dc3b251d6953f2b6",
+   "word": "ae7d08041000ffff4618120800c00f00",
+   "instruction": "LDGSTS.E [R8+UR6+-0x10], [R4.64+0x10], P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR7": 268435456,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-5dbea2ac64453eb3",
+   "word": "ae7d08041000ffff4c18120800c00f00",
+   "instruction": "LDGSTS.E [R8+UR12+-0x10], [R4.64+0x10], P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR13": 0,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-70e13b2a6c342bf9",
+   "word": "ae7d08041000ffff4c18120800c00f00",
+   "instruction": "LDGSTS.E [R8+UR12+-0x10], [R4.64+0x10], P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR13": 268435456,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-79a72138fc69004a",
+   "word": "ae7d08041000ffff4618120c00c00f00",
+   "instruction": "LDGSTS.E [R8+UR6+-0x10], [R4.64+0x10], !P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR7": 0,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-a0174864a56d3b69",
+   "word": "ae7d08041000ffff4618120c00c00f00",
+   "instruction": "LDGSTS.E [R8+UR6+-0x10], [R4.64+0x10], !P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR7": 268435456,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-6a67299df13055f3",
+   "word": "ae7d08041000ffff4c18120c00c00f00",
+   "instruction": "LDGSTS.E [R8+UR12+-0x10], [R4.64+0x10], !P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR13": 0,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-2e89e7afa46f7294",
+   "word": "ae7d08041000ffff4c18120c00c00f00",
+   "instruction": "LDGSTS.E [R8+UR12+-0x10], [R4.64+0x10], !P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR13": 268435456,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-8b91d05eb4e8c48f",
+   "word": "ae7d08041000ffff4618120c00c00f00",
+   "instruction": "LDGSTS.E [R8+UR6+-0x10], [R4.64+0x10], !P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR7": 0,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-3c9a58ae37c2b604",
+   "word": "ae7d08041000ffff4618120c00c00f00",
+   "instruction": "LDGSTS.E [R8+UR6+-0x10], [R4.64+0x10], !P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR7": 268435456,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-d449b7050b450a51",
+   "word": "ae7d08041000ffff4c18120c00c00f00",
+   "instruction": "LDGSTS.E [R8+UR12+-0x10], [R4.64+0x10], !P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR13": 0,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-ee78d170d97e85d7",
+   "word": "ae7d08041000ffff4c18120c00c00f00",
+   "instruction": "LDGSTS.E [R8+UR12+-0x10], [R4.64+0x10], !P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR13": 268435456,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-8fee84d7d0b25910",
+   "word": "ae7d08041000ffff4618160800c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR6+-0x10], [R4.64+0x10], P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR7": 0,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-1b705af8ade7d53d",
+   "word": "ae7d08041000ffff4618160800c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR6+-0x10], [R4.64+0x10], P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR7": 268435456,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-7fbd58df86210db7",
+   "word": "ae7d08041000ffff4c18160800c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR12+-0x10], [R4.64+0x10], P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR13": 0,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-db30f9256f69039c",
+   "word": "ae7d08041000ffff4c18160800c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR12+-0x10], [R4.64+0x10], P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR13": 268435456,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-173dc0bcb4b40d18",
+   "word": "ae7d08041000ffff4618160800c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR6+-0x10], [R4.64+0x10], P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR7": 0,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-50c90d9bace93f32",
+   "word": "ae7d08041000ffff4618160800c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR6+-0x10], [R4.64+0x10], P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR7": 268435456,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-4ce6ef3f2182656a",
+   "word": "ae7d08041000ffff4c18160800c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR12+-0x10], [R4.64+0x10], P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR13": 0,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-4ead4d054f9d03ed",
+   "word": "ae7d08041000ffff4c18160800c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR12+-0x10], [R4.64+0x10], P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR13": 268435456,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-1647092b4e4615d5",
+   "word": "ae7d08041000ffff4618160c00c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR6+-0x10], [R4.64+0x10], !P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR7": 0,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-3a480fb5210b5e99",
+   "word": "ae7d08041000ffff4618160c00c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR6+-0x10], [R4.64+0x10], !P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR7": 268435456,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-6e27e46b76b645da",
+   "word": "ae7d08041000ffff4c18160c00c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR12+-0x10], [R4.64+0x10], !P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR13": 0,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-1a132c62f4f0842e",
+   "word": "ae7d08041000ffff4c18160c00c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR12+-0x10], [R4.64+0x10], !P0",
+   "registers": {
+    "P0": 0
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "78563412"
+    }
+   ],
+   "input_predicate": 0,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 0,
+    "UR13": 268435456,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-efc37507b0eb22ab",
+   "word": "ae7d08041000ffff4618160c00c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR6+-0x10], [R4.64+0x10], !P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR7": 0,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-07b626e5f1b8ba91",
+   "word": "ae7d08041000ffff4618160c00c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR6+-0x10], [R4.64+0x10], !P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR7": 268435456,
+    "UR8": 0,
+    "UR6": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-fc01bbdd1067d951",
+   "word": "ae7d08041000ffff4c18160c00c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR12+-0x10], [R4.64+0x10], !P0",
+   "error": "Traceback (most recent call last):\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_runner.py\", line 15, in main\n    result = dict(results=device_cases.execute(driver, probes, binary=binary), device=driver.device,\n                          ~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/device_cases.py\", line 425, in execute\n    driver.call('cuCtxSynchronize')\n    ~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^\n  File \"/home/ed/Projects/nvdisasm-re/tests/harness/gpu.py\", line 123, in call\n    if rc := getattr(self.lib, name)(*args): raise RuntimeError(f\"{name}: CUDA status {rc}\")\n                                             ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: cuCtxSynchronize: CUDA status 715\n",
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR13": 0,
+    "UR14": 0,
+    "UR12": 0
+   }
+  },
+  {
+   "id": "ldgsts_memdesc_-47eda21ff6c35bca",
+   "word": "ae7d08041000ffff4c18160c00c00f00",
+   "instruction": "LDGSTS.E.ZFILL [R8+UR12+-0x10], [R4.64+0x10], !P0",
+   "registers": {
+    "P0": 1
+   },
+   "memory": [
+    {
+     "space": "shared",
+     "address": 256,
+     "size": 4,
+     "hex": "00000000"
+    }
+   ],
+   "input_predicate": 1,
+   "inputs": {
+    "R4": 256,
+    "R5": 0,
+    "R8": 272,
+    "P0": 1,
+    "UR13": 268435456,
+    "UR14": 0,
+    "UR12": 0
+   }
+  }
+ ]
+}

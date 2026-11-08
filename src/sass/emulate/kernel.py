@@ -14,7 +14,9 @@ class Seed(ctypes.Structure):
     _fields_ = [("file", ctypes.c_uint32), ("index", ctypes.c_uint32), ("value", ctypes.c_uint64)]
 
 
-Step = ctypes.CFUNCTYPE(ctypes.c_uint32, ctypes.c_uint64, ctypes.POINTER(machine.Thread), ctypes.POINTER(machine.WarpContext), ctypes.c_void_p, ctypes.c_size_t)
+STEP_COMPLETE, STEP_FAULT, STEP_SUSPENDED = range(3)
+Step = ctypes.CFUNCTYPE(ctypes.c_uint32, ctypes.c_uint64, ctypes.POINTER(machine.Thread),
+                       ctypes.POINTER(machine.WarpContext), ctypes.c_void_p, ctypes.c_size_t, ctypes.POINTER(ctypes.c_uint32))
 
 
 class Launch(ctypes.Structure):

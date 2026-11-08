@@ -1,0 +1,2714 @@
+{
+ "kind": "Discovery observations; no verification credit",
+ "probes": [
+  {
+   "file": "hmma-F16-16816-neg-Ra-Rb-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-84f4ea94c5538819",
+     "word": "3c722810180000802019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1098907648,
+      "R41": 1107296256,
+      "R42": 1125122048,
+      "R43": 1133510656
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-7495d7b737adbefe",
+     "word": "3c722810180000802019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1111490560,
+      "R41": 1115684864,
+      "R42": 1138229248,
+      "R43": 1141899264
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-c0fdeea8cd98e8c6",
+     "word": "3c722810180000802019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1117782016,
+      "R41": 1119879168,
+      "R42": 1144258560,
+      "R43": 1146617856
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-495fb29ad719a79c",
+     "word": "3c722810180000802019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1121976320,
+      "R41": 1124073472,
+      "R42": 1148977152,
+      "R43": 1150287872
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-316d84abcf41898d",
+     "word": "3c722810180000802019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1107296256,
+      "R41": 1115684864,
+      "R42": 1126170624,
+      "R43": 1134559232
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-866016458f65ee15",
+     "word": "3c722810180000802019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1130364928,
+      "R41": 1132462080,
+      "R42": 1150025728,
+      "R43": 1151336448
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-b163d754115fbb00",
+     "word": "3c722810180000802019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1111490560,
+      "R41": 1119879168,
+      "R42": 1127219200,
+      "R43": 1135607808
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-b332d7d9c4108a8f",
+     "word": "3c722810180000802019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1138753536,
+      "R41": 1140850688,
+      "R42": 1151860736,
+      "R43": 1153433600
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-174832e69800413c",
+     "word": "3c722810180000802019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1117782016,
+      "R41": 1126170624,
+      "R42": 1129316352,
+      "R43": 1137704960
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-1d3d97a739883819",
+     "word": "3c722810180000802019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1147142144,
+      "R41": 1149239296,
+      "R42": 1155530752,
+      "R43": 1157627904
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 31
+    }
+   ],
+   "source": "F16",
+   "size": "16816",
+   "predicate": null,
+   "inverted": false,
+   "negate": [
+    "Ra",
+    "Rb"
+   ]
+  },
+  {
+   "file": "hmma-F16-16816-neg-Ra-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-8a14cabee2c9b6b5",
+     "word": "3c722810180000002019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3246391296,
+      "R41": 3254779904,
+      "R42": 3272605696,
+      "R43": 3280994304
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-49375cf52db42117",
+     "word": "3c722810180000002019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3258974208,
+      "R41": 3263168512,
+      "R42": 3285712896,
+      "R43": 3289382912
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-1472dc234a566239",
+     "word": "3c722810180000002019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3265265664,
+      "R41": 3267362816,
+      "R42": 3291742208,
+      "R43": 3294101504
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-c719d164ed2963c6",
+     "word": "3c722810180000002019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3269459968,
+      "R41": 3271557120,
+      "R42": 3296460800,
+      "R43": 3297771520
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-f9bc3cdac43f5534",
+     "word": "3c722810180000002019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3254779904,
+      "R41": 3263168512,
+      "R42": 3273654272,
+      "R43": 3282042880
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-0a28de017a755b87",
+     "word": "3c722810180000002019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3277848576,
+      "R41": 3279945728,
+      "R42": 3297509376,
+      "R43": 3298820096
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-1588d63f13aa79ce",
+     "word": "3c722810180000002019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3258974208,
+      "R41": 3267362816,
+      "R42": 3274702848,
+      "R43": 3283091456
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-5c104a994e223086",
+     "word": "3c722810180000002019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3286237184,
+      "R41": 3288334336,
+      "R42": 3299344384,
+      "R43": 3300917248
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-88a5b072b3a2e68e",
+     "word": "3c722810180000002019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3265265664,
+      "R41": 3273654272,
+      "R42": 3276800000,
+      "R43": 3285188608
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-6d8c71d85116d3bc",
+     "word": "3c722810180000002019000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3294625792,
+      "R41": 3296722944,
+      "R42": 3303014400,
+      "R43": 3305111552
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 31
+    }
+   ],
+   "source": "F16",
+   "size": "16816",
+   "predicate": null,
+   "inverted": false,
+   "negate": [
+    "Ra"
+   ]
+  },
+  {
+   "file": "hmma-F16-16816-neg-Rb-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-b3ab86bc7f1f55c1",
+     "word": "3c722810180000802018000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3246391296,
+      "R41": 3254779904,
+      "R42": 3272605696,
+      "R43": 3280994304
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-f5318b33c3604e89",
+     "word": "3c722810180000802018000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3258974208,
+      "R41": 3263168512,
+      "R42": 3285712896,
+      "R43": 3289382912
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-20a00079c564fb50",
+     "word": "3c722810180000802018000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3265265664,
+      "R41": 3267362816,
+      "R42": 3291742208,
+      "R43": 3294101504
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-358392e4bfbd1f4e",
+     "word": "3c722810180000802018000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3269459968,
+      "R41": 3271557120,
+      "R42": 3296460800,
+      "R43": 3297771520
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-f39e17379827239e",
+     "word": "3c722810180000802018000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3254779904,
+      "R41": 3263168512,
+      "R42": 3273654272,
+      "R43": 3282042880
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-ffc866e76f89fcba",
+     "word": "3c722810180000802018000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3277848576,
+      "R41": 3279945728,
+      "R42": 3297509376,
+      "R43": 3298820096
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-c8e09b9bf651a8f1",
+     "word": "3c722810180000802018000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3258974208,
+      "R41": 3267362816,
+      "R42": 3274702848,
+      "R43": 3283091456
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-2246cf3f9f8fce53",
+     "word": "3c722810180000802018000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3286237184,
+      "R41": 3288334336,
+      "R42": 3299344384,
+      "R43": 3300917248
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-e7cdb154d9ae0357",
+     "word": "3c722810180000802018000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3265265664,
+      "R41": 3273654272,
+      "R42": 3276800000,
+      "R43": 3285188608
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-b16e7e6a8969b269",
+     "word": "3c722810180000802018000000c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3294625792,
+      "R41": 3296722944,
+      "R42": 3303014400,
+      "R43": 3305111552
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 31
+    }
+   ],
+   "source": "F16",
+   "size": "16816",
+   "predicate": null,
+   "inverted": false,
+   "negate": [
+    "Rb"
+   ]
+  },
+  {
+   "file": "hmma-F16-false-0-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-7b99c76819c4c2a7",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-24af4673a7108a29",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-f0d9693309294554",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-0bf2e4d46c96ccab",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-c481dd9afe0b913d",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-037e312bc54e2261",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-fc93f11691abe8a9",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-cc8c1ed0666e3834",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-6c0731c5c1dc0368",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-498a9abb96225e4b",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 31
+    },
+    {
+     "id": "hmma_x8_-3403884c287d5cdc",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1098907648,
+      "R41": 1098907648,
+      "R42": 1098907648,
+      "R43": 1098907648
+     },
+     "memory": [],
+     "pattern": "nan_c",
+     "lane": 0
+    }
+   ],
+   "source": "F16",
+   "size": "16816",
+   "predicate": "false",
+   "inverted": false
+  },
+  {
+   "file": "hmma-F16-false-1-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-80cb3da03d89e669",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1065353216,
+      "R41": 1073741824,
+      "R42": 1115815936,
+      "R43": 1115947008
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-6bf416095a1fd9a5",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1077936128,
+      "R41": 1082130432,
+      "R42": 1116078080,
+      "R43": 1116209152
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-844654fafb24f905",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1084227584,
+      "R41": 1086324736,
+      "R42": 1116340224,
+      "R43": 1116471296
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-16594a12de61e1a1",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1088421888,
+      "R41": 1090519040,
+      "R42": 1116602368,
+      "R43": 1116733440
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-992f5920f0cfdfec",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1091567616,
+      "R41": 1092616192,
+      "R42": 1116864512,
+      "R43": 1116995584
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-1a1c886231eade25",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1097859072,
+      "R41": 1098907648,
+      "R42": 1117650944,
+      "R43": 1117782016
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-d914b3cb089520df",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1099431936,
+      "R41": 1099956224,
+      "R42": 1117913088,
+      "R43": 1118044160
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-8c17db8d9e95cf8c",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1106771968,
+      "R41": 1107296256,
+      "R42": 1119748096,
+      "R43": 1119879168
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-f50e15d9f56ed9c2",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1107558400,
+      "R41": 1107820544,
+      "R42": 1120010240,
+      "R43": 1120141312
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-511a0b10177e3721",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1115422720,
+      "R41": 1115684864,
+      "R42": 1123942400,
+      "R43": 1124073472
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 31
+    },
+    {
+     "id": "hmma_x8_-073fd1f017ab200e",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 2147483647,
+      "R41": 2147483647,
+      "R42": 2147483647,
+      "R43": 2147483647
+     },
+     "memory": [],
+     "pattern": "nan_c",
+     "lane": 0
+    }
+   ],
+   "source": "F16",
+   "size": "16816",
+   "predicate": "false",
+   "inverted": true
+  },
+  {
+   "file": "hmma-F16-true-0-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-1c5f9abe9803b097",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1065353216,
+      "R41": 1073741824,
+      "R42": 1115815936,
+      "R43": 1115947008
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-05511b26239e3418",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1077936128,
+      "R41": 1082130432,
+      "R42": 1116078080,
+      "R43": 1116209152
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-e014abcfed8f3cc7",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1084227584,
+      "R41": 1086324736,
+      "R42": 1116340224,
+      "R43": 1116471296
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-d51acefed46d809c",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1088421888,
+      "R41": 1090519040,
+      "R42": 1116602368,
+      "R43": 1116733440
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-a20b570d2efcf662",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1091567616,
+      "R41": 1092616192,
+      "R42": 1116864512,
+      "R43": 1116995584
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-21bd965ebe79e516",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1097859072,
+      "R41": 1098907648,
+      "R42": 1117650944,
+      "R43": 1117782016
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-7d0cb06cae3cb0a4",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1099431936,
+      "R41": 1099956224,
+      "R42": 1117913088,
+      "R43": 1118044160
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-457200fcd271432f",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1106771968,
+      "R41": 1107296256,
+      "R42": 1119748096,
+      "R43": 1119879168
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-f3e6667e8643beba",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1107558400,
+      "R41": 1107820544,
+      "R42": 1120010240,
+      "R43": 1120141312
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-e681f039ad19f9da",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1115422720,
+      "R41": 1115684864,
+      "R42": 1123942400,
+      "R43": 1124073472
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 31
+    },
+    {
+     "id": "hmma_x8_-b75a206d211bbd76",
+     "word": "3c722810180000002018800300c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 2147483647,
+      "R41": 2147483647,
+      "R42": 2147483647,
+      "R43": 2147483647
+     },
+     "memory": [],
+     "pattern": "nan_c",
+     "lane": 0
+    }
+   ],
+   "source": "F16",
+   "size": "16816",
+   "predicate": "true",
+   "inverted": false
+  },
+  {
+   "file": "hmma-F16-true-1-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-e4d8482635724bed",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-03de7924a6d5f138",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-1379c8799854b046",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-173ab25ce5fa2237",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-ae459d6b81d68a5f",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-634142ba59caf9a2",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-85cde8b33aed7f91",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-7b5e57d2a6af4173",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-3faf7b3369238601",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-d5eb0bfd114d85a5",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 31
+    },
+    {
+     "id": "hmma_x8_-b13fb8880ee7905f",
+     "word": "3c722810180000002018800700c00f00",
+     "instruction": "HMMA.16816.F32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1098907648,
+      "R41": 1098907648,
+      "R42": 1098907648,
+      "R43": 1098907648
+     },
+     "memory": [],
+     "pattern": "nan_c",
+     "lane": 0
+    }
+   ],
+   "source": "F16",
+   "size": "16816",
+   "predicate": "true",
+   "inverted": true
+  },
+  {
+   "file": "hmma-TF32-1684-neg-Ra-Rb-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-b33c993c4603a853",
+     "word": "3c722810180000802051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1082130432,
+      "R41": 1090519040,
+      "R42": 1108344832,
+      "R43": 1116733440
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-30865e0ad01b31b9",
+     "word": "3c722810180000802051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1094713344,
+      "R41": 1098907648,
+      "R42": 1121452032,
+      "R43": 1125122048
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-937e82e76a3c5801",
+     "word": "3c722810180000802051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1101004800,
+      "R41": 1103101952,
+      "R42": 1127481344,
+      "R43": 1129840640
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-e104ccd797d84d97",
+     "word": "3c722810180000802051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1105199104,
+      "R41": 1107296256,
+      "R42": 1132199936,
+      "R43": 1133510656
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-37b02833d6c5dba1",
+     "word": "3c722810180000802051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1090519040,
+      "R41": 1098907648,
+      "R42": 1109393408,
+      "R43": 1117782016
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-6a5147e33dfd48a3",
+     "word": "3c722810180000802051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1113587712,
+      "R41": 1115684864,
+      "R42": 1133248512,
+      "R43": 1134559232
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-c1d827cab5b78eec",
+     "word": "3c722810180000802051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1094713344,
+      "R41": 1103101952,
+      "R42": 1110441984,
+      "R43": 1118830592
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-4efc202fce92e104",
+     "word": "3c722810180000802051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1121976320,
+      "R41": 1124073472,
+      "R42": 1135083520,
+      "R43": 1136656384
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-1a278cc7fa51f9a4",
+     "word": "3c722810180000802051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1101004800,
+      "R41": 1109393408,
+      "R42": 1112539136,
+      "R43": 1120927744
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-4faa6512a09ae55e",
+     "word": "3c722810180000802051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1130364928,
+      "R41": 1132462080,
+      "R42": 1138753536,
+      "R43": 1140850688
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 31
+    }
+   ],
+   "source": "TF32",
+   "size": "1684",
+   "predicate": null,
+   "inverted": false,
+   "negate": [
+    "Ra",
+    "Rb"
+   ]
+  },
+  {
+   "file": "hmma-TF32-1684-neg-Ra-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-f5e0ba17b62f2cd0",
+     "word": "3c722810180000002051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3229614080,
+      "R41": 3238002688,
+      "R42": 3255828480,
+      "R43": 3264217088
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-d6c276f474fa7a95",
+     "word": "3c722810180000002051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3242196992,
+      "R41": 3246391296,
+      "R42": 3268935680,
+      "R43": 3272605696
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-a5c67a0cfe261618",
+     "word": "3c722810180000002051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3248488448,
+      "R41": 3250585600,
+      "R42": 3274964992,
+      "R43": 3277324288
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-c558a7c06ffb5b90",
+     "word": "3c722810180000002051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3252682752,
+      "R41": 3254779904,
+      "R42": 3279683584,
+      "R43": 3280994304
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-3181613f20a6f770",
+     "word": "3c722810180000002051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3238002688,
+      "R41": 3246391296,
+      "R42": 3256877056,
+      "R43": 3265265664
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-c08ec9ffc1b7ffb9",
+     "word": "3c722810180000002051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3261071360,
+      "R41": 3263168512,
+      "R42": 3280732160,
+      "R43": 3282042880
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-f9360fe459dcf977",
+     "word": "3c722810180000002051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3242196992,
+      "R41": 3250585600,
+      "R42": 3257925632,
+      "R43": 3266314240
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-3dd274e067611c10",
+     "word": "3c722810180000002051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3269459968,
+      "R41": 3271557120,
+      "R42": 3282567168,
+      "R43": 3284140032
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-e76e7440927cee84",
+     "word": "3c722810180000002051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3248488448,
+      "R41": 3256877056,
+      "R42": 3260022784,
+      "R43": 3268411392
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-bf38977337a5bfee",
+     "word": "3c722810180000002051080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3277848576,
+      "R41": 3279945728,
+      "R42": 3286237184,
+      "R43": 3288334336
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 31
+    }
+   ],
+   "source": "TF32",
+   "size": "1684",
+   "predicate": null,
+   "inverted": false,
+   "negate": [
+    "Ra"
+   ]
+  },
+  {
+   "file": "hmma-TF32-1684-neg-Rb-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-60017c6e042da776",
+     "word": "3c722810180000802050080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3229614080,
+      "R41": 3238002688,
+      "R42": 3255828480,
+      "R43": 3264217088
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-9b131deaee60dc51",
+     "word": "3c722810180000802050080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3242196992,
+      "R41": 3246391296,
+      "R42": 3268935680,
+      "R43": 3272605696
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-90995f2f08790aac",
+     "word": "3c722810180000802050080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3248488448,
+      "R41": 3250585600,
+      "R42": 3274964992,
+      "R43": 3277324288
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-e05b136b6fe1f9f3",
+     "word": "3c722810180000802050080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3252682752,
+      "R41": 3254779904,
+      "R42": 3279683584,
+      "R43": 3280994304
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-b800eb04f923aafa",
+     "word": "3c722810180000802050080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3238002688,
+      "R41": 3246391296,
+      "R42": 3256877056,
+      "R43": 3265265664
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-aae2685cb664c894",
+     "word": "3c722810180000802050080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3261071360,
+      "R41": 3263168512,
+      "R42": 3280732160,
+      "R43": 3282042880
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-5061dbde47ea9905",
+     "word": "3c722810180000802050080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3242196992,
+      "R41": 3250585600,
+      "R42": 3257925632,
+      "R43": 3266314240
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-da9e3089f40bf7cc",
+     "word": "3c722810180000802050080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3269459968,
+      "R41": 3271557120,
+      "R42": 3282567168,
+      "R43": 3284140032
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-162a65d7ea57aba1",
+     "word": "3c722810180000802050080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3248488448,
+      "R41": 3256877056,
+      "R42": 3260022784,
+      "R43": 3268411392
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-786c4c9cf0d56d8b",
+     "word": "3c722810180000802050080000c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3277848576,
+      "R41": 3279945728,
+      "R42": 3286237184,
+      "R43": 3288334336
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 31
+    }
+   ],
+   "source": "TF32",
+   "size": "1684",
+   "predicate": null,
+   "inverted": false,
+   "negate": [
+    "Rb"
+   ]
+  },
+  {
+   "file": "hmma-TF32-1688-neg-Ra-Rb-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-786218aea38b0205",
+     "word": "3c722810180000802011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1090519040,
+      "R41": 1098907648,
+      "R42": 1116733440,
+      "R43": 1125122048
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-c37a4613c056cf50",
+     "word": "3c722810180000802011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1103101952,
+      "R41": 1107296256,
+      "R42": 1129840640,
+      "R43": 1133510656
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-4d3e5f3e5eb653ee",
+     "word": "3c722810180000802011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1109393408,
+      "R41": 1111490560,
+      "R42": 1135869952,
+      "R43": 1138229248
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-da3140393bdf6ee0",
+     "word": "3c722810180000802011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1113587712,
+      "R41": 1115684864,
+      "R42": 1140588544,
+      "R43": 1141899264
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-5c6b1c5a7275ccef",
+     "word": "3c722810180000802011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1098907648,
+      "R41": 1107296256,
+      "R42": 1117782016,
+      "R43": 1126170624
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-9814d268edfaf8f9",
+     "word": "3c722810180000802011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1121976320,
+      "R41": 1124073472,
+      "R42": 1141637120,
+      "R43": 1142947840
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-61c6e80787500d6e",
+     "word": "3c722810180000802011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1103101952,
+      "R41": 1111490560,
+      "R42": 1118830592,
+      "R43": 1127219200
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-55141c074dcd43d8",
+     "word": "3c722810180000802011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1130364928,
+      "R41": 1132462080,
+      "R42": 1143472128,
+      "R43": 1145044992
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-8686408bbf00a339",
+     "word": "3c722810180000802011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1109393408,
+      "R41": 1117782016,
+      "R42": 1120927744,
+      "R43": 1129316352
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-5331485958472154",
+     "word": "3c722810180000802011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, -R24, R32",
+     "registers": {
+      "R40": 1138753536,
+      "R41": 1140850688,
+      "R42": 1147142144,
+      "R43": 1149239296
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 31
+    }
+   ],
+   "source": "TF32",
+   "size": "1688",
+   "predicate": null,
+   "inverted": false,
+   "negate": [
+    "Ra",
+    "Rb"
+   ]
+  },
+  {
+   "file": "hmma-TF32-1688-neg-Ra-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-a4c323f90f0f9b56",
+     "word": "3c722810180000002011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3238002688,
+      "R41": 3246391296,
+      "R42": 3264217088,
+      "R43": 3272605696
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-1dffe090c8ad154e",
+     "word": "3c722810180000002011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3250585600,
+      "R41": 3254779904,
+      "R42": 3277324288,
+      "R43": 3280994304
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-c8d8d6e7093ec299",
+     "word": "3c722810180000002011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3256877056,
+      "R41": 3258974208,
+      "R42": 3283353600,
+      "R43": 3285712896
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-b8185e045f348a63",
+     "word": "3c722810180000002011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3261071360,
+      "R41": 3263168512,
+      "R42": 3288072192,
+      "R43": 3289382912
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-b3694e39b5bbf3a6",
+     "word": "3c722810180000002011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3246391296,
+      "R41": 3254779904,
+      "R42": 3265265664,
+      "R43": 3273654272
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-f119986d4b3ba857",
+     "word": "3c722810180000002011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3269459968,
+      "R41": 3271557120,
+      "R42": 3289120768,
+      "R43": 3290431488
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-ab4abb741c41ccc9",
+     "word": "3c722810180000002011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3250585600,
+      "R41": 3258974208,
+      "R42": 3266314240,
+      "R43": 3274702848
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-9cbae4f8e071b7e4",
+     "word": "3c722810180000002011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3277848576,
+      "R41": 3279945728,
+      "R42": 3290955776,
+      "R43": 3292528640
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-d7f7a48b9f1b6642",
+     "word": "3c722810180000002011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3256877056,
+      "R41": 3265265664,
+      "R42": 3268411392,
+      "R43": 3276800000
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-700f2258c93a48bc",
+     "word": "3c722810180000002011080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, -R16, R24, R32",
+     "registers": {
+      "R40": 3286237184,
+      "R41": 3288334336,
+      "R42": 3294625792,
+      "R43": 3296722944
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 31
+    }
+   ],
+   "source": "TF32",
+   "size": "1688",
+   "predicate": null,
+   "inverted": false,
+   "negate": [
+    "Ra"
+   ]
+  },
+  {
+   "file": "hmma-TF32-1688-neg-Rb-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-8b004c2f7423d72c",
+     "word": "3c722810180000802010080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3238002688,
+      "R41": 3246391296,
+      "R42": 3264217088,
+      "R43": 3272605696
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-0d7552dc4970ee02",
+     "word": "3c722810180000802010080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3250585600,
+      "R41": 3254779904,
+      "R42": 3277324288,
+      "R43": 3280994304
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-6b7add94aed6b82e",
+     "word": "3c722810180000802010080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3256877056,
+      "R41": 3258974208,
+      "R42": 3283353600,
+      "R43": 3285712896
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-df249062d531910f",
+     "word": "3c722810180000802010080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3261071360,
+      "R41": 3263168512,
+      "R42": 3288072192,
+      "R43": 3289382912
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-fcb16a0e05dadda2",
+     "word": "3c722810180000802010080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3246391296,
+      "R41": 3254779904,
+      "R42": 3265265664,
+      "R43": 3273654272
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-f12dec307a4336ac",
+     "word": "3c722810180000802010080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3269459968,
+      "R41": 3271557120,
+      "R42": 3289120768,
+      "R43": 3290431488
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-a3c068f0078197b4",
+     "word": "3c722810180000802010080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3250585600,
+      "R41": 3258974208,
+      "R42": 3266314240,
+      "R43": 3274702848
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-7f3366202a723c74",
+     "word": "3c722810180000802010080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3277848576,
+      "R41": 3279945728,
+      "R42": 3290955776,
+      "R43": 3292528640
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-990ef44a3287c56a",
+     "word": "3c722810180000802010080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3256877056,
+      "R41": 3265265664,
+      "R42": 3268411392,
+      "R43": 3276800000
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-f28666558db138b6",
+     "word": "3c722810180000802010080000c00f00",
+     "instruction": "HMMA.1688.F32.TF32 R40, R16, -R24, R32",
+     "registers": {
+      "R40": 3286237184,
+      "R41": 3288334336,
+      "R42": 3294625792,
+      "R43": 3296722944
+     },
+     "memory": [],
+     "pattern": "coordinates",
+     "lane": 31
+    }
+   ],
+   "source": "TF32",
+   "size": "1688",
+   "predicate": null,
+   "inverted": false,
+   "negate": [
+    "Rb"
+   ]
+  },
+  {
+   "file": "hmma-TF32-false-0-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-203e4dd555eea94b",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-b9e23bce9baca8a6",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-1cfc0b9347f01b2d",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-a8492fb42915357f",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-30dd988ab9c4ef76",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-fb73ae156284036c",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-b60f75e88130b329",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-3be1cea4023de231",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-954af41e78371fda",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-54c07394a1c21d1e",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 31
+    },
+    {
+     "id": "hmma_x8_-96f16389aa3ea460",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "raw_00000000_00000000_ff800001",
+     "lane": 0
+    }
+   ],
+   "source": "TF32",
+   "size": "1684",
+   "predicate": "false",
+   "inverted": false
+  },
+  {
+   "file": "hmma-TF32-false-1-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-2b471d40b57aaf5d",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1065353216,
+      "R41": 1073741824,
+      "R42": 1115815936,
+      "R43": 1115947008
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-b0aef3478a43b66e",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1077936128,
+      "R41": 1082130432,
+      "R42": 1116078080,
+      "R43": 1116209152
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-c860134d170b3c12",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1084227584,
+      "R41": 1086324736,
+      "R42": 1116340224,
+      "R43": 1116471296
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-b1c0911eac507de8",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1088421888,
+      "R41": 1090519040,
+      "R42": 1116602368,
+      "R43": 1116733440
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-4a4fae5006f79e78",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1091567616,
+      "R41": 1092616192,
+      "R42": 1116864512,
+      "R43": 1116995584
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-d5a4816c5f7b2cf4",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1097859072,
+      "R41": 1098907648,
+      "R42": 1117650944,
+      "R43": 1117782016
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-c902e9acfdea6029",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1099431936,
+      "R41": 1099956224,
+      "R42": 1117913088,
+      "R43": 1118044160
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-2d8a11bc81e21a89",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1106771968,
+      "R41": 1107296256,
+      "R42": 1119748096,
+      "R43": 1119879168
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-9d49c8e85ecb4395",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1107558400,
+      "R41": 1107820544,
+      "R42": 1120010240,
+      "R43": 1120141312
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-cac84f61ba07a117",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 1115422720,
+      "R41": 1115684864,
+      "R42": 1123942400,
+      "R43": 1124073472
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 31
+    },
+    {
+     "id": "hmma_x8_-7a3fff67bca69697",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 2147483647,
+      "R41": 2147483647,
+      "R42": 2147483647,
+      "R43": 2147483647
+     },
+     "memory": [],
+     "pattern": "raw_00000000_00000000_ff800001",
+     "lane": 0
+    }
+   ],
+   "source": "TF32",
+   "size": "1684",
+   "predicate": "false",
+   "inverted": true
+  },
+  {
+   "file": "hmma-TF32-true-0-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-56636f01b87759ae",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1065353216,
+      "R41": 1073741824,
+      "R42": 1115815936,
+      "R43": 1115947008
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-7a13857b3722cb3a",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1077936128,
+      "R41": 1082130432,
+      "R42": 1116078080,
+      "R43": 1116209152
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-0a35777f729e84cf",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1084227584,
+      "R41": 1086324736,
+      "R42": 1116340224,
+      "R43": 1116471296
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-daf9f54a39e64373",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1088421888,
+      "R41": 1090519040,
+      "R42": 1116602368,
+      "R43": 1116733440
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-c80c91175ba93471",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1091567616,
+      "R41": 1092616192,
+      "R42": 1116864512,
+      "R43": 1116995584
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-0b30fd41700c673b",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1097859072,
+      "R41": 1098907648,
+      "R42": 1117650944,
+      "R43": 1117782016
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-d6c886b4f467e94d",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1099431936,
+      "R41": 1099956224,
+      "R42": 1117913088,
+      "R43": 1118044160
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-360dd44b71348858",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1106771968,
+      "R41": 1107296256,
+      "R42": 1119748096,
+      "R43": 1119879168
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-aa1dd6041c283fc9",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1107558400,
+      "R41": 1107820544,
+      "R42": 1120010240,
+      "R43": 1120141312
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-d5692296d4ccaa0c",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 1115422720,
+      "R41": 1115684864,
+      "R42": 1123942400,
+      "R43": 1124073472
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 31
+    },
+    {
+     "id": "hmma_x8_-2ebfa83bfacd301e",
+     "word": "3c722810180000002050880300c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, UP0",
+     "registers": {
+      "R40": 2147483647,
+      "R41": 2147483647,
+      "R42": 2147483647,
+      "R43": 2147483647
+     },
+     "memory": [],
+     "pattern": "raw_00000000_00000000_ff800001",
+     "lane": 0
+    }
+   ],
+   "source": "TF32",
+   "size": "1684",
+   "predicate": "true",
+   "inverted": false
+  },
+  {
+   "file": "hmma-TF32-true-1-SM89.json",
+   "arch": "SM89",
+   "device": "NVIDIA GeForce RTX 4070 Laptop GPU, CUDA driver API 13.0",
+   "observations": [
+    {
+     "id": "hmma_x8_-95bf90bc7da9abc5",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 0
+    },
+    {
+     "id": "hmma_x8_-e830049e85764b1b",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 1
+    },
+    {
+     "id": "hmma_x8_-d48929cf55892780",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 2
+    },
+    {
+     "id": "hmma_x8_-2eccffcfe3bb79b6",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 3
+    },
+    {
+     "id": "hmma_x8_-b4d108df14a02cc2",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 4
+    },
+    {
+     "id": "hmma_x8_-ace48658829a3565",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 7
+    },
+    {
+     "id": "hmma_x8_-07910cb4c1588dc4",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 8
+    },
+    {
+     "id": "hmma_x8_-56550ff893a3eeec",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 15
+    },
+    {
+     "id": "hmma_x8_-f334ad2f1cc37be7",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 16
+    },
+    {
+     "id": "hmma_x8_-62543db513500c55",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "accumulator",
+     "lane": 31
+    },
+    {
+     "id": "hmma_x8_-08261aa030df0341",
+     "word": "3c722810180000002050880700c00f00",
+     "instruction": "HMMA.1684.F32.TF32 R40, R16, R24, R32, !UP0",
+     "registers": {
+      "R40": 0,
+      "R41": 0,
+      "R42": 0,
+      "R43": 0
+     },
+     "memory": [],
+     "pattern": "raw_00000000_00000000_ff800001",
+     "lane": 0
+    }
+   ],
+   "source": "TF32",
+   "size": "1684",
+   "predicate": "true",
+   "inverted": true
+  }
+ ]
+}

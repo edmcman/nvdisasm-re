@@ -222,6 +222,15 @@ def test_unresolved_forms_are_reported_without_generating(monkeypatch):
     assert any(g['reason'] == 'partial operand adapter unavailable' for g in report['gaps'])
 
 
+def test_partial_primitive_operand_adapter_preserves_unresolved_status(monkeypatch):
+    monkeypatch.setattr(tests.harness.autocases, 'generate', lambda *a, **kw: [])
+    row = dict(cls='hmma_x8_', opcode='HMMA', combinations=dict(
+        labels={}, decides=[], table=[['partially primitive']], free=1))
+    plan, report = tests.autocases.plan('SM89', [row])
+    assert len(plan['forms']) == 1 and not plan['forms'][0]['native']
+    assert report['counts']['unresolved_semantics'] == 1
+
+
 def test_simd_plan_uses_its_own_family(monkeypatch):
     monkeypatch.setattr(tests.autocases, 'emulator_cases', lambda *a, **kw: {})
     row = dict(cls='idp_4a__CXb', opcode='IDP', combinations=dict(

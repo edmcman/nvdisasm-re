@@ -5,7 +5,8 @@ range-form ones, and otherwise doesn't change the access (SM89 GPU). Dual regist
 predicate results outside ordinary LDG completion and non-IA address modes are unmodelled;
 a load's Pnz input zero-fills."""
 from sass.semantics.bitvec import concat, const, extract, ite, load, sext, trunc, zext
-from sass.semantics.family import effect, family, outputs, store, unmodelled
+from sass.semantics.family import effect, family, unmodelled
+from sass.semantics import ordered, primitive
 
 SPACES = {"LDG": "ram", "STG": "ram", "LDS": "shared", "STS": "shared", "LDL": "localmem", "STL": "localmem", "LDC": "cbank", "LDCU": "cbank",
           "LD": "generic", "ST": "generic"}
@@ -47,7 +48,11 @@ def descriptor(i):
     # SM89 reads the selected UR pair even when noexp_desc hides it in the
     # disassembly. A range descriptor can trap with either value of bit 101.
     if i.has_operand("e_desc"): i.ignore("e_desc")
-    return [effect("sass_memory_descriptor", i.value(i.resolve("Ra_URb|Ra_URc"), modifiers=False))]
+    descriptor = i.value(i.resolve("Ra_URb|Ra_URc|Ra_URd"), modifiers=False)
+    packed_async = i.opcode == "LDGSTS" and descriptor.w == 32
+    if descriptor.w == 32: descriptor = zext(descriptor, 64) << 32
+    return [effect("sass_memory_descriptor", descriptor, const(1, 1))] if packed_async else [
+        effect("sass_memory_descriptor", descriptor)]
 
 
 def address(i):
@@ -55,7 +60,7 @@ def address(i):
     sign-extended, UImm zero-extended)."""
     if i.has_operand("Rd2") or i.has_operand("Rb2"): unmodelled("dual registers")
     # .E and the one-label input_reg_sz_* selectors name Ra's width, which its span already gives.
-    for n in ("e", "input_reg_sz_32_dist", "input_reg_sz_64_dist", "input_reg_sz_32_bit75_dist", "input_reg_sz_64_bit75_dist"):
+    for n in ("e", *(n for n in i.k.operand_types if n.startswith("input_reg_sz_"))):
         if i.has_operand(n): i.select_fork(n)
     if i.has_operand("ad"): required(i, "ad", "IA")
     # sp2 (.LTC64B/.LTC128B/.LTC256B) is an L2 prefetch-size hint; it doesn't change the value.
@@ -71,12 +76,49 @@ def address(i):
     return base + (sext if i.atom(offset).type == "SImm" else zext)(i.imm(offset), 64)
 
 
+@family("CCTL", modifier_roles={"cop": "effect", "cache": "effect"})
+def cache_control(i):
+    """Record a data-cache request, completed immediately under SC."""
+    match i.cls:
+        case "cctl__IVALL_WBALL_D_U_noSrc":
+            required(i, "cop", "IVALL")
+            operation, location = const(4, 32), const(0, 64)
+        case "cctl__sImmOffset" | "cctl__sImmOffset_pf2":
+            operations = primitive.CACHE_OPERATIONS[:2] if i.arch.name == "SM75" else primitive.CACHE_OPERATIONS[:4]
+            if not i.select_in("cop", operations): unmodelled("cache operation unresolved")
+            operation = i.select_lookup_const("cop", {name: index for index, name in enumerate(operations)})
+            location = address(i)
+        case _: unmodelled("cache descriptor, predicate result or whole-cache operation")
+    required(i, "cache", "D")
+    body = i.body()
+    i.emit_effects(body, [effect("sass_cache_control", operation, location)])
+    return body.block()
+
+
 def windows(i, space, addr):
     """[(space, offset, inside)] for the windows a generic address is tried against, in order; then
     (space, address) of an access outside them all."""
     if space != "generic": return [], (space, addr)
     offsets = [(s, addr - concat(i.special_register(hi), i.special_register(lo)), size) for s, lo, hi, size in WINDOWS]
     return [(s, a, a < zext(i.special_register(size), 64)) for s, a, size in offsets], ("ram", addr)
+
+
+def write_windows(body, tried, fallback, value):
+    if not tried:
+        space, address = fallback
+        body.emit(ordered.WriteMemory(space, address, value))
+        return
+    (space, address, inside), *rest = tried
+    memo = {}
+    captured = body.move(body.capture(address, memo))
+    memo[address] = captured
+    condition = body.capture(inside, memo)
+    yes = ordered.Builder(body.count)
+    yes.emit(ordered.WriteMemory(space, captured, value))
+    no = ordered.Builder(yes.count)
+    write_windows(no, rest, fallback, value)
+    body.count = no.count
+    body.emit(ordered.If(condition, yes.block(), no.block()))
 
 
 @family("LDG", "STG", "LDS", "STS", "LDL", "STL", "LDC", "LDCU", "LD", "ST",
@@ -113,16 +155,18 @@ def memory(i):
         # SM89 ordinary completion clears Pu, including a zero-filled load.
         # Write it after Pnz so aliases retain the load's input but end cleared.
         if i.opcode == "LDG" and i.has_operand("Pu"): kept["Pu"] = const(0, 1)
-        return outputs(order=("Pu",), effects=effects, Rd=extended(loaded, i.width("Rd"), signed), **kept)
+        body = i.body()
+        i.emit_effects(body, effects)
+        return i.assign_from_inputs(body, order=("Pu",), Rd=extended(loaded, i.width("Rd"), signed), **kept)
     value = i.value("Rb", modifiers=False)
     if w > value.w: unmodelled("size")
     value = trunc(value, w) if value.w > w else value
-    tried, (s, a) = windows(i, space, addr)
-    stores, outside = [], None
-    for ws, wa, inside in tried:
-        stores.append(store(ws, wa, value, inside if outside is None else outside & inside))
-        outside = ~inside if outside is None else outside & ~inside
-    return outputs(effects=effects, stores=[*stores, store(s, a, value, outside)])
+    body = i.body()
+    i.emit_effects(body, effects)
+    addr, value = body.capture_inputs((addr, value))
+    tried, fallback = windows(i, space, addr)
+    write_windows(body, tried, fallback, value)
+    return body.block()
 
 
 @family("ULDC")
@@ -133,7 +177,7 @@ def uldc(i):
     if w > i.width("URd"): unmodelled("size")
     addr = (zext(i.imm("Sa_bank"), 64) << 32) | zext(trunc(zext(i.imm("Sa_addr"), 64), 32), 64)
     i.ignore("Sa")
-    return outputs(URd=extended(load("cbank", addr, w), i.width("URd"), signed))
+    return i.assign_from_inputs(URd=extended(load("cbank", addr, w), i.width("URd"), signed))
 
 
 @family("S2R", "CS2R", "S2UR")
@@ -141,4 +185,4 @@ def s2r(i):
     """Rd/URd = the special register SRa (CS2R.64: a register pair's view); SRZ reads 0."""
     if i.has_operand("sz"): i.select_fork("sz")   # .32/.64: Rd's span already gives the width
     d = i.resolve("Rd|URd")
-    return outputs(**{d: i.special("SRa", i.width(d))})
+    return i.assign_from_inputs(**{d: i.special("SRa", i.width(d))})

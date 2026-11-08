@@ -6,12 +6,11 @@
 #include "sass/primitives.hpp"
 #include "sass/softfloat.hpp"
 #include "sass/fp_host.hpp"
+#include "sass/cache.hpp"
 
 using namespace sass;
 
 namespace {
-constexpr std::string_view REDUCTIONS[] = {"and", "or", "xor", "add", "umin", "umax", "smin", "smax"};
-
 prim::Status call(std::string_view name, const prim::Warp &w, uint32_t need, const uint64_t *args, int nargs, uint64_t *out) {
   const auto arg = [&](int i) { return args + 32 * i; };
   if (name == "read_lane" && nargs == 2) return prim::read_lane(w, need, arg(0), arg(1), out);
@@ -20,12 +19,12 @@ prim::Status call(std::string_view name, const prim::Warp &w, uint32_t need, con
   if (name == "address_space" && nargs == 1) return prim::address_space(w, need, arg(0), out);
   if (name.starts_with("redux_") && nargs == 1)
     for (int op = 0; op < 8; ++op)
-      if (name.substr(6) == REDUCTIONS[op]) return prim::redux(prim::Reduction(op), w, need, arg(0), out);
+      if (name.substr(6) == prim::REDUCTION_NAMES[op]) return prim::redux(prim::Reduction(op), w, need, arg(0), out);
   if (name.starts_with("mufu_") && (nargs == 1 || nargs == 2))
     for (int fn = 0; fn < 10; ++fn) {
       std::string upper(name.substr(5));
       for (auto &c : upper) c = char(std::toupper(c));
-      if (upper == prim::MUFU_NAMES[fn]) return prim::mufu(prim::Mufu(fn), nargs == 2, need, arg(0), out);
+      if (upper == prim::MUFU_NAMES[fn]) return prim::mufu(prim::Mufu(fn), nargs == 2, need, arg(0), out, nargs == 2 && need ? uint32_t(arg(1)[std::countr_zero(need)]) : 0);
     }
   return {nullptr, "primitive " + std::string(name)};
 }
@@ -69,8 +68,11 @@ int sass_primitive(const char *name, const prim::Warp *warp, uint32_t need, cons
   return report(call(name, *warp, need, args, nargs, out), message, size);
 }
 
-int sass_memory_descriptor(uint64_t descriptor, char *message, size_t size) {
-  return report(prim::memory_descriptor(descriptor), message, size);
+int sass_memory_descriptor(uint64_t descriptor, uint32_t packed_async, char *message, size_t size) {
+  return report(prim::memory_descriptor(descriptor, packed_async), message, size);
+}
+int sass_cache_controls(uint32_t operation, uint64_t address, char *message, size_t size) {
+  return report(cache_controls(operation, address), message, size);
 }
 
 // op: 0 add, 1 mul, 2 fma, 3 convert to `dst` bits, 4 lt, 5 le, 6 eq, 7 nan; mode: RN RZ RP RM.

@@ -1,0 +1,23 @@
+// sass: HMMA.1688.F32.TF32
+.version 9.0
+.target sm_89
+.address_size 64
+.visible .entry tf32_1688(.param .u64 a, .param .u64 b, .param .u64 c, .param .u64 out) {
+.reg .b32 %a<4>, %b<2>;
+.reg .f32 %c<4>, %d<4>;
+.reg .b64 %pa, %pb, %pc, %po, %offset;
+.reg .u32 %lane;
+ld.param.u64 %pa, [a]; ld.param.u64 %pb, [b];
+ld.param.u64 %pc, [c]; ld.param.u64 %po, [out];
+mov.u32 %lane, %laneid;
+mul.wide.u32 %offset, %lane, 16;
+add.u64 %pa, %pa, %offset; add.u64 %pc, %pc, %offset; add.u64 %po, %po, %offset;
+mul.wide.u32 %offset, %lane, 8; add.u64 %pb, %pb, %offset;
+ld.global.v4.b32 {%a0,%a1,%a2,%a3}, [%pa];
+ld.global.v2.b32 {%b0,%b1}, [%pb];
+ld.global.v4.f32 {%c0,%c1,%c2,%c3}, [%pc];
+mma.sync.aligned.m16n8k8.row.col.f32.tf32.tf32.f32
+{%d0,%d1,%d2,%d3}, {%a0,%a1,%a2,%a3}, {%b0,%b1}, {%c0,%c1,%c2,%c3};
+st.global.v4.f32 [%po], {%d0,%d1,%d2,%d3};
+ret;
+}

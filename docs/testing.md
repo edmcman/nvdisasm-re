@@ -905,3 +905,123 @@ opcode counts remain unchanged across all twenty languages. SM89 verdicts
 contain 9,245 passing half scenarios and 3,939 passing conversion scenarios,
 with no recorded hardware disagreements. The final adapter, request audit,
 modifier and coverage consistency checks passed 181 tests in 29.17 seconds.
+
+### Dense BF16 HMMA validation (2026-11-04)
+
+The integrated source suite passes 575 tests in 452 seconds, including all
+architecture planning-policy checks, matrix arithmetic and cooperative
+round-robin/reverse/seeded fixtures, definition grammar and real parameter
+expansions. Definition discovery takes 303 seconds. A same-machine run against
+pushed pre-BF16 commit `524b38c` takes 237 seconds, so the dated 111-second
+discovery record is not the current baseline.
+
+The SM89 exact matrix discovery shard grows from 4,612 cases and 300 distinct
+instruction words (12.1 seconds) to 5,892 cases and 620 words (19.7 seconds).
+BF16 adds eight supported selector forms; legal source-overlap placements more
+than double the distinct matrix words. A separate same-word comparison of
+existing F16/TF32 lifting and parameter expansion finds no slowdown. The added
+coverage explains the extra discovery work; no timing regression is hidden by
+replacing an old baseline.
+
+Final exact/readable Ghidra matrix validation passes 106 tests and 99,880 shared
+cases over ten architectures in 408 seconds. All twenty reviewed P-code
+operation-count baselines pass. The retained YOLO replay passes 249 launches
+with 470 complete captured-region comparisons, leaves 65 launches blocked, and
+finds no mismatches. Hardware verification covers 5,892 SM89 shared cases and
+twelve whole-warp fixtures; other architectures' tensor arithmetic remains
+specification/paper inference.
+
+### CI architecture selection (2026-11-05)
+
+Six Python jobs on PR #119's `e925a82` hit the 60-minute limit. SM89's log
+shows 1,274 seconds between the start and completion of the definition test
+group, which discovered every architecture and both lowering modes inside
+each architecture job. Barrier and cooperative runtime tests also repeated
+their full architecture domains.
+
+Explicit `--arch` selection now limits definition discovery and the barrier,
+async, cache and matrix runtime modules. SM89-only matrix checks expose their
+architecture as a parameter so they can be excluded from other jobs.
+Unqualified discovery still covers twenty variants; the CI matrix and
+`--arch all --fp all` retain complete architecture coverage. The timeout is
+unchanged. The focused SM89 suite passes 128 tests with 173 architecture
+skips; default/subset discovery contracts and selected matrix execution pass
+separately. Fresh CI results must establish whether every job finishes.
+
+### Ordered semantics CI contracts (2026-11-07)
+
+PR #119's first ordered-IR CI run exposed stale generated plans and retained
+P-code expectations. Regenerating all ten architecture plans changes 1,036
+`native` classifications from false to true; the selected forms, profiles,
+settings and selection policy are identical.
+
+P-code checks for decoupled instructions require exactly one named deferred
+barrier wait, in addition to each instruction's declared effects. Cache
+operation bounds account for that wait even when the profile is generated
+without a native-only check. Retained FP64 cases use the same contract, and
+absent architecture forms have no contract before `Cases.add` skips them.
+The imported-program label harness registers the shared ordered runtime
+instead of executing against an empty user-operation library. Numerical
+expectations and comparison functions are unchanged.
+
+Synchronization profiles declare exact arrival, wait, ticket release,
+convergence capture and state-operation names. Contract normalization retains
+those effects and adds the deferred wait once, including when a profile is
+generated without a native-only check.
+
+Focused contract regressions pass 30 tests. FP64 Ghidra validation passes
+390 tests and 66,425 shared cases across all twenty language variants in
+110 seconds. SM89 FP64 and cache hardware validation passes 29 tests and
+4,074 shared cases, with six emulator-only launch-constant cases.
+The all-language synchronization audit passes 2,152 shared cases. SM89
+control hardware validation passes nine tests and 153 shared cases, with
+193 emulator-only environment and synthetic-state cases. Full coverage and
+evidence regeneration leaves the committed artifacts unchanged.
+Native B2R profile checks use the shared evaluator comparison path, which
+excludes P-code requirements from native result checks; comparing observed
+registers with the complete expectation dictionary incorrectly treated
+operation-name metadata as register values. All thirty architecture/mode
+profile checks pass.
+
+### Ghidra suspension retention (2026-11-07)
+
+PR #119's SM89 and SM90 Ghidra jobs reached the 60-minute limit while
+evaluating whole-kernel fixtures. Other architectures completed their Ghidra
+suites in 182–440 seconds. A cold SM89 reproduction with two workers and
+2 GiB Java heaps filled a heap during the matrix fixtures: the live-object
+histogram contained about six million p-code operations and 1,828 execution
+frames. CPU time went into garbage collection.
+
+JPype 1.5.2 constructs synthetic Java traceback frames when Ghidra's
+suspension exception crosses back into Python. Those frames retain the Python
+callers, including the lane adapter's captured Java frame and executor.
+Clearing exception tracebacks, collecting Python cycles and releasing runtime
+context references did not remove that retention.
+
+`BlockEmulator.advance` catches normal suspension inside Java and returns
+completion or suspension to the ordered executor. The existing Ghidra frame,
+temporaries and instruction position remain available for resumption; ordinary
+faults still propagate. The gate captures a weak reference to a suspended
+frame and requires its release after completion. That check fails with the
+original Python boundary and passes with the Java boundary in both FP modes.
+Two focused matrix kernels retain zero Python execution frames after collection,
+compared with 62 additional frames per kernel before the fix.
+
+The complete cold Ghidra-result SM89 fixture batch passes all 1,841 variants
+in 500.69 seconds with two workers and 2 GiB Java heaps. Native compilation
+caches were partly populated by the diagnostic runs; sampled process resident
+memory peaks at 1.66 GiB. Both FP-mode gates pass, including frame collection,
+and the SM90 matrix checks pass three tests. Focused ordered/cache Python
+validation passes 115 tests. These diagnose and verify the retention fix;
+they do not replace the existing suite timing baselines.
+
+The subsequent CI run completes the SM90 Ghidra suite in 22:06 and SM89 in
+33:09, including cold fixture and numerical results. Both pass their semantic
+checks; SM89's import audit catches scheduler metadata loading every semantics
+family to check supported WARPSYNC classes. The class predicate now lives in
+`semantics.primitive`, shared by the family and scheduler without importing
+generators into the Ghidra process. These cold runs cannot establish a regression
+against main's cached four-minute run.
+The corrected import audit, unsigned-address regressions and both suspension
+gates pass five Ghidra tests in 106.85 seconds; focused merger, launch and cache
+checks pass 135 Python/native tests.

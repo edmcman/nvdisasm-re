@@ -7,6 +7,7 @@ not an implementation of CUDA's warp scheduler or memory concurrency model.
 """
 from sass.decode import ir
 from sass.semantics.bitvec import PRIMITIVE_OP
+from sass.semantics import primitive
 from sass.emulate import native
 
 
@@ -54,6 +55,34 @@ class Runtime:
             try:native.memory_descriptor(*args)
             except native.Failure as error:raise UnsupportedSemantics(str(error)) from error
             return 0
+        if name=='sass_fence':
+            sem,scope=args
+            if sem not in range(3) or scope not in range(4):raise UnsupportedSemantics('invalid fence controls')
+            self.events.append(dict(op='MEMBAR',semantics=('SC','ALL','DEFAULT')[sem],scope=('CTA','SM','GPU','SYS')[scope]))
+            return 0
+        if name=='sass_cache_control':
+            operation,address=args
+            try:
+                if cache:=self.context.get('cache'):cache.issue(operation,address)
+                else:native.cache_controls(operation,address)
+            except native.Failure as error:raise UnsupportedSemantics(str(error)) from error
+            self.events.append(primitive.cache_event(operation,address))
+            return 0
+        if name == 'sass_dependency_wait':
+            if self.context.get('async_record'):
+                self.events.append(dict(op='dependency_wait',args=args))
+                return 0
+            state=self.context.get('async')
+            if state is not None:state.wait_slots(*args)
+            return 0
+        if name in ('sass_async_issue','sass_async_commit','sass_async_wait_groups','sass_async_wait_slots'):
+            if self.context.get('async_record'):
+                self.events.append(dict(op=name.removeprefix('sass_'),args=args))
+                return 0
+            state=self.context.get('async')
+            if state is None:raise UnsupportedSemantics('async-copy state required')
+            getattr(state,name.removeprefix('sass_async_'))(*args)
+            return 0
         raise UnsupportedSemantics(name)
 
     def primitive(self,name,args,size):
@@ -61,6 +90,14 @@ class Runtime:
         family=name.partition('_')[0]
         try:
             match name,args:
+                case 'bar_result',[]:
+                    if 'barrier_result' not in self.context:raise UnsupportedSemantics('barrier reduction result required')
+                    return int(self.context['barrier_result'])&0xffffffff
+                case 'bar_state',[index]:
+                    states=self.context.get('barrier_states')
+                    if states is None or len(states)!=16 or index not in range(16):
+                        raise UnsupportedSemantics('sixteen barrier states required')
+                    return int(states[index])&0xffffffff
                 case 'lane',[]:return self.warp()[1]
                 case 'active',[]:return self.warp()[2]
                 case 'waiting',[]:
@@ -69,6 +106,15 @@ class Runtime:
                     if waiting is None:raise UnsupportedSemantics('warp waiting-lane mask required')
                     return int(waiting)&0xffffffff
                 case 'read_lane',[x,src]:return native.primitive(name,[self.lanes('values',x),src],*self.warp()[1:])
+                case 'operand_lane',[group,src,word,*current] if len(current)<=1:
+                    warp,lane,active=self.warp()
+                    if not 0<=group<len(primitive.OPERAND_GROUPS) or not 0<=src<32:
+                        raise UnsupportedSemantics('warp operand group required or out of range')
+                    rows=warp.get('operand_groups',{}).get(primitive.OPERAND_GROUPS[group])
+                    if rows is None or len(rows)!=32 or not 0<=word<len(rows[src]):
+                        raise UnsupportedSemantics('warp operand group required or out of range')
+                    if not active>>src&1:raise UnsupportedSemantics('warp operand source is inactive')
+                    return int(current[0] if current and src==lane else rows[src][word])&0xffffffff
                 case 'ballot',[p]:return native.primitive(name,[self.lanes('predicates',p)],*self.warp()[1:])
                 case 'match'|'redux_and'|'redux_or'|'redux_xor'|'redux_add'|'redux_umin'|'redux_umax'|'redux_smin'|'redux_smax',[x]:
                     return native.primitive(name,[self.lanes('values',x)],*self.warp()[1:])

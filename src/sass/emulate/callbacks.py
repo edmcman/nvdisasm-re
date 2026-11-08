@@ -2,6 +2,7 @@
 import ctypes, re
 from functools import cache
 from sass.emulate import kernel, machine, metadata, schedule
+from sass.semantics import ordered, primitive
 
 
 class Program(kernel.Kernel):
@@ -12,7 +13,7 @@ static void noop(sass::Ctx &) {{}}
 static void (*const CODE[])(sass::Ctx &) = {{{', '.join('noop' for _ in self.instructions)}}};
 static const sass::Info INFO[] = {{{', '.join(ins.info(arch, i) for i, ins in enumerate(self.instructions))}}};
 static const sass::Program PROGRAM{{{base}, {len(self.instructions)}, CODE, INFO}};
-extern "C" uint32_t sass_run(const sass::Launch *l, sass::Result *r) {{ return sass::run(PROGRAM, *l, *r); }}
+extern "C" uint32_t sass_run(const sass::Launch *l, sass::Result *r) {{ return sass::run<false, true>(PROGRAM, *l, *r); }}
 """
         self.initialize(source, arch, code, base)
 
@@ -34,33 +35,57 @@ def run(request, engine, arch):
         lanes.extend(group)
     program = compiled(arch, bytes.fromhex(spec['code']), base)
     trace = []
+    async_states = {}
+    predication = {}
 
     @kernel.Step
-    def step(index, thread, warp, message, size):
+    def step(index, thread, warp, message, size, progressed):
         try:
             lane = lanes[index]
             w = warp.contents
             context = dict(request.get('context', {}))
+            if w.coordination: context['coordination'] = machine.Coordination(program.lib, w.coordination, index % block)
+            if index not in async_states:
+                async_states[index] = machine.Async(program.lib, w.async_state, lane)
+            pending = async_states[index]
+            context['async'] = pending
+            if w.async_ready: pending.complete()
+            if w.has_bar_result: context['barrier_result'] = w.bar_result
+            if w.has_bar_states: context['barrier_states'] = list(w.bar_states)
+            if scope != 'thread':
+                context['synchronization'] = dict(context.get('synchronization', {}), bssy=True, bsync=True, bar=True, warpsync=True)
             if w.present:
                 context['warp'] = dict(lane=w.lane, active=w.active, waiting=w.waiting,
-                                       values=list(w.values), predicates=list(w.predicates))
+                                       values=list(w.values), predicates=list(w.predicates),
+                                       operand_groups={name: [list(row)[:w.groups.contents.spans[j]] for row in w.groups.contents.words[j]]
+                                                       for j, name in enumerate(primitive.OPERAND_GROUPS)
+                                                       if w.groups and w.groups.contents.spans[j]})
             decoded = program.instructions[(thread.contents.pc - base) // 16].decoded
+            if decoded.klass.mnemonic == 'CCTL': context['cache'] = machine.Cache(program.lib, w.cache)
             pc = thread.contents.pc
-            taken = "Pg" not in decoded.klass.operand_types or schedule.operand(arch, lane, decoded, "Pg") ^ decoded.env.get(("Pg", "not"), 0)
-            lane.step(decoded, context)
+            if index not in predication:
+                predication[index] = "Pg" not in decoded.klass.operand_types or \
+                                    schedule.operand(arch, lane, decoded, "Pg") ^ decoded.env.get(("Pg", "not"), 0)
+            taken = predication[index]
+            status = lane.step(decoded, context)
+            if status == ordered.Status.FAULT: raise schedule.Fault("instruction fault")
+            if status not in (None, ordered.Status.COMPLETE, ordered.Status.SUSPENDED):
+                raise schedule.Fault("invalid instruction status")
+            progressed[0] = int(getattr(lane, "progressed", True))
             t = thread.contents
             t.pc = lane.pc()
             writes = lane.writes(pc) if taken else {}
-            if spec.get("trace") and index < int(spec.get("trace_threads", 1)):
+            if status != ordered.Status.SUSPENDED and spec.get("trace") and index < int(spec.get("trace_threads", 1)):
                 trace.append(dict(thread=index, pc=pc - base, text=decoded.text, writes=writes))
             for name, value in writes.items():
                 file, i = re.fullmatch(r"(UR|UP|R|P)(\d+)", name).groups()
                 getattr(t, machine.FILES[file])[int(i)] = value
-            return 0
+            if status != ordered.Status.SUSPENDED: del predication[index]
+            return kernel.STEP_SUSPENDED if status == ordered.Status.SUSPENDED else kernel.STEP_COMPLETE
         except Exception as error:
             data = str(error).encode()[:size - 1] + b'\0'
             ctypes.memmove(message, data, len(data))
-            return 1
+            return kernel.STEP_FAULT
 
     response = program.run(dict(request, kernel=dict(spec, trace=False)), step_lane=step)
     if spec.get('trace'): response['trace'] = trace

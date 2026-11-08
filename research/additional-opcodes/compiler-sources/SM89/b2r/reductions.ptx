@@ -1,0 +1,22 @@
+// sass: BAR.RED B2R
+.version 9.0
+.target sm_89
+.address_size 64
+.visible .entry reductions(.param .u64 out) {
+.reg .b32 %r<5>; .reg .b64 %rd<3>; .reg .pred %p<3>;
+ld.param.u64 %rd0, [out];
+mov.u32 %r0, %tid.x;
+and.b32 %r1, %r0, 1;
+setp.ne.u32 %p0, %r1, 0;
+bar.red.popc.u32 %r2, 0, %p0;
+bar.red.and.pred %p1, 0, %p0;
+bar.red.or.pred %p2, 0, %p0;
+selp.u32 %r3, 0x10000, 0, %p1;
+selp.u32 %r4, 0x20000, 0, %p2;
+or.b32 %r2, %r2, %r3;
+or.b32 %r2, %r2, %r4;
+mul.wide.u32 %rd1, %r0, 4;
+add.u64 %rd2, %rd0, %rd1;
+st.global.u32 [%rd2], %r2;
+ret;
+}

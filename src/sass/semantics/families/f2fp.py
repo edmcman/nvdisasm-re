@@ -2,7 +2,7 @@
 from sass.semantics.fp import fpformat
 from sass.semantics.fp.fpformat import FORMATS, ROUNDING
 from sass.semantics.bitvec import chosen, concat, const, extract, is_const, ite, lnot, value, zext
-from sass.semantics.family import definition, family, outputs, same, unmodelled
+from sass.semantics.family import definition, family, same, unmodelled
 
 FP8, FP6 = ("E4M3", "E5M2"), ("E2M3", "E3M2")
 NARROW8 = FP8 + FP6 + ("UE5M3",)
@@ -106,7 +106,7 @@ def f2fp_8b_downconvert(i):
         case "H0": keep = extract(i.value("Rc|Sc"), 15, 0)
         case "H1": keep = extract(i.value("Rc|Sc"), 31, 16)
         case other: unmodelled(f"{other} extract")
-    return outputs(Rd=concat(keep, high, low))
+    return i.assign_from_inputs(Rd=concat(keep, high, low))
 
 
 # ---- the other forms ---------------------------------------------------------------------------
@@ -168,7 +168,7 @@ def f2fp_tf32(i):
     required(i, "dstfmt", "TF32"); required(i, "srcfmt", "F32"); required(i, "merge", "PACK_B")
     x = i.value("Rb|Sb", modifiers=False)
     rn = i.select_lookup_const("rndMode", {"RN": 1, "RZ": 0}, 1)
-    return outputs(Rd=to_tf32(rn, bit(i, "relu", "RELU", "norelu"), x))
+    return i.assign_from_inputs(Rd=to_tf32(rn, bit(i, "relu", "RELU", "norelu"), x))
 
 
 def pack16_destination(i):
@@ -233,8 +233,8 @@ def f2fp_pack16(i):
     r = fpformat.chosen_rounding(i, "rndMode", {"RN": "RN", "RZ": "RZ"})
     sat, relu = bit(i, "satfinite", "SATFINITE", "nosatfinite"), bit(i, "relu", "RELU", "norelu")
     b = i.value("Rb|Sb", modifiers=False)
-    if merge_c: return outputs(Rd=concat(half(i, "Rc|Sc", "extract"), pack16_lane(d, r, sat, relu, b)))
-    return outputs(Rd=pack16(d, r, sat, relu, i.value("Ra", modifiers=False), b))
+    if merge_c: return i.assign_from_inputs(Rd=concat(half(i, "Rc|Sc", "extract"), pack16_lane(d, r, sat, relu, b)))
+    return i.assign_from_inputs(Rd=pack16(d, r, sat, relu, i.value("Ra", modifiers=False), b))
 
 
 def fp4_destination(i):
@@ -278,11 +278,11 @@ def f2fp_4b_downconvert(i):
     if f32:
         required(i, "srcfmt", "F32")
         c = i.value("Rc|Sc", modifiers=False)
-        return outputs(Rd=concat(extract(c, 31, 8), convert(i.value("Ra", modifiers=False), "F32"),
+        return i.assign_from_inputs(Rd=concat(extract(c, 31, 8), convert(i.value("Ra", modifiers=False), "F32"),
                                  convert(i.value("Rb|Sb", modifiers=False), "F32")))
     src = str(required(i, "srcfmt", "F16", "BF16"))
     b, c = (i.value(n, modifiers=False) for n in ("Rb|Sb", "Rc|Sc"))
-    return outputs(Rd=zext(concat(*(convert(extract(v, h + 15, h), src) for v in (c, b) for h in (16, 0))), 32))
+    return i.assign_from_inputs(Rd=zext(concat(*(convert(extract(v, h + 15, h), src) for v in (c, b) for h in (16, 0))), 32))
 
 
 def scaled_pair(i, convert, one_scale):
@@ -303,7 +303,7 @@ def scaled_pair(i, convert, one_scale):
     else:
         v = i.value("Rb|Sb", modifiers=False); a, b = extract(v, 31, 16), extract(v, 15, 0)
     scale_b = extract(c, 31, 24) if one_scale else extract(c, 23, 16)
-    return outputs(Rd=concat(extract(c, 15, 0), scaled(a, extract(c, 31, 24)), scaled(b, scale_b)))
+    return i.assign_from_inputs(Rd=concat(extract(c, 15, 0), scaled(a, extract(c, 31, 24)), scaled(b, scale_b)))
 
 
 def s2_6_name(a):
@@ -358,7 +358,7 @@ def f2fp_e8_upconvert(i):
     """Rb's H0/H1 half as two UE8M0 bytes to BF16: byte << 7, 0xff gives NaN (0x7fff), 0 the
     subnormal 2^-127 (0x0040)."""
     required(i, "dstfmt", "BF16"); required(i, "srcfmt", "E8"); required(i, "merge", "UNPACK_B"); required(i, "rndMode", "RN")
-    return outputs(Rd=from_ue8m0(half(i, "Rb|Sb", "extract_B|extract")))
+    return i.assign_from_inputs(Rd=from_ue8m0(half(i, "Rb|Sb", "extract_B|extract")))
 
 
 UPCONVERTS = {"8b": UP8, "4b": FP4, "8b.scaled": UP8 + ("S2_6",)}   # the formats srcfmt codes index
@@ -426,7 +426,7 @@ def upconvert(i, kind, codes, scales=None):
         code = i.select_lookup_const("srcfmt", {s: n for n, s in enumerate(UPCONVERTS[kind]) if s in i.labels("srcfmt")}, 8)
         if scales is None: lanes.append(upconverted(code, relu, byte, kind))
         else: lanes.append(upconverted_scaled(code, relu, sat, byte, extract(scales, 8 * k + 7, 8 * k), kind))
-    return outputs(Rd=concat(lanes[1], lanes[0]))
+    return i.assign_from_inputs(Rd=concat(lanes[1], lanes[0]))
 
 
 @family("F2FP", "UF2FP", classes=form("f2fp_8b_upconvert", "f2fp_8b_upconvert_scale"))

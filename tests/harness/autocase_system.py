@@ -5,7 +5,7 @@ from tests.refs import control, memory
 
 CONSTANT_OPS = {'LDC','LDCU','ULDC'}
 SPECIAL_OPS = {'S2R','CS2R','S2UR'}
-FLOW_OPS = {'BRA','CALL','RET','EXIT','NOP'}
+FLOW_OPS = {'BRA','BRX','CALL','RET','EXIT','NOP'}
 OPS = CONSTANT_OPS | SPECIAL_OPS | FLOW_OPS | {'QSPC'}
 FAMILIES = {op: 'memory' if op in CONSTANT_OPS | {'QSPC'} else 'control' for op in OPS}
 
@@ -89,15 +89,20 @@ def flow(c,k,form):
     op=k.mnemonic
     if set(form)-{'depth','cond','Pp@not','no_atexit','mode','addr','usel','nottid0'}:
         raise autocases.Unsupported('unhandled control-flow modifiers')
-    if op=='CALL' and form.get('depth')!='NOINC' or op=='RET' and form.get('depth')!='NODEC':
+    if op=='CALL' and form.get('depth')!='NOINC' or op=='RET' and form.get('depth')!='NODEC' or op=='BRX' and form.get('depth') not in ('nodepth','nodepth_bra'):
         raise autocases.Unsupported('call-stack depth transitions remain unresolved')
     spec=autocase_profiles.PROFILES['control_flow_forms'];pc=spec['pc']
-    for j,offset in enumerate(spec['offsets'] if op in ('BRA','CALL','RET') else (0,)):
+    for j,offset in enumerate(spec['offsets'] if op in ('BRA','BRX','CALL','RET') else (0,)):
         for pred in spec['predicates']:
             s=autocases.Inputs(c,k,form);s.registers.update(spec['sentinels'])
             if 'Pp' in k.operand_types:s.predicate(('Pp',),pred,0)
             target=None;relative=False
             if op=='BRA': s.fields['sImm']=offset;target=offset;relative=True
+            elif op=='BRX':
+                s.fields.update(Ra=4,Ra_offset=offset)
+                value=(-32,0,0x100000020)[j]
+                s.registers.update(pair('R4',value & ((1<<64)-1)))
+                target=value+offset;relative=True
             elif op in ('CALL','RET'):
                 n=source(k,'Sa')
                 if n:

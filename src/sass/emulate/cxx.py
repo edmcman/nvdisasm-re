@@ -1,12 +1,10 @@
 """One lifted instruction (`sass.semantics.lifter.Semantics`) as a C++ function on the machine of
-include/sass/machine.hpp, executing exactly as `sass.semantics.evaluate.apply`: the guard, then
-the effects, then every write, store and branch evaluated against the state before any of them,
-then the writes, the stores and the next PC. Pure nodes are computed once, eagerly; an `ite` whose
-arms reach a primitive (which may fail, as SHFL's read of an invalid lane) keeps its laziness."""
+include/sass/machine.hpp. Ordered statements capture reads, apply writes and perform control
+transfers at their positions. Pure expression sharing never repeats state access."""
 import json
 from sass.decode import ir
 from sass.semantics import bitvec, primitive
-from sass.semantics.bitvec import PRIMITIVE_OP, Expr
+from sass.semantics.bitvec import Expr
 from sass.semantics.runtime import UnsupportedSemantics, memory_controls
 
 FILES = {"R": ("t.r", 32), "UR": ("t.ur", 32), "SR": ("t.sr", 32), "P": ("t.p", 1), "UP": ("t.up", 1)}
@@ -16,7 +14,6 @@ INFIX = {"add": "+", "sub": "-", "mul": "*", "and": "&", "or": "|", "xor": "^"}
 COMPARE = {"eq": "==", "ne": "!=", "ult": "<", "ule": "<="}
 WRAPPED = {"add", "sub", "mul"}   # results that can carry past w
 FP = {"fadd": "add", "fmul": "mul", "ffma": "fma"}
-SYNC = {f"{PRIMITIVE_OP}{op}": f"sass::{op.capitalize()}" for op in primitive.SYNCHRONIZATION}
 
 
 WIDEST = 128   # values live in uint64_t or unsigned __int128 (include/sass/bits.hpp)
@@ -52,7 +49,7 @@ class Lower:
         if not isinstance(e, Expr): return False
         if id(e) not in self.primitive_below:
             args = [bitvec.lowered(e, self.lowering)] if e.op in bitvec.DEFINED else e.args
-            self.primitive_below[id(e)] = e.op == "primitive" or any(self.lazy(a) for a in args)
+            self.primitive_below[id(e)] = e.op in ("primitive", "mufu") or any(self.lazy(a) for a in args)
         return self.primitive_below[id(e)]
 
     def value(self, e):
@@ -94,6 +91,8 @@ class Lower:
                 return name
             case "ite": return self.temp(w, f"({self.value(a[0])} ? {self.value(a[1])} : {self.value(a[2])})")
             case "primitive": return self.temp(w, masked(self.primitive(a[0], [self.value(x) for x in a[1:]]), w))
+            case "mufu":
+                return self.temp(w, masked(self.primitive("mufu_" + a[0].lower(), [self.value(x) for x in a[1:]]), w))
             case op if op in INFIX:
                 expr = f"{self.value(a[0])} {INFIX[op]} {self.value(a[1])}"
                 return self.temp(w, masked(f"({expr})", w) if op in WRAPPED else f"({expr})")
@@ -140,32 +139,33 @@ class Lower:
     def primitive(self, name, args):
         family, _, variant = name.partition("_")
         match name:
-            case "lane" | "active" | "waiting" | "read_lane" | "ballot" | "match" | "address_space":
+            case "lane" | "active" | "waiting" | "read_lane" | "operand_lane" | "bar_result" | "bar_state" | "ballot" | "match" | "address_space":
                 return f"sass::lane::{name}({', '.join(['c', *args])})"
             case "bmov": return f"sass::lane::synchronize(c, sass::Bmov, {args[0]}, true)"
         if family == "redux" and variant in primitive.REDUCTIONS:
             return f"sass::lane::redux(c, sass::prim::Reduction({primitive.REDUCTIONS.index(variant)}), {args[0]})"
         if family == "mufu" and variant.upper() in primitive.MUFU:
-            return f"sass::lane::mufu(c, sass::prim::Mufu({primitive.MUFU.index(variant.upper())}), {str(len(args) == 2).lower()}, {args[0]})"
+            return f"sass::mufu_value(sass::prim::Mufu({primitive.MUFU.index(variant.upper())}), {str(len(args) == 2).lower()}, {', '.join(args)})"
         return f"(throw sass::Fault{{{string('primitive ' + name)}}}, sass::u64(0))"
 
-    def store(self, s):
-        """(store, condition, address, value): evaluated now, the address and value only if the condition holds."""
-        if s.cond is None: return s, None, self.value(s.address), self.value(s.value)
-        cond, address, value = self.value(s.cond), f"a{self.count}", f"s{self.count}"; self.count += 1
-        self.emit(f"sass::u64 {address} = 0; {ty(s.value.w)} {value} = 0;")
-        self.emit(f"if ({cond}) {{"); self.emit(f"{address} = {self.arm(s.address)};"); self.emit(f"{value} = {self.arm(s.value)};"); self.emit("}")
-        return s, cond, address, value
-
-    def effect(self, effect):
-        name, args = effect.name, effect.args
+    def operation(self, spec, args):
+        name = spec.runtime
         if name == "sass_memory_order":
             if not all(bitvec.is_const(x) for x in args): raise NotImplementedError("dynamic memory controls")
             ordinal, *controls = (x.args[0] for x in args)
             try: memory_controls(ir.load(self.arch), ordinal, controls)
             except UnsupportedSemantics as error: self.emit(f"throw sass::Fault{{{string(str(error))}}};")
-        elif name == "sass_memory_descriptor": self.emit(f"sass::check(sass::prim::memory_descriptor({self.value(args[0])}));")
-        elif name in SYNC: self.emit(f"sass::lane::synchronize(c, {SYNC[name]}, {self.value(args[0])}, false);")
+        elif name == "sass_memory_descriptor":
+            self.emit(f"sass::check(sass::prim::memory_descriptor({', '.join(self.value(a) for a in args)}));")
+        elif name == "sass_fence":
+            sem, scope = (self.value(a) for a in args)
+            self.emit(f"if ({sem} > 2 || {scope} > 3) throw sass::Fault{{\"invalid fence controls\"}};")
+        elif name == "sass_cache_control":
+            self.emit(f"sass::check((c.warp.cache ? c.warp.cache : &c.m.cache)->issue({', '.join(self.value(a) for a in args)}));")
+        elif name in ("sass_async_issue", "sass_async_commit", "sass_async_wait_groups", "sass_async_wait_slots"):
+            self.emit(f"sass::{name[5:]}({', '.join(['c', *(self.value(a) for a in args)])});")
+        elif name == "sass_dependency_wait":
+            self.emit(f"sass::dependency_wait(c, {self.value(args[0])});")
         else: self.emit(f"throw sass::Fault{{{string(name)}}};")
 
 
@@ -176,21 +176,7 @@ def instruction(semantics, function, decoded, definition_uses=None):
     if semantics.status == "opaque":
         stem = "sass_opaque_" + "".join(ch if ch.isalnum() else "_" for ch in decoded.klass.mnemonic)
         return "\n".join([head, f"  throw sass::Fault{{{string(f'{stem} ({semantics.reason})')}}};", "}"])
-    low = Lower(semantics.arch, definition_uses)
-    low.emit("auto &t = c.t;")
-    if semantics.guard is not None:
-        low.emit(f"if (!{low.value(semantics.guard)}) {{ t.pc = UINT64_C({semantics.addr + 16:#x}); return; }}")
-    for effect in semantics.effects: low.effect(effect)
-    values = [(location, low.value(v)) for location, v in semantics.writes]
-    stores = [low.store(s) for s in semantics.stores]
-    pc = f"UINT64_C({semantics.addr + 16:#x})"
-    if flow := semantics.flow:
-        target = low.value(flow.target)
-        pc = target if flow.cond is None else f"({low.value(flow.cond)} ? {target} : {pc})"
-    low.emit(f"const sass::u64 next = {pc};")
-    for location, v in values: low.write(*location.args, v)
-    for s, cond, address, value in stores:
-        store = f"c.space({SPACES[s.space]}).store<{s.value.w}>({SPACES[s.space]}, {address}, {value});"
-        low.emit(store if cond is None else f"if ({cond}) {store}")
-    low.emit("t.pc = next;")
-    return "\n".join([head, *("  " + line for line in low.lines), "}"])
+    if semantics.body is None: raise ValueError("modeled instruction requires an ordered body")
+    from sass.emulate import ordered
+    return ordered.function(semantics.body, function, semantics.addr + 16,
+                            semantics.arch, definition_uses, runtime=False)

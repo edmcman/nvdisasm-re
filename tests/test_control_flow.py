@@ -1,8 +1,8 @@
-"""Unconditional lifted control flow uses no condition; false and dynamic predicates survive."""
+"""Ordered transfers preserve false, true, and dynamic predicates."""
 import pytest
 from sass.assemble import encoding
 from sass.decode import ir
-from sass.semantics import bitvec, evaluate, lifter
+from sass.semantics import bitvec, evaluate, lifter, ordered
 from tests.harness.select import arches
 
 
@@ -14,6 +14,7 @@ def pytest_generate_tests(metafunc):
 @pytest.mark.parametrize("cls,fields,kind,target", [
     ("exit_", {}, "return", 0),
     ("bra_", dict(sImm=32), "goto", 0x1030),
+    ("brx_", dict(Ra=2, Ra_offset=-32), "goto", 0x5550),
     ("call_abs__RIR", dict(Sa=0x4560, depth="NOINC"), "call", 0x4560),
     ("ret__ABS", dict(Ra=2, Ra_offset=0, depth="NODEC"), "return", 0x4560),
 ])
@@ -24,13 +25,12 @@ def test_flow_conditions(control_arch, cls, fields, kind, target, predicate, inv
     word = bytes.fromhex(encoding.encode(control_arch, cls, **fields, Pp=predicate, **{"Pp@not": invert}))
     sem = lifter.lift(control_arch, word, 0x1000)
     assert sem.status == "native"
-    assert sem.flow.kind == kind
-    if predicate == "PT" and not invert:
-        assert sem.flow.cond is None
-    elif predicate == "PT":
-        assert bitvec.is_const(sem.flow.cond, 0)
-    else:
-        assert sem.flow.cond is not None and not bitvec.is_const(sem.flow.cond)
+    assert sem.body is not None
+    statements = ordered.linearize(sem.body)
+    assert [statement.kind for statement in statements if isinstance(statement, ordered.Transfer)] == [kind]
+    branches = [statement for statement in statements if isinstance(statement, ordered.Branch)]
+    assert len(branches) == 1
+    assert bitvec.is_const(branches[0].condition) == (predicate == "PT")
     for value in (0, 1):
         state = evaluate.State()
         state.write("R", 2, 2, 0x4560)

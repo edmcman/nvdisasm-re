@@ -235,6 +235,22 @@ def test_nested_expansion_and_empty_header():
     assert definitions.definitions_header([]).startswith('#pragma once\n#include "sass/fp.hpp"')
 
 
+@pytest.mark.parametrize("selected", [None, (("SM89", "exact"), ("SM90", "readable"))])
+def test_discovery_respects_requested_variants(monkeypatch, selected):
+    calls = []
+    def run(fn, variants, families, sample, **kwargs):
+        calls.append(variants)
+        for arch, fp in variants:
+            for generated in (False, True): yield arch, fp, generated, {}
+    monkeypatch.setattr(definition_functions.sharded, "run", run)
+    definition_functions.discover.cache_clear()
+    try:
+        assert (definition_functions.discover() if selected is None else
+                definition_functions.discover(selected)) == []
+        assert calls == [definition_functions.VARIANTS if selected is None else selected]
+    finally: definition_functions.discover.cache_clear()
+
+
 def extra_uses():
     wide(bitvec.param("x", 128))
     overload(bitvec.param("x", 32))

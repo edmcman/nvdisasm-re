@@ -4,7 +4,8 @@ import sys
 from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[2] / "src"))
 import pyghidra
-from sass.ghidra_bridge import ghidra_decode
+from sass.ghidra_bridge import ghidra_decode, ordered, userops
+from sass.semantics import ordered_runtime
 
 
 def main(ldefs, language_id, cubin, *options):
@@ -103,7 +104,9 @@ def main(ldefs, language_id, cubin, *options):
             state.setVar(register, jpype.JArray(jpype.JByte)(
                 expected.to_bytes(4, "little")))
             pcode = PcodeProgram.fromInstruction(instruction, False)
-            thread.getExecutor().execute(pcode, thread.getUseropLibrary())
+            execution = ordered.Execution(thread, ordered_runtime.Runtime())
+            library, refs = userops.library(lang, lambda name, args, size, output: execution.call(name, args, output))
+            thread.getExecutor().execute(pcode, thread.getUseropLibrary().compose(library))
             value = int.from_bytes(bytes(state.getVar(lang.getRegister(target), reason)), "little")
             assert value == expected
             assert int.from_bytes(bytes(state.getVar(

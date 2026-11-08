@@ -2,7 +2,7 @@
 import pytest
 from sass.assemble import assemble_instruction
 from sass.emulate import codegen, cxx, definitions, kernel, machine
-from sass.semantics import bitvec, evaluate, lifter
+from sass.semantics import bitvec, evaluate, lifter, ordered
 from sass.semantics.runtime import Runtime, UnsupportedSemantics
 from tests.test_definition_functions import nested, overload, primitive, register, toowide, wide
 
@@ -10,8 +10,13 @@ pytestmark = pytest.mark.native
 
 
 def semantics(writes, guard=None):
+    outer = ordered.Builder()
+    condition = outer.capture(guard) if guard is not None else None
+    builder = ordered.Builder(outer.count)
+    builder.assign_from_inputs((location.args, value) for location, value in writes)
+    if condition is not None: outer.emit(ordered.If(condition, builder.block()))
     return lifter.Semantics("SM89", "definitions", "definitions", 0x1000, "native",
-                            guard=guard, writes=writes)
+                            body=outer.block() if condition is not None else builder.block())
 
 
 def same_state(got, want):
@@ -31,6 +36,98 @@ def test_leading_zero_count_widths():
             state = evaluate.State({('R', 4 + lane): value >> (32 * lane) & 0xffffffff for lane in range(4)})
             got = library.execute(index, state, {})
             assert got.regs.get(('R', 0), 0) == width - value.bit_length()
+
+
+def test_ordered_mufu_captures_and_skips_unselected_failures():
+    from sass.semantics import primitive
+    builder = ordered.Builder()
+    source = builder.read_register("R", 0)
+    builder.emit(ordered.WriteRegister(("R", 0, 1), bitvec.const(0, 32)))
+    value = bitvec.ite(bitvec.reg("P", 0, 1, 1), primitive.mufu("EX2", source),
+                      primitive.mufu("RCP", source))
+    builder.assign_from_inputs([(("R", 1, 1), value)])
+    sem = lifter.Semantics("SM89", "mufu", "mufu", 0x1000, "native", body=builder.block())
+    library = machine.Fragments([sem], semantics=True)
+    state = evaluate.State({("R", 0): 0x3f800000})
+    found = library.execute(0, state, {})
+    assert found.read("R", 0, 1) == 0 and found.read("R", 1, 1) == 0x3f800000
+    state.regs["P", 0] = 1
+    with pytest.raises(UnsupportedSemantics, match="MUFU approximation"):
+        library.execute(0, state, {})
+
+
+@pytest.mark.parametrize("arch", ["SM89", "SM100"])
+@pytest.mark.parametrize("fp", ["exact", "readable"])
+@pytest.mark.parametrize("cls,fields,inputs", [
+    ("bmov_clear__Rd", dict(Rd=8, cbu_state="B0", clear=0), [0, 0]),
+    ("bmov_clear__Rd", dict(Rd=8, cbu_state="B0", clear=1), [0, 1]),
+    ("bmov_clear_barrier_", dict(barReg="B2", Ba="B3"), [1, 2, 3]),
+    ("bmov_clear_bd__Bd", dict(barReg="B2", cbu_state="MEXITED"), [1, 2, 24]),
+    ("bmov_dst64__R", dict(Rb=4), [1, 0x12345678]),
+    ("bmov_pquad__RRR", dict(pquad=1, cbu_state="MACTIVE", Rb=4), [1, 1, 26, 0x12345678]),
+    ("bmov_pquad_bar__RBR", dict(pquad=0, cbu_state="B0", barReg="B3"), [1, 0, 0, 3]),
+    ("break_inst_", dict(Pp=1, barReg="B2"), [1, 2]),
+])
+def test_convergence_environment_operations_preserve_inputs_and_predication(arch, fp, cls, fields, inputs):
+    from sass.assemble import encoding
+    code = bytes.fromhex(encoding.encode(arch, cls, **fields))
+    semantics = lifter.lift(arch, code, 0x1000, fp)
+    assert semantics.body is not None
+    library = machine.Fragments([semantics], semantics=True)
+    read = "Rd" in fields
+    op = "break" if cls.startswith("break") else "bmov"
+    initial = evaluate.State({("R", 4): 0x12345678, ("P", 1): 1})
+    context = dict(synchronization={op: {"0": 37} if read else True})
+    environment = Runtime(int(arch[2:]), context)
+    expected = evaluate.execute(semantics, initial.copy(), runtime=environment)
+    assert environment.events == [dict(op=op.upper(), inputs=inputs)]
+    same_state(library.execute(0, initial, context), expected)
+    if read: assert expected.regs["R", 8] == 37
+    if op == "break":
+        initial.regs["P", 1] = 0
+        environment = Runtime(int(arch[2:]), {})
+        expected = evaluate.execute(semantics, initial.copy(), runtime=environment)
+        assert environment.events == []
+        same_state(library.execute(0, initial, {}), expected)
+
+
+@pytest.mark.parametrize("spec", [*ordered.BARRIER_ACKS.values(), *ordered.WARP_ACKS.values()],
+                         ids=lambda spec: spec.name)
+def test_synchronization_acknowledgements_preserve_typed_inputs(spec):
+    arguments = tuple(bitvec.const((1 << width) - 1 - index if width > 1 else 0, width)
+                      for index, width in enumerate(spec.arguments))
+    builder = ordered.Builder()
+    builder.special(spec, *arguments)
+    sem = lifter.Semantics("SM90", spec.name, spec.name, 0x1000, "primitive", body=builder.block())
+    op = "bar" if spec in ordered.BARRIER_ACKS.values() else "warpsync"
+    context = dict(synchronization={op: True})
+    environment = Runtime(90, context)
+    initial = evaluate.State()
+    expected = evaluate.execute(sem, initial, runtime=environment)
+    assert environment.events == [dict(op=op.upper(), inputs=[1, *map(bitvec.value, arguments)])]
+    library = machine.Fragments([sem], semantics=True)
+    same_state(library.execute(0, initial, context), expected)
+    with pytest.raises(UnsupportedSemantics, match="synchronization context required"):
+        library.execute(0, initial, {})
+
+
+@pytest.mark.parametrize("enabled", [0, 1])
+def test_constant_bank_warpsync_reads_only_its_selected_arm(enabled):
+    from sass.assemble import encoding
+    code = bytes.fromhex(encoding.encode("SM89", "warpsync__RCR", Pp=1, Sb_bank=0, Sb_addr=0x40))
+    sem = lifter.lift("SM89", code, 0x1000)
+    class SelectedLoads(evaluate.State):
+        def load(self, *args):
+            assert enabled, "disabled WARPSYNC read its mask"
+            return super().load(*args)
+    initial = SelectedLoads({("P", 1): enabled})
+    if enabled: initial.store("cbank", 0x40, 32, 0x12345678)
+    context = dict(synchronization={"warpsync": True}) if enabled else {}
+    environment = Runtime(89, context)
+    evaluate.apply(sem, initial, runtime=environment)
+    assert environment.events == ([dict(op="WARPSYNC", inputs=[1, 0x12345678])] if enabled else [])
+    state = evaluate.State({("P", 1): enabled}, memory=initial.memory.copy())
+    same_state(machine.Fragments([sem], semantics=True).execute(0, state, context), initial)
 
 
 def test_collector_is_optional_and_functions_precede_bodies():
@@ -85,10 +182,20 @@ def test_nested_overloads_wide_and_aliasing(calls):
 
 @pytest.mark.parametrize("calls", (False, True))
 def test_guard_and_lazy_primitive_arguments(calls):
-    x, p = bitvec.reg("R", 0, 1), bitvec.reg("P", 0, 1, 1)
-    # An invalid primitive must only run in the selected arm and after the guard.
-    bad = bitvec.primitive("read_lane", 32, x, bitvec.const(32, 32))
-    s = semantics([(x, bitvec.ite(p, nested(bad), nested(x)))], bitvec.reg("P", 1, 1, 1))
+    outer = ordered.Builder()
+    guard = outer.read_register("P", 1)
+    builder = ordered.Builder(outer.count)
+    condition = builder.read_register("P", 0)
+    def invalid(arm):
+        source = arm.read_register("R", 0)
+        snapshot, = arm.special(ordered.CAPTURE, bitvec.const(0, 32), bitvec.const(0xffffffff, 32), source)
+        value, = arm.special(ordered.READ_LANE, snapshot, bitvec.const(32, 32))
+        arm.special(ordered.RELEASE_SNAPSHOT, snapshot)
+        return nested(value),
+    value, = builder.if_else(condition, invalid, lambda arm: (nested(arm.read_register("R", 0)),))
+    builder.emit(ordered.WriteRegister(("R", 0, 1), value))
+    outer.emit(ordered.If(guard, builder.block()))
+    s = lifter.Semantics("SM89", "definitions", "definitions", 0x1000, "primitive", body=outer.block())
     library = machine.Fragments([s], semantics=True, definition_calls=calls)
     context = {"warp": {"lane": 0, "values": [0] * 32}}
     for guard, condition in ((0, 0), (0, 1), (1, 0)):
@@ -96,21 +203,32 @@ def test_guard_and_lazy_primitive_arguments(calls):
         want = evaluate.execute(s, state, runtime=Runtime(89, context))
         got = library.execute(0, state, context)
         same_state(got, want)
-    with pytest.raises(UnsupportedSemantics, match="out of range"):
+    with pytest.raises(UnsupportedSemantics, match="snapshot source is inactive"):
         library.execute(0, evaluate.State({("P", 0): 1, ("P", 1): 1}), context)
 
 
-@pytest.mark.parametrize("fn,message", ((register, "reg"), (primitive, "primitive"), (toowide, "256-bit")))
-def test_unsupported_function_fault_does_not_pollute_translation_unit(fn, message):
+@pytest.mark.parametrize("fn", (register, primitive))
+def test_stateful_numerical_definitions_are_rejected(fn):
+    builder = ordered.Builder()
+    source = builder.read_register("R", 0)
+    builder.emit(ordered.WriteRegister(("R", 1, 1), fn(source)))
+    body = builder.block()
+    with pytest.raises(TypeError, match="state access inside a numerical definition"):
+        ordered.validate(body)
+    sem = lifter.Semantics("SM89", "definitions", "definitions", 0x1000, "native", body=body)
+    with pytest.raises(TypeError, match="state access inside a numerical definition"):
+        codegen.semantic_fragments([sem])
+
+
+def test_unsupported_function_fault_does_not_pollute_translation_unit():
     x = bitvec.reg("R", 0, 1)
-    bad = semantics([(x, nested(x)), (bitvec.reg("R", 8, 8), fn(bitvec.reg("R", 4, 4)))]) if fn == toowide else \
-          semantics([(x, nested(x)), (bitvec.reg("R", 1, 1), fn(x))])
+    bad = semantics([(x, nested(x)), (bitvec.reg("R", 8, 8), toowide(bitvec.reg("R", 4, 4)))])
     good = semantics([(x, overload(x))])
     source = codegen.semantic_fragments([bad, good])
     assert " test_nested(" not in source  # even the valid earlier use rolls back
     assert " test_overload(" in source
     library = machine.Fragments([bad, good], semantics=True)
-    with pytest.raises(UnsupportedSemantics, match=f"not compiled:.*{message}"):
+    with pytest.raises(UnsupportedSemantics, match="not compiled:.*256-bit"):
         library.execute(0, evaluate.State(), {})
     assert library.execute(1, evaluate.State({("R", 0): 5}), {}).read("R", 0, 1) == 5
 

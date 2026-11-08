@@ -27,7 +27,7 @@ def boundaries(worked, predicate):
                     for step, _, _, value, pc in rows]]
 
 
-def claim(program, before, after, budget, label, *, halt=False):
+def claim(program, responses, before, after, budget, label, *, halt=False):
     """Keep architectural state exact; quantify bookkeeping reset by dispatch."""
     return f"""
   claim <sass>
@@ -38,12 +38,14 @@ def claim(program, before, after, budget, label, *, halt=False):
     <regs> {before.registers()} => {after.registers()} </regs>
     <memory> .Map </memory>
     <params> .Map </params>
-    <responses> .Map </responses>
+    <responses> {responses} </responses>
     <environment> .Map </environment>
     <events> .List </events>
     <memo> _CACHE:Map => ?_CACHE:Map </memo>
-    <pendingRegs> _WR:Map => ?_WR:Map </pendingRegs>
-    <pendingMemory> _WM:Map => ?_WM:Map </pendingMemory>
+    <temporaries> _TEMPS:Map => ?_TEMPS:Map </temporaries>
+    <orderedCode> _CODE:Map => ?_CODE:Map </orderedCode>
+    <orderedPosition> _POS:Int => ?_POS:Int </orderedPosition>
+    <orderedLength> _LEN:Int => ?_LEN:Int </orderedLength>
     <step> {before.step} => {after.step} </step>
     <remaining> {budget - before.step} => {budget - after.step} </remaining>
     <status> "running" => {'"halted"' if halt else '"running"'} </status>
@@ -58,8 +60,9 @@ def specification(worked, budget):
     claims = []
     for predicate in (0, 1):
         states = boundaries(worked, predicate)
+        responses = k.responses_term(worked.exported, worked.run(predicate)[2])
         for before, after in zip(states, states[1:]):
-            claims.append(claim(program, before, after, budget,
+            claims.append(claim(program, responses, before, after, budget,
                                 f"p{predicate}-step-{after.step}"))
         # At PC zero, nextPc is already zero. Halting changes only status and k.
         end = states[-1]
@@ -70,9 +73,9 @@ def specification(worked, budget):
         <status> "running" => "halted" </status>
     [label(p{predicate}-halt)]
 """)
-        claims.append(claim(program, states[0], end, budget,
+        claims.append(claim(program, responses, states[0], end, budget,
                             f"p{predicate}-complete", halt=True))
-    return ('requires "sass.md"\nmodule SASS-EXECUTION-PROOF\n  imports SASS\n'
+    return ('requires "ordered.md"\nmodule SASS-EXECUTION-PROOF\n  imports SASS-ORDERED\n'
             + "\n".join(claims) + "\nendmodule\n")
 
 

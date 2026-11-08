@@ -1,6 +1,7 @@
 """Compare one emulator result with a Case's expectations.
 
 Plain keys are observed registers; `__` keys are flags: __native (nonempty p-code without CALLOTHER),
+__userops (nonempty p-code with exactly the named CALLOTHER operations),
 __max_ops (integer: at most N ops, no branches or CALLOTHER; dict: count bound and exact userop list, with explicit optional branch permission),
 __counter (final PC), __memory (first observed memory hex), __events (runtime event count),
 __event_values (exact runtime event records),
@@ -9,6 +10,7 @@ __opaque (CALLOTHER p-code or an error starting with
 the given text). `error` expects a failure message.
 """
 from tests.refs.fpformat import same_fp8
+from tests.refs.mufu import reciprocal_same
 
 
 def problems(expected, result):
@@ -18,17 +20,28 @@ def problems(expected, result):
     if "__opaque" in expected:
         return [] if "CALLOTHER" in ops or result.get("error", "").startswith(expected["__opaque"]) else ["opaque fallback"]
     registers = {n: v for n, v in expected.items() if not n.startswith("__")}
+    match expected:
+        case {'__mufu': spec}:
+            same = set(result.get('registers', {})) == set(registers) and all(reciprocal_same(result['registers'][n], v, **spec) for n, v in registers.items())
+        case {'__fp8_nan': fmt}:
+            same = set(result.get('registers', {})) == set(registers) and all(same_fp8(result['registers'][n], v, fmt) for n, v in registers.items())
+        case _: same = result.get('registers') == registers
     checks = [
-        (True, result.get("registers") == registers if "__fp8_nan" not in expected else
-         set(result.get("registers", {})) == set(registers) and
-         all(same_fp8(result["registers"][n], v, expected["__fp8_nan"]) for n, v in registers.items()), "registers"),
+        (True, same, "registers"),
         ("__counter" in expected, result.get("counter") == expected.get("__counter"), "counter"),
         ("__memory" in expected, bool(result.get("memory")) and result["memory"][0]["hex"] == expected.get("__memory"), "memory"),
         ("__events" in expected, len(result.get("events", [])) == expected.get("__events"), "events"),
         ("__event_values" in expected, result.get("events") == expected.get("__event_values"), "event values"),
         ("__native" in expected, bool(ops) and "CALLOTHER" not in ops, "native p-code"),
+        ("__userops" in expected, bool(ops) and has_userops(result, expected.get("__userops")), "named userops"),
         ("__max_ops" in expected, within_pcode_limit(expected.get("__max_ops"),result), "p-code op count")]
     return [name for wanted, ok, name in checks if wanted and not ok]
+
+
+def has_userops(result, names):
+    ops, effects = result.get("pcode_ops"), result.get("pcode_userops")
+    return (isinstance(ops, dict) and effects is not None and names is not None
+            and ops.get("CALLOTHER", 0) == len(names) and sorted(effects) == sorted(names))
 
 
 def within_pcode_limit(limit,result):
@@ -37,9 +50,6 @@ def within_pcode_limit(limit,result):
     if isinstance(limit,dict):
         if set(limit) not in ({'count','userops'},{'count','userops','branches'}):return False
         if 'branches' in limit and limit['branches'] is not True:return False
-        effects=result.get('pcode_userops')
-        return (isinstance(ops,dict) and effects is not None
-                and sum(ops.values())<=limit['count'] and (limit.get('branches') is True or 'CBRANCH' not in ops)
-                and ops.get('CALLOTHER',0)==len(limit['userops'])
-                and sorted(effects)==sorted(limit['userops']))
+        return (has_userops(result, limit['userops'])
+                and sum(ops.values())<=limit['count'] and (limit.get('branches') is True or 'CBRANCH' not in ops))
     return bool(ops) and limit is not None and sum(ops.values())<=limit and not set(ops)&{'CBRANCH','CALLOTHER'}

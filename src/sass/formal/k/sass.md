@@ -7,10 +7,9 @@ termination; each fall-through instruction advances PC by 16 bytes.
 ## IR syntax
 
 An expression `node(ID, OP, W, ARGS)` carries a stable instruction-local id,
-operator, result width, and argument list. An instruction contains its address,
-optional guard, ordered effects, register writes, memory stores, and optional
-flow. `absent` represents an unconditional guard; `unsupported` retains the
-reason why an instruction could not be modeled.
+operator, result width, and argument list. `ordered.md` defines the instruction's
+ordered statements. `unsupported` retains the reason and predicate of an
+instruction whose semantics are unresolved.
 
 The `run` input supplies the program, registers, byte memory, parameters,
 runtime responses, environment, and instruction budget, in that order.
@@ -26,16 +25,11 @@ module SASS
 
   syntax Expr ::= node(Int, String, Int, List)
   syntax OptionalExpr ::= Expr | "absent"
-  syntax Instruction ::= instruction(Int, OptionalExpr, List, List, List, OptionalFlow)
-                       | unsupported(Int, OptionalExpr, String)
-  syntax OptionalFlow ::= "noFlow" | flow(String, Expr, OptionalExpr)
+  syntax Instruction ::= unsupported(Int, OptionalExpr, String)
   syntax Program ::= program(Map, Int)
   syntax Input ::= run(Program, Map, Map, Map, Map, Map, Int)
-  syntax KItem ::= OptionalExpr | Instruction | OptionalFlow | Program
+  syntax KItem ::= OptionalExpr | Instruction | Program
                  | location(String, Int) | byte(String, Int)
-                 | write(String, Int, Int, Expr)
-                 | store(String, Expr, Expr, OptionalExpr)
-                 | effect(Int, String, List)
                  | request(Int, Int, Int)
                  | response(String, List, Int, Int, List, Map, Map)
   syntax KResult ::= Int | String | List
@@ -55,7 +49,7 @@ The `k` cell is the current computation; `~>` sequences its continuations.
 | `params` | Explicit expression inputs |
 | `responses`, `environment`, `events` | Assumed runtime transcript and environment state |
 | `memo` | Values already evaluated in this instruction |
-| `pendingRegs`, `pendingMemory` | Writes awaiting commit |
+| `temporaries`, `orderedCode`, `orderedPosition`, `orderedLength` | Captured values and statement execution |
 | `step`, `remaining`, `status` | Progress, budget, and termination reason |
 
 ```k
@@ -74,8 +68,10 @@ The `k` cell is the current computation; `~>` sequences its continuations.
       <step> 0 </step>
       <remaining> 0 </remaining>
       <memo> .Map </memo>
-      <pendingRegs> .Map </pendingRegs>
-      <pendingMemory> .Map </pendingMemory>
+      <temporaries> .Map </temporaries>
+      <orderedCode> .Map </orderedCode>
+      <orderedPosition> 0 </orderedPosition>
+      <orderedLength> 0 </orderedLength>
       <status> "running" </status>
     </sass>
 
@@ -92,28 +88,21 @@ $$
 \operatorname{read}(M,s,a,n)=\sum_{j=0}^{n-1}M(s,a+j)\,2^{8j},
 $$
 
-with zero for missing entries. `overlay` commits a pending map over a base map.
+with zero for missing entries. Writes update these maps immediately.
 
 ```k
   syntax KItem ::= "next" | dispatch(Instruction) | gate(Instruction)
                  | eval(OptionalExpr) | evalArgs(List, List) | argument(List, List)
                  | remember(Int) | choose(Expr, Expr)
                  | compute(Int, String, Int, List)
-                 | invoke(Int, String, Int, List)
-                 | "discard"
-                 | effects(List) | effectArgs(Int, String)
-                 | writes(List) | writeValue(String, Int, Int)
-                 | stores(List) | storeGuard(String, Expr, Expr)
-                 | storeAddress(String, Expr) | storeValue(String, Int, Int)
-                 | transfer(OptionalFlow) | flowGuard(Expr) | "setTarget"
-                 | "commit" | "skip" | "finishStep" | fail(String)
+                 | invokePure(Int, String, Int, List)
+                 | "skip" | "finishStep" | fail(String)
   syntax Int ::= getInt(Map, KItem) [function]
                | elementBits(String) [function]
                | readRegs(String, Int, Int, Map) [function]
                | readBytes(String, Int, Int, Map) [function]
   syntax Map ::= writeRegs(String, Int, Int, Int, Map) [function]
                | writeBytes(String, Int, Int, Int, Map) [function]
-               | overlay(Map, Map) [function]
   syntax List ::= widths(List) [function]
   syntax Int ::= widthOf(KItem) [function]
   syntax Bool ::= isFloatOp(String) [function, total]
@@ -140,8 +129,6 @@ with zero for missing entries. `overlay` commits a pending map over a base map.
   rule writeBytes(_, _, 0, _, M) => M
   rule writeBytes(S, A, N, V, M) => writeBytes(S, A +Int 1, N -Int 1, V >>Int 8,
                                              M[byte(S, A) <- V &Int 255]) requires N >Int 0
-  rule overlay(M, .Map) => M
-  rule overlay(M, (K |-> V) REST) => overlay(M[K <- V], REST)
   rule widths(.List) => .List
   rule widths(ListItem(A) REST) => ListItem(widthOf(A)) widths(REST)
   rule widthOf(node(_, _, W, _)) => W
@@ -160,15 +147,9 @@ with zero for missing entries. `overlay` commits a pending map over a base map.
 
 ## Dispatch, predication, and termination
 
-Dispatch resets memoized values and pending writes. A false guard skips the
-instruction body, including effects and operand reads. A true guard schedules
-these phases in order:
-
-$$
-\text{effects}\ \longrightarrow\ \text{register values}\
-\longrightarrow\ \text{stores}\ \longrightarrow\ \text{flow}\
-\longrightarrow\ \text{commit}.
-$$
+Dispatch resets memoized pure values. Ordered instruction dispatch also resets
+temporaries and begins at statement zero. Predication is an explicit branch
+within the body; an untaken branch evaluates none of its statements.
 
 PC zero halts successfully. A nonzero PC with no remaining budget fails with
 `instruction limit`; an absent instruction address fails with `PC outside
@@ -188,15 +169,10 @@ program`. An unsupported instruction fails only if its guard is true.
     requires PC =/=Int 0 andBool N >Int 0 andBool notBool (PC in_keys(P))
   rule <k> next => dispatch({P[PC]}:>Instruction) ... </k> <pc> PC </pc> <program> P </program>
        <remaining> N </remaining> <memo> _ => .Map </memo>
-       <pendingRegs> _ => .Map </pendingRegs> <pendingMemory> _ => .Map </pendingMemory>
        <nextPc> _ => PC +Int 16 </nextPc>
     requires PC =/=Int 0 andBool N >Int 0 andBool PC in_keys(P)
-  rule <k> dispatch(instruction(A, G, E, W, S, F)) => eval(G) ~> gate(instruction(A, G, E, W, S, F)) ... </k>
   rule <k> dispatch(unsupported(A, G, WHY)) => eval(G) ~> gate(unsupported(A, G, WHY)) ... </k>
   rule <k> 0 ~> gate(_) => skip ... </k>
-  rule <k> V:Int ~> gate(instruction(_, _, E, W, S, F))
-           => effects(E) ~> writes(W) ~> stores(S) ~> transfer(F) ~> commit ... </k>
-    requires V =/=Int 0
   rule <k> V:Int ~> gate(unsupported(_, _, WHY)) => fail(WHY) ... </k> requires V =/=Int 0
 
 ```
@@ -204,13 +180,14 @@ program`. An unsupported instruction fails only if its guard is true.
 ## Expression evaluation and sharing
 
 The memoized-value rule has priority over evaluation. Each expression id is
-evaluated at most once per instruction, including runtime primitives.
+evaluated at most once per instruction, including pure numerical contracts.
 Conditional expressions evaluate the condition and only the chosen arm.
 Other argument lists evaluate left to right. Missing parameters fail explicitly.
 
-Register and load expressions read architectural state. Integer and
-floating-point operators dispatch to the preceding modules. Primitive nodes
-request an explicit environment response.
+Register expressions are retained only for unsupported-instruction guards.
+Supported instruction bodies use explicit reads. Integer and floating-point
+operators dispatch to the preceding modules. Pure MUFU nodes request an
+explicit response that leaves the environment unchanged.
 
 ```k
   // Expr ids are stable within one instruction. The cache resets at dispatch.
@@ -236,10 +213,8 @@ request an explicit environment response.
        <params> P </params> requires notBool (NAME in_keys(P))
   rule <k> ListItem(F:String) ListItem(I:Int) ListItem(N:Int) ~> compute(ID, "reg", _, _)
            => readRegs(F, I, N, R) ~> remember(ID) ... </k> <regs> R </regs>
-  rule <k> ListItem(S:String) ListItem(A:Int) ~> compute(ID, "load", W, _)
-           => readBytes(S, A, W /Int 8, M) ~> remember(ID) ... </k> <memory> M </memory>
-  rule <k> ListItem(NAME:String) ARGS ~> compute(ID, "primitive", W, _)
-           => invoke(ID, "sass_prim_" +String NAME, W, ARGS) ~> remember(ID) ... </k>
+  rule <k> ListItem(NAME:String) ARGS ~> compute(ID, "mufu", W, _)
+           => invokePure(ID, "sass_prim_mufu_" +String NAME, W, ARGS) ~> remember(ID) ... </k>
   rule <k> VS:List ~> compute(ID, OP, W, WS) => bv(OP, W, VS, WS) ~> remember(ID) ... </k>
     requires isOrdinaryOp(OP)
   rule <k> VS:List ~> compute(ID, OP, W, WS) => fp(OP, W, VS, WS) ~> remember(ID) ... </k>
@@ -253,10 +228,12 @@ A runtime request is indexed by $(\text{step},\text{pc},\text{id})$. Its respons
 contains the name, evaluated arguments, result width, result value, events,
 and environment before and after the operation.
 
-K accepts a response only if the name, arguments, width, and pre-environment
-match and $0\leq v<2^w$. It then installs the post-environment and appends the
-provided events. Missing and mismatched responses fail. Effects have width zero
-and must return zero. Effect ids are negative; expression ids are nonnegative.
+Pure numerical response IDs are negative; ordered operation IDs are nonnegative
+statement positions. This prevents collisions within an instruction. A numerical
+approximation response must match its arguments and width, return
+$0\leq v<2^w$, produce no events, and preserve the environment. `ordered.md`
+checks typed operation result lists and applies their explicit environment changes.
+Missing and mismatched responses fail.
 
 This is an explicit assumption boundary. The rules do not give a default
 answer to a primitive, model GPU scheduling, or establish that a supplied
@@ -264,72 +241,30 @@ response matches hardware. Proof-specific environment rules belong in a
 separate contract module with documented assumptions.
 
 ```k
-  // A concrete contract instance supplies a result and an explicit environment transition.
-  // No primitive receives a default answer. Proof-specific contract modules may add rules
-  // for invoke, but are separate from this concrete response-transcript definition.
-  rule <k> invoke(ID, NAME, W, ARGS) => V ... </k>
+  rule <k> invokePure(ID, NAME, W, ARGS) => V ... </k>
        <pc> PC </pc> <step> STEP </step>
-       <responses> (request(STEP, PC, ID) |-> response(NAME, ARGS, W, V, EV, BEFORE, AFTER)) ... </responses>
-       <events> EVENTS => EVENTS EV </events> <environment> BEFORE => AFTER </environment>
+       <responses> (request(STEP, PC, ID) |-> response(NAME, ARGS, W, V, .List, ENV, ENV)) ... </responses>
+       <environment> ENV </environment>
     requires V >=Int 0 andBool V <Int (2 ^Int W)
-  rule <k> invoke(ID, _, _, _) => fail("runtime response missing") ... </k>
+  rule <k> invokePure(ID, _, _, _) => fail("runtime response missing") ... </k>
        <pc> PC </pc> <step> STEP </step> <responses> RESP </responses>
     requires notBool (request(STEP, PC, ID) in_keys(RESP))
-  rule <k> invoke(ID, NAME, W, ARGS) => fail("runtime response mismatch") ... </k>
+  rule <k> invokePure(ID, NAME, W, ARGS) => fail("pure response mismatch") ... </k>
        <pc> PC </pc> <step> STEP </step>
-       <responses> (request(STEP, PC, ID) |-> response(N, A, WIDTH, V, _, BEFORE, _)) ... </responses>
+       <responses> (request(STEP, PC, ID) |-> response(N, A, WIDTH, V, EV, BEFORE, AFTER)) ... </responses>
        <environment> ENV </environment>
     requires NAME =/=String N orBool ARGS =/=K A orBool W =/=Int WIDTH orBool V <Int 0 orBool V >=Int (2 ^Int W)
-             orBool BEFORE =/=K ENV
+             orBool EV =/=K .List orBool BEFORE =/=K ENV orBool AFTER =/=K ENV
 
 ```
 
-## Effects and staged writes
+## Instruction completion
 
-Effects execute first, in order. Register writes and byte stores accumulate in
-pending maps while their expressions continue to read the pre-write architectural
-state. Store guards are lazy: a false guard reads neither address nor value.
-Overlapping destinations use ordered, last-write-wins updates.
-
-```k
-  rule <k> effects(.List) => .K ... </k>
-  rule <k> effects(ListItem(effect(ID, NAME, ARGS)) REST)
-           => evalArgs(ARGS, .List) ~> effectArgs(ID, NAME) ~> discard ~> effects(REST) ... </k>
-  rule <k> VS:List ~> effectArgs(ID, NAME) => invoke(ID, NAME, 0, VS) ... </k>
-  rule <k> _:Int ~> discard => .K ... </k>
-  rule <k> writes(.List) => .K ... </k>
-  rule <k> writes(ListItem(write(F, I, N, V)) REST)
-           => eval(V) ~> writeValue(F, I, N) ~> writes(REST) ... </k>
-  rule <k> V:Int ~> writeValue(F, I, N) => .K ... </k>
-       <pendingRegs> R => writeRegs(F, I, N, V, R) </pendingRegs>
-  rule <k> stores(.List) => .K ... </k>
-  rule <k> stores(ListItem(store(S, A, V, C)) REST)
-           => eval(C) ~> storeGuard(S, A, V) ~> stores(REST) ... </k>
-  rule <k> 0 ~> storeGuard(_, _, _) => .K ... </k>
-  rule <k> C:Int ~> storeGuard(S, A, V) => eval(A) ~> storeAddress(S, V) ... </k> requires C =/=Int 0
-  rule <k> A:Int ~> storeAddress(S, V:Expr) => eval(V) ~> storeValue(S, A, widthOf(V)) ... </k>
-  rule <k> V:Int ~> storeValue(S, A, W) => .K ... </k>
-       <pendingMemory> M => writeBytes(S, A, W /Int 8, V, M) </pendingMemory>
-```
-
-## Control transfer and commit
-
-Flow evaluates its guard before its target. A false flow guard keeps the
-fall-through PC. Calls and returns use the lifted target directly; this model
-adds no call stack. Commit overlays pending writes, then advances PC, increments
-the step, and consumes one unit of budget. A skipped instruction performs the
-same step accounting without writes. Failure clears the computation and records
-the reason.
+Completion advances PC, increments the step, and consumes one unit of budget.
+A skipped unsupported instruction performs the same accounting. Failure clears
+the computation and records the reason; earlier statement writes remain visible.
 
 ```k
-  rule <k> transfer(noFlow) => .K ... </k>
-  rule <k> transfer(flow(_, T, C)) => eval(C) ~> flowGuard(T) ... </k>
-  rule <k> 0 ~> flowGuard(_) => .K ... </k>
-  rule <k> C:Int ~> flowGuard(T) => eval(T) ~> setTarget ... </k> requires C =/=Int 0
-  rule <k> T:Int ~> setTarget => .K ... </k> <nextPc> _ => T </nextPc>
-  rule <k> commit => finishStep ... </k>
-       <pendingRegs> WR </pendingRegs> <pendingMemory> WM </pendingMemory>
-       <regs> R => overlay(R, WR) </regs> <memory> M => overlay(M, WM) </memory>
   rule <k> skip => finishStep ... </k>
   rule <k> finishStep => next ... </k> <pc> _ => NEXT </pc> <nextPc> NEXT </nextPc>
        <step> N => N +Int 1 </step> <remaining> L => L -Int 1 </remaining>

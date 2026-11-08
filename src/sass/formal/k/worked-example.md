@@ -34,16 +34,16 @@ additional execution relation.
 ## Lifted bitvector IR
 
 The following listing is generated from `lifter.lift`, including each decoded
-instruction's text, guard, register writes, and flow. The destination suffix
-`:32` identifies R0's width; additions wrap to that width. P0 has width one.
+instruction's text and ordered statements. Captured R0 values have width 32;
+additions wrap to that width. P0 has width one.
 
 ```text
 {{lifted}}
 ```
 
-R0 appears as both source and destination. The expression reads its value
-before the instruction's pending write is committed. The instruction predicate
-on BRA is evaluated before its body: when P0 is zero, the branch is skipped
+R0 appears as both source and destination. An explicit read captures its value
+before the write updates the register. BRA captures its instruction predicate
+and uses an explicit conditional block: when P0 is zero, the transfer is skipped
 and the fall-through PC is retained.
 
 ## Exported K program
@@ -57,11 +57,13 @@ the memo is cleared before the next instruction.
 {{exported}}
 ```
 
-In the first write, `node(1, "add", 32, ...)` adds a register-read node and a
-constant node. `write("R", 0, 1, ...)` stages the result into one R element.
-The branch instruction has a P0 register-read guard and a constant 64-bit target.
-The lists of effects and stores are empty. This example uses no runtime
-primitive, response transcript, or environment assumption.
+The first addition uses `orderedRead` to capture R0, a pure `"add"` expression
+over that temporary and a constant, then `orderedWrite` to update R0 immediately.
+The branch instruction reads P0 explicitly and selects whether to execute its
+control transfer to a constant 64-bit target. Taken BRA and EXIT explicitly wait
+for a pending deferred block barrier. The example supplies completion responses
+assuming no pending barrier, with no events or environment changes. It proves
+the sequential execution under these assumptions, not concurrent barrier behavior.
 
 ## Initial K input
 
@@ -74,7 +76,8 @@ equal to zero, the input is:
 
 The arguments after the register map are byte memory, parameters, runtime
 responses, environment, and an eight-instruction budget. The second supplied
-input differs only in the P0 value.
+input supplies P0 equal to one and also completes the taken branch's wait. The
+predicated-off branch needs no response.
 
 The publication writes the assembly, instruction bytes, exported module,
 manifest, and both inputs into its `example/` directory. From the checkout,

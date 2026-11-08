@@ -2,7 +2,7 @@
 import sys
 from pathlib import Path
 from sass.decode import cubin, pydecode
-from sass.semantics import lifter
+from sass.semantics import lifter, ordered
 
 data = Path(sys.argv[1]).read_bytes()
 arch = cubin.elf_arch(data)
@@ -13,6 +13,5 @@ for name, body in cubin.text_sections(data).items():
         try: sem = lifter.lift(arch, word, addr)
         except pydecode.NoMatch as e: print(f"  {addr:#06x} undecodable: {e}"); continue
         print(f"  {addr:#06x} {sem.text:40} {sem.status} {sem.reason}")
-        for loc, v in sem.writes: print(f"      {loc} <- {v}")
-        for s in sem.stores: print(f"      {s.space}[{s.address}] <- {s.value}")
-        if sem.flow: print(f"      flow {sem.flow.kind} -> {sem.flow.target}")
+        if sem.body is not None:
+            for statement in ordered.linearize(sem.body): print(f"      {statement}")

@@ -3,24 +3,38 @@
 #pragma once
 #include <algorithm>
 #include <vector>
+#include <map>
+#include <numeric>
+#include <random>
+#include <span>
+#include <type_traits>
 #include "sass/machine.hpp"
+#include "sass/ordered_runtime.hpp"
 
 namespace sass {
 struct Operand { uint32_t kind, file, index, span; uint64_t value; };   // kind: 0 none, 1 constant, 2 register
 enum File : uint32_t { R, UR, SR, P, UP };
 
-// An instruction's facts the scheduler needs (from schedule.operand_location and sync_form).
+// An instruction's facts the scheduler needs.
 struct Info {
-  uint32_t exit, bar_sync, warpsync, collective;   // collective: 0 none, 1 values, 2 predicates
-  uint32_t guard_not, pp_not, sync_kind, ndests;   // sync_kind: 0 unmodelled, 1 all, 2 immediate, 3 operand
-  Operand guard, pp, source, sync;
-  uint64_t sync_mask;
+  uint32_t exit, collective;
+  uint32_t guard_not, ndests;
+  Operand guard;
   const char *decode_error;                         // the decoder's message for a word that does not decode
   const uint32_t *dests;                            // trace: file << 16 | index of each register written
   const char *unsupported;
+  uint32_t unsupported_scope;
 };
 
-struct Program { uint64_t base, count; void (*const *code)(Ctx &); const Info *info; };
+using OrderedStep = ordered::Status (*)(Ctx &, ordered::Runtime &, ordered::Frame &);
+using OrderedOrdinaryStep = ordered::Status (*)(Ctx &, ordered::Runtime &);
+struct Program {
+  uint64_t base, count;
+  void (*const *code)(Ctx &);
+  const Info *info;
+  const OrderedStep *ordered_code = nullptr;
+  const OrderedOrdinaryStep *ordered_ordinary = nullptr;
+};
 
 struct Seed { uint32_t file, index; uint64_t value; };
 
@@ -37,10 +51,11 @@ struct Launch {
   uint8_t *outputs;   // (last - first) * out_size bytes
   uint8_t *visited;   // a byte per instruction
   Trace *trace;       // or null
-  uint32_t (*step_lane)(uint64_t, Thread *, const WarpContext *, char *, size_t);
+  uint32_t (*step_lane)(uint64_t, Thread *, const WarpContext *, char *, size_t, uint32_t *);
 };
 
 enum Outcome : uint32_t { Done, Faulted, Limited, Outside, NoExit, Undecodable, Unmodelled, Omits, Disagree, Stuck };
+enum StepOutcome : uint32_t { StepComplete, StepFault, StepSuspended };
 struct Result { uint32_t outcome, pad; uint64_t group, thread, pc, steps, a, b; char message[512]; };
 
 inline uint32_t element(const Thread &t, uint32_t file, uint32_t i) {
@@ -61,20 +76,25 @@ inline void seed(Thread &t, const Seed &s) {
                     case P: t.p[s.index] = v & 1; break; default: t.up[s.index] = v & 1; }
 }
 
-struct Lane {
+template<bool NativeResumption> struct Lane {
   Thread t{};
   Memory local;
   uint64_t index = 0, last = 0, steps = 0;
-  bool waiting = false, released = false, has_sync = false;
-  uint32_t sync = 0;
+  bool suspended = false, taken = false;
+  AsyncState async;
+  std::conditional_t<NativeResumption, ordered::Frame, std::nullptr_t> frame{};
   bool live() const { return t.pc != 0; }
 };
 
-struct Run {
+template<bool NativeRuntime = true, bool Callbacks = true, bool NativeResumption = NativeRuntime> struct Run {
+  static_assert(!NativeResumption || NativeRuntime);
+  using Lane = sass::Lane<NativeResumption>;
+  static constexpr bool Resumption = NativeResumption || Callbacks;
   const Program &p;
   const Launch &l;
   Result &r;
   uint64_t group = 0;
+  std::conditional_t<NativeRuntime, std::map<uint64_t, ordered::SchedulerRuntime>, std::nullptr_t> runtimes{};
 
   uint32_t lane_id(const Lane &u) const { return uint32_t(u.index % l.block % 32); }
 
@@ -114,19 +134,74 @@ struct Run {
     return true;
   }
 
-  uint32_t step(Lane &u, uint64_t pc, uint64_t i, Memory &shared, const WarpContext &w) {
+  __attribute__((always_inline)) inline ordered::Status native_step(Lane &u, uint64_t i, Ctx &c, bool &progressed) {
+    if constexpr (NativeResumption) if (p.ordered_code && p.ordered_code[i]) {
+      auto &runtime = runtimes[group];
+      if (!u.suspended) u.frame.reset();
+      const auto position = u.frame.position;
+      const bool pending = u.frame.pending;
+      runtime.bind(c, u.frame, u.index, uint32_t(l.block));
+      const auto status = p.ordered_code[i](c, runtime, u.frame);
+      progressed |= position != u.frame.position || pending != u.frame.pending;
+      return status;
+    }
+    if constexpr (NativeRuntime) if (p.ordered_ordinary && p.ordered_ordinary[i]) {
+      auto &runtime = runtimes[group];
+      runtime.bind(c, u.index, uint32_t(l.block));
+      return p.ordered_ordinary[i](c, runtime);
+    }
+    p.code[i](c);
+    return ordered::Complete;
+  }
+
+  uint32_t step(Lane &u, uint64_t pc, uint64_t i, Memory &shared, WarpContext &w, bool &progressed) {
+    w.cache = &(shared.global ? *shared.global : shared).cache;
     if (u.steps >= l.max_steps) return stop(Limited, u.index, pc);
-    u.last = pc;
     const Info &info = p.info[i];
-    if (l.scope == 2 && info.unsupported && (!info.guard.kind || (read(u.t, info.guard) ^ info.guard_not)))
+    if (!u.suspended) {
+      if (Resumption || (l.trace && u.index < l.traced))
+        u.taken = !info.guard.kind || (read(u.t, info.guard) ^ info.guard_not);
+    }
+    w.async = &u.async;
+    w.async_ready = uint32_t(u.async.ready.size());
+    if (l.scope >= info.unsupported_scope && info.unsupported && (!info.guard.kind || (read(u.t, info.guard) ^ info.guard_not)))
       return stop(Faulted, u.index, pc, info.unsupported);
     const bool traced = l.trace && u.index < l.traced;
-    const bool taken = traced && (!info.guard.kind || (read(u.t, info.guard) ^ info.guard_not));
-    Ctx c{u.t, shared, u.local, w, *l.env};
-    if (l.step_lane) {
+    const bool taken = traced && u.taken;
+    Environment env = *l.env;
+    if (l.scope) env.sync |= (1u << Bar) | (1u << Bssy) | (1u << Bsync) | (1u << Warpsync);
+    Ctx c{u.t, shared, u.local, w, env};
+    if constexpr (Callbacks) {
       char message[512] = {};
-      if (l.step_lane(u.index, &u.t, &w, message, sizeof message)) return stop(Faulted, u.index, pc, message);
-    } else try { p.code[i](c); } catch (const Fault &f) { return stop(Faulted, u.index, pc, f.message.c_str()); }
+      uint32_t advanced = 0;
+      const uint32_t status = l.step_lane(u.index, &u.t, &w, message, sizeof message, &advanced);
+      progressed |= bool(advanced);
+      if (status == StepFault) return stop(Faulted, u.index, pc, message);
+      if (status == StepSuspended) {
+        if (u.t.pc != pc) return stop(Faulted, u.index, pc, "suspended instruction changed PC");
+        u.suspended = true;
+        return Done;
+      }
+      if (status != StepComplete) return stop(Faulted, u.index, pc, "invalid instruction status");
+    } else try {
+      if (w.async_ready) complete_async(c);
+      const auto status = native_step(u, i, c, progressed);
+      if (status == ordered::Faulted) {
+        if constexpr (NativeResumption) return stop(Faulted, u.index, pc, u.frame.error.c_str());
+        else return stop(Faulted, u.index, pc, "unexpected native runtime fault");
+      }
+      if (status == ordered::Suspended) {
+        if (u.t.pc != pc) return stop(Faulted, u.index, pc, "suspended instruction changed PC");
+        u.suspended = true;
+        return Done;
+      }
+    } catch (const Fault &f) { return stop(Faulted, u.index, pc, f.message.c_str()); }
+    if constexpr (Resumption) {
+      progressed = true;
+      u.suspended = false;
+    }
+    if (w.coordination && !u.live()) w.coordination->exit(uint32_t(u.index % l.block));
+    u.last = pc;
     ++u.steps;
     if (traced) {
       l.trace->steps.push_back({u.index, uint32_t(i), taken, uint32_t(l.trace->values.size()), taken ? info.ndests : 0});
@@ -149,7 +224,7 @@ struct Run {
 
   // Model 1.
   uint32_t single() {
-    static const WarpContext alone{};   // no warp context: collectives fail as in a isolated thread
+    WarpContext alone{};   // no warp context: collectives fail as in a isolated thread
     for (uint64_t thread = l.first; thread < l.last; ++thread) {
       group = thread;
       Lane u;
@@ -158,7 +233,9 @@ struct Run {
       while (u.live()) {
         uint64_t i; uint32_t o;
         if (!fetch(u.t.pc, thread, i, o)) return o;
-        if (uint32_t s = step(u, u.t.pc, i, u.local, alone)) return s;
+        bool progressed = false;
+        if (uint32_t s = step(u, u.t.pc, i, u.local, alone, progressed)) return s;
+        if (u.suspended && !progressed) return stop(Stuck, thread, u.t.pc);
       }
       std::vector<Lane *> one{&u};
       if (uint32_t s = finish(one, [](Lane &u, void *) -> Memory & { return u.local; }, nullptr)) return s;
@@ -166,71 +243,55 @@ struct Run {
     return Done;
   }
 
-  // Model 2: schedule.release_warpsyncs.
-  uint32_t release(std::vector<Lane *> &warp) {
-    for (Lane *t : warp) {
-      if (!t->has_sync) continue;
-      std::vector<Lane *> members;
-      for (Lane *u : warp) if (t->sync >> lane_id(*u) & 1 && u->live()) members.push_back(u);
-      if (std::any_of(members.begin(), members.end(), [](Lane *u) { return !u->has_sync; })) continue;
-      for (Lane *u : members) if (u->sync != t->sync) return stop(Disagree, t->index, 0, "", t->sync, u->sync);
-      for (Lane *u : members) u->waiting = false, u->released = true, u->has_sync = false;
-    }
-    return Done;
-  }
-
   // schedule.turn: Done with moved set when a lane stepped.
-  uint32_t turn(std::vector<Lane *> &warp, Memory &shared, bool &moved) {
+  uint32_t turn(std::vector<Lane *> &warp, Coordination &coordination,
+                uint32_t block_count, Memory &shared, bool &moved, uint32_t polled = 0) {
     moved = false;
-    if (uint32_t s = release(warp)) return s;
     uint64_t pc = UINT64_MAX;
-    for (Lane *u : warp) if (u->live() && !u->waiting) pc = std::min(pc, u->t.pc);
+    if constexpr (Resumption)
+      for (Lane *u : warp) if (u->live() && u->suspended && !(polled >> lane_id(*u) & 1)) pc = std::min(pc, u->t.pc);
+    if (pc == UINT64_MAX)
+      for (Lane *u : warp) if (u->live() && !(polled >> lane_id(*u) & 1)) pc = std::min(pc, u->t.pc);
     if (pc == UINT64_MAX) return Done;
-    std::vector<Lane *> active, taking;
-    for (Lane *u : warp) if (u->live() && !u->waiting && u->t.pc == pc) active.push_back(u);
+    std::array<Lane *, 32> storage;
+    size_t count = 0;
+    for (Lane *u : warp) if (u->live() && u->t.pc == pc && !(polled >> lane_id(*u) & 1)) storage[count++] = u;
+    const std::span<Lane *> active(storage.data(), count);
     uint64_t i; uint32_t o;
     if (!fetch(pc, active[0]->index, i, o)) return o;
-    moved = true;
+    if constexpr (Resumption) moved = std::any_of(active.begin(), active.end(), [](Lane *u) { return !u->suspended; });
+    else moved = true;
     const Info &info = p.info[i];
-    for (Lane *u : active) if (!info.guard.kind || (read(u->t, info.guard) ^ info.guard_not)) taking.push_back(u);
-    if (l.scope == 2 && info.unsupported && !taking.empty())
-      return stop(Faulted, taking.front()->index, pc, info.unsupported);
-    const auto drop = [&](const std::vector<Lane *> &held) {
-      active.erase(std::remove_if(active.begin(), active.end(), [&](Lane *u) { return std::find(held.begin(), held.end(), u) != held.end(); }), active.end());
-    };
-    WarpContext w{};
-    if (info.bar_sync && !std::all_of(taking.begin(), taking.end(), [](Lane *u) { return u->released; })) {
-      for (Lane *u : taking) u->waiting = true;
-      drop(taking);
-    } else if (info.warpsync) {
-      std::vector<Lane *> held;
-      for (Lane *u : taking) if (!u->released && (read(u->t, info.pp) ^ info.pp_not)) held.push_back(u);
-      for (Lane *u : held) {
-        uint64_t mask = 0;
-        switch (info.sync_kind) {
-          case 0: return stop(Unmodelled, u->index, pc);
-          case 1: mask = 0xffffffff; break;
-          case 2: mask = info.sync_mask; break;
-          default: mask = read(u->t, info.sync) & 0xffffffff;
-        }
-        if (!(mask >> lane_id(*u) & 1)) return stop(Omits, u->index, pc, "", mask);
-        u->waiting = true, u->has_sync = true, u->sync = uint32_t(mask);
+    Lane *first_taken = nullptr;
+    uint32_t taking = 0;
+    for (Lane *u : active) {
+      bool taken;
+      if constexpr (Resumption) taken = u->suspended ? u->taken : !info.guard.kind || (read(u->t, info.guard) ^ info.guard_not);
+      else taken = !info.guard.kind || (read(u->t, info.guard) ^ info.guard_not);
+      if (taken) {
+        if (!first_taken) first_taken = u;
+        if (info.collective) taking |= 1u << lane_id(*u);
       }
-      drop(held);
-    } else if (info.collective) {
+    }
+    if (l.scope >= info.unsupported_scope && info.unsupported && first_taken)
+      return stop(Faulted, first_taken->index, pc, info.unsupported);
+    WarpContext w{};
+    w.coordination = &coordination;
+    if (info.collective) {
       w.present = 1, w.has_waiting = 1;
-      (info.collective == 1 ? w.has_values : w.has_predicates) = 1;
-      uint64_t *values = info.collective == 1 ? w.values : w.predicates;
-      for (Lane *u : taking) values[lane_id(*u)] = read(u->t, info.source), w.active |= 1u << lane_id(*u);
+      w.active = taking;
       for (Lane *u : warp)
         if (u->live() && std::find(active.begin(), active.end(), u) == active.end()) w.waiting |= 1u << lane_id(*u);
     }
     for (Lane *u : active) {
-      WarpContext mine = w;
-      mine.lane = lane_id(*u);
-      if (uint32_t s = step(*u, pc, i, shared, info.collective ? mine : w)) return s;
-      u->released = false;
+      w.lane = lane_id(*u);
+      if (uint32_t s = step(*u, pc, i, shared, w, moved)) return s;
     }
+    if constexpr (Resumption)
+      if (!moved && !active.empty()) {
+        for (Lane *u : active) polled |= 1u << lane_id(*u);
+        return turn(warp, coordination, block_count, shared, moved, polled);
+      }
     return Done;
   }
 
@@ -239,16 +300,26 @@ struct Run {
       Memory memory;
       std::vector<Lane> lanes;
       std::vector<std::vector<Lane *>> warps;
+      Coordination coordination;
     };
     Memory global; global.base = l.image;
     const uint64_t n = (l.last - l.first + l.block - 1) / l.block;
     std::vector<Block> blocks(n);
+    std::mt19937 random(l.reverse > 1 ? l.reverse - 2 : 0);
+    const auto order = [&](size_t count) {
+      std::vector<size_t> indices(count);
+      std::iota(indices.begin(), indices.end(), 0);
+      if (l.reverse == 1) std::reverse(indices.begin(), indices.end());
+      else if (l.reverse > 1) std::shuffle(indices.begin(), indices.end(), random);
+      return indices;
+    };
     for (uint64_t j = 0; j < n; ++j) {
       auto &b = blocks[j];
       b.memory.base = l.image;
       b.memory.global = l.scope == 2 ? &global : nullptr;
       const uint64_t first = l.first + j * l.block;
       b.lanes.resize(std::min(first + l.block, l.last) - first);
+      b.coordination.reset(uint32_t(b.lanes.size()));
       for (uint64_t k = 0; k < b.lanes.size(); ++k) {
         start(b.lanes[k], first + k);
         b.lanes[k].local.base = l.image;
@@ -258,18 +329,15 @@ struct Run {
     }
     for (;;) {
       bool any = false, alive = false;
-      for (uint64_t j = 0; j < n; ++j) {
-        auto &b = blocks[l.reverse ? n - 1 - j : j];
+      for (size_t j : order(n)) {
+        auto &b = blocks[j];
         group = b.lanes.front().index;
-        std::vector<Lane *> live;
-        for (auto &u : b.lanes) if (u.live()) live.push_back(&u);
-        if (live.empty()) continue;
+        if (std::none_of(b.lanes.begin(), b.lanes.end(), [](const Lane &u) { return u.live(); })) continue;
         alive = true;
-        if (std::all_of(live.begin(), live.end(), [](Lane *u) { return u->waiting && !u->has_sync; }))
-          for (Lane *u : live) u->waiting = false, u->released = true;
-        for (size_t k = 0; k < b.warps.size(); ++k) {
+        for (size_t index : order(b.warps.size())) {
           bool moved;
-          if (uint32_t s = turn(b.warps[l.reverse ? b.warps.size() - 1 - k : k], b.memory, moved)) return s;
+          if (uint32_t s = turn(b.warps[index], b.coordination,
+                                uint32_t(b.lanes.size()), b.memory, moved)) return s;
           any |= moved;
         }
         if (l.scope == 1) break;
@@ -287,9 +355,12 @@ struct Run {
 
 };
 
+template<bool NativeRuntime = true, bool Callbacks = true, bool NativeResumption = NativeRuntime>
 inline uint32_t run(const Program &p, const Launch &l, Result &r) {
+  if constexpr (Callbacks)
+    if (!l.step_lane) return sass::run<NativeRuntime, false, NativeResumption>(p, l, r);
   r = Result{};
-  Run run{p, l, r};
+  Run<NativeRuntime, Callbacks, NativeResumption> run{p, l, r};
   return l.scope ? run.blocks() : run.single();
 }
 }  // namespace sass

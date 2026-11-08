@@ -15,15 +15,21 @@ FAMILIES['MUFU'] = 'mufu'
 
 
 def blocked_reason(op, cls, form):
-    if op == 'MUFU' and (not cls.startswith('mufu__') or form.get('mufuop', form.get('op')) not in ('SIN', 'COS')):
-        return 'MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage'
+    if op != 'MUFU': return None
+    match form.get('mufuop', form.get('op')), cls.startswith('mufu__'), form.get('fmt', form.get('width', 'F16')):
+        case ('SIN' | 'COS'), True, _: return None
+        case ('RCP' | 'RSQ' | 'RCP64H' | 'RSQ64H'), True, _: return None
+        case ('RCP' | 'RSQ'), False, 'F16': return None
+        case _: return 'MUFU numerical approximation oracle unavailable; generated error contracts are not value coverage'
 
 
 def generate(c,k,form,profiles):
     from tests.harness.autocases import Unsupported
     if k.mnemonic == 'MUFU' and not blocked_reason('MUFU', k.name, form):
-        if profiles != ['mufu_sincos']: raise Unsupported('incompatible MUFU SIN/COS profile')
-        return trigonometric(c, k, form)
+        match profiles:
+            case ['mufu_sincos']: return trigonometric(c, k, form)
+            case ['mufu_reciprocal']: return reciprocals(c, k, form)
+            case _: raise Unsupported('incompatible MUFU profile')
     if profiles != ['remaining_forms']: raise Unsupported('incompatible remaining-operation profile')
     if k.mnemonic in MEMORY: return access(c,k,form)
     if k.mnemonic in WARP: return collective(c,k,form)
@@ -49,6 +55,48 @@ def trigonometric(c, k, form):
     return c
 
 
+def reciprocals(c, k, form):
+    from tests.harness.autocases import Inputs, Unsupported
+    from tests.harness.case import source
+    src = source(k, 'Rb', 'Sb', 'URb')
+    op = form.get('mufuop', form.get('op'))
+    fmt = '64H' if op.endswith('64H') else 'F32' if k.name.startswith('mufu__') else form.get('fmt', form.get('width', 'F16'))
+    if src is None or fmt not in ('F32', '64H', 'F16'): raise Unsupported('unresolved MUFU precision')
+    if k.name.startswith('mufu_fp16_simd'): raise Unsupported('SIMD MUFU reciprocal packing remains unresolved')
+    spec = autocase_profiles.PROFILES['mufu_reciprocal']
+    values = c.input_profile.values if c.input_profile else spec[{'F16': 'halves', '64H': 'high_words', 'F32': 'words'}[fmt]]
+    for index, value in enumerate(values):
+        s = Inputs(c, k, form)
+        immediate = k.operand_types[src].type in ('F16Imm', 'F32Imm', 'F64Imm')
+        selected = int(form.get('extract', 'H0')[1])
+        physical = value
+        if fmt == 'F16' and not immediate:
+            physical = value << 16 | 0x7e01 if selected else value | 0xfc01 << 16
+        match k.operand_types[src].type:
+            case 'F16Imm' | 'F32Imm' | 'F64Imm': s.fields[src] = value << 32 if fmt == '64H' else value
+            case _: s.operand((src,), physical, 2)
+        sign = 0x8000 if fmt == 'F16' else 0x80000000
+        modified = value & ~sign if form.get(src+'@absolute') == 'set' else value
+        if form.get(src+'@negate') == 'set': modified ^= sign
+        dest = c.input_profile.destination if c.input_profile else 2 if index % 3 == 0 else 8
+        output = s.output(('Rd',), dest)
+        # Discovery must never consult a prospective reference.
+        expected = {output: 0 if c.discovery else mufu.reciprocal(modified, op, fmt)}
+        if not c.discovery: expected['__mufu'] = dict(op=op, fmt=fmt, accuracy='exact')
+        if not immediate and k.operand_types[src].type == 'Register': s.registers['R3'] = 0xdeadbeef
+        s.add(expected, form)
+        if not c.discovery and index == 0:
+            original = s.registers
+            s.fields['Pg'] = 0
+            s.registers = dict(original, P0=0, **{output: 0x13579bdf})
+            s.add({output: 0x13579bdf}, form)
+            s.fields.pop('Pg')
+            s.registers = original
+            s.fields['Rd'] = 255
+            s.add({'R255': 0}, form)
+    return c
+
+
 def environment(c,k,form):
     from tests.harness.autocases import Inputs
     spec=autocase_profiles.PROFILES['remaining_forms']
@@ -61,7 +109,8 @@ def environment(c,k,form):
                 if t.type in ('RSImm','F16Imm','F32Imm','F64Imm'): s.fields[n]=0
                 else: s.operand((n,), value if t.type not in ('SImm','UImm') else index*4, 2 if n!='Rd' else 8)
         if 'Pp' in k.operand_types: s.predicate(('Pp',),index%2,1)
-        active=(index%2) ^ (form.get('Pp@not')=='set') if 'Pp' in k.operand_types else True
+        reduction = k.mnemonic == 'BAR' and k.name.startswith('bar__RED')
+        active=True if reduction else (index%2) ^ (form.get('Pp@not')=='set') if 'Pp' in k.operand_types else True
         expected={};context={}
         if k.mnemonic=='MUFU': expected={'error':'MUFU approximation'}
         else:
@@ -73,8 +122,59 @@ def environment(c,k,form):
                 s.registers['R8']=0
             context={'synchronization':{k.mnemonic.lower():handler}}
             expected['__events']=int(bool(active))
+            expected['__userops'] = ['sass_prim_' + name if name in ('lane', 'active') else 'sass_ordered_' + name
+                                    for name in synchronization_effects(k, form, s.fields)]
         s.add(expected,form,context=context,hardware={'skip':'environment synchronization contract or unresolved MUFU approximation'})
     return c
+
+
+def synchronization_effects(k, form, fields):
+    deferred = 'defer_blocking' in k.operand_types
+    match k.mnemonic:
+        case 'BAR':
+            mode = form['barmode']
+            if mode in ('ARV', 'SYNC', 'RED') and not {'Rb', 'Rc'} <= k.operand_types.keys():
+                count = 'Sc' if 'Sc' in k.operand_types else 'Rc'
+                arrivals = ['implicit', 'counted'] if count == 'Rc' else ['implicit' if fields.get(count, 0) == 0 else 'counted']
+                return ['block_barrier_arrive_' + name for name in arrivals] + (
+                    [] if mode == 'ARV' else ['block_barrier_defer' if deferred else 'block_barrier_wait_ready']
+                ) + ['block_barrier_release_ticket']
+            match mode:
+                case 'ARV': name = 'packed_arrive'
+                case 'SYNC': name = 'packed_defer' if deferred else 'packed_wait'
+                case 'RED': name = 'packed_reduce_defer' if deferred else 'packed_reduce'
+                case 'SYNCALL': name = 'all_defer' if deferred else 'all'
+                case 'SCAN': name = 'scan'
+                case _: raise ValueError(mode)
+            return ['barrier_' + name + '_ack']
+        case 'WARPSYNC':
+            if k.name in ('warpsync__RIR', 'warpsync__RRR', 'warpsync__RUR'):
+                exclusive = 'EXCLUSIVE' in (form.get('ex'), form.get('div'))
+                return ['warp_sync_arrive_exclusive' if exclusive else 'warp_sync_arrive',
+                        'warp_sync_wait', 'warp_sync_release_ticket']
+            if 'sImm' not in k.operand_types: return ['warp_mask_ack']
+            name = ('relative_' if 'rel' in k.operand_types else 'collective_') + ('all' if 'all' in k.operand_types else 'mask')
+            return ['warp_' + name + '_ack']
+        case 'BSSY' | 'BSYNC':
+            mode = form.get('reliability')
+            suffix = '_' + mode.lower() if mode else ''
+            if k.mnemonic == 'BSSY':
+                return ['cooperative_context', 'lane', 'active', 'barrier_eligible_lanes', 'warp_capture_predicate',
+                        'snapshot_ballot', 'snapshot_release', 'convergence_enter' + suffix,
+                        'convergence_ack_enter_mode' if mode else 'convergence_ack_enter']
+            return ['cooperative_context', 'convergence_arrive' + suffix,
+                    'convergence_wait', 'convergence_release_ticket',
+                    'convergence_ack_wait_mode' if mode else 'convergence_ack_wait']
+        case 'BREAK': return ['convergence_break']
+        case 'BMOV':
+            match k.name:
+                case 'bmov_clear__Rd': name = 'state_read_clear' if form['clear'] == 'CLEAR' else 'state_read'
+                case 'bmov_clear_barrier_': name = 'barrier_copy'
+                case 'bmov_clear_bd__Bd': name = 'state_import'
+                case name if name.startswith('bmov_dst64__'): name = 'exit_pc_write'
+                case _: name = 'barrier_write' if 'barReg' in k.operand_types else 'state_write'
+            return ['convergence_' + name]
+        case _: raise ValueError(k.mnemonic)
 
 
 def collective(c,k,form):

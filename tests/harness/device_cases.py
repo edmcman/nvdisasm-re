@@ -26,7 +26,7 @@ BATCH_KERNELS = 32
 # writers claim scoreboard 0 and stores claim read scoreboard 1.
 CONTROL = (15 << 105) | (63 << 116) | (7 << 110) | (7 << 113)
 NAME = re.compile(r'(UR|UP|R|P)(\d+)$')
-BACKEND_CHECKS = {'__native', '__max_ops', '__counter', '__events', '__event_values', '__opaque', '__fp8_nan', '__memory'}
+BACKEND_CHECKS = {'__native', '__max_ops', '__userops', '__counter', '__events', '__event_values', '__opaque', '__fp8_nan', '__memory', '__mufu'}
 
 
 @cache
@@ -75,7 +75,7 @@ def classify(case, klass=None, arch="SM89"):
     extra = set(case.request) - {'word', 'registers', 'observe', 'inspect_pcode', 'memory', 'observe_memory', 'context', 'address'}
     if extra: raise ValueError(f'{case.id}: unclassified request fields {extra}')
     if hw.get('adapter'):
-        if hw['adapter'] == 'memory':
+        if hw['adapter'] in ('memory', 'async'):
             from tests.harness.device_setup import memory_reason
             if reason := memory_reason(case, arch): return 'emulator', reason
         return hw['adapter'], ''
@@ -248,41 +248,93 @@ def scalar_probe(scenarios, name, raw=False):
         join = None
         if s.kind == 'cx': device_setup.cx(code, case, temp, arena)
         if s.kind == 'warp': join = device_setup.warp(code, case, temp, arena)
+        if s.kind == 'matrix': shared = max(shared, device_setup.matrix(code, case, temp, arena))
         if s.kind == 'qspc':
             device_setup.qspc(code, case, temp, arena)
             shared, frame = max(shared, 256), max(frame, 256)
-        if s.kind == 'memory':
+        if s.kind in ('memory', 'async'):
             smem, local, base, start = device_setup.memory(code, case, temp, arena)
             shared, frame = max(shared, smem), max(frame, local)
         code.targets.append((len(code.words) * 16, case.request['word']))
         code.raw(int.from_bytes(bytes.fromhex(case.request['word']), 'little'))
+        if s.kind == 'async':
+            code.emit('ldgdepbar_')
+            code.emit('depbar__LE', le='LE', sbidx='SB0', cnt=0, scoreboard_list=0)
         if branches(s):
             displacement = decoded(case.request['word'], arch).env['sImm']
             if displacement != 32: raise ValueError('branch adapter currently requires the 32-byte branch scenario')
             code.mov(f'R{temp + 3}', case.request.get('address', 0x1000) + 16)
             code.emit('bra_', sImm=16)
             code.mov(f'R{temp + 3}', case.request.get('address', 0x1000) + 48)
-        if s.kind in ('warp', 'lane'): device_setup.lane_guard(code, temp, case.request['context']['warp']['lane'] if s.kind == 'warp' else case.request['registers']['SR_LANEID'])
+        if s.kind in ('warp', 'matrix', 'lane'): device_setup.lane_guard(code, temp, case.request['context']['warp']['lane'] if s.kind != 'lane' else case.request['registers']['SR_LANEID'])
         names, end = capture(code, case, temp, output, raw=raw)
-        if s.kind == 'memory' and case.request.get('observe_memory'):
+        if s.kind in ('memory', 'async') and case.request.get('observe_memory'):
             end, memory_names = device_setup.capture_memory(code, case, temp, end, base, start)
             names += memory_names
         if join: join()
         observations.append((output, names)); output = end
     code.emit('exit_')
-    return Probe(name, scenarios, code, constants(scenarios[0].case), observations, output, shared=shared, arena=bytes(arena), frame_size=frame, threads=32 if scenarios[0].kind in ('warp', 'lane') else 1,
+    return Probe(name, scenarios, code, constants(scenarios[0].case), observations, output, shared=shared, arena=bytes(arena), frame_size=frame, threads=32 if scenarios[0].kind in ('warp', 'matrix', 'lane') else 1,
                  grid=scenarios[0].case.request['registers']['SR_CTAID.X'] + 1 if scenarios[0].kind == 'ctaid' else 1, raw=raw)
+
+
+def parallel_word(scenario):
+    case = scenario.case
+    if scenario.kind != 'scalar' or case.request.get('memory') or case.request.get('context'): return None
+    instruction = decoded(case.request['word'], scenario.arch)
+    if instruction.klass.name not in ('mufu__RRR_RR', 'mufu_fp16__RR') or instruction.env.get('Pg', 7) != 7: return None
+    if instruction.env.get(('Pg', 'not'), 0): return None
+    names = resources(case.request['word'], scenario.arch) | set(case.request.get('registers', {})) | set(case.request.get('observe', []))
+    if not names or any(not re.fullmatch(r'R\d+', name) or int(name[1:]) >= 255 for name in names): return None
+    return case.request['word'], tuple(sorted(names))
+
+
+def parallel_probe(scenarios, name):
+    arch, case = scenarios[0].arch, scenarios[0].case
+    code, temp, threads = Code(arch), scratch(case, count=12, arch=arch), 128
+    names = sorted(resources(case.request['word'], arch) |
+                   {name for s in scenarios for name in s.case.request.get('registers', {})} |
+                   set(case.request['observe']))
+    if any(f'R{i}' in names for i in range(temp, temp + 12)): raise ValueError('parallel probe scratch registers overlap')
+    observed = case.request['observe']
+    if any(s.case.request['observe'] != observed for s in scenarios): raise ValueError('mixed parallel probe observations')
+    stride = 4 * len(names)
+    arena = b''.join(int(s.case.request.get('registers', {}).get(n, 0) & 0xffffffff).to_bytes(4, 'little')
+                     for s in scenarios for n in names)
+    code.emit('s2r_', Rd=temp + 2, SRa='SR_TID.X')
+    code.emit('s2r_', Rd=temp + 3, SRa='SR_CTAID.X')
+    code.emit('imad__RsIR_RIR', Rd=temp + 2, Ra=temp + 3, Sb=threads, Rc=temp + 2, fmt='U32')
+    code.emit('isetp__RsIR_RIR_noEX', Pu=6, Pv='PT', Ra=temp + 2, Sb=len(scenarios), Pp='PT', icmp='GE', fmt='U32', bop='AND')
+    code.emit('exit_', Pg=6)
+    code.parameter(temp, 72); code.parameter(temp + 1, 76)
+    code.emit('imad_wide__RsIR_RIR', Rd=temp + 4, Ra=temp + 2, Sb=stride, Rc=temp, fmt='U32')
+    code.emit('uldc_const__RCR', URd=4, Sa_bank=0, Sa_addr=launch.GLOBAL_DESCRIPTOR[arch], sz='64')
+    for index, register in enumerate(names):
+        code.emit('ldg__sImmOffset', Rd=int(register[1:]), Ra=temp + 4, Ra_offset=index * 4, sz='32', e='E')
+    code.targets.append((len(code.words) * 16, case.request['word']))
+    code.raw(int.from_bytes(bytes.fromhex(case.request['word']), 'little'))
+    code.parameter(temp, 64); code.parameter(temp + 1, 68)
+    code.emit('imad_wide__RsIR_RIR', Rd=temp + 4, Ra=temp + 2, Sb=len(observed) * 4, Rc=temp, fmt='U32')
+    for index, register in enumerate(observed):
+        code.emit('stg__sImmOffset', Ra=temp + 4, Ra_offset=index * 4, Rb=int(register[1:]), sz='32', e='E')
+    code.emit('exit_')
+    return Probe(name, scenarios, code, (), [(i * len(observed) * 4, observed) for i in range(len(scenarios))],
+                 len(scenarios) * len(observed) * 4, threads=threads, arena=arena,
+                 grid=(len(scenarios) + threads - 1) // threads, raw=True)
 
 
 def kernels(scenarios, raw=False):
     groups = defaultdict(list)
     for s in scenarios:
         if s.kind == 'emulator': continue
-        groups[(s.arch, s.kind, constants(s.case))].append(s)
+        groups[(s.arch, s.kind, constants(s.case), parallel_word(s) if raw else None,
+                tuple(s.case.request.get('observe', [])) if raw else ())].append(s)
     out = []
-    for (_, kind, _), group in groups.items():
-        if kind not in ('scalar', 'cx', 'memory', 'warp', 'branch', 'qspc', 'ctaid', 'lane'): raise ValueError(f'GPU adapter {kind!r} is not implemented')
-        size = 1 if kind in ('warp', 'lane', 'ctaid') else BATCH_CASES
+    for (_, kind, _, parallel, _), group in groups.items():
+        if kind not in ('scalar', 'cx', 'memory', 'async', 'warp', 'matrix', 'branch', 'qspc', 'ctaid', 'lane'): raise ValueError(f'GPU adapter {kind!r} is not implemented')
+        if parallel:
+            out.append(parallel_probe(group, f'probe_{len(out)}')); continue
+        size = 1 if kind in ('warp', 'matrix', 'lane', 'ctaid') else BATCH_CASES
         for start in range(0, len(group), size):
             out.append(scalar_probe(group[start:start + size], f'probe_{len(out)}', raw=raw))
     return out
@@ -330,7 +382,13 @@ def judged(case, names, values, arch="SM89"):
             if value is not None: value &= (1 << (8 * int(size))) - 1
         else: want = expected[n]
         if value is None: yield n, value, want, None; continue
-        yield n, value, want, same_fp8(value, want, expected['__fp8_nan']) if '__fp8_nan' in expected and not n.startswith('__memory:') else value == want
+        match expected:
+            case {'__mufu': spec} if not n.startswith('__memory:'):
+                from tests.refs.mufu import reciprocal_same
+                same = reciprocal_same(value, want, **spec)
+            case {'__fp8_nan': fmt} if not n.startswith('__memory:'): same = same_fp8(value, want, fmt)
+            case _: same = value == want
+        yield n, value, want, same
 
 
 def compare(case, names, values, arch="SM89"):

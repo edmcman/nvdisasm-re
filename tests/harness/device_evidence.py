@@ -18,7 +18,7 @@ VERSION = 1
 
 def hardware_expected(case):
     expected = (case.hardware or {}).get('expected', case.expected)
-    return {k: v for k, v in expected.items() if not k.startswith('__') or k in ('__memory', '__counter', '__fp8_nan')}
+    return {k: v for k, v in expected.items() if not k.startswith('__') or k in ('__memory', '__counter', '__fp8_nan', '__mufu')}
 
 
 def probed(s):

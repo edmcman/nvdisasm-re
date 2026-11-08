@@ -38,6 +38,23 @@ def source(k, *names):
     return next((n for n in names if n in k.operand_types), None)
 
 
+def native_contract(arch, cls, limit=None, userops=()):
+    from sass.md import parse
+    classes = parse.arch_classes(arch)
+    if cls not in classes: return {}
+    deferred = "DECOUPLED" in classes[cls]["props"].get("INSTRUCTION_TYPE", "")
+    wait = "sass_ordered_block_barrier_wait_deferred"
+    match limit:
+        case dict() if deferred and wait not in limit["userops"]:
+            return {"__max_ops": dict(limit, count=limit["count"] + 1, userops=[wait, *limit["userops"]])}
+        case dict(): return {}
+        case int() if deferred:
+            return {"__max_ops": dict(count=limit + 1, userops=[wait])}
+        case _ if deferred or userops:
+            return {"__userops": ([wait] if deferred and wait not in userops else []) + list(userops)}
+        case _: return {"__native": True}
+
+
 
 def flagged(k, name, flag):
     """Whether operand `name` of `k` takes the md flag `flag` (negate, invert, not, absolute)."""
@@ -55,8 +72,8 @@ def put(k, name, value, fields, regs, memory, reg, ureg=None, bank=None, imm=IMM
     value fills a register pair. False if the type is not accepted."""
     place = lambda r: regs.update(pair(r, value) if size == 8 else {r: value})
     match k.operand_types[name].type:
-        case "Register": fields[name] = reg; place(f"R{reg}")
-        case "UniformRegister":
+        case "Register" | "NonZeroRegister": fields[name] = reg; place(f"R{reg}")
+        case "UniformRegister" | "NonZeroUniformRegister":
             ureg = reg if ureg is None else ureg
             fields[name] = ureg; place(f"UR{ureg}")
         case "C" if bank:
@@ -160,7 +177,7 @@ class Cases(list):
         if not extras.get("memory", True): del extras["memory"]
         request = dict(word=word, registers=registers,
                        observe=[n for n in expected if not n.startswith("__")] if observe is None else observe, **extras)
-        if "__max_ops" in expected or "__native" in expected: request["inspect_pcode"] = True
+        if {"__max_ops", "__native", "__userops"} & expected.keys(): request["inspect_pcode"] = True
         return request
 
     def probe(self, cls, fields, registers, observe=(), hardware=None, **extras):

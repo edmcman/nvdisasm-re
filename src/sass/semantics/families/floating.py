@@ -7,7 +7,7 @@ The readable lowering is the plain formula: round to nearest, no flushing, min/m
 (.SAT and the sign modifiers stay)."""
 from sass.semantics.bitvec import *
 from sass.semantics.fp import fpformat
-from sass.semantics.family import definition, family, float_abs, float_neg, helper, outputs, unmodelled
+from sass.semantics.family import definition, family, float_abs, float_neg, helper, unmodelled
 from sass.semantics.families.integer import boolean
 
 SCALES = {'noscale': 0, 'D2': -1, 'D4': -2, 'D8': -3, 'M2': 1, 'M4': 2, 'M8': 3}
@@ -100,7 +100,7 @@ def result(i, ftz, r):
     if ftz: r = flushed(r)
     if i.has_operand('sat') and i.select_fork('sat') == 'SAT': r = saturated(r)
     if r.w != i.width('Rd'): unmodelled('width')
-    return outputs(Rd=r)
+    return i.assign_from_inputs(Rd=r)
 
 
 def operand_width(i, w, *names):
@@ -271,9 +271,9 @@ def combined(i, cond):
 def set_predicates(i, cond, minmax=None):
     """Pu = cond bop Pp, Pv = !cond bop Pp (or Pu = cond without a bop); under `minmax` Pv is the
     uncombined both-inputs-NaN flag."""
-    if not i.has_operand('bop'): return outputs(Pu=cond)
+    if not i.has_operand('bop'): return i.assign_from_inputs(Pu=cond)
     pv = combined(i, lnot(cond))
-    return outputs(Pu=combined(i, cond), Pv=pv if minmax is None else ite(minmax[0], minmax[1], pv),
+    return i.assign_from_inputs(Pu=combined(i, cond), Pv=pv if minmax is None else ite(minmax[0], minmax[1], pv),
                    order=('Pv', 'Pu'))  # equal destinations: Pu wins (SM89)
 
 
@@ -291,7 +291,7 @@ def fset_(i):
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb')
     i.select_fork('bf')
     _, (x, y) = float_inputs(i, 'Ra|Sa', 'Rb|Sb')
-    return outputs(Rd=const(ONE[32], 32) if combined(i, comparison(i, 'fcomp', x, y)) else const(0, 32))
+    return i.assign_from_inputs(Rd=const(ONE[32], 32) if combined(i, comparison(i, 'fcomp', x, y)) else const(0, 32))
 
 
 @family('DSETP')
@@ -319,7 +319,7 @@ def fchk(i):
     range (eb <= 1 or eb >= 252), or the quotient's exponent out of range (SM89 GPU: exact on 1.1M
     random and boundary pairs)."""
     if i.select_fork('mode') != 'DIVIDE': unmodelled('mode')
-    return outputs(Pu=division_check(i.fvalue('Ra'), i.fvalue('Rb|Sb')))
+    return i.assign_from_inputs(Pu=division_check(i.fvalue('Ra'), i.fvalue('Rb|Sb')))
 
 
 @family('FSEL', 'UFSEL')
@@ -327,7 +327,7 @@ def fsel_(i):
     """Rd = Pp ? Ra : Rb (FTZ flushes)."""
     operand_width(i, 32, 'Ra|Sa', 'Rb|Sb')
     _, (a, b) = float_inputs(i, 'Ra|Sa', 'Rb|Sb')
-    return outputs(Rd=a if i.pred('Pp') else b)
+    return i.assign_from_inputs(Rd=a if i.pred('Pp') else b)
 
 
 @helper
@@ -407,11 +407,11 @@ def fmnmx_(i):
     p = i.pred('Pp')
     xorsign = i.has_operand('xorsign') and i.select_fork('xorsign') == 'XORSIGN'
     nan = i.has_operand('nan') and i.select_fork('nan') == 'NAN'
-    if readable(i): return outputs(Rd=readable_minmax(p, a, b))
-    if not xorsign: return outputs(Rd=fmnmx(p, a, b, nan))
+    if readable(i): return i.assign_from_inputs(Rd=readable_minmax(p, a, b))
+    if not xorsign: return i.assign_from_inputs(Rd=fmnmx(p, a, b, nan))
     ra, rb = i.value('Ra|Sa', modifiers=False), i.value('Rb|Sb', modifiers=False)
     absolute = a is float_abs(ra) and b is float_abs(rb)
-    return outputs(Rd=fmnmx_xorsign(p, ra, rb, *((None, None) if absolute else (a, b)), nan))
+    return i.assign_from_inputs(Rd=fmnmx_xorsign(p, ra, rb, *((None, None) if absolute else (a, b)), nan))
 
 
 @helper
@@ -450,8 +450,8 @@ def fmnmx3_(i):
     _, (a, b, c) = float_inputs(i, 'Ra|Sa', 'Rb|Sb', 'Rc|Sc')
     p = i.pred('Pp')
     nan = i.has_operand('nan') and i.select_fork('nan') == 'NAN'
-    if readable(i): return outputs(Rd=readable_minmax3(p, a, b, c))
-    return outputs(Rd=fmnmx3(p, a, b, c, nan))
+    if readable(i): return i.assign_from_inputs(Rd=readable_minmax3(p, a, b, c))
+    return i.assign_from_inputs(Rd=fmnmx3(p, a, b, c, nan))
 
 
 # SM120's uniform twins; their unmodelled encodings are opaque (the runtime primitives are scalar only).
@@ -521,6 +521,16 @@ def float_rectified(r, fmt=None):
     """PTX .relu on a float lane: a result whose sign is set (negative, -0) becomes +0; an arithmetic
     NaN result is already the canonical positive one (SM89 GPU, HFMA2.RELU)."""
     return const(0, r.w) if slt(r, const(0, r.w)) else r
+
+
+def assign_half_result(i, packed, relu, fmt=None):
+    if relu is None: return i.assign_from_inputs(Rd=packed)
+    body = i.body()
+    if i.destination(i.resolve('Rd')) is None: return body.block()
+    enabled, result = body.capture_inputs((relu, packed))
+    lanes = (extract(result, lane * 16 + 15, lane * 16) for lane in (1, 0))
+    return i.assign_from_inputs(body=body, Rd=concat(*(
+        ite(enabled, float_rectified(value, fmt), value) for value in lanes)))
 
 
 def no_flush(i):
@@ -593,7 +603,7 @@ def half_arithmetic(i):
         r = fadd(a, c) if readable(i) else half_add(a, c)
         if ftz: r = half_flushed_result('add', (a, c), r)
         if half_saturating(i)[0]: r = saturated(r)
-        return outputs(Rd=widen_half(r))
+        return i.assign_from_inputs(Rd=widen_half(r))
     if ofmt == 'BF16_V2' and fma:
         if no_flush(i): unmodelled('BF16 flushing')
         sat, relu = half_saturating(i)
@@ -601,17 +611,15 @@ def half_arithmetic(i):
         inputs = [half_lanes(i, n, s, False) for n, s in zip(names, half_swizzles(i, fma))]
         if not readable(i):
             r = fpformat.bf16_packed(*(concat(x[1], x[0]) for x in inputs))
-            return outputs(Rd=r if relu is None else concat(*(
-                float_rectified(extract(r, lane * 16 + 15, lane * 16), 'BF16') if relu
-                else extract(r, lane * 16 + 15, lane * 16) for lane in (1, 0))))
+            return assign_half_result(i, r, relu, 'BF16')
         lanes = []
         for lane in (0, 1):
             x = [v[lane] for v in inputs]
             if readable(i):
                 a, b, c = [concat(v, const(0, 16)) for v in x]
                 r = fpformat.narrow(fadd(fmul(a, b), c), 'F32', 'BF16')
-            lanes.append(r if relu is None else float_rectified(r, 'BF16') if relu else r)
-        return outputs(Rd=concat(lanes[1], lanes[0]))
+            lanes.append(r)
+        return assign_half_result(i, concat(*reversed(lanes)), relu, 'BF16')
     if ofmt != 'F16_V2': unmodelled('ofmt')
     ftz = False
     mixed_flushing = False
@@ -628,7 +636,7 @@ def half_arithmetic(i):
         # float arithmetic on immediates): ptxas's constant move HFMA2.MMA Rd, -RZ, RZ, imm is one COPY.
         # A word, not a concat: the lanes' choices can't absorb it, so the folded constant is the whole Rd.
         hi, lo = (zext(canonical_half(i.imm(n, 16)), 32) for n in ('Sc', 'Sc1'))
-        return outputs(Rd=(hi << 16) | lo)
+        return i.assign_from_inputs(Rd=(hi << 16) | lo)
     inputs = [half_lanes(i, n, s, not mixed_flushing)
               for n, s in zip(names, half_swizzles(i, fma))]
     packed = packed_ftz('fma' if fma else 'add', tuple(concat(v[1], v[0]) for v in inputs)) if ftz else None
@@ -639,8 +647,8 @@ def half_arithmetic(i):
              (fadd(fmul(x[0], x[1]), x[2]) if fma else fadd(*x)) if readable(i)
              else half_fma(*x) if fma else half_add(*x))
         r = saturated(r) if sat else r
-        lanes.append(r if relu is None else float_rectified(r) if relu else r)
-    return outputs(Rd=concat(lanes[1], lanes[0]))
+        lanes.append(r)
+    return assign_half_result(i, concat(*reversed(lanes)), relu)
 
 
 @definition("fmz")
@@ -678,7 +686,7 @@ def hmul2(i):
         d, fa, fb = MUL_FORMATS[fmt]   # PTX mul.d.a.b: d = a * convert(b), b first rounded to d's format
         to_d = (lambda y: y) if fb == d else (lambda y: fpformat.narrow(as_double(y, fb), 'F64', d))
         lanes = [fpformat.narrow(fmul(as_double(x, fa), as_double(to_d(y), d)), 'F64', d) for x, y in zip(a, b)]
-        return outputs(Rd=concat(lanes[1], lanes[0]))
+        return i.assign_from_inputs(Rd=concat(lanes[1], lanes[0]))
     lanes = []
     packed = packed_ftz('mul', tuple(concat(v[1], v[0]) for v in (a, b))) if mode == 'FTZ' else None
     for lane in (0, 1):
@@ -689,7 +697,7 @@ def hmul2(i):
         if mode == 'FMZ': r = half_flushed_result('mul', (fx, fy), r)
         if mode == 'FMZ': r = const(0, 16) if ((x & 0x7c00) == 0) | ((y & 0x7c00) == 0) else r
         lanes.append(r)
-    return outputs(Rd=concat(lanes[1], lanes[0]))
+    return i.assign_from_inputs(Rd=concat(lanes[1], lanes[0]))
 
 
 def half_as_single(i, x, ftz):
@@ -716,7 +724,7 @@ def hset2(i):
     one = i.select_lookup_const('ofmt', {'F16_V2': 0x3c00, 'BF16_V2': 0x3f80}, 16) if i.has_operand('ofmt') else const(0x3c00, 16)
     true = i.select_lookup('bval', {'BF': one, 'BM': const(0xffff, 16)})
     lanes = [true if combined(i, c) else const(0, 16) for c in half_comparisons(i)]
-    return outputs(Rd=concat(lanes[1], lanes[0]))
+    return i.assign_from_inputs(Rd=concat(lanes[1], lanes[0]))
 
 
 @family('HSETP2')
@@ -724,7 +732,7 @@ def hsetp2(i):
     """Pu = lane 0's comparison bop Pp, Pv = lane 1's; .H_AND: Pu = (both lanes) bop Pp, Pv = !(both lanes) bop Pp."""
     low, high = half_comparisons(i)
     if i.select_fork('h_and') == 'H_AND': return set_predicates(i, low & high)
-    return outputs(Pu=combined(i, low), Pv=combined(i, high), order=('Pv', 'Pu'))
+    return i.assign_from_inputs(Pu=combined(i, low), Pv=combined(i, high), order=('Pv', 'Pu'))
 
 
 # ---- packed binary32 pairs: FADD2/FMUL2/FFMA2 and the mixed FHADD2/FHFMA2/FHMUL2 (SM107) ------------
@@ -796,7 +804,7 @@ def pair_result(i, ftz, lanes):
     elif ftz: lanes = [flushed(x) for x in lanes]
     r = concat(lanes[1], lanes[0])
     if r.w != i.width('Rd'): unmodelled('width')
-    return outputs(Rd=r)
+    return i.assign_from_inputs(Rd=r)
 
 
 A2 = ('Ra', 'iswzA', 'negA')
@@ -941,7 +949,7 @@ def hmnmx2(i):
     results = [hmnmx_lane(code, p, lanes[0][k], lanes[1][k], *raw(k), ftz, nan, xorsign) for k in (0, 1)]
     writes = dict(Rd=concat(results[1], results[0]))
     if predicates: writes.update({n: lane_chose_a(code, p, lanes[0][k], lanes[1][k], *raw(k), ftz) for k, n in enumerate(("Pu", "Pv"))})
-    return outputs(**writes)
+    return i.assign_from_inputs(**writes)
 
 
 def raw_half_lanes(i, names, swizzle):

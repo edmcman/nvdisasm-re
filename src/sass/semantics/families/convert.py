@@ -6,7 +6,7 @@ from functools import wraps
 from sass.semantics.fp import fpformat
 from sass.semantics.fp.fpformat import FORMATS
 from sass.semantics.bitvec import *
-from sass.semantics.family import definition, family, float_abs, float_neg, helper, outputs, same, unmodelled
+from sass.semantics.family import definition, family, float_abs, float_neg, helper, same, unmodelled
 from sass.semantics.families.floating import IEEE, flushed, readable
 
 FLOATS = {16: "F16", 32: "F32", 64: "F64"}
@@ -103,7 +103,7 @@ def frnd(i):
     w = int(fmt[1:])
     x = flush(i, source(i, "Rb|Sb", w), fmt)
     raw = source(i, "Rb|Sb", w, modified=False)
-    return outputs(Rd=integral(fmt, rounding(i), x, None if w == 32 or raw is x else raw))
+    return i.assign_from_inputs(Rd=integral(fmt, rounding(i), x, None if w == 32 or raw is x else raw))
 
 
 INTEGERS = {"S32": (32, True), "U32": (32, False), "S64": (64, True), "U64": (64, False)}
@@ -179,7 +179,7 @@ def f2i(i):
     r = fpformat.Rounding(*(const(int(v), 1) for v in fpformat.rounding("RZ"))) if readable(i) and i.labels("rnd") else rounding(i)
     if readable(i): i.ignore("rnd")
     x = flush(i, source(i, "Rb|Sb", FORMATS[src].width), src)
-    return outputs(Rd=float_to_int(x, src, n, signed, r, nan, bits))
+    return i.assign_from_inputs(Rd=float_to_int(x, src, n, signed, r, nan, bits))
 
 
 SOURCES = {"S8": (8, True), "U8": (8, False), "S16": (16, True), "U16": (16, False),
@@ -242,7 +242,7 @@ def i2f(i):
     x = integer_source(i, n)
     r = rounding(i)
     top = lookup(i, "dstfmt", {l: FORMATS[l].width - 1 for l in dsts}, 64)
-    return outputs(Rd=int_to_float(src, d, r, top, i.width("Rd"), x))
+    return i.assign_from_inputs(Rd=int_to_float(src, d, r, top, i.width("Rd"), x))
 
 
 @helper
@@ -296,7 +296,7 @@ def f2f(i):
     else:   # a widening is exact, its mode moot; the canonical NaN reads no register
         exact, canonical = d.width > s.width, {s.width, d.width} == {16, 32}
         r = converted(src, dst, *(fpformat.rounding("RN") if exact else r), x, None if canonical or raw is x else raw)
-    return outputs(Rd=resize(r, i.width("Rd")))
+    return i.assign_from_inputs(Rd=resize(r, i.width("Rd")))
 
 
 # SM120's uniform twins; their unmodelled encodings are opaque (the runtime primitives are scalar only).
