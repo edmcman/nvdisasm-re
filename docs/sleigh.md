@@ -525,14 +525,3 @@ Ghidra checks pass the expanded convergence and partial-deferred collective
 fixtures in exact/readable modes on SM89/SM90 under all three schedules.
 Logs are `.cache/ordered-gate/partial-deferred-languages.log` and
 `partial-deferred-ghidra.log`.
-
-Decode-time choices over common state reads (2026-11-09) share an ordered
-capture before selecting their pure calculation. `ordered.capture_inputs`
-compares the sequence of input expressions by identity. Loads remain ordered;
-a conditional constant-bank load is captured as the whole conditional, so its
-bounds check still prevents the read. Alternatives of a named selector with
-different inputs are partitioned by membership before capture. Constant
-comparisons such as F/T retain bodies without operand reads, while ordinary comparisons
-can share the captured operands. Special-register and primitive reads retain
-separate bodies. The HSETP2 RCx example enumerates 36 rows per liveness path,
-down from 772, without changing its supported selector domain.
