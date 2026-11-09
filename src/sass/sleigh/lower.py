@@ -145,7 +145,19 @@ class Symbolic(Instruction):
         if all(tree is cases[0][1] for _, tree in cases): return cases[0][1]
         from sass.semantics import ordered
         choice = sel((key,), cases, cases[0][1].w)
-        if ordered.accesses_state(choice) and ordered.register_inputs(choice) is None:
+        if ordered.accesses_state(choice) and ordered.capture_inputs(choice) is None:
+            groups = defaultdict(list)
+            for selection, tree in cases:
+                inputs = ordered.capture_inputs(tree)
+                groups[("inputs", tuple(map(id, inputs))) if inputs is not None else ("case", selection)].append((selection, tree))
+            # Named choices checked membership already; partial bit tables need their explicit domain.
+            if isinstance(key, str) and any(len(group) > 1 for group in groups.values()):
+                remaining = list(groups.values())
+                for group in remaining[:-1]:
+                    values = frozenset(value for (value,), _ in group)
+                    if self.answer(("in", key, values), (True, False)):
+                        return self.decode_choice(key, group)
+                return self.decode_choice(key, remaining[-1])
             chosen = self.answer(key, [value for (value,), _ in cases])
             return next(tree for (value,), tree in cases if value == chosen)
         return choice

@@ -76,27 +76,37 @@ def accesses_state(expression):
 
 @lru_cache(maxsize=4096)
 def register_inputs(expression):
+    return capture_inputs(expression, False)
+
+
+@lru_cache(maxsize=4096)
+def capture_inputs(expression, memory=True):
+    """Common captures of decode alternatives; runtime conditions remain inside their captures."""
     if not isinstance(expression, bitvec.Expr): return ()
     match expression.op:
         case "reg":
             return (expression,) if expression.args[0] in ("R", "UR", "P", "UP") else None
-        case "load" | "primitive": return None
+        case "load": return (expression,) if memory else None
+        case "primitive": return None
         case "sel":
-            inputs = [register_inputs(arm) for _, arm in expression.args[1]]
+            inputs = [capture_inputs(arm, memory) for _, arm in expression.args[1]]
             return inputs[0] if inputs and inputs[0] is not None and all(
                 inputs_ is not None and tuple(map(id, inputs_)) == tuple(map(id, inputs[0])) for inputs_ in inputs) else None
         case "ite":
-            condition, yes, no = map(register_inputs, expression.args)
-            return condition if condition is not None and yes is not None and no is not None and \
-                set(yes) | set(no) <= set(condition) else None
+            condition, yes, no = (capture_inputs(argument, memory) for argument in expression.args)
+            if condition is None or yes is None or no is None: return None
+            captured = set(condition)
+            yes, no = (tuple(value for value in branch if value not in captured) for branch in (yes, no))
+            if tuple(map(id, yes)) == tuple(map(id, no)): return (*condition, *yes)
+            return (expression,) if memory else None
         case op if op in bitvec.DEFINED:
             state, inputs = definition_properties(*definition_signature(expression))
             if state: return None
             arguments = [expression.args[index] for index in sorted(inputs)]
         case _: arguments = expression.args
-    inputs = [register_inputs(argument) for argument in arguments if isinstance(argument, bitvec.Expr)]
+    inputs = [capture_inputs(argument, memory) for argument in arguments if isinstance(argument, bitvec.Expr)]
     return None if any(value is None for value in inputs) else tuple(dict.fromkeys(
-        register for value in inputs for register in value))
+        source for value in inputs for source in value))
 
 
 def operation(name, arguments=(), results=(), *, reads=(), writes=(), suspends=False, description, runtime=None, native=None):
@@ -524,10 +534,10 @@ class Builder:
                 value = self.read_memory(space, self.capture(address, memo), expression.w)
             case "primitive": raise TypeError("use Special for environment access")
             case "sel":
-                inputs = register_inputs(expression)
+                inputs = capture_inputs(expression)
                 if inputs is None and accesses_state(expression):
                     raise TypeError("stateful decode-time choice needs separate ordered bodies")
-                for register in inputs or (): self.capture(register, memo)
+                for source in inputs or (): self.capture(source, memo)
                 keys, cases = expression.args
                 value = bitvec.Expr("sel", (keys, tuple((selections, self.capture(arm, memo))
                                                       for selections, arm in cases)), expression.w)

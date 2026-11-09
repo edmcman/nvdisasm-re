@@ -536,7 +536,7 @@ def family_forms(plans, arch, family):
     return [e for e in saved_plan(arch, plans)['forms'] if e['family'] == family]
 
 
-def stream(arch, fp, family, start=0, step=1, sample=sampling.DEFAULT):
+def stream(arch, fp, family, start=0, step=1, sample=sampling.DEFAULT, *, discovery=False):
     """The family's generated cases, form by form; with start/step, every step-th planned form from start."""
     if family not in FAMILIES.values(): return
     if start == 0 and family in ('fp16', 'conversions'):
@@ -544,7 +544,7 @@ def stream(arch, fp, family, start=0, step=1, sample=sampling.DEFAULT):
         yield from autocase_half_requests.cases(arch, fp, family)
     for entry in family_forms(PLANS, arch, family)[start::step]:
         yield from generate(arch, entry['cls'], entry['settings'], fp, entry['profiles'], entry['native'],
-                            sample=sample, profile_mode=entry['profile_mode'])
+                            sample=sample, profile_mode=entry['profile_mode'], discovery=discovery)
 
 
 def append(c, family, sample=sampling.DEFAULT): c.extend(stream(c.arch, c.fp, family, sample=sample))

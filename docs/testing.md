@@ -1025,3 +1025,12 @@ against main's cached four-minute run.
 The corrected import audit, unsigned-address regressions and both suspension
 gates pass five Ghidra tests in 106.85 seconds; focused merger, launch and cache
 checks pass 135 Python/native tests.
+
+Definition inventory and matrix references (2026-11-09): numeric-definition
+discovery streams matrix autocases in their existing discovery mode. It uses
+instruction words, not expected numerical results, and avoids computing the
+matrix references that it would discard. Other families retain ordinary case
+generation: their discovery mode can also expand input domains. Tests compare
+ordinary and discovery word/id sequences for representative forms on all ten
+architectures and both FP modes. Verification and evidence generation continue
+to evaluate references; inventory cases provide no verification evidence.

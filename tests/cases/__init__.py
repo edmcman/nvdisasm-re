@@ -32,13 +32,13 @@ def emulator_cases(arch, fp, families=FAMILIES, sample=sampling.DEFAULT, generat
     return out
 
 
-def stream(arch, fp, family, sample, shard):
+def stream(arch, fp, family, sample, shard, *, discovery=False):
     """One shard of a language's family, case by case: None, the manual cases; (i, n), every n-th
     generated form from the i-th."""
     if shard is None: yield from emulator_cases(arch, fp, (family,), sample, generated=False)[family]
     else:
         from tests.harness.autocases import stream as generated
-        yield from generated(arch, fp, family, *shard, sample=sample)
+        yield from generated(arch, fp, family, *shard, sample=sample, discovery=discovery)
 
 
 @cache
