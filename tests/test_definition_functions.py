@@ -251,6 +251,23 @@ def test_discovery_respects_requested_variants(monkeypatch, selected):
     finally: definition_functions.discover.cache_clear()
 
 
+@pytest.mark.parametrize("arch", ["SM75", "SM80", "SM86", "SM89", "SM90", "SM100", "SM101", "SM103", "SM107", "SM120"])
+@pytest.mark.parametrize("fp", ["exact", "readable"])
+def test_matrix_definition_discovery_preserves_words_without_computing_references(monkeypatch, arch, fp):
+    from tests.harness import autocases
+    from tests.refs import matrix
+    entries = autocases.family_forms(autocases.PLANS, arch, "matrix")
+    entry = next((entry for entry in entries if entry["cls"].startswith("hmma")), entries[0])
+    def generate(discovery):
+        return autocases.generate(arch, entry["cls"], entry["settings"], fp,
+                                  entry["profiles"], entry["native"],
+                                  profile_mode=entry["profile_mode"], discovery=discovery)
+    expected = [(case.id, case.request["word"]) for case in generate(False)]
+    def unused(*args, **kwargs): raise AssertionError("inventory evaluated a matrix reference")
+    monkeypatch.setattr(matrix, "hmma", unused)
+    assert [(case.id, case.request["word"]) for case in generate(True)] == expected
+
+
 def extra_uses():
     wide(bitvec.param("x", 128))
     overload(bitvec.param("x", 32))

@@ -26,7 +26,9 @@ def representatives(job):
     """One representative word per use in a shard, never returning expression graphs."""
     arch, fp, fam, sample, shard = job
     words, found = set(), {}
-    for case in cases.stream(arch, fp, fam, sample, shard):
+    # Matrix discovery preserves the words without evaluating discarded references. Other
+    # adapters also expand their input domains in discovery mode.
+    for case in cases.stream(arch, fp, fam, sample, shard, discovery=fam == "matrix"):
         word = case.request.get("word")
         if word is None or word in words: continue
         words.add(word)

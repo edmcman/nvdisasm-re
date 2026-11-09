@@ -1044,3 +1044,11 @@ stage statuses/times are in `.cache/perf/validation.json`, with
 `validation-{native-fixtures,focused,ghidra,combinations}.log` and
 `combinations.json`. Shared cases, references, fixture inputs and generated
 semantics are unchanged; this run adds no hardware-verification claim.
+
+Reference lift reuse (2026-11-09): the Python kernel engine retains up to 1,024
+recent instruction lifts across requests. The key includes the full instruction
+bytes, PC, architecture, FP mode and lifter implementation. Each kernel copies
+the semantic record before using it; the immutable ordered body can be shared.
+Lane state, memory, runtime operations and execution frames remain request-local.
+This saves repeated lifting when the same kernels are run with new input data;
+eviction simply causes a later request to lift the word again.
