@@ -4,13 +4,16 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 
+import ghidra.app.util.Option;
 import ghidra.app.util.bin.ByteProvider;
 import ghidra.app.util.bin.format.elf.ElfConstants;
 import ghidra.app.util.bin.format.elf.ElfException;
 import ghidra.app.util.bin.format.elf.ElfHeader;
 import ghidra.app.util.opinion.ElfLoader;
+import ghidra.app.util.opinion.ElfLoaderOptionsFactory;
 import ghidra.app.util.opinion.LoadSpec;
 import ghidra.app.util.opinion.LoaderTier;
+import ghidra.framework.model.DomainObject;
 import ghidra.program.model.data.ArrayDataType;
 import ghidra.program.model.data.ByteDataType;
 import ghidra.program.model.listing.Program;
@@ -43,11 +46,40 @@ public class SassCubinLoader extends ElfLoader {
         catch (ElfException e) {
             return List.of();
         }
-        // Keep the ELF opinion mappings and options; only the final data setup differs.
+        // Keep ELF opinion mappings; customize defaults and final data setup below.
         return new ElfLoader().findSupportedLoadSpecs(provider).stream()
             .map(spec -> new LoadSpec(this, spec.getDesiredImageBase(),
                 spec.getLanguageCompilerSpec(), spec.isPreferred()))
             .toList();
+    }
+
+    @Override
+    public List<Option> getDefaultOptions(ByteProvider provider, LoadSpec spec,
+            DomainObject domainObject, boolean loadIntoProgram, boolean mirror) {
+        List<Option> options = super.getDefaultOptions(provider, spec, domainObject,
+            loadIntoProgram, mirror);
+        try {
+            ElfHeader elf = new ElfHeader(provider, null);
+            if (elf.e_machine() == ElfConstants.EM_CUDA &&
+                    Byte.toUnsignedInt(elf.e_ident_abiversion()) < 8 && elf.findImageBase() == 0) {
+                // Legacy cubins have overlapping zero-based segments and sections. Ghidra's
+                // overlap resolver subtracts file-offset differences from their load address.
+                // Leave room below the chosen base for any difference within this file.
+                long size = provider.length();
+                if (size > Long.MAX_VALUE - 0xfff) return options;
+                long base = Math.max(ElfLoaderOptionsFactory.IMAGE64_BASE_DEFAULT,
+                    (size + 0xfff) & ~0xfffL);
+                for (Option option : options) {
+                    if (ElfLoaderOptionsFactory.IMAGE_BASE_OPTION_NAME.equals(option.getName())) {
+                        option.setValue(Long.toHexString(base));
+                    }
+                }
+            }
+        }
+        catch (ElfException e) {
+            // The underlying ELF loader reports unreadable headers during import.
+        }
+        return options;
     }
 
     @Override
