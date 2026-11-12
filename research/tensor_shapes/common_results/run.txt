@@ -1,0 +1,14 @@
+Tests: 91, 389.9s
+kc_asum_simple 6.3s [('cb210', ['cb220:32'], True), ('cb218', ['1'], True)]
+kc_axpy 0.1s [('cb210', ['cb224:32'], True), ('cb218', ['cb224:32'], True)]
+kc_dot_reduce 1.4s [('cb210', ['cb220:32'], True), ('cb218', ['1'], True)]
+kc_dot_partial 218.3s [('cb210', ['cb228:32'], True), ('cb218', ['cb228:32'], True), ('cb220', ['cbc:32'], True)]
+kc_gemv_n_simple 98.2s [('cb210', ['cb230:32', 'cb234:32'], True), ('cb218', ['cb234:32'], True), ('cb220', ['cb230:32'], True)]
+kc_nrm2_final 8.8s [('cb210', ['cb220:32'], True), ('cb218', ['1'], True)]
+kc_nrm2_partial 17.8s [('cb210', ['cb220:32'], True), ('cb218', ['cbc:32'], True)]
+kc_nrm2_unrolled 6.2s [('cb210', ['cb220:32'], True), ('cb218', ['cbc:32'], True)]
+kc_nrm2_with_imnmx 8.4s [('cb210', ['cb220:32'], True), ('cb218', ['cbc:32'], True)]
+kc_sgemm_naive 149.4s [('cb210', ['cb230:32', 'cb234:32'], True), ('cb218', ['cb230:32', 'cb238:32'], True), ('cb220', ['cb238:32', 'cb234:32'], True)]
+kc_sgemm_tiled 39.6s [('cb210', ['cb230:32', 'cb234:32'], True), ('cb218', ['cb230:32', 'cb238:32'], True), ('cb220', ['cb238:32', 'cb234:32'], True)]
+kc_strsm_lower_8x8 19.9s [('cb210', ['8', '8'], True), ('cb218', ['8', '8'], True)]
+research/tensor_shapes/common_results/manifest.json
