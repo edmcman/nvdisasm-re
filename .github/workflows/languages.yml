@@ -1,7 +1,7 @@
 name: languages
 on:
   push:
-    paths: ["src/sass/**", "processor/SASS/data/languages/**", "processor/SASS/src/**", ".github/workflows/languages.yml"]
+    paths: ["src/sass/**", "processor/SASS/data/languages/**", "processor/SASS/src/**", "tests/ghidra_compat/**", "examples/assembler/write_value.sass", ".github/workflows/languages.yml"]
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -72,11 +72,21 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.13"
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install Ghidra 12.0.4 for the processor JAR
+        run: |
+          curl -fsSL -o ghidra.zip https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.0.4_build/ghidra_12.0.4_PUBLIC_20260303.zip
+          unzip -q ghidra.zip -d "$RUNNER_TEMP"
       - uses: actions/download-artifact@v8
         with:
           pattern: language-*
           merge-multiple: true
           path: languages
+      - name: Build compatible processor JAR
+        run: uv run python -c 'from sass.sleigh import processor; processor.build("${{ runner.temp }}/ghidra_12.0.4_PUBLIC", "languages")'
       - name: package
         run: |
           cp processor/SASS/data/languages/{sass_common.sinc,sass.pspec,sass.cspec} languages/
@@ -90,6 +100,10 @@ jobs:
           mkdir -p processor/SASS/lib
           cp languages/lib/SASS.jar processor/SASS/lib/
           tar --exclude=SASS/data/languages/lib -czf sass-processor.tar.gz -C processor SASS
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sass-processor
+          path: sass-processor.tar.gz
       - name: publish
         env:
           GH_TOKEN: ${{ github.token }}
@@ -101,3 +115,49 @@ jobs:
             --title "SLEIGH languages for ${GITHUB_SHA::7}" \
             --notes "Complete SASS processor with automatic kernel-argument analysis: unpack sass-processor.tar.gz into Ghidra/Processors/. The languages-only archive unpacks into processor/SASS/data/languages/."
           gh release upload "$TAG" sass-languages.tar.gz sass-processor.tar.gz --clobber
+  compatibility:
+    needs: release
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - version: 12.0.4
+            date: 20260303
+            java: '21'
+          - version: 12.1.4
+            date: 20260921
+            java: '21'
+          - version: '12.2'
+            date: 20261016
+            java: '25'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: sass-processor
+      - name: Install packaged processor
+        run: |
+          curl -fsSL -o ghidra.zip https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${{ matrix.version }}_build/ghidra_${{ matrix.version }}_PUBLIC_${{ matrix.date }}.zip
+          unzip -q ghidra.zip -d "$RUNNER_TEMP"
+          tar -xzf sass-processor.tar.gz -C "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/Ghidra/Processors"
+      - name: Import and analyze SM89 cubin
+        run: |
+          uv run sass-assemble examples/assembler/write_value.sass -o "$RUNNER_TEMP/write_value.cubin"
+          mkdir -p "$RUNNER_TEMP/project"
+          "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/support/analyzeHeadless" "$RUNNER_TEMP/project" smoke \
+            -import "$RUNNER_TEMP/write_value.cubin" -loader SassCubinLoader \
+            -scriptPath tests/ghidra_compat -postScript CompatibilitySmoke.java \
+            -log "$RUNNER_TEMP/ghidra-smoke.log"
+          grep -q SASS_COMPATIBILITY_SMOKE_PASSED "$RUNNER_TEMP/ghidra-smoke.log"
+      - if: failure()
+        run: |
+          cat "$RUNNER_TEMP/ghidra-smoke.log" 2>/dev/null || true
+          find ~/.config/ghidra -name application.log -exec cat {} \; 2>/dev/null || true
