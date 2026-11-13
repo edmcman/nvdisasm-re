@@ -55,7 +55,7 @@ def cx(code, case, temp, arena):
     code.emit('ulop3_lut__URuIUR_URIR', URd=ur + 1, URa=ur + 1, Sb=units << (bits - 32), URc='URZ', imm8=0xfc, UPp='UPT')
 
 
-ADDRESSED = ('LD', 'ST', 'LDG', 'STG', 'LDL', 'STL', 'LDS', 'STS', 'ATOMG', 'LDGSTS', 'CCTL')
+ADDRESSED = ('LD', 'ST', 'LDG', 'STG', 'LDL', 'STL', 'LDS', 'STS', 'ATOMG', 'RED', 'LDGSTS', 'CCTL')
 
 
 def address_span(d, name, arch):
@@ -90,7 +90,7 @@ def memory_binding(case, arch="SM89"):
         address += regs.get(f'UR{u}', 0) if u != 63 else 0
         if address_span(d, uniform, arch) == 2:
             address += regs.get(f'UR{u + 1}', 0) << 32 if u != 63 else 0
-    if d.klass.mnemonic in ('LDG', 'STG', 'ATOMG', 'LDGSTS', 'CCTL'): space, logical = 'ram', address
+    if d.klass.mnemonic in ('LDG', 'STG', 'ATOMG', 'RED', 'LDGSTS', 'CCTL'): space, logical = 'ram', address
     elif d.klass.mnemonic in ('LDL', 'STL'): space, logical = 'localmem', address
     elif d.klass.mnemonic in ('LDS', 'STS'): space, logical = 'shared', address
     elif d.klass.mnemonic in ('LD', 'ST'):

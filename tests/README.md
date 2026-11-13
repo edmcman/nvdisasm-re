@@ -895,6 +895,10 @@ both fixture tests.
 
 ## Disassembly corpora and results
 
+To check that every distinct instruction in an external cubin tree has non-opaque
+semantics, run `SASS_CUBIN_CORPUS=/path/to/tree nice uv run pytest -q tests/test_external_cubins.py`.
+This checks lift availability, not execution correctness, and excludes text-only listings.
+
 The disassembly tests use `nvdisasm -b SMxx` as an oracle over three corpora:
 
 - **real**: every instruction in the cubins inside the CUDA libraries (`cuobjdump -xelf` of
