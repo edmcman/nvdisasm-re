@@ -950,6 +950,10 @@ The GPU is an RTX 4070 Laptop GPU. Compiler probes use CUDA 13.0.88 ptxas;
 decoding uses CUDA 13.4.92 nvdisasm. Other architectures' implementations are
 inferences from their corrected machine descriptions, not hardware verification.
 
+- `RED.E.ADD.STRONG.GPU` with the implicit memory descriptor and 32-bit operands:
+  11 generated single-instruction observations on the RTX 4070 Laptop GPU
+  (2026-11-13) agree with unsigned atomic addition, including wraparound. The
+  SM80 encoding found in vine has the same decoded form; SM80 was not tested.
 - `ATOMG`: 384 integer discovery cases distinguish ADD, signed MIN, unsigned MAX,
   INC, DEC, EXCH, and CAS, including destination aliases with the address/source
   registers and RZ sinks. Ordinary completion clears Pu. Returned values and

@@ -10,6 +10,18 @@ from tests.harness import autocases, autocase_profiles, lifted
 from tests.refs import atomic
 
 
+@pytest.mark.parametrize("arch", ["SM80", "SM89"])
+def test_red_descriptor_add(arch):
+    word = bytes.fromhex("8e7900040700000084e1100c00e20f00")
+    decoded = pydecode.decode(arch, word)
+    assert decoded.klass.name == "red_uniform__memdesc"
+    cases = autocases.generate(arch, decoded.klass.name, modifiers.settings(arch, decoded))
+    assert cases
+    for case in cases:
+        status, problems = lifted.run(arch, "exact", case)
+        assert status == "native" and not problems, (case.id, problems)
+
+
 @pytest.mark.parametrize("size", ["F32.FTZ.RN", "F64.RN", "F16x2.RN"])
 def test_float_atomic_reference(size):
     from sass.semantics.bitvec import const

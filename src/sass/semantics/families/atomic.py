@@ -37,14 +37,17 @@ def update(op, old, value, replacement=None, signed=False):
         case _: unmodelled(f"atomic operation {op}")
 
 
-@family("ATOMG", modifier_roles={"cop": "hint", "sem": "effect", "sco": "effect", "private": "effect"})
+@family("ATOMG", "RED", modifier_roles={"cop": "hint", "sem": "effect", "sco": "effect", "private": "effect"})
 def atomg(i):
+    if i.opcode == "RED" and i.cls != "red_uniform__memdesc": unmodelled("RED form unresolved")
     size = str(i.select_fork("sz"))
     sizes = {"32": 32, "S32": 32, "64": 64, "S64": 64, "128": 128,
              "F32.FTZ.RN": 32, "F64.RN": 64, "F16x2.RN": 32}
     if size not in sizes: unmodelled(f"atomic type {size}")
     width = sizes[size]
     op = str(i.select_fork("cas" if i.has_operand("cas") else "op"))
+    if i.opcode == "RED" and (op != "ADD" or size != "32"):
+        unmodelled("RED form unresolved")
     if op == "SAFEADD": unmodelled("SAFEADD overflow and predicate result")
     if i.select_fork("sem") == "MMIO": unmodelled("atomic MMIO environment")
     address = memory.address(i)
@@ -62,7 +65,7 @@ def atomg(i):
     replacement = inner.capture(replacement) if replacement is not None else None
     result = float_add(size, old, value) if size.startswith("F") else update(op, old, value, replacement, size.startswith("S"))
     result = inner.move(result)
-    i.assign_from_inputs(inner, Rd=old, Pu=const(0, 1))
+    if i.opcode == "ATOMG": i.assign_from_inputs(inner, Rd=old, Pu=const(0, 1))
     inner.emit(ordered.WriteMemory("ram", address, result))
     body.emit(ordered.Atomic(inner.block()))
     return body.block()

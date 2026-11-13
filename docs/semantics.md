@@ -1788,9 +1788,11 @@ are nonnegative statement positions; pure numerical response IDs are negative,
 so the two kinds cannot collide within an instruction.
 
 The production lifter supplies ordered bodies for supported numerical instructions
-and directly migrated memory, cache, special-register, MEMBAR, ATOMG, control-flow,
+and directly migrated memory, cache, special-register, MEMBAR, ATOMG, RED, control-flow,
 QSPC, ELECT, B2R, LDGSTS, LDGDEPBAR, DEPBAR, MUFU, SHFL, VOTE/VOTEU, MATCH, REDUX,
 LDSM, and HMMA families.
+RED currently models only 32-bit ADD in `red_uniform__memdesc`; other RED forms
+remain opaque.
 Python evaluation and native generation execute those bodies. Native instructions
 without suspension keep ordinary functions without a resumption frame. The native
 kernel generator supplies a separate function table for resumable bodies.
