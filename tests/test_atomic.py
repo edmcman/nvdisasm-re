@@ -22,6 +22,13 @@ def test_red_descriptor_add(arch):
         assert status == "native" and not problems, (case.id, problems)
 
 
+@pytest.mark.parametrize("arch", ["SM75", "SM80", "SM86", "SM89"])
+def test_other_red_classes_remain_opaque(arch):
+    word = bytes.fromhex(encoding.encode(arch, "red__RaNonRZ", e="E", Ra=4, Rb=12, op="ADD", sz="32"))
+    sem = lifter.lift(arch, word)
+    assert sem.status == "opaque" and sem.reason == "no family"
+
+
 @pytest.mark.parametrize("size", ["F32.FTZ.RN", "F64.RN", "F16x2.RN"])
 def test_float_atomic_reference(size):
     from sass.semantics.bitvec import const

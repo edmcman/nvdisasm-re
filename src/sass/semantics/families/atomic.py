@@ -37,9 +37,9 @@ def update(op, old, value, replacement=None, signed=False):
         case _: unmodelled(f"atomic operation {op}")
 
 
-@family("ATOMG", "RED", modifier_roles={"cop": "hint", "sem": "effect", "sco": "effect", "private": "effect"})
+@family("ATOMG", "RED", classes=lambda k: k.mnemonic == "ATOMG" or k.name == "red_uniform__memdesc",
+        modifier_roles={"cop": "hint", "sem": "effect", "sco": "effect", "private": "effect"})
 def atomg(i):
-    if i.opcode == "RED" and i.cls != "red_uniform__memdesc": unmodelled("RED form unresolved")
     size = str(i.select_fork("sz"))
     sizes = {"32": 32, "S32": 32, "64": 64, "S64": 64, "128": 128,
              "F32.FTZ.RN": 32, "F64.RN": 64, "F16x2.RN": 32}
