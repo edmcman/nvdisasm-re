@@ -28,7 +28,6 @@ public class SassCubinLoader extends ElfLoader {
         return LoaderTier.SPECIALIZED_TARGET_LOADER;
     }
 
-    @Override
     public Collection<String> getAssociatedFileExtensions() {
         return List.of("cubin");
     }

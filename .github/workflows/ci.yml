@@ -75,7 +75,8 @@ jobs:
         run: echo "list=$(uv run python -c 'import json; from sass.sleigh.build import ARCHES; print(json.dumps(ARCHES))')" >> "$GITHUB_OUTPUT"
   generate:
     needs: architectures
-    runs-on: ubuntu-latest
+    # CUDA 13.0's headers conflict with the rsqrt declarations in Ubuntu 26.04's glibc.
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         arch: ${{ fromJSON(needs.architectures.outputs.list) }}
@@ -116,7 +117,7 @@ jobs:
           test -z "$(git status --porcelain processor/SASS/semantics/)"
   python-tests:
     needs: architectures
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -165,7 +166,7 @@ jobs:
             .cache/formal-doc/example/
   ghidra-tests:
     needs: architectures
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false

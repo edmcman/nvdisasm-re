@@ -143,7 +143,7 @@ matched, which md conventions `nvdisasm` honours, and its printing quirks) are l
 
 ## Ghidra processor (`processor/SASS/`)
 
-Build and install with Python 3 and a working Ghidra installation (tested with Ghidra 12.2, which needs Java 25).
+Build and install with Python 3 and a working Ghidra installation. The full test suite uses Ghidra 12.2 (Java 25); release archives also receive cursory SM89 import, disassembly and kernel-argument analysis checks on Ghidra 12.0.4 and 12.1.4 (Java 21). These checks do not comprehensively verify compatibility with those versions.
 The generator uses the committed `src/sass/md/data/` descriptions.
 
 1. From the repository root, set your Ghidra installation path and build the languages
