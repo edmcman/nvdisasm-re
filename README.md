@@ -146,7 +146,7 @@ matched, which md conventions `nvdisasm` honours, and its printing quirks) are l
 Build and install with Python 3 and a working Ghidra installation. The full test suite uses Ghidra 12.2 (Java 25); release archives also receive cursory SM89 import, disassembly and kernel-argument analysis checks on Ghidra 12.0.4 and 12.1.4 (Java 21). These checks do not comprehensively verify compatibility with those versions.
 The generator uses the committed `src/sass/md/data/` descriptions.
 
-For the easiest installation, download `sass-extension.zip` from the [latest release](https://github.com/edmcman/nvdisasm-re/releases/latest).
+For installation, updates, and importing cubins, see the [Ghidra extension guide](docs/ghidra-extension.md). Download `sass-extension.zip` from the [latest release](https://github.com/edmcman/nvdisasm-re/releases/latest).
 In Ghidra's project window, choose **File → Install Extensions**, click the plus button,
 select the ZIP, and restart Ghidra. The extension includes every architecture and both
 floating-point variants, the cubin loader, and the kernel-argument analyzer. Its metadata
