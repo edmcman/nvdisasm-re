@@ -1,8 +1,12 @@
 name: languages
 on:
   push:
-    paths: ["src/sass/**", "processor/SASS/data/languages/**", "processor/SASS/src/**", "tests/ghidra_compat/**", "examples/assembler/write_value.sass", "docs/ghidra-extension.md", ".github/workflows/languages.yml"]
+    branches: ['**']
   workflow_dispatch:
+  release:
+    types: [published]
+permissions:
+  contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -62,11 +66,9 @@ jobs:
             languages/sass_sm*.pspec
             languages/build-results-*.json
             languages/lib/SASS.jar
-  release:
+  package:
     needs: compile
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.0
@@ -114,20 +116,8 @@ jobs:
         with:
           name: sass-extension
           path: sass-extension.zip
-      - name: publish
-        env:
-          GH_TOKEN: ${{ github.token }}
-          TAG: languages-${{ github.sha }}
-        run: |
-          # main's builds are full releases, so releases/latest is always main's newest; other branches' are pre-releases.
-          kind=$([ "$GITHUB_REF" = refs/heads/main ] && echo --latest || echo --prerelease)
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" $kind \
-            --title "SLEIGH languages for ${GITHUB_SHA::7}" \
-            --notes "Install sass-extension.zip through Ghidra’s extension manager; sass-extension-README.md is its guide."
-          cp docs/ghidra-extension.md sass-extension-README.md
-          gh release upload "$TAG" sass-extension.zip sass-extension-README.md --clobber
   compatibility:
-    needs: release
+    needs: package
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -173,3 +163,18 @@ jobs:
         run: |
           cat "$RUNNER_TEMP/ghidra-smoke.log" 2>/dev/null || true
           find ~/.config/ghidra -name application.log -exec cat {} \; 2>/dev/null || true
+  attach-release:
+    if: github.event_name == 'release'
+    needs: compatibility
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: sass-extension
+      - name: Attach extension to published release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload --repo "$GITHUB_REPOSITORY" -- "$TAG" sass-extension.zip

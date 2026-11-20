@@ -10,9 +10,8 @@ The extension is built for Ghidra 12.0.4. If you install it on any other version
 
 ## Install
 
-1. If you previously installed the processor manually, remove its `SASS` directory from `Ghidra/Processors` first. Having both copies installed causes a duplicate module error.
-2. In Ghidra's project window, choose **File → Install Extensions**.
-3. Click the plus button, select `sass-extension.zip`, and restart Ghidra when prompted.
+1. In Ghidra's project window, choose **File → Install Extensions**.
+2. Click the plus button, select `sass-extension.zip`, and restart Ghidra when prompted.
 
 ## Update or remove
 
