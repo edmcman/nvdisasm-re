@@ -1,7 +1,7 @@
 name: languages
 on:
   push:
-    paths: ["src/sass/**", "processor/SASS/data/languages/**", "processor/SASS/src/**", "tests/ghidra_compat/**", "examples/assembler/write_value.sass", ".github/workflows/languages.yml"]
+    paths: ["src/sass/**", "processor/SASS/data/languages/**", "processor/SASS/src/**", "tests/ghidra_compat/**", "examples/assembler/write_value.sass", "docs/ghidra-extension.md", ".github/workflows/languages.yml"]
   workflow_dispatch:
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -97,6 +97,7 @@ jobs:
           touch languages/*.sla
           mkdir -p extension/SASS/{data/languages,lib}
           cp processor/SASS/Module.manifest extension/SASS/
+          cp docs/ghidra-extension.md extension/SASS/README.md
           cp languages/*.{sla,slaspec,pspec,cspec,sinc,ldefs,opinion} extension/SASS/data/languages/
           touch extension/SASS/data/languages/*.sla
           cp languages/lib/SASS.jar extension/SASS/lib/
@@ -122,8 +123,9 @@ jobs:
           kind=$([ "$GITHUB_REF" = refs/heads/main ] && echo --latest || echo --prerelease)
           gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" $kind \
             --title "SLEIGH languages for ${GITHUB_SHA::7}" \
-            --notes "Install sass-extension.zip through Ghidra’s extension manager."
-          gh release upload "$TAG" sass-extension.zip --clobber
+            --notes "Install sass-extension.zip through Ghidra’s extension manager; sass-extension-README.md is its guide."
+          cp docs/ghidra-extension.md sass-extension-README.md
+          gh release upload "$TAG" sass-extension.zip sass-extension-README.md --clobber
   compatibility:
     needs: release
     runs-on: ubuntu-latest
