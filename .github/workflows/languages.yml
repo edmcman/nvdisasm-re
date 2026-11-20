@@ -95,11 +95,6 @@ jobs:
           jq -s 'add' languages/build-results-*.json > languages/build-results.json && rm languages/build-results-*.json
           # Ghidra recompiles a writable .sla whose .slaspec is missing or older than it or its includes.
           touch languages/*.sla
-          tar --exclude=./lib -czf sass-languages.tar.gz -C languages .
-          cp -a languages/. processor/SASS/data/languages/
-          mkdir -p processor/SASS/lib
-          cp languages/lib/SASS.jar processor/SASS/lib/
-          tar --exclude=SASS/data/languages/lib -czf sass-processor.tar.gz -C processor SASS
           mkdir -p extension/SASS/{data/languages,lib}
           cp processor/SASS/Module.manifest extension/SASS/
           cp languages/*.{sla,slaspec,pspec,cspec,sinc,ldefs,opinion} extension/SASS/data/languages/
@@ -116,10 +111,8 @@ jobs:
           uv run python tests/ghidra_compat/check_extension.py sass-extension.zip
       - uses: actions/upload-artifact@v7
         with:
-          name: sass-processor
-          path: |
-            sass-processor.tar.gz
-            sass-extension.zip
+          name: sass-extension
+          path: sass-extension.zip
       - name: publish
         env:
           GH_TOKEN: ${{ github.token }}
@@ -129,15 +122,14 @@ jobs:
           kind=$([ "$GITHUB_REF" = refs/heads/main ] && echo --latest || echo --prerelease)
           gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" $kind \
             --title "SLEIGH languages for ${GITHUB_SHA::7}" \
-            --notes "Install sass-extension.zip through Ghidra’s extension manager. Complete SASS processor with automatic kernel-argument analysis: unpack sass-processor.tar.gz into Ghidra/Processors/. The languages-only archive unpacks into processor/SASS/data/languages/."
-          gh release upload "$TAG" sass-languages.tar.gz sass-processor.tar.gz sass-extension.zip --clobber
+            --notes "Install sass-extension.zip through Ghidra’s extension manager."
+          gh release upload "$TAG" sass-extension.zip --clobber
   compatibility:
     needs: release
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
       matrix:
-        distribution: [extension, processor]
         include:
           - version: 12.0.4
             date: 20260303
@@ -159,17 +151,13 @@ jobs:
           java-version: ${{ matrix.java }}
       - uses: actions/download-artifact@v8
         with:
-          name: sass-processor
-      - name: Install packaged processor
+          name: sass-extension
+      - name: Install extension
         run: |
           curl -fsSL -o ghidra.zip https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${{ matrix.version }}_build/ghidra_${{ matrix.version }}_PUBLIC_${{ matrix.date }}.zip
           unzip -q ghidra.zip -d "$RUNNER_TEMP"
-          if [ "${{ matrix.distribution }}" = extension ]; then
-            mkdir -p "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/Ghidra/Extensions"
-            unzip -q sass-extension.zip -d "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/Ghidra/Extensions"
-          else
-            tar -xzf sass-processor.tar.gz -C "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/Ghidra/Processors"
-          fi
+          mkdir -p "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/Ghidra/Extensions"
+          unzip -q sass-extension.zip -d "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/Ghidra/Extensions"
       - name: Import and analyze SM89 cubin
         run: |
           uv run sass-assemble examples/assembler/write_value.sass -o "$RUNNER_TEMP/write_value.cubin"

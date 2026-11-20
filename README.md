@@ -184,9 +184,7 @@ To build and install from source instead:
    Keep `.sla`, `.slaspec`, `sass_common.sinc`, all `.pspec` files, `sass.cspec`, and
    `sass.ldefs` from the same build together. Mixing versions can fail at import with
    `Unknown register: R1`.
-   Include `SASS/lib/SASS.jar`, which the normal build generates. The
-   complete `sass-processor.tar.gz` release archive includes it; the languages-only
-   archive does not replace the complete module.
+   Include `SASS/lib/SASS.jar`, which the normal build generates.
 
 3. Restart Ghidra and import a `.cubin` (extract one from a fat binary with
    `cuobjdump -xelf`). The **CUDA Cubin** loader uses Ghidra's ELF importer and picks the language
