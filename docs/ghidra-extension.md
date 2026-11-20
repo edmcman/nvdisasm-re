@@ -16,7 +16,7 @@ In **File → Install Extensions**, uncheck SASS and restart Ghidra to remove th
 
 ## Import a cubin
 
-Create or open a Ghidra project and import a `.cubin` file. To extract cubins from a CUDA fat binary, use `cuobjdump -xelf`. Select the **CUDA Cubin** loader if prompted. It selects the matching `SASS:LE:64:smXX` language from the cubin's ELF header.
+Create or open a Ghidra project and import a `.cubin` file. To extract cubins from a CUDA fat binary, use `cuobjdump -xelf`. Select the **CUDA Cubin** loader if prompted. It selects the matching `SASS:LE:64:smXX` language from the cubin's ELF header. Cubin sections all have address 0, so the loader gives each kernel's code and constant data its own `ram` address. Kernel addresses are therefore offset from the per-kernel addresses that nvdisasm prints.
 
 The default language uses hardware-exact floating-point semantics. Each architecture also has a `smXX_readable` language, selectable in the import dialog, that uses plain floating-point formulas and omits details such as rounding modes and denormal flushing. See [semantics.md](semantics.md) for coverage and limitations.
 
