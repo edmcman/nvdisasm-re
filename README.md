@@ -149,7 +149,9 @@ The generator uses the committed `src/sass/md/data/` descriptions.
 Download `sass-extension.zip` from the [latest release](https://github.com/edmcman/nvdisasm-re/releases/latest)
 and follow the [Ghidra extension guide](docs/ghidra-extension.md) for supported versions, installation,
 updates, importing cubins, and coverage. The guide is self-contained: the release ships it inside the
-ZIP as `SASS/README.md` and next to it as `sass-extension-README.md`.
+ZIP as `SASS/README.md`.
+
+To install a branch build, open the [languages workflow](https://github.com/edmcman/nvdisasm-re/actions/workflows/languages.yml) on GitHub and select a successful run for the branch and commit you want. Under **Artifacts**, download **sass-extension** and extract the outer archive to get `sass-extension.zip`. Select that inner ZIP in Ghidra's extension manager. Every branch push starts a build, including documentation-only pushes. A newer push to the same branch can cancel a build in progress, so superseded commits may have no artifact.
 
 To build and install from source instead:
 
@@ -220,6 +222,12 @@ To build and install from source instead:
 Semantics, their coverage and their limits are documented in
 [`docs/semantics.md`](docs/semantics.md); generator details and Ghidra quirks in
 [`docs/sleigh.md`](docs/sleigh.md).
+
+### Publish a Ghidra extension release
+
+In GitHub's Releases UI, publish a stable release or prerelease using a tag whose commit includes the updated `languages` workflow. GitHub must allow asset uploads after publication, so immutable releases must be disabled for this workflow. [GitHub release asset rules](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository#editing-a-release)
+
+The publication event builds the tagged commit and attaches `sass-extension.zip` after all compatibility checks pass. Leave that asset name available when publishing. The upload fails if the release already has an asset with that name. [GitHub release events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#release)
 
 ## Development
 
