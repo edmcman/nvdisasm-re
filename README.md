@@ -194,6 +194,13 @@ To build and install from source instead:
    rounding and NaN/signed-zero selection; choose it in the import dialog's
    Language field. The default variant computes hardware-exact results.
 
+   Every cubin section has address 0, so the loader places each allocated section
+   (`.text.<kernel>`, `.nv.constant0.<kernel>`, ...) at its own `ram` address,
+   in section order. A kernel's addresses are therefore offset from nvdisasm's, which
+   start each kernel at 0. Reimport programs imported before 2026-11-20 to get this
+   layout. Older imports fail on most real kernels with
+   `Address Overflow in subtract`, or put all but one kernel in overlay spaces.
+
    Constant bank 0 has automatic labels for known launch fields (`blockDim_x/y/z`,
    `local_stack_base`, generic address window bases), known default global-memory
    descriptor slots, and `kernel_arguments` at the ABI argument base. The argument
