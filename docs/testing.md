@@ -489,6 +489,30 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   (default `HEAD`) with the working tree's `coverage.json` and `coverage.html`, without the report or CI link
   (2026-10-19; the `sass-opcode-coverage` skill uses it for before/after).
 
+## Python CI timing (2026-11-20)
+
+The SM89 or SM90 Python job finished last in four sampled CI runs. Its pytest
+step took 28–44 minutes. On the same commit, the SM89 PR job started about
+17 minutes later than its counterpart relative to workflow start and spent
+another 16 minutes in pytest. The two jobs used different Ubuntu 24.04 image
+builds, and the historical logs do not record which compiler was invoked.
+The Python job now reports the actual C++ compiler, CPU model and slowest
+pytest durations.
+[PR job](https://github.com/edmcman/nvdisasm-re/actions/runs/44770492689/job/136406809012)
+· [Push job](https://github.com/edmcman/nvdisasm-re/actions/runs/44770454230/job/136406602507)
+
+The default Python suite includes native kernel checks in the barrier and
+matrix modules. Each distinct kernel builds a C++ shared library on first use,
+and the sampled Python CI jobs started with an empty emulator cache. In a focused local
+SM89 run with GCC 11.4 and a fresh cache, those two modules took 10:30, including
+7:14 across 149 compiler invocations. The first schedule for each fixture set
+paid the compilation cost and later schedules reused the same libraries.
+The same tests took 3:11 with a warm cache and zero compiler invocations.
+Both runs passed the same 96 tests. The matrix operand-control tests still
+evaluate complete numerical profiles on the warm run.
+The workflow now restores `.cache/emulate` by runner platform, SASS architecture,
+and compiler fingerprint so subsequent runs can reuse matching libraries.
+
 ## Ghidra tests in CI (2026-10-22)
 
 - The `ghidra-tests` job (`.github/workflows/ci.yml`) runs `pytest -m ghidra --arch SMxx --fp all`

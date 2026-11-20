@@ -128,7 +128,30 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.13"
-      - run: uv run pytest --arch ${{ matrix.arch }} --fp all
+      - name: Report runner CPU and C++ compiler
+        id: compiler
+        run: |
+          lscpu | sed -nE '/^(CPU\(s\)|Model name):/p'
+          uv run python - <<'PY'
+          import os
+          from hashlib import sha256
+          from sass.emulate.build import compiler, flags
+          from sass.paths import CXX
+
+          version = compiler()
+          print(CXX, version, sep="\n")
+          fingerprint = sha256(repr((version, flags())).encode()).hexdigest()
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              print(f"fingerprint={fingerprint}", file=output)
+          PY
+      - name: Cache compiled emulator libraries
+        uses: actions/cache@v5
+        with:
+          path: .cache/emulate
+          key: emulate-v1-${{ runner.os }}-${{ runner.arch }}-${{ matrix.arch }}-${{ steps.compiler.outputs.fingerprint }}-${{ hashFiles('src/sass/**', 'tests/**', 'uv.lock') }}
+          restore-keys: |
+            emulate-v1-${{ runner.os }}-${{ runner.arch }}-${{ matrix.arch }}-${{ steps.compiler.outputs.fingerprint }}-
+      - run: nice uv run pytest --arch ${{ matrix.arch }} --fp all --durations=30
   k-tests:
     needs: pr-covers-push
     if: github.event_name == 'workflow_dispatch' && inputs.run_k_tests && needs.pr-covers-push.outputs.skip != 'true'
