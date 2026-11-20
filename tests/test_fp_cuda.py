@@ -7,12 +7,14 @@ from sass.emulate import build, native
 from sass.paths import CACHE, NVCC, ROOT
 from sass.semantics import bitvec
 from tests.harness import gpu
+from tests.harness.selection import missing
 from tests.test_emulate_fp import binary, half_boundaries, scaled_products, special, ternary
 
 pytestmark = pytest.mark.gpu
 
 
 def image(arch, force_soft):
+    if reason := missing(NVCC): pytest.skip(reason)
     source = ROOT / "tests/kernels/fp_backends.cu"
     flags = ("--allow-unsupported-compiler", "-std=c++20", "-ftz=false", "--fmad=false",
              *(("-DSASS_FP_SOFT",) if force_soft else ()), "-I", str(build.INCLUDE),

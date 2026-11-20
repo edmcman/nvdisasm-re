@@ -503,7 +503,7 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
 - `sass.ghidra_bridge` is the only path to `ghidra_emulate.py`/`ghidra_decode.py`; Ghidra tests run
   all selected languages concurrently, and `emulate_sharded` (`test_pcode_semantics`,
   `test_fixtures_emulated`) also splits each language's batch into chunks so up to 24 JVMs stay
-  busy. `tests/harness/select.require_languages` fails on a stale `.sla` instead of letting
+  busy. `tests/harness/selection.require_languages` fails on a stale `.sla` instead of letting
   concurrent Ghidra processes recompile it.
 - In-process callers (no subprocess per batch) start the JVM themselves and use
   `ghidra_decode.describe` and `ghidra_emulate.session(ldefs, language)`, a request handler; kernel

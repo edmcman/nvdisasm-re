@@ -5,7 +5,10 @@ import pytest
 from sass import corpus, synth
 from sass.check.pydecode_disasm import PASSING, compare, sample
 from tests.harness.baseline import BASELINE, ratchet
-from tests.harness.select import arches
+from sass.paths import NVDISASM
+from tests.harness.selection import arches, missing
+
+if reason := missing(NVDISASM): pytest.skip(reason, allow_module_level=True)
 
 REAL_SAMPLE, MUTATED, CHUNK = 200_000, 50_000, 4096
 

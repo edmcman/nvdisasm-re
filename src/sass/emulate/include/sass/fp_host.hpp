@@ -4,10 +4,16 @@
 #include "sass/fp_multiply.hpp"
 #ifndef __CUDA_ARCH__
 #include <cfenv>
+#include <cfloat>
 #include <cmath>
 #include <stdexcept>
-#ifndef __SSE2__
-#error "sass::fp_host requires x86 SSE2"
+// Each operation must round once to its own format: x86 needs SSE2 math, not x87's extended precision.
+#if FLT_EVAL_METHOD != 0
+#error "sass::fp_host requires float and double evaluation without excess precision (FLT_EVAL_METHOD 0)"
+#endif
+// Tests count rounding-mode changes by substituting the setter.
+#ifndef SASS_FESETROUND
+#define SASS_FESETROUND std::fesetround
 #endif
 #pragma STDC FENV_ACCESS ON
 #pragma STDC FP_CONTRACT OFF
@@ -22,10 +28,10 @@ public:
   explicit SASS_FORCEINLINE Rounding(Rnd mode) : saved(std::fegetround()), changed(false) {
     const int modes[] = {FE_TONEAREST, FE_TOWARDZERO, FE_UPWARD, FE_DOWNWARD};
     changed = saved != modes[mode];
-    if (saved == -1 || (changed && std::fesetround(modes[mode])))
+    if (saved == -1 || (changed && SASS_FESETROUND(modes[mode])))
       throw std::runtime_error("sass::fp_host cannot establish IEEE rounding");
   }
-  ~Rounding() { if (changed) std::fesetround(saved); }
+  ~Rounding() { if (changed) SASS_FESETROUND(saved); }
   Rounding(const Rounding &) = delete;
   Rounding &operator=(const Rounding &) = delete;
 };

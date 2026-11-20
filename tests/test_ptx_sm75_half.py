@@ -5,6 +5,9 @@ import pytest
 from sass.paths import PTXAS, ROOT
 from sass.decode import cubin, pydecode
 from sass.sleigh.modifiers import settings
+from tests.harness.selection import missing
+
+if reason := missing(PTXAS): pytest.skip(reason, allow_module_level=True)
 
 
 @pytest.fixture(scope='module')

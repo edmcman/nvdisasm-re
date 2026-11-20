@@ -161,7 +161,7 @@ still waits for every live thread in the block. Barrier scope remains the block.
 - `codegen.kernel` makes one translation unit per kernel: a function per instruction word, a
   dispatch table, EXIT flags and the decoder's message for undecodable words. `build.library`
   compiles it into `CACHE/emulate` keyed by the source, the runtime headers, the compiler and the
-  flags (`-O2 -ffp-contract=off -fno-fast-math -frounding-math -msse2 -mfpmath=sse`).
+  flags (`-O2 -ffp-contract=off -fno-fast-math -frounding-math`, plus `-msse2 -mfpmath=sse` on x86-64).
   Required flags follow `SASS_CXXFLAGS` so custom options cannot silently override strict
   arithmetic. `SASS_CXXFLAGS=-DSASS_FP_SOFT` selects the reference backend; its libraries
   have different cache keys from the default host libraries.
@@ -220,7 +220,8 @@ the explicit reference option. The C ABI hook `sass_fp` and Python `native.fp`
 remain bound to softfloat independently of that selection. The ABI-identical
 `sass_fp_host` and `native.fp_host` explicitly expose the host implementation.
 
-The host backend requires x86 SSE2, IEEE subnormal handling, dynamic rounding support
+The host backend requires float and double evaluation without excess precision
+(`FLT_EVAL_METHOD` 0: SSE2 on x86-64, always on ARM64), IEEE subnormal handling, dynamic rounding support
 (`-frounding-math`), no fast math and no contraction. Every native arithmetic operation
 establishes the requested rounding mode, including RN, and restores the caller's mode.
 The scope reads the current mode and calls `fesetround` only when it differs from the
@@ -279,8 +280,10 @@ helpers, floating-point functions and generated instruction functions, including
 empty and fallback functions. These annotations prepare generated code for reuse;
 the host machine, scheduler and primitive infrastructure still need a separate CUDA port.
 
-After each runtime library load, `build.library` checks MXCSR bits `0x8040`
-(FTZ/DAZ) and raises a clear Python error if either is enabled. It does not change
+After each runtime library load, `build.library` checks the host's floating-point control
+register and raises a clear Python error if it flushes subnormals or replaces NaN operands:
+MXCSR bits `0x8040` (FTZ/DAZ) on x86-64, FPCR bits `0x3080003` (FZ, FZ16, DN and FEAT_AFP's
+AH/FIZ) on ARM64 (2026-11-20). It does not change
 process settings. A consumer must arrange the IEEE environment before loading the
 runtime and keep it while executing. The external sass2cu shim must perform the
 same check at startup; its source is absent here, so this repository cannot install
@@ -320,7 +323,7 @@ all four configurations before reporting comparisons.
 
 Generation medians use three samples after warming MD/lifting discovery. Each cold
 compilation sample uses a fresh temporary cache, and includes source hashing, compilation,
-loading and MXCSR validation. Warm execution takes 15 samples (five per compiled library),
+loading and floating-point control validation. Warm execution takes 15 samples (five per compiled library),
 after an untimed warmup, including `Kernel.run`'s Python launch, memory setup and output
 handling. The compiler is Clang 18.1.8 with the strict flags above. The CPU is an Intel
 i9-13900HX, pinned to logical CPU 8, a performance core; configurations rotate between

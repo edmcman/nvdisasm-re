@@ -1,5 +1,6 @@
-"""Test selection from the pytest options (see conftest.py) and the stale-language guard."""
-import re
+"""Test selection from the pytest options (see conftest.py), the stale-language guard and missing CUDA tools."""
+import re, shutil
+from pathlib import Path
 import pytest
 from sass.paths import LANGUAGES
 from sass.sleigh.build import ARCHES
@@ -32,6 +33,12 @@ def modes(config): return option_list(config, "--fp", MODES)
 def families(config):
     from tests.cases import FAMILIES
     return config.getoption("--family") or list(FAMILIES)
+
+
+def missing(tool):
+    """Why tests running the CUDA toolkit's `tool` (a sass.paths location) skip here, or None."""
+    if not shutil.which(tool):
+        return f"{Path(tool).name} not found: install the CUDA toolkit (tests/README.md lists its locations)"
 
 
 def require_languages(variants):

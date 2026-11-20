@@ -11,7 +11,7 @@ from sass import oracle, synth
 from sass.assemble import AssemblyError, assemble_cubin, assemble_instruction, assemble_raw, encoding, elf, instruction, source
 from sass.decode import cubin, ir, pydecode
 from sass.paths import NVDISASM
-from tests.harness.select import arches
+from tests.harness.selection import arches, missing
 
 
 def pytest_generate_tests(metafunc):
@@ -182,6 +182,7 @@ def test_machine_description_roundtrips(assembler_arch):
 
 
 def test_instruction_oracle(assembler_arch):
+    if reason := missing(NVDISASM): pytest.skip(reason)
     texts = ['NOP', 'MOV R0, 1', 'IMAD R0, R1, R2, R3', 'FADD R0, R1, R2', 'EXIT']
     words = [assemble_instruction(assembler_arch, t) for t in texts]
     for i, result in oracle.disasm_batch(assembler_arch, words).items():
@@ -227,6 +228,7 @@ EXIT;
     assert image['parameter_base'] == elf.PROFILES[assembler_arch].parameter_base
     assert image['parameters'] == [dict(offset=0, size=8), dict(offset=8, size=4)]
     assert len(image['code']) == 256
+    if reason := missing(NVDISASM): pytest.skip(reason)
     path = tmp_path / 'native.cubin'; path.write_bytes(data)
     result = subprocess.run([NVDISASM, str(path)], capture_output=True, text=True)
     assert result.returncode == 0, result.stderr

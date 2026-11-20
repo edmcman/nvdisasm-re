@@ -28,7 +28,7 @@ extern "C" int selected() {{
 """
 assert build.library(source, "fp-selection").selected() == 1
 assert ("-DSASS_FP_SOFT" in build.flags()) == {backend == "softfloat"}
-for flag in ("-ffp-contract=off", "-fno-fast-math", "-frounding-math", "-msse2", "-mfpmath=sse"):
+for flag in ("-ffp-contract=off", "-fno-fast-math", "-frounding-math", *(("-msse2", "-mfpmath=sse") if build.X86 else ())):
     assert flag in build.flags()
 ''', cxxflags="-DSASS_FP_SOFT" if backend == "softfloat" else "")
 
@@ -46,28 +46,33 @@ assert host.parent == soft.parent
 ''')
 
 
-@pytest.mark.parametrize("mask", (0x8000, 0x40, 0x8040))
-def test_mxcsr_rejection(mask):
+# MXCSR FTZ, DAZ and both; FPCR FZ, DN and FZ16 (AH and FIZ are reserved without FEAT_AFP).
+@pytest.mark.parametrize("mask", (0x8000, 0x40, 0x8040) if build.X86 else (1 << 24, 1 << 25, 1 << 19))
+def test_fp_control_rejection(mask):
     isolated(f'''
 import ctypes
 from sass.emulate import build
 source = """
+#if defined(__x86_64__)
 #include <xmmintrin.h>
-extern "C" void set_mxcsr(unsigned x) {{ _mm_setcsr(x); }}
+extern "C" void set_fp_control(unsigned long long x) {{ _mm_setcsr(x); }}
+#else
+extern "C" void set_fp_control(unsigned long long x) {{ __asm__ volatile("msr fpcr, %0" :: "r"(x)); }}
+#endif
 """
 lib = build.library(source, "fp-environment")
-lib.set_mxcsr.argtypes = [ctypes.c_uint32]
-saved = lib.sass_runtime_mxcsr()
-lib.set_mxcsr(saved | {mask})
+lib.set_fp_control.argtypes = [ctypes.c_uint64]
+saved = lib.sass_runtime_fp_control()
+lib.set_fp_control(saved | {mask})
 try:
     # Even a cached .so is checked after every CDLL load.
     build.library(source, "fp-environment")
 except RuntimeError as error:
-    assert "FTZ and DAZ" in str(error)
+    assert build.FP_CONTROL[2] in str(error)
 else:
     raise AssertionError("flushing environment accepted")
-assert lib.sass_runtime_mxcsr() == saved | {mask}
-lib.set_mxcsr(saved)
+assert lib.sass_runtime_fp_control() == saved | {mask}
+lib.set_fp_control(saved)
 ''')
 
 
@@ -105,19 +110,18 @@ assert control.set_round(0) == 0
 def test_rounding_only_sets_changed_modes():
     isolated('''
 from sass.emulate import build
-original_flags = build.flags
-build.flags = lambda: [*original_flags(), "-Wl,--wrap=fesetround"]
 lib = build.library("""
-#include "sass/fp_host.hpp"
-extern "C" int __real_fesetround(int);
+#include <cfenv>
 static int calls;
-extern "C" int __wrap_fesetround(int mode) {
+static int counted_fesetround(int mode) {
   ++calls;
-  return __real_fesetround(mode);
+  return std::fesetround(mode);
 }
+#define SASS_FESETROUND counted_fesetround
+#include "sass/fp_host.hpp"
 extern "C" int scopes(int caller, int outer, int inner) {
   const int modes[] = {FE_TONEAREST, FE_TOWARDZERO, FE_UPWARD, FE_DOWNWARD};
-  if (__real_fesetround(modes[caller])) return -1;
+  if (std::fesetround(modes[caller])) return -1;
   calls = 0;
   {
     sass::fp_host::Rounding first{sass::fp_host::Rnd(outer)};
@@ -129,7 +133,7 @@ extern "C" int scopes(int caller, int outer, int inner) {
     if (std::fegetround() != modes[outer]) return -1;
   }
   const bool restored = std::fegetround() == modes[caller];
-  __real_fesetround(FE_TONEAREST);
+  std::fesetround(FE_TONEAREST);
   return restored ? calls : -1;
 }
 """, "fp-rounding-transitions")

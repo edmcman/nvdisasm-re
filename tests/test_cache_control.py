@@ -86,9 +86,9 @@ def test_cache_kernel_gpu(request):
 @pytest.mark.ghidra
 def test_cache_profiles_ghidra(pytestconfig):
     from sass import ghidra_bridge
-    from tests.harness import select
-    variants = [(arch, fp) for arch in select.arches(pytestconfig) for fp in select.modes(pytestconfig)]
-    select.require_languages(variants)
+    from tests.harness import selection
+    variants = [(arch, fp) for arch in selection.arches(pytestconfig) for fp in selection.modes(pytestconfig)]
+    selection.require_languages(variants)
     selected = {variant: list(cases(variant[0])) for variant in variants}
     results = ghidra_bridge.emulate_sharded({variant: (*variant, [c.request for c in cs])
                                             for variant, cs in selected.items()})
@@ -101,10 +101,10 @@ def test_cache_profiles_ghidra(pytestconfig):
 @pytest.mark.parametrize("arch", ["SM89", "SM90"])
 def test_cache_kernel_ghidra(arch, pytestconfig):
     from sass import ghidra_bridge
-    from tests.harness import select
-    if arch not in select.arches(pytestconfig): pytest.skip(f"{arch} not selected")
-    modes = select.modes(pytestconfig)
-    select.require_languages([(arch, mode) for mode in modes])
+    from tests.harness import selection
+    if arch not in selection.arches(pytestconfig): pytest.skip(f"{arch} not selected")
+    modes = selection.modes(pytestconfig)
+    selection.require_languages([(arch, mode) for mode in modes])
     requests = [dict(r, kernel=dict(r["kernel"], scope=scope, schedule=order))
                 for scope, order in SCHEDULES
                 for r in map(gpu.request, cache_controls.fixtures(arch, cross_block=scope == "launch"))]

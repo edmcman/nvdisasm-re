@@ -4,7 +4,7 @@ from sass.assemble import assemble_cubin
 from sass.decode import cubin
 from sass.emulate import kernel, reference
 from tests.harness import gpu, hardware, launch_geometry
-from tests.harness.select import arches, modes, require_languages
+from tests.harness.selection import arches, modes, require_languages
 
 
 @pytest.mark.parametrize("arch", ("SM89", "SM90"))
