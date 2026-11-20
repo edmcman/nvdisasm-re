@@ -151,7 +151,12 @@ jobs:
           key: emulate-v1-${{ runner.os }}-${{ runner.arch }}-${{ matrix.arch }}-${{ steps.compiler.outputs.fingerprint }}-${{ hashFiles('src/sass/**', 'tests/**', 'uv.lock') }}
           restore-keys: |
             emulate-v1-${{ runner.os }}-${{ runner.arch }}-${{ matrix.arch }}-${{ steps.compiler.outputs.fingerprint }}-
-      - run: nice uv run pytest --arch ${{ matrix.arch }} --fp all --durations=30
+      - name: Run lifted-semantics tests
+        id: lifted
+        run: nice uv run pytest tests/test_lifted_semantics.py --arch ${{ matrix.arch }} --fp all --durations=30
+      - name: Run remaining Python tests
+        if: success() || (failure() && steps.lifted.conclusion == 'failure')
+        run: nice uv run pytest -n 4 --dist loadfile --ignore=tests/test_lifted_semantics.py --arch ${{ matrix.arch }} --fp all --durations=30
   k-tests:
     needs: pr-covers-push
     if: github.event_name == 'workflow_dispatch' && inputs.run_k_tests && needs.pr-covers-push.outputs.skip != 'true'

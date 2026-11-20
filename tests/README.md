@@ -147,10 +147,11 @@ architecture, and only per-class summaries come back (`tests.cases.stream`/`shar
 19 minutes and 14 GiB, mostly the workers' bounded lift caches. A script that starts these pools
 needs an `if __name__ == "__main__":` guard, since `forkserver` workers re-import `__main__`.
 
-**Don't use pytest-xdist.** The expensive tests compute all their results once per session in a
-process pool sized to the CPUs, and each test item looks its result up. xdist workers would each
-repeat that precomputation with their own pool (32 x 32 processes, load average ~500). The Ghidra
-tests likewise run up to 24 JVMs themselves.
+CI runs `test_lifted_semantics.py` in its own pytest invocation and distributes the remaining
+default Python tests by file with `pytest -n 4 --dist loadfile --ignore=tests/test_lifted_semantics.py`.
+Use a regular pytest invocation for the lifted-semantics, Ghidra, and native suites. Lifted
+and native collection already use process pools that xdist workers would repeat. The Ghidra
+suite manages its own JVM workers.
 
 ## Suites
 

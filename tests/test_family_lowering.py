@@ -3,6 +3,7 @@ the SLEIGH backend's enumeration: a family that crashes on some class shape fail
 language build."""
 import os
 from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import get_context
 import pytest
 from tests.harness.selection import arches
 
@@ -57,7 +58,7 @@ def family_crashes(request):
     selected = arches(request.config)
     shards = max(1, (os.cpu_count() or 1) // len(selected))
     out = {arch: [] for arch in selected}
-    with ProcessPoolExecutor() as pool:
+    with ProcessPoolExecutor(mp_context=get_context("forkserver")) as pool:
         for arch, found in pool.map(crashes, [(a, i, shards) for a in selected for i in range(shards)]): out[arch] += found
     return out
 
