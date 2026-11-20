@@ -11,6 +11,7 @@ from sass.emulate import build, definitions
 from sass.semantics import bitvec, family, lifter
 from sass.semantics.evaluate import evaluate
 from tests.harness import definition_functions, gpu, native_full
+from tests.harness.selection import missing
 from tests.test_emulate_fp import binary, half_boundaries, special
 
 
@@ -371,6 +372,7 @@ def test_generated_functions_cuda(request, real_uses):
 
 
 def cuda_image(arch, source):
+    if reason := missing(paths.NVCC): pytest.skip(reason)
     flags = ["--allow-unsupported-compiler", "-std=c++20", "-ftz=false", "--fmad=false", "-cubin",
              f"-arch=sm_{arch[2:]}", "-I", str(build.INCLUDE)]
     version = subprocess.run([paths.NVCC, "--version"], capture_output=True, text=True, check=True).stdout

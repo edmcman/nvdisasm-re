@@ -3,7 +3,7 @@ import pytest
 from sass.assemble import encoding
 from sass.decode import ir
 from sass.semantics import bitvec, evaluate, lifter, ordered
-from tests.harness.select import arches
+from tests.harness.selection import arches
 
 
 def pytest_generate_tests(metafunc):

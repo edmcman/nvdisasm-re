@@ -4,7 +4,7 @@ language build."""
 import os
 from concurrent.futures import ProcessPoolExecutor
 import pytest
-from tests.harness.select import arches
+from tests.harness.selection import arches
 
 
 def test_conversion_definition_widths_across_modes():

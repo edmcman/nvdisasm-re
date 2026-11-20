@@ -1,6 +1,7 @@
 """SM89/SM90 whole-kernel execution: compile CUDA fixtures, patch SASS words, run on the GPU through
 the CUDA Driver API, and build the equivalent whole-kernel emulator request."""
 import ctypes as C, hashlib, struct, subprocess, sys
+import pytest
 from contextlib import contextmanager
 from dataclasses import dataclass, field
 from math import prod
@@ -8,6 +9,7 @@ from typing import Callable
 from sass import launch
 from sass.decode import cubin, pydecode
 from tests.harness.case import word
+from tests.harness.selection import missing
 from sass.paths import CACHE, NVCC, ROOT
 
 ENCODING = (1 << 105) - 1  # instruction bits below the scheduling controls
@@ -16,6 +18,7 @@ INPUT, OUTPUT = 0x100000000, 0x200000000
 
 def compile(kernel, *flags, arch="SM89"):
     """Cached target cubin for tests/kernels/<kernel>.cu."""
+    if reason := missing(NVCC): pytest.skip(reason)
     source = ROOT / "tests/kernels" / f"{kernel}.cu"
     argv = [NVCC, "--allow-unsupported-compiler", *flags, "-cubin", f"-arch=sm_{arch[2:]}"]
     key = hashlib.sha256(source.read_bytes() + " ".join(argv).encode()).hexdigest()[:16]

@@ -5,7 +5,7 @@ import pytest
 from sass.decode import pydecode
 from sass.emulate import equivalence, kernel
 from tests.harness import gpu, hardware, launch_geometry
-from tests.harness.select import arches
+from tests.harness.selection import arches
 
 pytestmark = pytest.mark.native  # opt-in: -m native
 

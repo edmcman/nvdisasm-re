@@ -3,7 +3,8 @@ when fixtures or references change; test_fixtures_emulated checks the emulator a
 references without a GPU."""
 import pytest
 from tests.harness import gpu
-from tests.harness.select import families, selected, skipped
+from sass.paths import NVCC
+from tests.harness.selection import families, missing, selected, skipped
 
 
 def pytest_generate_tests(metafunc):
@@ -12,6 +13,7 @@ def pytest_generate_tests(metafunc):
     arch = gpu.target(metafunc.config)
     if arch is None:
         return metafunc.parametrize('gpu_fixture', [pytest.param(None, marks=pytest.mark.skip(reason=metafunc.config._gpu_unavailable))])
+    if reason := missing(NVCC): return skipped(metafunc, "gpu_fixture", "gpu", reason)
     from tests.harness.hardware import fixtures
     params = [(family, f.name) for family, f in fixtures(tuple(families(metafunc.config)), arch)]
     ids = ['-'.join(p) for p in params]

@@ -3,7 +3,7 @@ from collections import Counter, defaultdict
 from functools import cache
 import pytest
 from tests.harness import device_cases, device_evidence, sampling, gpu
-from tests.harness.select import families, selected, skipped
+from tests.harness.selection import families, selected, skipped
 
 
 @cache

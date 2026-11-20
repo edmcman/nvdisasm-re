@@ -8,7 +8,7 @@ from sass.assemble import encoding
 from sass.formal import k
 from sass.formal.k import tools
 from sass.semantics import bitvec, evaluate, lifter, ordered
-from tests.harness import lifted, select
+from tests.harness import lifted, selection
 
 pytestmark = pytest.mark.k
 BASE = 0x100000
@@ -283,15 +283,15 @@ def test_symbolic_claims():
 
 def pytest_generate_tests(metafunc):
     if "shared_arch" in metafunc.fixturenames:
-        metafunc.parametrize("shared_arch", select.arches(metafunc.config))
+        metafunc.parametrize("shared_arch", selection.arches(metafunc.config))
 
 
 def test_shared_native_cases(shared_arch, request):
     """Retain one native case per selected family/mode as an integration sample."""
     from tests.cases import emulator_cases
     checked = 0
-    for mode in select.modes(request.config):
-        for _, cases in emulator_cases(shared_arch, mode, select.families(request.config), generated=False).items():
+    for mode in selection.modes(request.config):
+        for _, cases in emulator_cases(shared_arch, mode, selection.families(request.config), generated=False).items():
             for case in cases:
                 if "word" not in case.request or not lifted.applies(case): continue
                 try:

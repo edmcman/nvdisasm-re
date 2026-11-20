@@ -2,7 +2,7 @@
 references' values on the emulator cases (the same as test_pcode_semantics). One item per (architecture, fp, family, md class)
 whose opcode has a semantics family; no Ghidra needed."""
 from functools import cache
-from tests.harness.select import arches, families, modes, selected, skipped
+from tests.harness.selection import arches, families, modes, selected, skipped
 from tests.harness import lifted, sampling, sharded
 
 

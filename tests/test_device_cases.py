@@ -158,6 +158,7 @@ def test_low_arena_requires_matching_device_address_and_releases_mapping(monkeyp
                            munmap=lambda *args: calls.append("munmap"))
     monkeypatch.setattr(gpu.C, "CDLL", lambda *args, **kwargs: libc)
     monkeypatch.setattr(gpu.C, "memmove", lambda *args: calls.append("copy"))
+    monkeypatch.setattr(gpu.sys, "platform", "linux")  # the mocked libc stands in for MAP_32BIT
     driver = object.__new__(gpu.Driver)
     def call(name, *args):
         calls.append(name)

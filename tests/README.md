@@ -199,7 +199,7 @@ Need languages built by `uv run sass-build-languages` (outside the sandbox).
 | `test_coverage.py` | is `processor/SASS/semantics/coverage.json` current? | committed coverage | the languages' manifests and `tests/evidence.py`'s evidence |
 | `test_ghidra_bridge.py` | does the Ghidra cache key cover what the emulator loads? | `ghidra_bridge.sources` | the modules loaded in a Ghidra emulation |
 
-A stale `.sla` fails the Ghidra tests up front (`harness/select.require_languages`): Ghidra would
+A stale `.sla` fails the Ghidra tests up front (`harness/selection.require_languages`): Ghidra would
 recompile it on load, and concurrent compilers corrupt it.
 
 ### GPU tests: `uv run pytest -m gpu --require-gpu`
@@ -260,7 +260,7 @@ zero-rounding boundaries, including extreme signed-int scales. The CUDA smoke ke
 instantiates every template and checks device selection even with `SASS_FP_SOFT` defined;
 its exhaustive corpus includes the same half conversion boundaries and a larger half FMA
 sample; its build flags retain subnormals and disable contraction. Host environment tests isolate
-MXCSR mutation and caller rounding-mode checks in subprocesses, preserving the pytest process.
+floating-point control-register (MXCSR or FPCR) mutation and caller rounding-mode checks in subprocesses, preserving the pytest process.
 See [backend requirements](../docs/emulation.md#floating-point-backends-2026-10-27).
 
 On 2026-10-27, the initial exhaustive backend, generated-operator, primitives,
@@ -1270,6 +1270,11 @@ Everything below lives in `.cache/` and is safe to delete.
 | generated languages | `processor/SASS/data/languages` | `SASS_SLEIGH_OUT` |
 | `javac` (cooperative GPU fixtures) | on `PATH` | |
 | a C++20 compiler (the runtime primitives every emulator calls, `sass.emulate`; compiled once into `.cache/emulate`) | `clang++`, else `g++`, on `PATH` | `CXX`, `SASS_CXXFLAGS` |
+
+Tests that run `nvdisasm`, `nvcc` or `ptxas` skip, with the reason, when the tool is missing
+(`selection.missing`), as on macOS, which has no CUDA toolkit (2026-11-20). Fixture-parameter
+generators check before compiling, so other tests in the same module still run. The x86-64 and
+ARM64 (Apple Silicon) hosts both build the C++ runtime.
 
 Detailed coverage enumeration is opt-in (`sass-build-languages --coverage`). Normal builds need
 no runtime manifest: primitive calls are explicit in the generated p-code. `sass-refresh-coverage`

@@ -7,7 +7,7 @@ import pytest
 from sass.decode import pydecode
 from sass.emulate import machine
 from tests.harness import lifted, sampling, sharded
-from tests.harness.select import arches, families, modes, selected, skipped
+from tests.harness.selection import arches, families, modes, selected, skipped
 
 
 def native(job):

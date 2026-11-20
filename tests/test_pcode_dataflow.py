@@ -10,7 +10,7 @@ from sass.sleigh.gen import Gen
 from sass.sleigh.registers import REG_FILES
 from tests.cases import f2fp
 from sass.check.pydecode_disasm import sample
-from tests.harness.select import arches, modes, require_languages, selected, skipped
+from tests.harness.selection import arches, modes, require_languages, selected, skipped
 from tests.harness import dataflow
 from sass import ghidra_bridge
 from tests.harness.baseline import BASELINE

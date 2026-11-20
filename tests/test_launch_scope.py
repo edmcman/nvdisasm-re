@@ -105,10 +105,10 @@ def test_storage_isolation(space, block, want):
 @pytest.mark.ghidra
 def test_ghidra_launch_storage(pytestconfig):
     from sass import ghidra_bridge
-    from tests.harness import select
-    if 'SM89' not in select.arches(pytestconfig): pytest.skip('SM89 not selected')
-    modes = select.modes(pytestconfig)
-    select.require_languages([('SM89', mode) for mode in modes])
+    from tests.harness import selection
+    if 'SM89' not in selection.arches(pytestconfig): pytest.skip('SM89 not selected')
+    modes = selection.modes(pytestconfig)
+    selection.require_languages([('SM89', mode) for mode in modes])
     requests = [request('SM89', order=order) for order in ('round_robin', 'reverse', 'seeded')]
     requests += [storage_request(space, block) for space, block in (('S', 1), ('S', 2), ('L', 2))]
     expected = [reference.run_kernel(r, 'SM89') for r in requests]
