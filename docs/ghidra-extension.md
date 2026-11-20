@@ -1,25 +1,42 @@
-# SASS Ghidra extension
+# SASS extension for Ghidra
 
-The SASS extension adds NVIDIA SASS languages, a CUDA cubin loader, and kernel-argument analysis to Ghidra. The release ZIP contains all generated architectures and both floating-point variants; it does not require Python or CUDA to install.
+This extension adds NVIDIA SASS (the native GPU instruction set) to Ghidra. It provides disassembly and semantics for CUDA GPU code, a loader for CUDA cubin files, and an analyzer that recovers kernel arguments. It includes the SM75, SM80, SM86, SM89, SM90, SM100, SM101, SM103, SM107, and SM120 architectures, each in two floating-point variants. Installing it does not require Python or CUDA.
+
+## Supported Ghidra versions
+
+The extension supports Ghidra 12.0.4 through 12.2. It was tested on Ghidra 12.0.4 and 12.1.4 with Java 21, and on 12.2 with Java 25.
+
+The extension is built for Ghidra 12.0.4. If you install it on any other version, such as 12.1.4 or 12.2, Ghidra warns that the extension version does not match. This warning is expected, and you can safely continue with the installation.
 
 ## Install
 
-1. Download `sass-extension.zip` from the [latest release](https://github.com/edmcman/nvdisasm-re/releases/latest).
-2. If you previously installed the processor manually, remove its `SASS` directory from `Ghidra/Processors` before proceeding. Installing both copies causes a duplicate module error.
-3. In Ghidra's project window, choose **File → Install Extensions**. Click the plus button, select the ZIP, and restart Ghidra when prompted.
-
-The full test suite targets Ghidra 12.2 with Java 25. The release also receives SM89 cubin import, disassembly, and kernel-argument analysis smoke checks on Ghidra 12.0.4 and 12.1.4 with Java 21. These checks do not establish comprehensive compatibility. The JAR is built against 12.0.4 and the extension metadata names that version; Ghidra may warn about the version when installing it on newer releases.
+1. If you previously installed the processor manually, remove its `SASS` directory from `Ghidra/Processors` first. Having both copies installed causes a duplicate module error.
+2. In Ghidra's project window, choose **File → Install Extensions**.
+3. Click the plus button, select `sass-extension.zip`, and restart Ghidra when prompted.
 
 ## Update or remove
 
-In **File → Install Extensions**, uncheck SASS and restart Ghidra to remove the installed version. To update, install the new release ZIP using the steps above and restart again. If you installed the processor manually, update or remove that copy separately; the extension manager does not manage it.
+To remove the extension, open **File → Install Extensions**, uncheck SASS, and restart Ghidra. To update, remove the installed version, then install the newer `sass-extension.zip` following the steps above and restart again. The extension manager does not manage a manually installed processor, so update or remove that copy separately.
 
 ## Import a cubin
 
-Create or open a Ghidra project and import a `.cubin` file. To extract cubins from a CUDA fat binary, use `cuobjdump -xelf`. Select the **CUDA Cubin** loader if prompted. It selects the matching `SASS:LE:64:smXX` language from the cubin's ELF header. Cubin sections all have address 0, so the loader gives each kernel's code and constant data its own `ram` address. Kernel addresses are therefore offset from the per-kernel addresses that nvdisasm prints.
+Create or open a Ghidra project and import a `.cubin` file. To extract cubins from a CUDA fat binary, use `cuobjdump -xelf`. Select the **CUDA Cubin** loader if prompted. The loader picks the matching `SASS:LE:64:smXX` language from the cubin's ELF header. All cubin sections have address 0, so the loader gives each kernel's code and constant data its own address. Kernel addresses in Ghidra are therefore offset from the per-kernel addresses that nvdisasm prints.
 
-The default language uses hardware-exact floating-point semantics. Each architecture also has a `smXX_readable` language, selectable in the import dialog, that uses plain floating-point formulas and omits details such as rounding modes and denormal flushing. See [semantics.md](semantics.md) for coverage and limitations.
+Each architecture has two languages:
 
-Run automatic analysis after import. **SASS Kernel Arguments** reads parameter offsets and sizes from kernel metadata and adds parameters to function signatures when available. Names and types absent from the metadata remain unknown, and user-edited signatures are preserved. Existing programs can be analyzed again after installing the extension to populate their arguments.
+- `smXX` (the default) uses hardware-exact floating-point semantics.
+- `smXX_readable` uses plain floating-point formulas, leaving out details such as rounding modes and denormal flushing. You can select it in the import dialog.
 
-For building from source and additional details about the loader and analysis, see the [Ghidra processor section of the README](../README.md#ghidra-processor-processorsass).
+Run automatic analysis after import. The **SASS Kernel Arguments** analyzer reads parameter offsets and sizes from the kernel metadata and adds them to function signatures when available. The metadata does not include names or types, so these stay unknown. Signatures you edited yourself are kept. To fill in arguments for programs imported before the extension was installed, analyze them again.
+
+## Coverage
+
+**Disassembly.** Instruction decoding comes from the instruction tables built into NVIDIA's `nvdisasm` (CUDA 13.4). Disassembly is expected to be complete for every supported architecture.
+
+**Semantics.** Semantics describe what each instruction does. They are the basis for Ghidra's decompiler and emulator. This work is still in progress and is not complete, but it covers many of the most common instructions. Instructions without semantics still disassemble and keep their control flow, and the decompiler shows them as calls such as `sass_opaque_HMMA(...)`.
+
+**Best-supported architectures.** We only have access to SM89 and SM90 GPUs, so those are the only architectures whose semantics have been checked against real hardware. SM89 and SM90 have the best support right now.
+
+## Contact
+
+If you run into problems or have questions, contact Edward J. Schwartz directly at eschwartz@cert.org.
