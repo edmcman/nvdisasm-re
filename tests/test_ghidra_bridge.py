@@ -7,7 +7,7 @@ from sass import ghidra_bridge
 from sass.paths import GHIDRA_PY, LDEFS, language
 from tests.cases import emulator_cases
 from tests.harness import hardware
-from tests.harness.select import arches, require_languages
+from tests.harness.selection import arches, require_languages
 
 @pytest.mark.ghidra
 @pytest.mark.parametrize("address", [0x8000000000001000, 0xffffffffffffffe0])

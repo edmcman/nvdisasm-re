@@ -4,7 +4,7 @@ import hashlib, json
 from collections import Counter
 from functools import cache
 import pytest
-from tests.harness.select import arches, families, modes, require_languages, selected, skipped
+from tests.harness.selection import arches, families, modes, require_languages, selected, skipped
 from sass import ghidra_bridge
 from sass.paths import CACHE, ROOT
 from tests.harness.checks import problems

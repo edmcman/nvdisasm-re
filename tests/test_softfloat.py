@@ -1,11 +1,11 @@
 """The softfloat reference model against host libm (fp16/fp32/fp64) and hand values."""
-import ctypes, math, random
+import ctypes, ctypes.util, math, random
 from fractions import Fraction
 import pytest
 from sass.semantics.fp import softfloat
 from tests.refs.bits import bits32, bits64, f16, f16_bits, f32, f64
 
-LIBM = ctypes.CDLL("libm.so.6")
+LIBM = ctypes.CDLL(ctypes.util.find_library("m"))
 
 
 def host(value, pack, overflow):

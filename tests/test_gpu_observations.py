@@ -3,7 +3,7 @@ and comparison, without a GPU: a disagreement means a reference, expectation or 
 contradicts what the hardware returned."""
 import pytest
 from tests.harness import device_evidence, sampling
-from tests.harness.select import arches, families
+from tests.harness.selection import arches, families
 
 
 def pytest_generate_tests(metafunc):

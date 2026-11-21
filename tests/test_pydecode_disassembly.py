@@ -1,11 +1,15 @@
 """pydecode disassembles like nvdisasm, ratcheted per md class against baseline/SMxx.json. The
 selected architectures' words are compared in chunks spread over every CPU."""
 from concurrent.futures import ProcessPoolExecutor
+from multiprocessing import get_context
 import pytest
 from sass import corpus, synth
 from sass.check.pydecode_disasm import PASSING, compare, sample
 from tests.harness.baseline import BASELINE, ratchet
-from tests.harness.select import arches
+from sass.paths import NVDISASM
+from tests.harness.selection import arches, missing
+
+if reason := missing(NVDISASM): pytest.skip(reason, allow_module_level=True)
 
 REAL_SAMPLE, MUTATED, CHUNK = 200_000, 50_000, 4096
 
@@ -33,7 +37,7 @@ def chunk_status(job):
 @pytest.fixture(scope="session")
 def decoded(request):
     selected, full = arches(request.config), request.config.getoption("--full")
-    with ProcessPoolExecutor() as pool:
+    with ProcessPoolExecutor(mp_context=get_context("forkserver")) as pool:
         jobs = [(arch, words[i:i + CHUNK], labels and {w: labels[w] for w in words[i:i + CHUNK]})
                 for arch, parts in pool.map(corpora, [(a, full) for a in selected]) for words, labels in parts for i in range(0, len(words), CHUNK)]
         out = {arch: {} for arch in selected}

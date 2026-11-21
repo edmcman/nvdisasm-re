@@ -71,7 +71,7 @@ def test_architecture_labels(languages, arch, dims, args, stack, shared, local, 
 @pytest.mark.parametrize("arguments", [False, True], ids=["labels", "arguments"])
 def test_imported_constant_labels(tmp_path, request, arch, dims, fp, arguments):
     from sass.assemble import assemble_cubin
-    from tests.harness.select import arches, modes, require_languages
+    from tests.harness.selection import arches, modes, require_languages
     if arch not in arches(request.config) or fp not in modes(request.config):
         pytest.skip("architecture/lowering not selected")
     require_languages([(arch, fp)])
@@ -83,6 +83,9 @@ def test_imported_constant_labels(tmp_path, request, arch, dims, fp, arguments):
     coordinates = "\n".join(f"""S2R R4, SR_TID.{axis};
 S2R R5, SR_CTAID.{axis};
 IADD3 R0, {predicates}R0, R4, R5;""" for axis in "XYZ")
+    # A .text section larger than the LOAD segment's offset to its alignment padding made
+    # Ghidra's ELF section-overlap reconciliation overflow while every address was 0.
+    padding = "NOP;\n" * 64
     data = assemble_cubin(f""".target {arch}
 .kernel constant_labels
 .param output, 8, 8
@@ -106,6 +109,7 @@ EXIT;
 {uniform_load}.64 UR4, c[0][{descriptor:#x}];
 {store};
 EXIT;
+{padding}
 .endkernel
 """)
     cubin = tmp_path / "constant_labels.cubin"

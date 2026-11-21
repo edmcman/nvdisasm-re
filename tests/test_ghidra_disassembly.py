@@ -6,10 +6,13 @@ import pytest
 from sass import synth
 from sass.check.ghidra_disasm import compare
 from sass.check.pydecode_disasm import sample
-from tests.harness.select import arches, require_languages
+from tests.harness.selection import arches, missing, require_languages
 from sass import ghidra_bridge
 from sass.sleigh.build import ARCHES
 from tests.harness.baseline import BASELINE, ratchet
+from sass.paths import NVDISASM
+
+if reason := missing(NVDISASM): pytest.skip(reason, allow_module_level=True)
 
 
 def class_results(arch, full):

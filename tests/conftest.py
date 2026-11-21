@@ -2,7 +2,7 @@
 and `gpu` (an SM89 or SM90 device). Plain `pytest` runs the Python tests, which need neither."""
 
 from itertools import product
-from tests.harness import sampling, select
+from tests.harness import sampling, selection
 import pytest
 
 
@@ -10,14 +10,14 @@ import pytest
 def real_uses(pytestconfig):
     from tests.harness import definition_functions
     variants = (definition_functions.VARIANTS if pytestconfig.getoption("--arch") is None else
-                tuple(product(select.arches(pytestconfig), select.modes(pytestconfig))))
+                tuple(product(selection.arches(pytestconfig), selection.modes(pytestconfig))))
     return definition_functions.discover(variants)
 
 
 @pytest.fixture
 def selected_architecture(request):
     arch = getattr(getattr(request.node, "callspec", None), "params", {}).get("arch")
-    if arch and request.config.getoption("--arch") is not None and arch not in select.arches(request.config):
+    if arch and request.config.getoption("--arch") is not None and arch not in selection.arches(request.config):
         pytest.skip(f"{arch} not selected")
 
 

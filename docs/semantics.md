@@ -381,15 +381,17 @@ preserve the source NaN sign with the destination's canonical payload. The enclo
 the instruction's NaN policy, including FP16/FP32's `0x7fff`/`0x7fffffff` and FP64's
 NaN-source rules. Consumers calling the backend directly must also apply that policy.
 
-Host builds need x86 SSE2, C++20, no fast math or floating-point contraction, rounding mode
-support, and MXCSR FTZ/DAZ disabled, as the native runtime requires. Generated headers do not
-check MXCSR: a consumer must check bits `0x8040` at startup and keep them clear during execution.
-The native runtime rejects enabled FTZ/DAZ when loading a library. CUDA builds need C++20,
+Host builds need `FLT_EVAL_METHOD` 0 (SSE2 math on x86-64; any ARM64), C++20, no fast math or
+floating-point contraction, rounding mode support, and no subnormal flushing or default NaNs
+(MXCSR FTZ/DAZ, bits `0x8040`, on x86-64; FPCR FZ/FZ16/DN/AH/FIZ, bits `0x3080003`, on ARM64), as
+the native runtime requires. Generated headers do not check the control register: a consumer must
+check those bits at startup and keep them clear during execution. The native runtime rejects them
+when loading a library. CUDA builds need C++20,
 `-ftz=false`, `--fmad=false`, no `--use_fast_math`, and matching CUDA/CCCL headers. For example:
 
 ```sh
 c++ -std=c++20 -O2 -ffp-contract=off -fno-fast-math -frounding-math \
-    -msse2 -mfpmath=sse -I src/sass/emulate/include consumer.cpp
+    -msse2 -mfpmath=sse -I src/sass/emulate/include consumer.cpp   # omit the SSE flags on ARM64
 nvcc -std=c++20 -ftz=false --fmad=false -I src/sass/emulate/include consumer.cu
 ```
 
@@ -1788,9 +1790,11 @@ are nonnegative statement positions; pure numerical response IDs are negative,
 so the two kinds cannot collide within an instruction.
 
 The production lifter supplies ordered bodies for supported numerical instructions
-and directly migrated memory, cache, special-register, MEMBAR, ATOMG, control-flow,
+and directly migrated memory, cache, special-register, MEMBAR, ATOMG, RED, control-flow,
 QSPC, ELECT, B2R, LDGSTS, LDGDEPBAR, DEPBAR, MUFU, SHFL, VOTE/VOTEU, MATCH, REDUX,
 LDSM, and HMMA families.
+RED currently models only 32-bit ADD in `red_uniform__memdesc`; other RED forms
+remain opaque.
 Python evaluation and native generation execute those bodies. Native instructions
 without suspension keep ordinary functions without a resumption frame. The native
 kernel generator supplies a separate function table for resumable bodies.

@@ -143,8 +143,17 @@ matched, which md conventions `nvdisasm` honours, and its printing quirks) are l
 
 ## Ghidra processor (`processor/SASS/`)
 
-Build and install with Python 3 and a working Ghidra installation (tested with Ghidra 12.2, which needs Java 25).
+Build and install with Python 3 and a working Ghidra installation. The full test suite uses Ghidra 12.2 (Java 25); release archives also receive cursory SM89 import, disassembly and kernel-argument analysis checks on Ghidra 12.0.4 and 12.1.4 (Java 21). These checks do not comprehensively verify compatibility with those versions.
 The generator uses the committed `src/sass/md/data/` descriptions.
+
+Download `sass-extension.zip` from the [latest release](https://github.com/edmcman/nvdisasm-re/releases/latest)
+and follow the [Ghidra extension guide](docs/ghidra-extension.md) for supported versions, installation,
+updates, importing cubins, and coverage. The guide is self-contained: the release ships it inside the
+ZIP as `SASS/README.md`.
+
+To install a branch build, open the [languages workflow](https://github.com/edmcman/nvdisasm-re/actions/workflows/languages.yml) on GitHub and select a successful run for the branch and commit you want. Under **Artifacts**, download **sass-extension** and extract the outer archive to get `sass-extension.zip`. Select that inner ZIP in Ghidra's extension manager. Every branch push starts a build, including documentation-only pushes. A newer push to the same branch can cancel a build in progress, so superseded commits may have no artifact.
+
+To build and install from source instead:
 
 1. From the repository root, set your Ghidra installation path and build the languages
    for every architecture:
@@ -172,9 +181,7 @@ The generator uses the committed `src/sass/md/data/` descriptions.
    Keep `.sla`, `.slaspec`, `sass_common.sinc`, all `.pspec` files, `sass.cspec`, and
    `sass.ldefs` from the same build together. Mixing versions can fail at import with
    `Unknown register: R1`.
-   Include `SASS/lib/SASS.jar`, which the normal build generates. The
-   complete `sass-processor.tar.gz` release archive includes it; the languages-only
-   archive does not replace the complete module.
+   Include `SASS/lib/SASS.jar`, which the normal build generates.
 
 3. Restart Ghidra and import a `.cubin` (extract one from a fat binary with
    `cuobjdump -xelf`). The **CUDA Cubin** loader uses Ghidra's ELF importer and picks the language
@@ -183,6 +190,13 @@ The generator uses the committed `src/sass/md/data/` descriptions.
    formula (`a f* b f+ c`), ignoring rounding modes, denormal flushing, fused
    rounding and NaN/signed-zero selection; choose it in the import dialog's
    Language field. The default variant computes hardware-exact results.
+
+   Every cubin section has address 0, so the loader places each allocated section
+   (`.text.<kernel>`, `.nv.constant0.<kernel>`, ...) at its own `ram` address,
+   in section order. A kernel's addresses are therefore offset from nvdisasm's, which
+   start each kernel at 0. Reimport programs imported before 2026-11-20 to get this
+   layout. Older imports fail on most real kernels with
+   `Address Overflow in subtract`, or put all but one kernel in overlay spaces.
 
    Constant bank 0 has automatic labels for known launch fields (`blockDim_x/y/z`,
    `local_stack_base`, generic address window bases), known default global-memory
@@ -208,6 +222,12 @@ The generator uses the committed `src/sass/md/data/` descriptions.
 Semantics, their coverage and their limits are documented in
 [`docs/semantics.md`](docs/semantics.md); generator details and Ghidra quirks in
 [`docs/sleigh.md`](docs/sleigh.md).
+
+### Publish a Ghidra extension release
+
+In GitHub's Releases UI, publish a stable release or prerelease using a tag whose commit includes the updated `languages` workflow. GitHub must allow asset uploads after publication, so immutable releases must be disabled for this workflow. [GitHub release asset rules](https://docs.github.com/en/repositories/releasing-projects-on-github/managing-releases-in-a-repository#editing-a-release)
+
+The publication event builds the tagged commit and attaches `sass-extension.zip` after all compatibility checks pass. Leave that asset name available when publishing. The upload fails if the release already has an asset with that name. [GitHub release events](https://docs.github.com/en/actions/reference/workflows-and-actions/events-that-trigger-workflows#release)
 
 ## Development
 

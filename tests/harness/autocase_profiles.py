@@ -121,7 +121,7 @@ SUPPLEMENTS = (
 def names(op, cls, form):
     if op in ('B2R', 'MEMBAR', 'LDGSTS', 'LDGDEPBAR', 'DEPBAR', 'CCTL', 'ERRBAR', 'YIELD'): return ['effect_forms']
     from tests.harness import autocase_remaining
-    if op == 'ATOMG': return ['atomic_forms']
+    if op in ('ATOMG', 'RED'): return ['atomic_forms']
     if op in ('HMMA', 'LDSM'): return ['matrix_forms']
     if op == 'MUFU' and not autocase_remaining.blocked_reason(op, cls, form):
         return ['mufu_sincos' if form.get('mufuop', form.get('op')) in ('SIN', 'COS') else 'mufu_reciprocal']

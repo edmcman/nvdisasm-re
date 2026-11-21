@@ -1,8 +1,12 @@
 name: languages
 on:
   push:
-    paths: ["src/sass/**", "processor/SASS/data/languages/**", "processor/SASS/src/**", ".github/workflows/languages.yml"]
+    branches: ['**']
   workflow_dispatch:
+  release:
+    types: [published]
+permissions:
+  contents: read
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -62,21 +66,29 @@ jobs:
             languages/sass_sm*.pspec
             languages/build-results-*.json
             languages/lib/SASS.jar
-  release:
+  package:
     needs: compile
     runs-on: ubuntu-latest
-    permissions:
-      contents: write
     steps:
       - uses: actions/checkout@v7
       - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.13"
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: "21"
+      - name: Install Ghidra 12.0.4 for the processor JAR
+        run: |
+          curl -fsSL -o ghidra.zip https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_12.0.4_build/ghidra_12.0.4_PUBLIC_20260303.zip
+          unzip -q ghidra.zip -d "$RUNNER_TEMP"
       - uses: actions/download-artifact@v8
         with:
           pattern: language-*
           merge-multiple: true
           path: languages
+      - name: Build compatible processor JAR
+        run: uv run python -c 'from sass.sleigh import processor; processor.build("${{ runner.temp }}/ghidra_12.0.4_PUBLIC", "languages")'
       - name: package
         run: |
           cp processor/SASS/data/languages/{sass_common.sinc,sass.pspec,sass.cspec} languages/
@@ -85,19 +97,84 @@ jobs:
           jq -s 'add' languages/build-results-*.json > languages/build-results.json && rm languages/build-results-*.json
           # Ghidra recompiles a writable .sla whose .slaspec is missing or older than it or its includes.
           touch languages/*.sla
-          tar --exclude=./lib -czf sass-languages.tar.gz -C languages .
-          cp -a languages/. processor/SASS/data/languages/
-          mkdir -p processor/SASS/lib
-          cp languages/lib/SASS.jar processor/SASS/lib/
-          tar --exclude=SASS/data/languages/lib -czf sass-processor.tar.gz -C processor SASS
-      - name: publish
+          mkdir -p extension/SASS/{data/languages,lib}
+          cp processor/SASS/Module.manifest extension/SASS/
+          cp docs/ghidra-extension.md extension/SASS/README.md
+          cp languages/*.{sla,slaspec,pspec,cspec,sinc,ldefs,opinion} extension/SASS/data/languages/
+          touch extension/SASS/data/languages/*.sla
+          cp languages/lib/SASS.jar extension/SASS/lib/
+          cat > extension/SASS/extension.properties <<EOF
+          name=SASS
+          description=NVIDIA SASS processor, CUDA cubin loader and kernel argument analyzer
+          author=nvdisasm-re contributors
+          createdOn=$(date -u +%Y-%m-%d)
+          version=12.0.4
+          EOF
+          (cd extension && zip -qr ../sass-extension.zip SASS)
+          uv run python tests/ghidra_compat/check_extension.py sass-extension.zip
+      - uses: actions/upload-artifact@v7
+        with:
+          name: sass-extension
+          path: sass-extension.zip
+  compatibility:
+    needs: package
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - version: 12.0.4
+            date: 20260303
+            java: '21'
+          - version: 12.1.4
+            date: 20260921
+            java: '21'
+          - version: '12.2'
+            date: 20261016
+            java: '25'
+    steps:
+      - uses: actions/checkout@v7
+      - uses: astral-sh/setup-uv@v10.3.0
+        with:
+          python-version: '3.13'
+      - uses: actions/setup-java@v5
+        with:
+          distribution: temurin
+          java-version: ${{ matrix.java }}
+      - uses: actions/download-artifact@v8
+        with:
+          name: sass-extension
+      - name: Install extension
+        run: |
+          curl -fsSL -o ghidra.zip https://github.com/NationalSecurityAgency/ghidra/releases/download/Ghidra_${{ matrix.version }}_build/ghidra_${{ matrix.version }}_PUBLIC_${{ matrix.date }}.zip
+          unzip -q ghidra.zip -d "$RUNNER_TEMP"
+          mkdir -p "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/Ghidra/Extensions"
+          unzip -q sass-extension.zip -d "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/Ghidra/Extensions"
+      - name: Import and analyze SM89 cubin
+        run: |
+          uv run sass-assemble examples/assembler/write_value.sass -o "$RUNNER_TEMP/write_value.cubin"
+          mkdir -p "$RUNNER_TEMP/project"
+          "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/support/analyzeHeadless" "$RUNNER_TEMP/project" smoke \
+            -import "$RUNNER_TEMP/write_value.cubin" -loader SassCubinLoader \
+            -scriptPath tests/ghidra_compat -postScript CompatibilitySmoke.java \
+            -log "$RUNNER_TEMP/ghidra-smoke.log"
+          grep -q SASS_COMPATIBILITY_SMOKE_PASSED "$RUNNER_TEMP/ghidra-smoke.log"
+      - if: failure()
+        run: |
+          cat "$RUNNER_TEMP/ghidra-smoke.log" 2>/dev/null || true
+          find ~/.config/ghidra -name application.log -exec cat {} \; 2>/dev/null || true
+  attach-release:
+    if: github.event_name == 'release'
+    needs: compatibility
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          name: sass-extension
+      - name: Attach extension to published release
         env:
           GH_TOKEN: ${{ github.token }}
-          TAG: languages-${{ github.sha }}
-        run: |
-          # main's builds are full releases, so releases/latest is always main's newest; other branches' are pre-releases.
-          kind=$([ "$GITHUB_REF" = refs/heads/main ] && echo --latest || echo --prerelease)
-          gh release view "$TAG" >/dev/null 2>&1 || gh release create "$TAG" --target "$GITHUB_SHA" $kind \
-            --title "SLEIGH languages for ${GITHUB_SHA::7}" \
-            --notes "Complete SASS processor with automatic kernel-argument analysis: unpack sass-processor.tar.gz into Ghidra/Processors/. The languages-only archive unpacks into processor/SASS/data/languages/."
-          gh release upload "$TAG" sass-languages.tar.gz sass-processor.tar.gz --clobber
+          TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload --repo "$GITHUB_REPOSITORY" -- "$TAG" sass-extension.zip

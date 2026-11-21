@@ -77,6 +77,11 @@ def main(ldefs, language_id, cubin, *options):
                 function = program.getFunctionManager().createFunction(
                     "constant_labels", code.getStart(), AddressSet(code.getStart(), code.getEnd()), SourceType.USER_DEFINED)
             other = program.getMemory().getBlock(".text.other_layout")
+            # Sections occupy distinct addresses, not overlays, with kernel symbols at their starts.
+            for block in (code, other):
+                assert not block.isOverlay() and block.getStart().getAddressSpace().getName() == "ram", block
+                assert program.getSymbolTable().getGlobalSymbols(block.getName()[6:])[0].getAddress() == block.getStart()
+            assert not any(str(b.getName()).startswith("segment") for b in program.getMemory().getBlocks())
             assert DisassembleCommand(other.getStart(), AddressSet(other.getStart(), other.getEnd()), True).applyTo(program)
         finally:
             program.endTransaction(transaction, True)

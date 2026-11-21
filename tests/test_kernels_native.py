@@ -7,7 +7,8 @@ import pytest
 from sass.emulate import kernel
 from tests.harness import lifted
 from tests.harness.checks import problems
-from tests.harness.select import arches, families, modes, selected, skipped
+from sass.paths import NVCC
+from tests.harness.selection import arches, families, missing, modes, selected, skipped
 
 ARCHES = ("SM89", "SM90")
 
@@ -25,6 +26,7 @@ def kernel_cases(config):
 def pytest_generate_tests(metafunc):
     if "native_fixture" in metafunc.fixturenames:
         if not selected(metafunc.config, "native"): return skipped(metafunc, "native_fixture", "native")
+        if reason := missing(NVCC): return skipped(metafunc, "native_fixture", "native", reason)
         params = [(arch, family, f.name, mode) for arch, family, f in native_fixtures(metafunc.config) for mode in f.modes if mode in modes(metafunc.config)]
         metafunc.parametrize("native_fixture", params, ids=["-".join(p) for p in params])
     if "native_kernel_case" in metafunc.fixturenames:

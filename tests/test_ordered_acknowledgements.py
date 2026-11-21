@@ -4,7 +4,7 @@ from sass.assemble import encoding
 from sass.decode import ir
 from sass.semantics import evaluate, lifter
 from sass.semantics.runtime import Runtime
-from tests.harness import select
+from tests.harness import selection
 
 
 def cases(arch):
@@ -70,9 +70,9 @@ def test_standalone_acknowledgements_preserve_captured_event_inputs(arch):
 @pytest.mark.ghidra
 @pytest.mark.parametrize("arch", ["SM89", "SM90"])
 def test_standalone_acknowledgements_in_both_ghidra_modes(arch, pytestconfig):
-    if arch not in select.arches(pytestconfig): pytest.skip(f"{arch} not selected")
-    modes = select.modes(pytestconfig)
-    select.require_languages([(arch, mode) for mode in modes])
+    if arch not in selection.arches(pytestconfig): pytest.skip(f"{arch} not selected")
+    modes = selection.modes(pytestconfig)
+    selection.require_languages([(arch, mode) for mode in modes])
     requests, expected = map(list, zip(*cases(arch)))
     results = ghidra_bridge.emulate_sharded({mode: (arch, mode, requests) for mode in modes}, workers=len(modes))
     for found in results.values():

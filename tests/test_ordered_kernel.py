@@ -155,10 +155,10 @@ def test_ordered_collectives_capture_aliases_reuse_sites_and_release_handles(arc
 @pytest.mark.parametrize("arch", ["SM89", "SM90"])
 def test_ordered_collective_kernels_ghidra(arch, pytestconfig):
     from sass import ghidra_bridge
-    from tests.harness import select
-    if arch not in select.arches(pytestconfig): pytest.skip(f"{arch} not selected")
-    modes = select.modes(pytestconfig)
-    select.require_languages([(arch, mode) for mode in modes])
+    from tests.harness import selection
+    if arch not in selection.arches(pytestconfig): pytest.skip(f"{arch} not selected")
+    modes = selection.modes(pytestconfig)
+    selection.require_languages([(arch, mode) for mode in modes])
     inputs = [(opcode, collective_request(arch, schedule, opcode))
               for opcode in ("vote", "match", "redux") for schedule in ("round_robin", "reverse", "seeded")]
     expected = [reference.run_kernel(request, arch) for _, request in inputs]
@@ -201,10 +201,10 @@ def test_aliased_shfl_reuses_its_site_and_releases_snapshots(arch, schedule):
 @pytest.mark.parametrize("arch", ["SM89", "SM90"])
 def test_aliased_shfl_ghidra_resumes_without_metadata_capture(arch, pytestconfig):
     from sass import ghidra_bridge
-    from tests.harness import select
-    if arch not in select.arches(pytestconfig): pytest.skip(f"{arch} not selected")
-    modes = select.modes(pytestconfig)
-    select.require_languages([(arch, mode) for mode in modes])
+    from tests.harness import selection
+    if arch not in selection.arches(pytestconfig): pytest.skip(f"{arch} not selected")
+    modes = selection.modes(pytestconfig)
+    selection.require_languages([(arch, mode) for mode in modes])
     requests = [shuffle_request(arch, schedule) for schedule in ("round_robin", "reverse", "seeded")]
     expected = [reference.run_kernel(request, arch) for request in requests]
     assert all(result["outputs"] == [(index ^ 1).to_bytes(4, "little").hex() for index in range(64)]

@@ -75,7 +75,8 @@ jobs:
         run: echo "list=$(uv run python -c 'import json; from sass.sleigh.build import ARCHES; print(json.dumps(ARCHES))')" >> "$GITHUB_OUTPUT"
   generate:
     needs: architectures
-    runs-on: ubuntu-latest
+    # CUDA 13.0's headers conflict with the rsqrt declarations in Ubuntu 26.04's glibc.
+    runs-on: ubuntu-24.04
     strategy:
       matrix:
         arch: ${{ fromJSON(needs.architectures.outputs.list) }}
@@ -116,7 +117,7 @@ jobs:
           test -z "$(git status --porcelain processor/SASS/semantics/)"
   python-tests:
     needs: architectures
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false
@@ -127,7 +128,35 @@ jobs:
       - uses: astral-sh/setup-uv@v10.3.0
         with:
           python-version: "3.13"
-      - run: uv run pytest --arch ${{ matrix.arch }} --fp all
+      - name: Report runner CPU and C++ compiler
+        id: compiler
+        run: |
+          lscpu | sed -nE '/^(CPU\(s\)|Model name):/p'
+          uv run python - <<'PY'
+          import os
+          from hashlib import sha256
+          from sass.emulate.build import compiler, flags
+          from sass.paths import CXX
+
+          version = compiler()
+          print(CXX, version, sep="\n")
+          fingerprint = sha256(repr((version, flags())).encode()).hexdigest()
+          with open(os.environ["GITHUB_OUTPUT"], "a") as output:
+              print(f"fingerprint={fingerprint}", file=output)
+          PY
+      - name: Cache compiled emulator libraries
+        uses: actions/cache@v5
+        with:
+          path: .cache/emulate
+          key: emulate-v1-${{ runner.os }}-${{ runner.arch }}-${{ matrix.arch }}-${{ steps.compiler.outputs.fingerprint }}-${{ hashFiles('src/sass/**', 'tests/**', 'uv.lock') }}
+          restore-keys: |
+            emulate-v1-${{ runner.os }}-${{ runner.arch }}-${{ matrix.arch }}-${{ steps.compiler.outputs.fingerprint }}-
+      - name: Run lifted-semantics tests
+        id: lifted
+        run: nice uv run pytest tests/test_lifted_semantics.py --arch ${{ matrix.arch }} --fp all --durations=30
+      - name: Run remaining Python tests
+        if: success() || (failure() && steps.lifted.conclusion == 'failure')
+        run: nice uv run pytest -n 4 --dist loadfile --ignore=tests/test_lifted_semantics.py --arch ${{ matrix.arch }} --fp all --durations=30
   k-tests:
     needs: pr-covers-push
     if: github.event_name == 'workflow_dispatch' && inputs.run_k_tests && needs.pr-covers-push.outputs.skip != 'true'
@@ -165,7 +194,7 @@ jobs:
             .cache/formal-doc/example/
   ghidra-tests:
     needs: architectures
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     timeout-minutes: 60
     strategy:
       fail-fast: false

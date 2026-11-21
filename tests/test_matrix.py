@@ -142,12 +142,12 @@ def test_tensor_warp_snapshot(arch, order):
 @pytest.mark.parametrize("order", ["round_robin", "reverse", "seeded"])
 def test_tensor_warp_snapshot_ghidra(arch, order, pytestconfig):
     from sass import ghidra_bridge
-    from tests.harness import gpu, hardware, select
+    from tests.harness import gpu, hardware, selection
     fixtures = matrix.gpu_fixtures(arch)
     requests = [gpu.request(fixture) for fixture in fixtures]
     for request in requests: request["kernel"]["schedule"] = order
-    modes = select.modes(pytestconfig)
-    select.require_languages([(arch, mode) for mode in modes])
+    modes = selection.modes(pytestconfig)
+    selection.require_languages([(arch, mode) for mode in modes])
     found = ghidra_bridge.emulate_sharded({mode: (arch, mode, requests) for mode in modes}, workers=len(modes))
     for mode, results in found.items():
         for fixture, result in zip(fixtures, results):

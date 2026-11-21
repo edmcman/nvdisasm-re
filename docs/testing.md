@@ -489,6 +489,30 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
   (default `HEAD`) with the working tree's `coverage.json` and `coverage.html`, without the report or CI link
   (2026-10-19; the `sass-opcode-coverage` skill uses it for before/after).
 
+## Python CI timing (2026-11-20)
+
+The SM89 or SM90 Python job finished last in four sampled CI runs. Its pytest
+step took 28–44 minutes. On the same commit, the SM89 PR job started about
+17 minutes later than its counterpart relative to workflow start and spent
+another 16 minutes in pytest. The two jobs used different Ubuntu 24.04 image
+builds, and the historical logs do not record which compiler was invoked.
+The Python job now reports the actual C++ compiler, CPU model and slowest
+pytest durations.
+[PR job](https://github.com/edmcman/nvdisasm-re/actions/runs/44770492689/job/136406809012)
+· [Push job](https://github.com/edmcman/nvdisasm-re/actions/runs/44770454230/job/136406602507)
+
+The default Python suite includes native kernel checks in the barrier and
+matrix modules. Each distinct kernel builds a C++ shared library on first use,
+and the sampled Python CI jobs started with an empty emulator cache. In a focused local
+SM89 run with GCC 11.4 and a fresh cache, those two modules took 10:30, including
+7:14 across 149 compiler invocations. The first schedule for each fixture set
+paid the compilation cost and later schedules reused the same libraries.
+The same tests took 3:11 with a warm cache and zero compiler invocations.
+Both runs passed the same 96 tests. The matrix operand-control tests still
+evaluate complete numerical profiles on the warm run.
+The workflow now restores `.cache/emulate` by runner platform, SASS architecture,
+and compiler fingerprint so subsequent runs can reuse matching libraries.
+
 ## Ghidra tests in CI (2026-10-22)
 
 - The `ghidra-tests` job (`.github/workflows/ci.yml`) runs `pytest -m ghidra --arch SMxx --fp all`
@@ -503,7 +527,7 @@ hardware, and `f2fp_8b_upconvert__*` counted as native though only `dstfmt=F16` 
 - `sass.ghidra_bridge` is the only path to `ghidra_emulate.py`/`ghidra_decode.py`; Ghidra tests run
   all selected languages concurrently, and `emulate_sharded` (`test_pcode_semantics`,
   `test_fixtures_emulated`) also splits each language's batch into chunks so up to 24 JVMs stay
-  busy. `tests/harness/select.require_languages` fails on a stale `.sla` instead of letting
+  busy. `tests/harness/selection.require_languages` fails on a stale `.sla` instead of letting
   concurrent Ghidra processes recompile it.
 - In-process callers (no subprocess per batch) start the JVM themselves and use
   `ghidra_decode.describe` and `ghidra_emulate.session(ldefs, language)`, a request handler; kernel
@@ -1025,3 +1049,12 @@ against main's cached four-minute run.
 The corrected import audit, unsigned-address regressions and both suspension
 gates pass five Ghidra tests in 106.85 seconds; focused merger, launch and cache
 checks pass 135 Python/native tests.
+
+Definition inventory and matrix references (2026-11-09): numeric-definition
+discovery streams matrix autocases in their existing discovery mode. It uses
+instruction words, not expected numerical results, and avoids computing the
+matrix references that it would discard. Other families retain ordinary case
+generation: their discovery mode can also expand input domains. Tests compare
+ordinary and discovery word/id sequences for representative forms on all ten
+architectures and both FP modes. Verification and evidence generation continue
+to evaluate references; inventory cases provide no verification evidence.

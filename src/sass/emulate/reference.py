@@ -3,6 +3,8 @@
 `sass.ghidra_bridge.ghidra_emulate`'s Ghidra lanes (same requests, same responses)."""
 import multiprocessing, re
 from concurrent.futures import ProcessPoolExecutor
+from dataclasses import replace
+from functools import lru_cache
 from sass.decode import ir
 from sass.emulate import schedule
 from sass.semantics import evaluate, lifter, ordered, ordered_runtime
@@ -11,6 +13,12 @@ from sass.semantics.runtime import Runtime
 NAME = re.compile(r"(UR|UP|R|P)(\d+)$")
 SHARED = ("ram", "shared", "cbank")   # a block's common spaces; localmem is per thread
 TRACED = ("R", "UR", "P", "UP")       # the architectural files a trace reports
+
+
+@lru_cache(maxsize=1024)
+def lifted(function, arch, word, pc, fp):
+    # Include the implementation so replacing the lifter cannot reuse stale semantics.
+    return function(arch, word, pc, fp)
 
 
 class Kernel:
@@ -24,7 +32,9 @@ class Kernel:
         self.memory = request.get("memory", []) + [dict(space="ram", address=self.base, hex=self.code.hex())]
 
     def lift(self, pc):
-        if pc not in self.lifted: self.lifted[pc] = lifter.lift(self.arch, self.code[pc - self.base:pc - self.base + 16], pc, self.fp)
+        if pc not in self.lifted:
+            word = self.code[pc - self.base:pc - self.base + 16]
+            self.lifted[pc] = replace(lifted(lifter.lift, self.arch, word, pc, self.fp))
         return self.lifted[pc]
 
     def group(self, threads, scope):

@@ -2,7 +2,7 @@ import pytest
 from sass import ghidra_bridge
 from sass.emulate import kernel, reference
 from tests.harness import synchronization, warp_sync
-from tests.harness.select import arches, modes, require_languages, selected, skipped
+from tests.harness.selection import arches, modes, require_languages, selected, skipped
 
 
 @pytest.mark.parametrize("arch,source", [

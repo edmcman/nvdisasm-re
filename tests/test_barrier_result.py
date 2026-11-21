@@ -42,10 +42,10 @@ def test_barrier_results_gpu(request):
 @pytest.mark.parametrize("arch", ["SM89", "SM90"])
 def test_barrier_states_ghidra(arch, pytestconfig):
     from sass import ghidra_bridge
-    from tests.harness import select
-    if arch not in select.arches(pytestconfig): pytest.skip(f"{arch} not selected")
-    modes = select.modes(pytestconfig)
-    select.require_languages([(arch, mode) for mode in modes])
+    from tests.harness import selection
+    if arch not in selection.arches(pytestconfig): pytest.skip(f"{arch} not selected")
+    modes = selection.modes(pytestconfig)
+    selection.require_languages([(arch, mode) for mode in modes])
     fixtures = [*synchronization.reductions(arch), *synchronization.barrier_states(arch)]
     requests = [dict(r, kernel=dict(r["kernel"], schedule=order))
                 for order in ("round_robin", "reverse", "seeded") for r in map(gpu.request, fixtures)]
