@@ -37,6 +37,7 @@ dev = [
     "nvidia-cuda-runtime==13.0.96; sys_platform == 'linux' and platform_machine == 'x86_64'",
     # cuda_fp16.h requires matching nv/target headers rather than an old system CCCL.
     "nvidia-cuda-cccl==13.0.85; sys_platform == 'linux' and platform_machine == 'x86_64'",
+    "pytest-xdist>=3.8.0",
 ]
 
 [tool.pytest.ini_options]
