@@ -36,6 +36,10 @@ Run automatic analysis after import. The **SASS Kernel Arguments** analyzer read
 
 **Best-supported architectures.** We only have access to SM89 and SM90 GPUs, so those are the only architectures whose semantics have been checked against real hardware. SM89 and SM90 have the best support right now.
 
+## Known issues
+
+Ghidra 12.2's **GCC Exception Handlers** analyzer can report `Error analyzing GCC DebugFrame exception tables` followed by `ExtLength is not completely implemented.` when a cubin contains extended-length DWARF `.debug_frame` records. This aborts frame-metadata analysis without itself indicating a SASS decoding failure. See [Ghidra issue #10291](https://github.com/NationalSecurityAgency/ghidra/issues/10291), which requests graceful handling of this unsupported format.
+
 ## Contact
 
 If you run into problems or have questions, contact Edward J. Schwartz directly at eschwartz@cert.org.
