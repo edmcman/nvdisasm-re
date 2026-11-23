@@ -28,6 +28,12 @@ Each architecture has two languages:
 
 Run automatic analysis after import. The **SASS Kernel Arguments** analyzer reads parameter offsets and sizes from the kernel metadata and adds them to function signatures when available. The metadata does not include names or types, so these stay unknown. Signatures you edited yourself are kept. To fill in arguments for programs imported before the extension was installed, analyze them again.
 
+## Try the bundled example
+
+Extract `sass-extension.zip` and import `SASS/examples/write_value.cubin` into a Ghidra project using the **CUDA Cubin** loader. It selects `SASS:LE:64:sm89`. Run automatic analysis, then open the `write_value` function. Its first instruction is `MOV`, and its two arguments are an 8-byte device pointer followed by a 4-byte scalar value. The kernel writes the value to the supplied pointer; the analyzer recovers the argument sizes, leaving names and types unknown.
+
+The corresponding SASS source is in `SASS/examples/write_value.sass`. You can inspect and analyze the example without Python, CUDA, or a GPU.
+
 ## Coverage
 
 **Disassembly.** Instruction decoding comes from the instruction tables built into NVIDIA's `nvdisasm` (CUDA 13.4). Disassembly is expected to be complete for every supported architecture.
