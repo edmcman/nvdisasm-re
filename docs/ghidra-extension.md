@@ -19,6 +19,8 @@ To remove the extension, open **File → Install Extensions**, uncheck SASS, and
 
 ## Import a cubin
 
+The archive includes `SASS/examples/write_value.cubin`, a small SM89 kernel that writes a scalar value to a device pointer, and its source, `write_value.sass`. Extract the archive to access the example, then import the cubin into your Ghidra project.
+
 Create or open a Ghidra project and import a `.cubin` file. To extract cubins from a CUDA fat binary, use `cuobjdump -xelf`. Select the **CUDA Cubin** loader if prompted. The loader picks the matching `SASS:LE:64:smXX` language from the cubin's ELF header. All cubin sections have address 0, so the loader gives each kernel's code and constant data its own address. Kernel addresses in Ghidra are therefore offset from the per-kernel addresses that nvdisasm prints.
 
 Each architecture has two languages:

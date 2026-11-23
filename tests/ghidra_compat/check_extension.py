@@ -14,6 +14,8 @@ with zipfile.ZipFile(sys.argv[1]) as archive:
     assert {name for name in files if name.endswith('.jar')} == {'SASS/lib/SASS.jar'}
     assert not any('__pycache__' in name or name.endswith(('.lock', '.pyc')) for name in names)
     assert {'SASS/Module.manifest', 'SASS/README.md'} <= files
+    assert {'SASS/examples/write_value.sass', 'SASS/examples/write_value.cubin'} <= files
+    assert archive.read('SASS/examples/write_value.cubin').startswith(b'\x7fELF')
     properties = dict(line.split('=', 1) for line in archive.read('SASS/extension.properties').decode().splitlines() if '=' in line)
     assert properties['name'] == 'SASS' and properties['version'] == '12.0.4'
     assert properties['description'] and properties['author'] and properties['createdOn']

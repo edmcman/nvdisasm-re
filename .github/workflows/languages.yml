@@ -97,7 +97,9 @@ jobs:
           jq -s 'add' languages/build-results-*.json > languages/build-results.json && rm languages/build-results-*.json
           # Ghidra recompiles a writable .sla whose .slaspec is missing or older than it or its includes.
           touch languages/*.sla
-          mkdir -p extension/SASS/{data/languages,lib}
+          mkdir -p extension/SASS/{data/languages,lib,examples}
+          cp examples/assembler/write_value.sass extension/SASS/examples/
+          nice uv run sass-assemble examples/assembler/write_value.sass -o extension/SASS/examples/write_value.cubin
           cp processor/SASS/Module.manifest extension/SASS/
           cp docs/ghidra-extension.md extension/SASS/README.md
           cp languages/*.{sla,slaspec,pspec,cspec,sinc,ldefs,opinion} extension/SASS/data/languages/
@@ -152,10 +154,9 @@ jobs:
           unzip -q sass-extension.zip -d "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/Ghidra/Extensions"
       - name: Import and analyze SM89 cubin
         run: |
-          uv run sass-assemble examples/assembler/write_value.sass -o "$RUNNER_TEMP/write_value.cubin"
           mkdir -p "$RUNNER_TEMP/project"
           "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/support/analyzeHeadless" "$RUNNER_TEMP/project" smoke \
-            -import "$RUNNER_TEMP/write_value.cubin" -loader SassCubinLoader \
+            -import "$RUNNER_TEMP/ghidra_${{ matrix.version }}_PUBLIC/Ghidra/Extensions/SASS/examples/write_value.cubin" -loader SassCubinLoader \
             -scriptPath tests/ghidra_compat -postScript CompatibilitySmoke.java \
             -log "$RUNNER_TEMP/ghidra-smoke.log"
           grep -q SASS_COMPATIBILITY_SMOKE_PASSED "$RUNNER_TEMP/ghidra-smoke.log"
