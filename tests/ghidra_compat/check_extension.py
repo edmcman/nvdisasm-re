@@ -11,10 +11,10 @@ with zipfile.ZipFile(sys.argv[1]) as archive:
     names = archive.namelist()
     files = set(names)
     assert len(names) == len(files)
-    assert all(name.startswith('SASS/') and '..' not in name.split('/') for name in names)
+    assert all((name == 'README.md' or name.startswith('SASS/')) and '..' not in name.split('/') for name in names)
     assert {name for name in files if name.endswith('.jar')} == {'SASS/lib/SASS.jar'}
     assert not any('__pycache__' in name or name.endswith(('.lock', '.pyc')) for name in names)
-    assert {'SASS/Module.manifest', 'SASS/README.md'} <= files
+    assert {'SASS/Module.manifest', 'README.md'} <= files
     assert {'SASS/examples/write_value.sass', 'SASS/examples/write_value.cubin'} <= files
     example = archive.read('SASS/examples/write_value.cubin')
     assert cubin.is_elf(example)
