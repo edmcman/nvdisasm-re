@@ -1,0 +1,53 @@
+{
+  "analysis": "common equality and inequality fixed point",
+  "fixed_point_verified": true,
+  "tensors": [
+    {
+      "buffer": "cb210",
+      "dimensions": [
+        "cb224:32"
+      ],
+      "dimensions_recovered": true,
+      "accesses": 2,
+      "coordinate_checks": [
+        {
+          "origin": "0xf0: LDG.E R7, desc[UR4][R4.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        },
+        {
+          "origin": "0x110: STG.E desc[UR4][R4.64], R7",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        }
+      ],
+      "remaining_index": [],
+      "integer_interpretation_proven": false
+    },
+    {
+      "buffer": "cb218",
+      "dimensions": [
+        "cb224:32"
+      ],
+      "dimensions_recovered": true,
+      "accesses": 1,
+      "coordinate_checks": [
+        {
+          "origin": "0xd0: LDG.E R2, desc[UR4][R2.64]",
+          "dimension": 0,
+          "upper_bound_proven": true,
+          "nonnegative_proven": true
+        }
+      ],
+      "remaining_index": [],
+      "integer_interpretation_proven": false
+    }
+  ],
+  "residuals": [],
+  "iterations": 2,
+  "numerical_assumptions": [],
+  "source_rank_inferred": false,
+  "integer_interpretation_proven": false
+}

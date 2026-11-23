@@ -1,0 +1,6497 @@
+{
+  "bounds_checked": false,
+  "inputs": {
+    "SR136:32": "i32",
+    "SR33:32": "i32",
+    "SR34:32": "i32",
+    "SR37:32": "i32",
+    "SR38:32": "i32",
+    "cb208:64": "'t0:64",
+    "cb210:64": "ptr64<global, f32, 's1>",
+    "cb218:64": "ptr64<global, f32, 's2>",
+    "cb220:64": "ptr64<global, f32, 's3>",
+    "cb228:64": "'t4:64",
+    "cb230:32": "i32",
+    "cb230:64": "'t5:64",
+    "cb234:32": "i32",
+    "cb238:32": "i32",
+    "cb28:32": "'t6:32",
+    "entry.R4:2:64": "'t7:64"
+  },
+  "accesses": [
+    {
+      "constraint": "access_within",
+      "kind": "read",
+      "address": 124,
+      "value": 127,
+      "bytes": 4,
+      "guard": 123,
+      "shape": "'s3",
+      "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]",
+      "element": "f32"
+    },
+    {
+      "constraint": "access_within",
+      "kind": "read",
+      "address": 135,
+      "value": 141,
+      "bytes": 4,
+      "guard": 113,
+      "shape": "'s2",
+      "origin": "0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]",
+      "element": "f32"
+    },
+    {
+      "constraint": "access_within",
+      "kind": "read",
+      "address": 368,
+      "value": 371,
+      "bytes": 4,
+      "guard": null,
+      "shape": "'s1",
+      "origin": "0x670: LDG.E R0, desc[UR8][R2.64]",
+      "element": "f32"
+    },
+    {
+      "constraint": "access_within",
+      "kind": "write",
+      "address": 368,
+      "value": 381,
+      "bytes": 4,
+      "guard": null,
+      "shape": "'s1",
+      "origin": "0x6a0: STG.E desc[UR8][R2.64], R7",
+      "element": "f32"
+    }
+  ],
+  "residuals": [
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 4,
+      "origin": "0x30: ULDC.64 UR8, c[0x0][0x208]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 5,
+      "origin": "0x30: ULDC.64 UR8, c[0x0][0x208]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 23,
+      "origin": "block 0xc0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 25,
+      "origin": "block 0xc0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 39,
+      "origin": "0x140: LDC.64 R14, c[0x0][0x220]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 40,
+      "origin": "0x140: LDC.64 R14, c[0x0][0x220]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 60,
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 61,
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 63,
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 68,
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 76,
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 81,
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 87,
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 92,
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 104,
+      "origin": "block 0x250"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 108,
+      "origin": "block 0x250"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 109,
+      "origin": "block 0x250"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 115,
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 117,
+      "origin": "block 0x250"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 119,
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 120,
+      "origin": "block 0x250"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 125,
+      "origin": "block 0x250"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 126,
+      "origin": "block 0x250"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 134,
+      "origin": "block 0x250 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 136,
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 138,
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 140,
+      "origin": "block 0x250 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 143,
+      "origin": "block 0x250"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 151,
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 168,
+      "value": 169,
+      "origin": "0x390: LDS R6, [R21]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 171,
+      "value": 172,
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 173,
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 174,
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 175,
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 176,
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 178,
+      "value": 179,
+      "origin": "0x3b0: LDS R22, [R21+0x40]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 181,
+      "value": 182,
+      "origin": "0x3c0: LDS R23, [R21+0x80]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 184,
+      "value": 185,
+      "origin": "0x3d0: LDS R24, [R21+0xc0]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 187,
+      "value": 188,
+      "origin": "0x3e0: LDS R25, [R21+0x100]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 190,
+      "value": 191,
+      "origin": "0x3f0: LDS R26, [R21+0x1c0]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 200,
+      "value": 201,
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 202,
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 203,
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 204,
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 205,
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 213,
+      "value": 214,
+      "origin": "0x430: LDS R22, [R21+0x140]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 222,
+      "value": 223,
+      "origin": "0x450: LDS R23, [R21+0x180]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 231,
+      "value": 232,
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 233,
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 234,
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 235,
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 236,
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 244,
+      "value": 245,
+      "origin": "0x490: LDS R25, [R21+0x200]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 247,
+      "value": 248,
+      "origin": "0x4a0: LDS R24, [R21+0x240]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 262,
+      "value": 263,
+      "origin": "0x4d0: LDS R23, [R21+0x280]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 271,
+      "value": 272,
+      "origin": "0x4f0: LDS R22, [R21+0x2c0]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 274,
+      "value": 275,
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 276,
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 277,
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 278,
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 279,
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 287,
+      "value": 288,
+      "origin": "0x520: LDS R25, [R21+0x300]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 296,
+      "value": 297,
+      "origin": "0x540: LDS R27, [R21+0x340]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 299,
+      "value": 300,
+      "origin": "0x550: LDS R9, [R21+0x380]"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 302,
+      "value": 303,
+      "origin": "0x560: LDS R8, [R21+0x3c0]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 343,
+      "origin": "0x5f0: ULDC.64 UR10, c[0x0][0x230]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 344,
+      "origin": "0x5f0: ULDC.64 UR10, c[0x0][0x230]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 346,
+      "origin": "block 0x5f0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 348,
+      "origin": "block 0x5f0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 353,
+      "origin": "0x630: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 354,
+      "origin": "0x630: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 356,
+      "origin": "block 0x630"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 358,
+      "origin": "block 0x630"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 360,
+      "origin": "block 0x630"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 363,
+      "origin": "0x650: ULDC.64 UR4, c[0x0][0x228]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 364,
+      "origin": "0x650: ULDC.64 UR4, c[0x0][0x228]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 369,
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 370,
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 382,
+      "origin": "block 0x0 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 384,
+      "origin": "block 0x0"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 385,
+      "origin": "block 0x0 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 386,
+      "origin": "block 0xc0"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 387,
+      "origin": "block 0xc0 UR4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 388,
+      "origin": "block 0x250 UR4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 389,
+      "origin": "block 0xc0 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 390,
+      "origin": "block 0x250 R4:2"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 164,
+      "value": 142,
+      "origin": "0x360: STS [R20], R27"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 166,
+      "value": 128,
+      "origin": "0x370: STS [R12], R29"
+    },
+    {
+      "kind": "arithmetic_overload",
+      "value": 82,
+      "operation": "add",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "kind": "arithmetic_overload",
+      "value": 159,
+      "operation": "add",
+      "origin": "0x340: IADD3.X R15, RZ, R15, RZ, P1, !PT"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 22,
+      "origin": "block 0xc0 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 24,
+      "origin": "block 0xc0 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 103,
+      "origin": "block 0x250 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 107,
+      "origin": "block 0x250 UR4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 116,
+      "origin": "block 0x250 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 118,
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 121,
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 137,
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 139,
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 345,
+      "origin": "block 0x5f0 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 355,
+      "origin": "block 0x630 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 357,
+      "origin": "block 0x630 UR10:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 383,
+      "origin": "block 0x0 R4:2"
+    }
+  ],
+  "unsupported": [
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x0: LDC R1, c[0x0][0x28]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x10: LDC R4, c[0x0][0x238]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x140: LDC.64 R14, c[0x0][0x220]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x160: LDC R17, c[0x0][0x230]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]"
+    },
+    {
+      "effect": "sass_memory_descriptor",
+      "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]"
+    },
+    {
+      "effect": "sass_memory_descriptor",
+      "origin": "0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x360: STS [R20], R27"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x370: STS [R12], R29"
+    },
+    {
+      "effect": "sass_prim_bar",
+      "origin": "0x380: BAR.SYNC.DEFER_BLOCKING 0x0"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x390: LDS R6, [R21]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x3b0: LDS R22, [R21+0x40]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x3c0: LDS R23, [R21+0x80]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x3d0: LDS R24, [R21+0xc0]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x3e0: LDS R25, [R21+0x100]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x3f0: LDS R26, [R21+0x1c0]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x430: LDS R22, [R21+0x140]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x450: LDS R23, [R21+0x180]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x490: LDS R25, [R21+0x200]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x4a0: LDS R24, [R21+0x240]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x4d0: LDS R23, [R21+0x280]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x4f0: LDS R22, [R21+0x2c0]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x520: LDS R25, [R21+0x300]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x540: LDS R27, [R21+0x340]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x550: LDS R9, [R21+0x380]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x560: LDS R8, [R21+0x3c0]"
+    },
+    {
+      "effect": "sass_prim_bar",
+      "origin": "0x5d0: BAR.SYNC.DEFER_BLOCKING 0x0"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x630: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x670: LDG.E R0, desc[UR8][R2.64]"
+    },
+    {
+      "effect": "sass_memory_descriptor",
+      "origin": "0x670: LDG.E R0, desc[UR8][R2.64]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x6a0: STG.E desc[UR8][R2.64], R7"
+    },
+    {
+      "effect": "sass_memory_descriptor",
+      "origin": "0x6a0: STG.E desc[UR8][R2.64], R7"
+    }
+  ],
+  "control": [
+    {
+      "block": 0,
+      "address": 176,
+      "kind": "goto",
+      "target": 1520,
+      "fallthrough": 192,
+      "successors": [
+        1520,
+        192
+      ],
+      "guard": 18,
+      "condition": null,
+      "origin": "0xb0: @!P0 BRA 0x5f0"
+    },
+    {
+      "block": 592,
+      "address": 1504,
+      "kind": "goto",
+      "target": 592,
+      "fallthrough": 1520,
+      "successors": [
+        592,
+        1520
+      ],
+      "guard": 340,
+      "condition": null,
+      "origin": "0x5e0: @!P0 BRA 0x250"
+    },
+    {
+      "block": 1520,
+      "address": 1568,
+      "kind": "return",
+      "target": null,
+      "fallthrough": 1584,
+      "successors": [
+        1584
+      ],
+      "guard": 350,
+      "condition": null,
+      "origin": "0x620: @P0 EXIT"
+    },
+    {
+      "block": 1584,
+      "address": 1712,
+      "kind": "return",
+      "target": null,
+      "fallthrough": 1728,
+      "successors": [],
+      "guard": null,
+      "condition": null,
+      "origin": "0x6b0: EXIT"
+    }
+  ],
+  "verified_returns": [],
+  "call_contexts": {},
+  "integer_views": [
+    {
+      "value": 2,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "SR38"
+    },
+    {
+      "value": 7,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "SR34"
+    },
+    {
+      "value": 8,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "SR37"
+    },
+    {
+      "value": 9,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "SR33"
+    },
+    {
+      "value": 11,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x80: ISETP.GE.AND P0, PT, R4, 0x1, PT"
+    },
+    {
+      "value": 10,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x80: ISETP.GE.AND P0, PT, R4, 0x1, PT"
+    },
+    {
+      "value": 1,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x80: ISETP.GE.AND P0, PT, R4, 0x1, PT"
+    },
+    {
+      "value": 13,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x90: LEA R3, R3, R13, 0x4"
+    },
+    {
+      "value": 2,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x90: LEA R3, R3, R13, 0x4"
+    },
+    {
+      "value": 12,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x90: LEA R3, R3, R13, 0x4"
+    },
+    {
+      "value": 16,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xa0: LEA R2, R9, R0, 0x4"
+    },
+    {
+      "value": 8,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xa0: LEA R2, R9, R0, 0x4"
+    },
+    {
+      "value": 15,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xa0: LEA R2, R9, R0, 0x4"
+    },
+    {
+      "value": 20,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "SR136"
+    },
+    {
+      "value": 26,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xe0: IMAD R5, R3, R4, R0.reuse"
+    },
+    {
+      "value": 23,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xe0: IMAD R5, R3, R4, R0.reuse"
+    },
+    {
+      "value": 25,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xe0: IMAD R5, R3, R4, R0.reuse"
+    },
+    {
+      "value": 32,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x100: IMAD R16, R13, UR4, R0"
+    },
+    {
+      "value": 31,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x100: IMAD R16, R13, UR4, R0"
+    },
+    {
+      "value": 21,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x100: IMAD R16, R13, UR4, R0"
+    },
+    {
+      "value": 43,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x150: LEA R16, R9, R16, 0x4"
+    },
+    {
+      "value": 41,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x150: LEA R16, R9, R16, 0x4"
+    },
+    {
+      "value": 42,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x150: LEA R16, R9, R16, 0x4"
+    },
+    {
+      "value": 46,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x170: ULEA UR5, UR7, UR4, 0x18"
+    },
+    {
+      "value": 20,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x170: ULEA UR5, UR7, UR4, 0x18"
+    },
+    {
+      "value": 45,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x170: ULEA UR5, UR7, UR4, 0x18"
+    },
+    {
+      "value": 49,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x180: ULEA UR6, UR7, UR6, 0x18"
+    },
+    {
+      "value": 20,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x180: ULEA UR6, UR7, UR6, 0x18"
+    },
+    {
+      "value": 48,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x180: ULEA UR6, UR7, UR6, 0x18"
+    },
+    {
+      "value": 53,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1a0: LEA R18, R0.reuse, UR5, 0x6"
+    },
+    {
+      "value": 27,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1a0: LEA R18, R0.reuse, UR5, 0x6"
+    },
+    {
+      "value": 52,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1a0: LEA R18, R0.reuse, UR5, 0x6"
+    },
+    {
+      "value": 56,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "value": 28,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "value": 58,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "value": 57,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "value": 65,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "value": 63,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "value": 64,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "value": 67,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "value": 66,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "value": 70,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1e0: LEA R12, R0, UR6, 0x6"
+    },
+    {
+      "value": 27,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1e0: LEA R12, R0, UR6, 0x6"
+    },
+    {
+      "value": 69,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1e0: LEA R12, R0, UR6, 0x6"
+    },
+    {
+      "value": 73,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1f0: IMAD R20, R13, 0x4, R18"
+    },
+    {
+      "value": 31,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1f0: IMAD R20, R13, 0x4, R18"
+    },
+    {
+      "value": 72,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1f0: IMAD R20, R13, 0x4, R18"
+    },
+    {
+      "value": 78,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "value": 76,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "value": 77,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "value": 80,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "value": 79,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "value": 84,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x210: LEA R12, R13, R12, 0x2"
+    },
+    {
+      "value": 31,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x210: LEA R12, R13, R12, 0x2"
+    },
+    {
+      "value": 83,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x210: LEA R12, R13, R12, 0x2"
+    },
+    {
+      "value": 89,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "value": 87,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "value": 88,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "value": 91,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "value": 90,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "value": 94,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x230: LEA R21, R13, UR6, 0x2"
+    },
+    {
+      "value": 31,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x230: LEA R21, R13, UR6, 0x2"
+    },
+    {
+      "value": 93,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x230: LEA R21, R13, UR6, 0x2"
+    },
+    {
+      "value": 98,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x250: ISETP.GE.AND P0, PT, R13, UR6, PT"
+    },
+    {
+      "value": 96,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x250: ISETP.GE.AND P0, PT, R13, UR6, PT"
+    },
+    {
+      "value": 97,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x250: ISETP.GE.AND P0, PT, R13, UR6, PT"
+    },
+    {
+      "value": 101,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x270: ISETP.GE.AND P1, PT, R0, UR6, PT"
+    },
+    {
+      "value": 96,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x270: ISETP.GE.AND P1, PT, R0, UR6, PT"
+    },
+    {
+      "value": 100,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x270: ISETP.GE.AND P1, PT, R0, UR6, PT"
+    },
+    {
+      "value": 105,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x280: ISETP.GE.OR P0, PT, R2, R17, P0"
+    },
+    {
+      "value": 102,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x280: ISETP.GE.OR P0, PT, R2, R17, P0"
+    },
+    {
+      "value": 104,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x280: ISETP.GE.OR P0, PT, R2, R17, P0"
+    },
+    {
+      "value": 110,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x290: ISETP.GE.OR P1, PT, R3, UR5, P1"
+    },
+    {
+      "value": 108,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x290: ISETP.GE.OR P1, PT, R3, UR5, P1"
+    },
+    {
+      "value": 109,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x290: ISETP.GE.OR P1, PT, R3, UR5, P1"
+    },
+    {
+      "value": 131,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "value": 130,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "value": 133,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "value": 132,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "value": 147,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x300: ISETP.LE.AND P0, PT, R19, UR4, PT"
+    },
+    {
+      "value": 146,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x300: ISETP.LE.AND P0, PT, R19, UR4, PT"
+    },
+    {
+      "value": 145,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x300: ISETP.LE.AND P0, PT, R19, UR4, PT"
+    },
+    {
+      "value": 148,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "value": 126,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "value": 153,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "value": 152,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "value": 150,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "value": 158,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x340: IADD3.X R15, RZ, R15, RZ, P1, !PT"
+    },
+    {
+      "value": 153,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x340: IADD3.X R15, RZ, R15, RZ, P1, !PT"
+    },
+    {
+      "value": 161,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x350: LEA R16, R17, R16, 0x4"
+    },
+    {
+      "value": 102,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x350: LEA R16, R17, R16, 0x4"
+    },
+    {
+      "value": 160,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x350: LEA R16, R17, R16, 0x4"
+    },
+    {
+      "value": 164,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x360: STS [R20], R27"
+    },
+    {
+      "value": 163,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x360: STS [R20], R27"
+    },
+    {
+      "value": 166,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x370: STS [R12], R29"
+    },
+    {
+      "value": 165,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x370: STS [R12], R29"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x390: LDS R6, [R21]"
+    },
+    {
+      "value": 167,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x390: LDS R6, [R21]"
+    },
+    {
+      "value": 171,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "value": 170,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "value": 347,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x600: ISETP.GE.AND P0, PT, R3, UR11, PT"
+    },
+    {
+      "value": 344,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x600: ISETP.GE.AND P0, PT, R3, UR11, PT"
+    },
+    {
+      "value": 346,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x600: ISETP.GE.AND P0, PT, R3, UR11, PT"
+    },
+    {
+      "value": 349,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x610: ISETP.GE.OR P0, PT, R2, UR10, P0"
+    },
+    {
+      "value": 343,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x610: ISETP.GE.OR P0, PT, R2, UR10, P0"
+    },
+    {
+      "value": 348,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x610: ISETP.GE.OR P0, PT, R2, UR10, P0"
+    },
+    {
+      "value": 359,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x640: IMAD R3, R3, UR10, R2"
+    },
+    {
+      "value": 356,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x640: IMAD R3, R3, UR10, R2"
+    },
+    {
+      "value": 358,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x640: IMAD R3, R3, UR10, R2"
+    },
+    {
+      "value": 365,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "value": 361,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "value": 367,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "value": 366,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "value": 14,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x90: LEA R3, R3, R13, 0x4"
+    },
+    {
+      "value": 7,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x90: LEA R3, R3, R13, 0x4"
+    },
+    {
+      "value": 17,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xa0: LEA R2, R9, R0, 0x4"
+    },
+    {
+      "value": 9,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xa0: LEA R2, R9, R0, 0x4"
+    },
+    {
+      "value": 28,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xe0: IMAD R5, R3, R4, R0.reuse"
+    },
+    {
+      "value": 27,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xe0: IMAD R5, R3, R4, R0.reuse"
+    },
+    {
+      "value": 30,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xf0: IADD3 R4, R4, 0xf, RZ"
+    },
+    {
+      "value": 25,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xf0: IADD3 R4, R4, 0xf, RZ"
+    },
+    {
+      "value": 29,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xf0: IADD3 R4, R4, 0xf, RZ"
+    },
+    {
+      "value": 33,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x100: IMAD R16, R13, UR4, R0"
+    },
+    {
+      "value": 27,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x100: IMAD R16, R13, UR4, R0"
+    },
+    {
+      "value": 37,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x130: UIADD3 UR6, UR4, 0x400, URZ"
+    },
+    {
+      "value": 34,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x130: UIADD3 UR6, UR4, 0x400, URZ"
+    },
+    {
+      "value": 36,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x130: UIADD3 UR6, UR4, 0x400, URZ"
+    },
+    {
+      "value": 44,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x150: LEA R16, R9, R16, 0x4"
+    },
+    {
+      "value": 33,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x150: LEA R16, R9, R16, 0x4"
+    },
+    {
+      "value": 47,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x170: ULEA UR5, UR7, UR4, 0x18"
+    },
+    {
+      "value": 34,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x170: ULEA UR5, UR7, UR4, 0x18"
+    },
+    {
+      "value": 50,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x180: ULEA UR6, UR7, UR6, 0x18"
+    },
+    {
+      "value": 37,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x180: ULEA UR6, UR7, UR6, 0x18"
+    },
+    {
+      "value": 54,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1a0: LEA R18, R0.reuse, UR5, 0x6"
+    },
+    {
+      "value": 47,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1a0: LEA R18, R0.reuse, UR5, 0x6"
+    },
+    {
+      "value": 71,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1e0: LEA R12, R0, UR6, 0x6"
+    },
+    {
+      "value": 50,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1e0: LEA R12, R0, UR6, 0x6"
+    },
+    {
+      "value": 74,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1f0: IMAD R20, R13, 0x4, R18"
+    },
+    {
+      "value": 54,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1f0: IMAD R20, R13, 0x4, R18"
+    },
+    {
+      "value": 85,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x210: LEA R12, R13, R12, 0x2"
+    },
+    {
+      "value": 71,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x210: LEA R12, R13, R12, 0x2"
+    },
+    {
+      "value": 95,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x230: LEA R21, R13, UR6, 0x2"
+    },
+    {
+      "value": 50,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x230: LEA R21, R13, UR6, 0x2"
+    },
+    {
+      "value": 145,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2f0: UIADD3 UR4, UR4, 0x1, URZ"
+    },
+    {
+      "value": 143,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2f0: UIADD3 UR4, UR4, 0x1, URZ"
+    },
+    {
+      "value": 144,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2f0: UIADD3 UR4, UR4, 0x1, URZ"
+    },
+    {
+      "value": 149,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "value": 155,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x320: VIADD R0, R0, 0x10"
+    },
+    {
+      "value": 100,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x320: VIADD R0, R0, 0x10"
+    },
+    {
+      "value": 154,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x320: VIADD R0, R0, 0x10"
+    },
+    {
+      "value": 157,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x330: IADD3 R13, R13, 0x10, RZ"
+    },
+    {
+      "value": 97,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x330: IADD3 R13, R13, 0x10, RZ"
+    },
+    {
+      "value": 156,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x330: IADD3 R13, R13, 0x10, RZ"
+    },
+    {
+      "value": 162,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x350: LEA R16, R17, R16, 0x4"
+    },
+    {
+      "value": 130,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x350: LEA R16, R17, R16, 0x4"
+    },
+    {
+      "value": 178,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3b0: LDS R22, [R21+0x40]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3b0: LDS R22, [R21+0x40]"
+    },
+    {
+      "value": 177,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3b0: LDS R22, [R21+0x40]"
+    },
+    {
+      "value": 181,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3c0: LDS R23, [R21+0x80]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3c0: LDS R23, [R21+0x80]"
+    },
+    {
+      "value": 180,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3c0: LDS R23, [R21+0x80]"
+    },
+    {
+      "value": 184,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3d0: LDS R24, [R21+0xc0]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3d0: LDS R24, [R21+0xc0]"
+    },
+    {
+      "value": 183,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3d0: LDS R24, [R21+0xc0]"
+    },
+    {
+      "value": 187,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3e0: LDS R25, [R21+0x100]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3e0: LDS R25, [R21+0x100]"
+    },
+    {
+      "value": 186,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3e0: LDS R25, [R21+0x100]"
+    },
+    {
+      "value": 190,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3f0: LDS R26, [R21+0x1c0]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3f0: LDS R26, [R21+0x1c0]"
+    },
+    {
+      "value": 189,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x3f0: LDS R26, [R21+0x1c0]"
+    },
+    {
+      "value": 200,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "value": 171,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "value": 199,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "value": 213,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x430: LDS R22, [R21+0x140]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x430: LDS R22, [R21+0x140]"
+    },
+    {
+      "value": 212,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x430: LDS R22, [R21+0x140]"
+    },
+    {
+      "value": 222,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x450: LDS R23, [R21+0x180]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x450: LDS R23, [R21+0x180]"
+    },
+    {
+      "value": 221,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x450: LDS R23, [R21+0x180]"
+    },
+    {
+      "value": 231,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "value": 171,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "value": 230,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "value": 244,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x490: LDS R25, [R21+0x200]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x490: LDS R25, [R21+0x200]"
+    },
+    {
+      "value": 243,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x490: LDS R25, [R21+0x200]"
+    },
+    {
+      "value": 247,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x4a0: LDS R24, [R21+0x240]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x4a0: LDS R24, [R21+0x240]"
+    },
+    {
+      "value": 246,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x4a0: LDS R24, [R21+0x240]"
+    },
+    {
+      "value": 262,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x4d0: LDS R23, [R21+0x280]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x4d0: LDS R23, [R21+0x280]"
+    },
+    {
+      "value": 261,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x4d0: LDS R23, [R21+0x280]"
+    },
+    {
+      "value": 271,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x4f0: LDS R22, [R21+0x2c0]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x4f0: LDS R22, [R21+0x2c0]"
+    },
+    {
+      "value": 270,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x4f0: LDS R22, [R21+0x2c0]"
+    },
+    {
+      "value": 274,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "value": 171,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "value": 273,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "value": 287,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x520: LDS R25, [R21+0x300]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x520: LDS R25, [R21+0x300]"
+    },
+    {
+      "value": 286,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x520: LDS R25, [R21+0x300]"
+    },
+    {
+      "value": 296,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x540: LDS R27, [R21+0x340]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x540: LDS R27, [R21+0x340]"
+    },
+    {
+      "value": 295,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x540: LDS R27, [R21+0x340]"
+    },
+    {
+      "value": 299,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x550: LDS R9, [R21+0x380]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x550: LDS R9, [R21+0x380]"
+    },
+    {
+      "value": 298,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x550: LDS R9, [R21+0x380]"
+    },
+    {
+      "value": 302,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x560: LDS R8, [R21+0x3c0]"
+    },
+    {
+      "value": 168,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x560: LDS R8, [R21+0x3c0]"
+    },
+    {
+      "value": 301,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x560: LDS R8, [R21+0x3c0]"
+    },
+    {
+      "value": 361,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x640: IMAD R3, R3, UR10, R2"
+    },
+    {
+      "value": 360,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x640: IMAD R3, R3, UR10, R2"
+    },
+    {
+      "value": 149,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "block 0x250 R14:2"
+    }
+  ],
+  "values": [
+    {
+      "id": 0,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb28"
+      ],
+      "type": "'t6:32",
+      "origin": "cb28"
+    },
+    {
+      "id": 1,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb238"
+      ],
+      "type": "i32",
+      "origin": "cb238"
+    },
+    {
+      "id": 2,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "SR38"
+      ],
+      "type": "i32",
+      "origin": "SR38"
+    },
+    {
+      "id": 3,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb208"
+      ],
+      "type": "'t0:64",
+      "origin": "cb208"
+    },
+    {
+      "id": 4,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        3,
+        31,
+        0
+      ],
+      "type": "'t8:32",
+      "origin": "0x30: ULDC.64 UR8, c[0x0][0x208]"
+    },
+    {
+      "id": 5,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        3,
+        63,
+        32
+      ],
+      "type": "'t9:32",
+      "origin": "0x30: ULDC.64 UR8, c[0x0][0x208]"
+    },
+    {
+      "id": 6,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "f32",
+      "origin": "0x40: HFMA2.MMA R7, -RZ, RZ, 0, 0"
+    },
+    {
+      "id": 7,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "SR34"
+      ],
+      "type": "i32",
+      "origin": "SR34"
+    },
+    {
+      "id": 8,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "SR37"
+      ],
+      "type": "i32",
+      "origin": "SR37"
+    },
+    {
+      "id": 9,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "SR33"
+      ],
+      "type": "i32",
+      "origin": "SR33"
+    },
+    {
+      "id": 10,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1
+      ],
+      "type": "i32",
+      "origin": "0x80: ISETP.GE.AND P0, PT, R4, 0x1, PT"
+    },
+    {
+      "id": 11,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        10,
+        1
+      ],
+      "type": "bool",
+      "origin": "0x80: ISETP.GE.AND P0, PT, R4, 0x1, PT"
+    },
+    {
+      "id": 12,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        4
+      ],
+      "type": "i32",
+      "origin": "0x90: LEA R3, R3, R13, 0x4"
+    },
+    {
+      "id": 13,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        2,
+        12
+      ],
+      "type": "i32",
+      "origin": "0x90: LEA R3, R3, R13, 0x4"
+    },
+    {
+      "id": 14,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        13,
+        7
+      ],
+      "type": "i32",
+      "origin": "0x90: LEA R3, R3, R13, 0x4"
+    },
+    {
+      "id": 15,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        4
+      ],
+      "type": "i32",
+      "origin": "0xa0: LEA R2, R9, R0, 0x4"
+    },
+    {
+      "id": 16,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        8,
+        15
+      ],
+      "type": "i32",
+      "origin": "0xa0: LEA R2, R9, R0, 0x4"
+    },
+    {
+      "id": 17,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        16,
+        9
+      ],
+      "type": "i32",
+      "origin": "0xa0: LEA R2, R9, R0, 0x4"
+    },
+    {
+      "id": 18,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        11
+      ],
+      "type": "bool",
+      "origin": "0xb0: @!P0 BRA 0x5f0"
+    },
+    {
+      "id": 19,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        18
+      ],
+      "type": "'t10:1",
+      "origin": "0xb0: @!P0 BRA 0x5f0"
+    },
+    {
+      "id": 20,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "SR136"
+      ],
+      "type": "i32",
+      "origin": "SR136"
+    },
+    {
+      "id": 21,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb230"
+      ],
+      "type": "i32",
+      "origin": "cb230"
+    },
+    {
+      "id": 22,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        382
+      ],
+      "type": "'t11:64",
+      "origin": "block 0xc0 R2:2"
+    },
+    {
+      "id": 23,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        22,
+        63,
+        32
+      ],
+      "type": "i32",
+      "origin": "block 0xc0"
+    },
+    {
+      "id": 24,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        385
+      ],
+      "type": "'t12:64",
+      "origin": "block 0xc0 R4:2"
+    },
+    {
+      "id": 25,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        24,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "block 0xc0"
+    },
+    {
+      "id": 26,
+      "operation": "mul",
+      "width": 32,
+      "arguments": [
+        23,
+        25
+      ],
+      "type": "i32",
+      "origin": "0xe0: IMAD R5, R3, R4, R0.reuse"
+    },
+    {
+      "id": 27,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        9
+      ],
+      "type": "i32",
+      "origin": "block 0xc0 R0:1"
+    },
+    {
+      "id": 28,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        26,
+        27
+      ],
+      "type": "i32",
+      "origin": "0xe0: IMAD R5, R3, R4, R0.reuse"
+    },
+    {
+      "id": 29,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        15
+      ],
+      "type": "i32",
+      "origin": "0xf0: IADD3 R4, R4, 0xf, RZ"
+    },
+    {
+      "id": 30,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        25,
+        29
+      ],
+      "type": "i32",
+      "origin": "0xf0: IADD3 R4, R4, 0xf, RZ"
+    },
+    {
+      "id": 31,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        7
+      ],
+      "type": "i32",
+      "origin": "block 0xc0 R13:1"
+    },
+    {
+      "id": 32,
+      "operation": "mul",
+      "width": 32,
+      "arguments": [
+        31,
+        21
+      ],
+      "type": "i32",
+      "origin": "0x100: IMAD R16, R13, UR4, R0"
+    },
+    {
+      "id": 33,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        32,
+        27
+      ],
+      "type": "i32",
+      "origin": "0x100: IMAD R16, R13, UR4, R0"
+    },
+    {
+      "id": 34,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1024
+      ],
+      "type": "i32",
+      "origin": "0x110: UMOV UR4, 0x400"
+    },
+    {
+      "id": 35,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "f32",
+      "origin": "0x120: MOV R7, RZ"
+    },
+    {
+      "id": 36,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1024
+      ],
+      "type": "i32",
+      "origin": "0x130: UIADD3 UR6, UR4, 0x400, URZ"
+    },
+    {
+      "id": 37,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        34,
+        36
+      ],
+      "type": "i32",
+      "origin": "0x130: UIADD3 UR6, UR4, 0x400, URZ"
+    },
+    {
+      "id": 38,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb220"
+      ],
+      "type": "ptr64<global, f32, 's3>",
+      "origin": "cb220"
+    },
+    {
+      "id": 39,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        38,
+        31,
+        0
+      ],
+      "type": "'t13:32",
+      "origin": "0x140: LDC.64 R14, c[0x0][0x220]"
+    },
+    {
+      "id": 40,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        38,
+        63,
+        32
+      ],
+      "type": "'t14:32",
+      "origin": "0x140: LDC.64 R14, c[0x0][0x220]"
+    },
+    {
+      "id": 41,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        8
+      ],
+      "type": "i32",
+      "origin": "block 0xc0 R9:1"
+    },
+    {
+      "id": 42,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        4
+      ],
+      "type": "i32",
+      "origin": "0x150: LEA R16, R9, R16, 0x4"
+    },
+    {
+      "id": 43,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        41,
+        42
+      ],
+      "type": "i32",
+      "origin": "0x150: LEA R16, R9, R16, 0x4"
+    },
+    {
+      "id": 44,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        43,
+        33
+      ],
+      "type": "i32",
+      "origin": "0x150: LEA R16, R9, R16, 0x4"
+    },
+    {
+      "id": 45,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        24
+      ],
+      "type": "i32",
+      "origin": "0x170: ULEA UR5, UR7, UR4, 0x18"
+    },
+    {
+      "id": 46,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        20,
+        45
+      ],
+      "type": "i32",
+      "origin": "0x170: ULEA UR5, UR7, UR4, 0x18"
+    },
+    {
+      "id": 47,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        46,
+        34
+      ],
+      "type": "i32",
+      "origin": "0x170: ULEA UR5, UR7, UR4, 0x18"
+    },
+    {
+      "id": 48,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        24
+      ],
+      "type": "i32",
+      "origin": "0x180: ULEA UR6, UR7, UR6, 0x18"
+    },
+    {
+      "id": 49,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        20,
+        48
+      ],
+      "type": "i32",
+      "origin": "0x180: ULEA UR6, UR7, UR6, 0x18"
+    },
+    {
+      "id": 50,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        49,
+        37
+      ],
+      "type": "i32",
+      "origin": "0x180: ULEA UR6, UR7, UR6, 0x18"
+    },
+    {
+      "id": 51,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "i32",
+      "origin": "0x190: UMOV UR4, URZ"
+    },
+    {
+      "id": 52,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        6
+      ],
+      "type": "i32",
+      "origin": "0x1a0: LEA R18, R0.reuse, UR5, 0x6"
+    },
+    {
+      "id": 53,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        27,
+        52
+      ],
+      "type": "i32",
+      "origin": "0x1a0: LEA R18, R0.reuse, UR5, 0x6"
+    },
+    {
+      "id": 54,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        53,
+        47
+      ],
+      "type": "i32",
+      "origin": "0x1a0: LEA R18, R0.reuse, UR5, 0x6"
+    },
+    {
+      "id": 55,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb234"
+      ],
+      "type": "i32",
+      "origin": "cb234"
+    },
+    {
+      "id": 56,
+      "operation": "sext",
+      "width": 64,
+      "arguments": [
+        28
+      ],
+      "type": "i64",
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "id": 57,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        4
+      ],
+      "type": "i64",
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "id": 58,
+      "operation": "mul",
+      "width": 64,
+      "arguments": [
+        56,
+        57
+      ],
+      "type": "i64",
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "id": 59,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        58,
+        38
+      ],
+      "type": "ptr64<global, f32, 's3>",
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "id": 60,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        59,
+        31,
+        0
+      ],
+      "type": "'t15:32",
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "id": 61,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        59,
+        63,
+        32
+      ],
+      "type": "'t16:32",
+      "origin": "0x1c0: IMAD.WIDE R14, R5, 0x4, R14"
+    },
+    {
+      "id": 62,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "'t17:32",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "id": 63,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        30,
+        62
+      ],
+      "type": "i64",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "id": 64,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        31
+      ],
+      "type": "i64",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "id": 65,
+      "operation": "sar",
+      "width": 64,
+      "arguments": [
+        63,
+        64
+      ],
+      "type": "i64",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "id": 66,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        32
+      ],
+      "type": "i64",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "id": 67,
+      "operation": "shr",
+      "width": 64,
+      "arguments": [
+        65,
+        66
+      ],
+      "type": "i64",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "id": 68,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        67,
+        31,
+        0
+      ],
+      "type": "'t18:32",
+      "origin": "0x1d0: SHF.R.S32.HI R5, RZ, 0x1f, R4"
+    },
+    {
+      "id": 69,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        6
+      ],
+      "type": "i32",
+      "origin": "0x1e0: LEA R12, R0, UR6, 0x6"
+    },
+    {
+      "id": 70,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        27,
+        69
+      ],
+      "type": "i32",
+      "origin": "0x1e0: LEA R12, R0, UR6, 0x6"
+    },
+    {
+      "id": 71,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        70,
+        50
+      ],
+      "type": "i32",
+      "origin": "0x1e0: LEA R12, R0, UR6, 0x6"
+    },
+    {
+      "id": 72,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        4
+      ],
+      "type": "i32",
+      "origin": "0x1f0: IMAD R20, R13, 0x4, R18"
+    },
+    {
+      "id": 73,
+      "operation": "mul",
+      "width": 32,
+      "arguments": [
+        31,
+        72
+      ],
+      "type": "i32",
+      "origin": "0x1f0: IMAD R20, R13, 0x4, R18"
+    },
+    {
+      "id": 74,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        73,
+        54
+      ],
+      "type": "i32",
+      "origin": "0x1f0: IMAD R20, R13, 0x4, R18"
+    },
+    {
+      "id": 75,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "'t19:32",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "id": 76,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        75,
+        68
+      ],
+      "type": "i64",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "id": 77,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        4
+      ],
+      "type": "i64",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "id": 78,
+      "operation": "shl",
+      "width": 64,
+      "arguments": [
+        76,
+        77
+      ],
+      "type": "i64",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "id": 79,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        32
+      ],
+      "type": "i64",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "id": 80,
+      "operation": "shr",
+      "width": 64,
+      "arguments": [
+        78,
+        79
+      ],
+      "type": "i64",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "id": 81,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        80,
+        31,
+        0
+      ],
+      "type": "'t20:32",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "id": 82,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        81,
+        30
+      ],
+      "type": "'t21:32",
+      "origin": "0x200: LEA.HI R5, R5, R4, RZ, 0x4"
+    },
+    {
+      "id": 83,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2
+      ],
+      "type": "i32",
+      "origin": "0x210: LEA R12, R13, R12, 0x2"
+    },
+    {
+      "id": 84,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        31,
+        83
+      ],
+      "type": "i32",
+      "origin": "0x210: LEA R12, R13, R12, 0x2"
+    },
+    {
+      "id": 85,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        84,
+        71
+      ],
+      "type": "i32",
+      "origin": "0x210: LEA R12, R13, R12, 0x2"
+    },
+    {
+      "id": 86,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "'t22:32",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "id": 87,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        82,
+        86
+      ],
+      "type": "i64",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "id": 88,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        4
+      ],
+      "type": "i64",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "id": 89,
+      "operation": "sar",
+      "width": 64,
+      "arguments": [
+        87,
+        88
+      ],
+      "type": "i64",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "id": 90,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        32
+      ],
+      "type": "i64",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "id": 91,
+      "operation": "shr",
+      "width": 64,
+      "arguments": [
+        89,
+        90
+      ],
+      "type": "i64",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "id": 92,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        91,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "0x220: SHF.R.S32.HI R19, RZ, 0x4, R5"
+    },
+    {
+      "id": 93,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2
+      ],
+      "type": "i32",
+      "origin": "0x230: LEA R21, R13, UR6, 0x2"
+    },
+    {
+      "id": 94,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        31,
+        93
+      ],
+      "type": "i32",
+      "origin": "0x230: LEA R21, R13, UR6, 0x2"
+    },
+    {
+      "id": 95,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        94,
+        50
+      ],
+      "type": "i32",
+      "origin": "0x230: LEA R21, R13, UR6, 0x2"
+    },
+    {
+      "id": 96,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        1,
+        96
+      ],
+      "type": "i32",
+      "origin": "block 0x250 UR6:1"
+    },
+    {
+      "id": 97,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        31,
+        157
+      ],
+      "type": "i32",
+      "origin": "block 0x250 R13:1"
+    },
+    {
+      "id": 98,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        96,
+        97
+      ],
+      "type": "bool",
+      "origin": "0x250: ISETP.GE.AND P0, PT, R13, UR6, PT"
+    },
+    {
+      "id": 99,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "f32",
+      "origin": "0x260: HFMA2.MMA R29, -RZ, RZ, 0, 0"
+    },
+    {
+      "id": 100,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        27,
+        155
+      ],
+      "type": "i32",
+      "origin": "block 0x250 R0:1"
+    },
+    {
+      "id": 101,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        96,
+        100
+      ],
+      "type": "bool",
+      "origin": "0x270: ISETP.GE.AND P1, PT, R0, UR6, PT"
+    },
+    {
+      "id": 102,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        21,
+        102
+      ],
+      "type": "i32",
+      "origin": "block 0x250 R17:1"
+    },
+    {
+      "id": 103,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        22,
+        103
+      ],
+      "type": "'t23:64",
+      "origin": "block 0x250 R2:2"
+    },
+    {
+      "id": 104,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        103,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "block 0x250"
+    },
+    {
+      "id": 105,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        102,
+        104
+      ],
+      "type": "bool",
+      "origin": "0x280: ISETP.GE.OR P0, PT, R2, R17, P0"
+    },
+    {
+      "id": 106,
+      "operation": "or",
+      "width": 1,
+      "arguments": [
+        105,
+        98
+      ],
+      "type": "bool",
+      "origin": "0x280: ISETP.GE.OR P0, PT, R2, R17, P0"
+    },
+    {
+      "id": 107,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        387,
+        388
+      ],
+      "type": "'t24:64",
+      "origin": "block 0x250 UR4:2"
+    },
+    {
+      "id": 108,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        107,
+        63,
+        32
+      ],
+      "type": "i32",
+      "origin": "block 0x250"
+    },
+    {
+      "id": 109,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        103,
+        63,
+        32
+      ],
+      "type": "i32",
+      "origin": "block 0x250"
+    },
+    {
+      "id": 110,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        108,
+        109
+      ],
+      "type": "bool",
+      "origin": "0x290: ISETP.GE.OR P1, PT, R3, UR5, P1"
+    },
+    {
+      "id": 111,
+      "operation": "or",
+      "width": 1,
+      "arguments": [
+        110,
+        101
+      ],
+      "type": "bool",
+      "origin": "0x290: ISETP.GE.OR P1, PT, R3, UR5, P1"
+    },
+    {
+      "id": 112,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "f32",
+      "origin": "0x2a0: MOV R27, RZ"
+    },
+    {
+      "id": 113,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        106
+      ],
+      "type": "bool",
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "id": 114,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb218"
+      ],
+      "type": "ptr64<global, f32, 's2>",
+      "origin": "cb218"
+    },
+    {
+      "id": 115,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        114,
+        31,
+        0
+      ],
+      "type": "'t25:32",
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "id": 116,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        389,
+        390
+      ],
+      "type": "'t26:64",
+      "origin": "block 0x250 R4:2"
+    },
+    {
+      "id": 117,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        116,
+        31,
+        0
+      ],
+      "type": "'t27:32",
+      "origin": "block 0x250"
+    },
+    {
+      "id": 118,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        113,
+        115,
+        117
+      ],
+      "type": "'t28:32",
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "id": 119,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        114,
+        63,
+        32
+      ],
+      "type": "'t29:32",
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "id": 120,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        116,
+        63,
+        32
+      ],
+      "type": "'t30:32",
+      "origin": "block 0x250"
+    },
+    {
+      "id": 121,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        113,
+        119,
+        120
+      ],
+      "type": "'t31:32",
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "id": 122,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        113
+      ],
+      "type": "'t32:1",
+      "origin": "0x2b0: @!P0 LDC.64 R4, c[0x0][0x218]"
+    },
+    {
+      "id": 123,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        111
+      ],
+      "type": "bool",
+      "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]"
+    },
+    {
+      "id": 124,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        59,
+        391
+      ],
+      "type": "ptr64<global, f32, 's3>",
+      "origin": "block 0x250 R14:2"
+    },
+    {
+      "id": 125,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        124,
+        63,
+        32
+      ],
+      "type": "'t33:32",
+      "origin": "block 0x250"
+    },
+    {
+      "id": 126,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        124,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "block 0x250"
+    },
+    {
+      "id": 127,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "ram",
+        124
+      ],
+      "type": "f32",
+      "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]"
+    },
+    {
+      "id": 128,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        123,
+        127,
+        99
+      ],
+      "type": "f32",
+      "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]"
+    },
+    {
+      "id": 129,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        123
+      ],
+      "type": "'t34:1",
+      "origin": "0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]"
+    },
+    {
+      "id": 130,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        44,
+        162
+      ],
+      "type": "i32",
+      "origin": "block 0x250 R16:1"
+    },
+    {
+      "id": 131,
+      "operation": "sext",
+      "width": 64,
+      "arguments": [
+        130
+      ],
+      "type": "i64",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "id": 132,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        4
+      ],
+      "type": "i64",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "id": 133,
+      "operation": "mul",
+      "width": 64,
+      "arguments": [
+        131,
+        132
+      ],
+      "type": "i64",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "id": 134,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        121,
+        118
+      ],
+      "type": "'t35:64",
+      "origin": "block 0x250 R4:2"
+    },
+    {
+      "id": 135,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        133,
+        114
+      ],
+      "type": "ptr64<global, f32, 's2>",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "id": 136,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        135,
+        31,
+        0
+      ],
+      "type": "'t36:32",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "id": 137,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        113,
+        136,
+        118
+      ],
+      "type": "'t37:32",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "id": 138,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        135,
+        63,
+        32
+      ],
+      "type": "'t38:32",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "id": 139,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        113,
+        138,
+        121
+      ],
+      "type": "'t39:32",
+      "origin": "0x2d0: @!P0 IMAD.WIDE R4, R16, 0x4, R4"
+    },
+    {
+      "id": 140,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        139,
+        137
+      ],
+      "type": "'t40:64",
+      "origin": "block 0x250 R4:2"
+    },
+    {
+      "id": 141,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "ram",
+        135
+      ],
+      "type": "f32",
+      "origin": "0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]"
+    },
+    {
+      "id": 142,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        113,
+        141,
+        112
+      ],
+      "type": "f32",
+      "origin": "0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]"
+    },
+    {
+      "id": 143,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        107,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "block 0x250"
+    },
+    {
+      "id": 144,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1
+      ],
+      "type": "i32",
+      "origin": "0x2f0: UIADD3 UR4, UR4, 0x1, URZ"
+    },
+    {
+      "id": 145,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        143,
+        144
+      ],
+      "type": "i32",
+      "origin": "0x2f0: UIADD3 UR4, UR4, 0x1, URZ"
+    },
+    {
+      "id": 146,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        92,
+        146
+      ],
+      "type": "i32",
+      "origin": "block 0x250 R19:1"
+    },
+    {
+      "id": 147,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        146,
+        145
+      ],
+      "type": "bool",
+      "origin": "0x300: ISETP.LE.AND P0, PT, R19, UR4, PT"
+    },
+    {
+      "id": 148,
+      "operation": "zext",
+      "width": 64,
+      "arguments": [
+        126
+      ],
+      "type": "i64",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "id": 149,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        64
+      ],
+      "type": "i64",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "id": 150,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        148,
+        149
+      ],
+      "type": "i64",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "id": 151,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        150,
+        31,
+        0
+      ],
+      "type": "'t41:32",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "id": 152,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        4294967296
+      ],
+      "type": "i64",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "id": 153,
+      "operation": "ule",
+      "width": 1,
+      "arguments": [
+        152,
+        150
+      ],
+      "type": "bool",
+      "origin": "0x310: IADD3 R14, P1, R14, 0x40, RZ"
+    },
+    {
+      "id": 154,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        16
+      ],
+      "type": "i32",
+      "origin": "0x320: VIADD R0, R0, 0x10"
+    },
+    {
+      "id": 155,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        100,
+        154
+      ],
+      "type": "i32",
+      "origin": "0x320: VIADD R0, R0, 0x10"
+    },
+    {
+      "id": 156,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        16
+      ],
+      "type": "i32",
+      "origin": "0x330: IADD3 R13, R13, 0x10, RZ"
+    },
+    {
+      "id": 157,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        97,
+        156
+      ],
+      "type": "i32",
+      "origin": "0x330: IADD3 R13, R13, 0x10, RZ"
+    },
+    {
+      "id": 158,
+      "operation": "zext",
+      "width": 32,
+      "arguments": [
+        153
+      ],
+      "type": "i32",
+      "origin": "0x340: IADD3.X R15, RZ, R15, RZ, P1, !PT"
+    },
+    {
+      "id": 159,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        125,
+        158
+      ],
+      "type": "'t42:32",
+      "origin": "0x340: IADD3.X R15, RZ, R15, RZ, P1, !PT"
+    },
+    {
+      "id": 160,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        4
+      ],
+      "type": "i32",
+      "origin": "0x350: LEA R16, R17, R16, 0x4"
+    },
+    {
+      "id": 161,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        102,
+        160
+      ],
+      "type": "i32",
+      "origin": "0x350: LEA R16, R17, R16, 0x4"
+    },
+    {
+      "id": 162,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        161,
+        130
+      ],
+      "type": "i32",
+      "origin": "0x350: LEA R16, R17, R16, 0x4"
+    },
+    {
+      "id": 163,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        74,
+        163
+      ],
+      "type": "i32",
+      "origin": "block 0x250 R20:1"
+    },
+    {
+      "id": 164,
+      "operation": "zext",
+      "width": 64,
+      "arguments": [
+        163
+      ],
+      "type": "i64",
+      "origin": "0x360: STS [R20], R27"
+    },
+    {
+      "id": 165,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        85,
+        165
+      ],
+      "type": "i32",
+      "origin": "block 0x250 R12:1"
+    },
+    {
+      "id": 166,
+      "operation": "zext",
+      "width": 64,
+      "arguments": [
+        165
+      ],
+      "type": "i64",
+      "origin": "0x370: STS [R12], R29"
+    },
+    {
+      "id": 167,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        95,
+        167
+      ],
+      "type": "i32",
+      "origin": "block 0x250 R21:1"
+    },
+    {
+      "id": 168,
+      "operation": "zext",
+      "width": 64,
+      "arguments": [
+        167
+      ],
+      "type": "i64",
+      "origin": "0x390: LDS R6, [R21]"
+    },
+    {
+      "id": 169,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        168
+      ],
+      "type": "f32",
+      "origin": "0x390: LDS R6, [R21]"
+    },
+    {
+      "id": 170,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        54,
+        170
+      ],
+      "type": "i32",
+      "origin": "block 0x250 R18:1"
+    },
+    {
+      "id": 171,
+      "operation": "zext",
+      "width": 64,
+      "arguments": [
+        170
+      ],
+      "type": "i64",
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "id": 172,
+      "operation": "load",
+      "width": 128,
+      "arguments": [
+        "shared",
+        171
+      ],
+      "type": "'t43:128",
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "id": 173,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        172,
+        31,
+        0
+      ],
+      "type": "f32",
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "id": 174,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        172,
+        63,
+        32
+      ],
+      "type": "f32",
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "id": 175,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        172,
+        95,
+        64
+      ],
+      "type": "f32",
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "id": 176,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        172,
+        127,
+        96
+      ],
+      "type": "f32",
+      "origin": "0x3a0: LDS.128 R8, [R18]"
+    },
+    {
+      "id": 177,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        64
+      ],
+      "type": "i64",
+      "origin": "0x3b0: LDS R22, [R21+0x40]"
+    },
+    {
+      "id": 178,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        177
+      ],
+      "type": "i64",
+      "origin": "0x3b0: LDS R22, [R21+0x40]"
+    },
+    {
+      "id": 179,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        178
+      ],
+      "type": "f32",
+      "origin": "0x3b0: LDS R22, [R21+0x40]"
+    },
+    {
+      "id": 180,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        128
+      ],
+      "type": "i64",
+      "origin": "0x3c0: LDS R23, [R21+0x80]"
+    },
+    {
+      "id": 181,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        180
+      ],
+      "type": "i64",
+      "origin": "0x3c0: LDS R23, [R21+0x80]"
+    },
+    {
+      "id": 182,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        181
+      ],
+      "type": "f32",
+      "origin": "0x3c0: LDS R23, [R21+0x80]"
+    },
+    {
+      "id": 183,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        192
+      ],
+      "type": "i64",
+      "origin": "0x3d0: LDS R24, [R21+0xc0]"
+    },
+    {
+      "id": 184,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        183
+      ],
+      "type": "i64",
+      "origin": "0x3d0: LDS R24, [R21+0xc0]"
+    },
+    {
+      "id": 185,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        184
+      ],
+      "type": "f32",
+      "origin": "0x3d0: LDS R24, [R21+0xc0]"
+    },
+    {
+      "id": 186,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        256
+      ],
+      "type": "i64",
+      "origin": "0x3e0: LDS R25, [R21+0x100]"
+    },
+    {
+      "id": 187,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        186
+      ],
+      "type": "i64",
+      "origin": "0x3e0: LDS R25, [R21+0x100]"
+    },
+    {
+      "id": 188,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        187
+      ],
+      "type": "f32",
+      "origin": "0x3e0: LDS R25, [R21+0x100]"
+    },
+    {
+      "id": 189,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        448
+      ],
+      "type": "i64",
+      "origin": "0x3f0: LDS R26, [R21+0x1c0]"
+    },
+    {
+      "id": 190,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        189
+      ],
+      "type": "i64",
+      "origin": "0x3f0: LDS R26, [R21+0x1c0]"
+    },
+    {
+      "id": 191,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        190
+      ],
+      "type": "f32",
+      "origin": "0x3f0: LDS R26, [R21+0x1c0]"
+    },
+    {
+      "id": 192,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        169,
+        173,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x400: FFMA R8, R6, R8, R7"
+    },
+    {
+      "id": 193,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t44:32",
+      "origin": "0x400: FFMA R8, R6, R8, R7"
+    },
+    {
+      "id": 194,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        192,
+        193
+      ],
+      "type": "f32",
+      "origin": "0x400: FFMA R8, R6, R8, R7"
+    },
+    {
+      "id": 195,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        35,
+        339
+      ],
+      "type": "f32",
+      "origin": "block 0x250 R7:1"
+    },
+    {
+      "id": 196,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        194,
+        195,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x400: FFMA R8, R6, R8, R7"
+    },
+    {
+      "id": 197,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t45:32",
+      "origin": "0x400: FFMA R8, R6, R8, R7"
+    },
+    {
+      "id": 198,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        196,
+        197
+      ],
+      "type": "f32",
+      "origin": "0x400: FFMA R8, R6, R8, R7"
+    },
+    {
+      "id": 199,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        16
+      ],
+      "type": "i64",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "id": 200,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        171,
+        199
+      ],
+      "type": "i64",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "id": 201,
+      "operation": "load",
+      "width": 128,
+      "arguments": [
+        "shared",
+        200
+      ],
+      "type": "'t46:128",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "id": 202,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        201,
+        31,
+        0
+      ],
+      "type": "f32",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "id": 203,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        201,
+        63,
+        32
+      ],
+      "type": "f32",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "id": 204,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        201,
+        95,
+        64
+      ],
+      "type": "f32",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "id": 205,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        201,
+        127,
+        96
+      ],
+      "type": "f32",
+      "origin": "0x410: LDS.128 R4, [R18+0x10]"
+    },
+    {
+      "id": 206,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        179,
+        174,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x420: FFMA R8, R22, R9, R8"
+    },
+    {
+      "id": 207,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t47:32",
+      "origin": "0x420: FFMA R8, R22, R9, R8"
+    },
+    {
+      "id": 208,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        206,
+        207
+      ],
+      "type": "f32",
+      "origin": "0x420: FFMA R8, R22, R9, R8"
+    },
+    {
+      "id": 209,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        208,
+        198,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x420: FFMA R8, R22, R9, R8"
+    },
+    {
+      "id": 210,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t48:32",
+      "origin": "0x420: FFMA R8, R22, R9, R8"
+    },
+    {
+      "id": 211,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        209,
+        210
+      ],
+      "type": "f32",
+      "origin": "0x420: FFMA R8, R22, R9, R8"
+    },
+    {
+      "id": 212,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        320
+      ],
+      "type": "i64",
+      "origin": "0x430: LDS R22, [R21+0x140]"
+    },
+    {
+      "id": 213,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        212
+      ],
+      "type": "i64",
+      "origin": "0x430: LDS R22, [R21+0x140]"
+    },
+    {
+      "id": 214,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        213
+      ],
+      "type": "f32",
+      "origin": "0x430: LDS R22, [R21+0x140]"
+    },
+    {
+      "id": 215,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        182,
+        175,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x440: FFMA R9, R23, R10, R8"
+    },
+    {
+      "id": 216,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t49:32",
+      "origin": "0x440: FFMA R9, R23, R10, R8"
+    },
+    {
+      "id": 217,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        215,
+        216
+      ],
+      "type": "f32",
+      "origin": "0x440: FFMA R9, R23, R10, R8"
+    },
+    {
+      "id": 218,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        217,
+        211,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x440: FFMA R9, R23, R10, R8"
+    },
+    {
+      "id": 219,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t50:32",
+      "origin": "0x440: FFMA R9, R23, R10, R8"
+    },
+    {
+      "id": 220,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        218,
+        219
+      ],
+      "type": "f32",
+      "origin": "0x440: FFMA R9, R23, R10, R8"
+    },
+    {
+      "id": 221,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        384
+      ],
+      "type": "i64",
+      "origin": "0x450: LDS R23, [R21+0x180]"
+    },
+    {
+      "id": 222,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        221
+      ],
+      "type": "i64",
+      "origin": "0x450: LDS R23, [R21+0x180]"
+    },
+    {
+      "id": 223,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        222
+      ],
+      "type": "f32",
+      "origin": "0x450: LDS R23, [R21+0x180]"
+    },
+    {
+      "id": 224,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        185,
+        176,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x460: FFMA R24, R24, R11, R9"
+    },
+    {
+      "id": 225,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t51:32",
+      "origin": "0x460: FFMA R24, R24, R11, R9"
+    },
+    {
+      "id": 226,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        224,
+        225
+      ],
+      "type": "f32",
+      "origin": "0x460: FFMA R24, R24, R11, R9"
+    },
+    {
+      "id": 227,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        226,
+        220,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x460: FFMA R24, R24, R11, R9"
+    },
+    {
+      "id": 228,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t52:32",
+      "origin": "0x460: FFMA R24, R24, R11, R9"
+    },
+    {
+      "id": 229,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        227,
+        228
+      ],
+      "type": "f32",
+      "origin": "0x460: FFMA R24, R24, R11, R9"
+    },
+    {
+      "id": 230,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        32
+      ],
+      "type": "i64",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "id": 231,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        171,
+        230
+      ],
+      "type": "i64",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "id": 232,
+      "operation": "load",
+      "width": 128,
+      "arguments": [
+        "shared",
+        231
+      ],
+      "type": "'t53:128",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "id": 233,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        232,
+        31,
+        0
+      ],
+      "type": "f32",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "id": 234,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        232,
+        63,
+        32
+      ],
+      "type": "f32",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "id": 235,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        232,
+        95,
+        64
+      ],
+      "type": "f32",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "id": 236,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        232,
+        127,
+        96
+      ],
+      "type": "f32",
+      "origin": "0x470: LDS.128 R8, [R18+0x20]"
+    },
+    {
+      "id": 237,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        188,
+        202,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x480: FFMA R27, R25, R4, R24"
+    },
+    {
+      "id": 238,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t54:32",
+      "origin": "0x480: FFMA R27, R25, R4, R24"
+    },
+    {
+      "id": 239,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        237,
+        238
+      ],
+      "type": "f32",
+      "origin": "0x480: FFMA R27, R25, R4, R24"
+    },
+    {
+      "id": 240,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        239,
+        229,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x480: FFMA R27, R25, R4, R24"
+    },
+    {
+      "id": 241,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t55:32",
+      "origin": "0x480: FFMA R27, R25, R4, R24"
+    },
+    {
+      "id": 242,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        240,
+        241
+      ],
+      "type": "f32",
+      "origin": "0x480: FFMA R27, R25, R4, R24"
+    },
+    {
+      "id": 243,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        512
+      ],
+      "type": "i64",
+      "origin": "0x490: LDS R25, [R21+0x200]"
+    },
+    {
+      "id": 244,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        243
+      ],
+      "type": "i64",
+      "origin": "0x490: LDS R25, [R21+0x200]"
+    },
+    {
+      "id": 245,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        244
+      ],
+      "type": "f32",
+      "origin": "0x490: LDS R25, [R21+0x200]"
+    },
+    {
+      "id": 246,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        576
+      ],
+      "type": "i64",
+      "origin": "0x4a0: LDS R24, [R21+0x240]"
+    },
+    {
+      "id": 247,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        246
+      ],
+      "type": "i64",
+      "origin": "0x4a0: LDS R24, [R21+0x240]"
+    },
+    {
+      "id": 248,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        247
+      ],
+      "type": "f32",
+      "origin": "0x4a0: LDS R24, [R21+0x240]"
+    },
+    {
+      "id": 249,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        214,
+        203,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x4b0: FFMA R22, R22, R5, R27"
+    },
+    {
+      "id": 250,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t56:32",
+      "origin": "0x4b0: FFMA R22, R22, R5, R27"
+    },
+    {
+      "id": 251,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        249,
+        250
+      ],
+      "type": "f32",
+      "origin": "0x4b0: FFMA R22, R22, R5, R27"
+    },
+    {
+      "id": 252,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        251,
+        242,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x4b0: FFMA R22, R22, R5, R27"
+    },
+    {
+      "id": 253,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t57:32",
+      "origin": "0x4b0: FFMA R22, R22, R5, R27"
+    },
+    {
+      "id": 254,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        252,
+        253
+      ],
+      "type": "f32",
+      "origin": "0x4b0: FFMA R22, R22, R5, R27"
+    },
+    {
+      "id": 255,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        223,
+        204,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x4c0: FFMA R5, R23, R6, R22"
+    },
+    {
+      "id": 256,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t58:32",
+      "origin": "0x4c0: FFMA R5, R23, R6, R22"
+    },
+    {
+      "id": 257,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        255,
+        256
+      ],
+      "type": "f32",
+      "origin": "0x4c0: FFMA R5, R23, R6, R22"
+    },
+    {
+      "id": 258,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        257,
+        254,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x4c0: FFMA R5, R23, R6, R22"
+    },
+    {
+      "id": 259,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t59:32",
+      "origin": "0x4c0: FFMA R5, R23, R6, R22"
+    },
+    {
+      "id": 260,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        258,
+        259
+      ],
+      "type": "f32",
+      "origin": "0x4c0: FFMA R5, R23, R6, R22"
+    },
+    {
+      "id": 261,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        640
+      ],
+      "type": "i64",
+      "origin": "0x4d0: LDS R23, [R21+0x280]"
+    },
+    {
+      "id": 262,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        261
+      ],
+      "type": "i64",
+      "origin": "0x4d0: LDS R23, [R21+0x280]"
+    },
+    {
+      "id": 263,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        262
+      ],
+      "type": "f32",
+      "origin": "0x4d0: LDS R23, [R21+0x280]"
+    },
+    {
+      "id": 264,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        191,
+        205,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x4e0: FFMA R26, R26, R7, R5"
+    },
+    {
+      "id": 265,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t60:32",
+      "origin": "0x4e0: FFMA R26, R26, R7, R5"
+    },
+    {
+      "id": 266,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        264,
+        265
+      ],
+      "type": "f32",
+      "origin": "0x4e0: FFMA R26, R26, R7, R5"
+    },
+    {
+      "id": 267,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        266,
+        260,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x4e0: FFMA R26, R26, R7, R5"
+    },
+    {
+      "id": 268,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t61:32",
+      "origin": "0x4e0: FFMA R26, R26, R7, R5"
+    },
+    {
+      "id": 269,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        267,
+        268
+      ],
+      "type": "f32",
+      "origin": "0x4e0: FFMA R26, R26, R7, R5"
+    },
+    {
+      "id": 270,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        704
+      ],
+      "type": "i64",
+      "origin": "0x4f0: LDS R22, [R21+0x2c0]"
+    },
+    {
+      "id": 271,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        270
+      ],
+      "type": "i64",
+      "origin": "0x4f0: LDS R22, [R21+0x2c0]"
+    },
+    {
+      "id": 272,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        271
+      ],
+      "type": "f32",
+      "origin": "0x4f0: LDS R22, [R21+0x2c0]"
+    },
+    {
+      "id": 273,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        48
+      ],
+      "type": "i64",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "id": 274,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        171,
+        273
+      ],
+      "type": "i64",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "id": 275,
+      "operation": "load",
+      "width": 128,
+      "arguments": [
+        "shared",
+        274
+      ],
+      "type": "'t62:128",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "id": 276,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        275,
+        31,
+        0
+      ],
+      "type": "f32",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "id": 277,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        275,
+        63,
+        32
+      ],
+      "type": "f32",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "id": 278,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        275,
+        95,
+        64
+      ],
+      "type": "f32",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "id": 279,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        275,
+        127,
+        96
+      ],
+      "type": "f32",
+      "origin": "0x500: LDS.128 R4, [R18+0x30]"
+    },
+    {
+      "id": 280,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        245,
+        233,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x510: FFMA R27, R25, R8, R26"
+    },
+    {
+      "id": 281,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t63:32",
+      "origin": "0x510: FFMA R27, R25, R8, R26"
+    },
+    {
+      "id": 282,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        280,
+        281
+      ],
+      "type": "f32",
+      "origin": "0x510: FFMA R27, R25, R8, R26"
+    },
+    {
+      "id": 283,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        282,
+        269,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x510: FFMA R27, R25, R8, R26"
+    },
+    {
+      "id": 284,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t64:32",
+      "origin": "0x510: FFMA R27, R25, R8, R26"
+    },
+    {
+      "id": 285,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        283,
+        284
+      ],
+      "type": "f32",
+      "origin": "0x510: FFMA R27, R25, R8, R26"
+    },
+    {
+      "id": 286,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        768
+      ],
+      "type": "i64",
+      "origin": "0x520: LDS R25, [R21+0x300]"
+    },
+    {
+      "id": 287,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        286
+      ],
+      "type": "i64",
+      "origin": "0x520: LDS R25, [R21+0x300]"
+    },
+    {
+      "id": 288,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        287
+      ],
+      "type": "f32",
+      "origin": "0x520: LDS R25, [R21+0x300]"
+    },
+    {
+      "id": 289,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        248,
+        234,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x530: FFMA R24, R24, R9, R27"
+    },
+    {
+      "id": 290,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t65:32",
+      "origin": "0x530: FFMA R24, R24, R9, R27"
+    },
+    {
+      "id": 291,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        289,
+        290
+      ],
+      "type": "f32",
+      "origin": "0x530: FFMA R24, R24, R9, R27"
+    },
+    {
+      "id": 292,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        291,
+        285,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x530: FFMA R24, R24, R9, R27"
+    },
+    {
+      "id": 293,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t66:32",
+      "origin": "0x530: FFMA R24, R24, R9, R27"
+    },
+    {
+      "id": 294,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        292,
+        293
+      ],
+      "type": "f32",
+      "origin": "0x530: FFMA R24, R24, R9, R27"
+    },
+    {
+      "id": 295,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        832
+      ],
+      "type": "i64",
+      "origin": "0x540: LDS R27, [R21+0x340]"
+    },
+    {
+      "id": 296,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        295
+      ],
+      "type": "i64",
+      "origin": "0x540: LDS R27, [R21+0x340]"
+    },
+    {
+      "id": 297,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        296
+      ],
+      "type": "f32",
+      "origin": "0x540: LDS R27, [R21+0x340]"
+    },
+    {
+      "id": 298,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        896
+      ],
+      "type": "i64",
+      "origin": "0x550: LDS R9, [R21+0x380]"
+    },
+    {
+      "id": 299,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        298
+      ],
+      "type": "i64",
+      "origin": "0x550: LDS R9, [R21+0x380]"
+    },
+    {
+      "id": 300,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        299
+      ],
+      "type": "f32",
+      "origin": "0x550: LDS R9, [R21+0x380]"
+    },
+    {
+      "id": 301,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        960
+      ],
+      "type": "i64",
+      "origin": "0x560: LDS R8, [R21+0x3c0]"
+    },
+    {
+      "id": 302,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        168,
+        301
+      ],
+      "type": "i64",
+      "origin": "0x560: LDS R8, [R21+0x3c0]"
+    },
+    {
+      "id": 303,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        302
+      ],
+      "type": "f32",
+      "origin": "0x560: LDS R8, [R21+0x3c0]"
+    },
+    {
+      "id": 304,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        263,
+        235,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x570: FFMA R23, R23, R10, R24"
+    },
+    {
+      "id": 305,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t67:32",
+      "origin": "0x570: FFMA R23, R23, R10, R24"
+    },
+    {
+      "id": 306,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        304,
+        305
+      ],
+      "type": "f32",
+      "origin": "0x570: FFMA R23, R23, R10, R24"
+    },
+    {
+      "id": 307,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        306,
+        294,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x570: FFMA R23, R23, R10, R24"
+    },
+    {
+      "id": 308,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t68:32",
+      "origin": "0x570: FFMA R23, R23, R10, R24"
+    },
+    {
+      "id": 309,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        307,
+        308
+      ],
+      "type": "f32",
+      "origin": "0x570: FFMA R23, R23, R10, R24"
+    },
+    {
+      "id": 310,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        272,
+        236,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x580: FFMA R22, R22, R11, R23"
+    },
+    {
+      "id": 311,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t69:32",
+      "origin": "0x580: FFMA R22, R22, R11, R23"
+    },
+    {
+      "id": 312,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        310,
+        311
+      ],
+      "type": "f32",
+      "origin": "0x580: FFMA R22, R22, R11, R23"
+    },
+    {
+      "id": 313,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        312,
+        309,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x580: FFMA R22, R22, R11, R23"
+    },
+    {
+      "id": 314,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t70:32",
+      "origin": "0x580: FFMA R22, R22, R11, R23"
+    },
+    {
+      "id": 315,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        313,
+        314
+      ],
+      "type": "f32",
+      "origin": "0x580: FFMA R22, R22, R11, R23"
+    },
+    {
+      "id": 316,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        288,
+        276,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x590: FFMA R4, R25, R4, R22"
+    },
+    {
+      "id": 317,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t71:32",
+      "origin": "0x590: FFMA R4, R25, R4, R22"
+    },
+    {
+      "id": 318,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        316,
+        317
+      ],
+      "type": "f32",
+      "origin": "0x590: FFMA R4, R25, R4, R22"
+    },
+    {
+      "id": 319,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        318,
+        315,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x590: FFMA R4, R25, R4, R22"
+    },
+    {
+      "id": 320,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t72:32",
+      "origin": "0x590: FFMA R4, R25, R4, R22"
+    },
+    {
+      "id": 321,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        319,
+        320
+      ],
+      "type": "f32",
+      "origin": "0x590: FFMA R4, R25, R4, R22"
+    },
+    {
+      "id": 322,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        297,
+        277,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x5a0: FFMA R4, R27, R5, R4"
+    },
+    {
+      "id": 323,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t73:32",
+      "origin": "0x5a0: FFMA R4, R27, R5, R4"
+    },
+    {
+      "id": 324,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        322,
+        323
+      ],
+      "type": "f32",
+      "origin": "0x5a0: FFMA R4, R27, R5, R4"
+    },
+    {
+      "id": 325,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        324,
+        321,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x5a0: FFMA R4, R27, R5, R4"
+    },
+    {
+      "id": 326,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t74:32",
+      "origin": "0x5a0: FFMA R4, R27, R5, R4"
+    },
+    {
+      "id": 327,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        325,
+        326
+      ],
+      "type": "f32",
+      "origin": "0x5a0: FFMA R4, R27, R5, R4"
+    },
+    {
+      "id": 328,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        300,
+        278,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x5b0: FFMA R9, R9, R6, R4"
+    },
+    {
+      "id": 329,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t75:32",
+      "origin": "0x5b0: FFMA R9, R9, R6, R4"
+    },
+    {
+      "id": 330,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        328,
+        329
+      ],
+      "type": "f32",
+      "origin": "0x5b0: FFMA R9, R9, R6, R4"
+    },
+    {
+      "id": 331,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        330,
+        327,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x5b0: FFMA R9, R9, R6, R4"
+    },
+    {
+      "id": 332,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t76:32",
+      "origin": "0x5b0: FFMA R9, R9, R6, R4"
+    },
+    {
+      "id": 333,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        331,
+        332
+      ],
+      "type": "f32",
+      "origin": "0x5b0: FFMA R9, R9, R6, R4"
+    },
+    {
+      "id": 334,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        303,
+        279,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x5c0: FFMA R7, R8, R7, R9"
+    },
+    {
+      "id": 335,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t77:32",
+      "origin": "0x5c0: FFMA R7, R8, R7, R9"
+    },
+    {
+      "id": 336,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        334,
+        335
+      ],
+      "type": "f32",
+      "origin": "0x5c0: FFMA R7, R8, R7, R9"
+    },
+    {
+      "id": 337,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        336,
+        333,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x5c0: FFMA R7, R8, R7, R9"
+    },
+    {
+      "id": 338,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t78:32",
+      "origin": "0x5c0: FFMA R7, R8, R7, R9"
+    },
+    {
+      "id": 339,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        337,
+        338
+      ],
+      "type": "f32",
+      "origin": "0x5c0: FFMA R7, R8, R7, R9"
+    },
+    {
+      "id": 340,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        147
+      ],
+      "type": "bool",
+      "origin": "0x5e0: @!P0 BRA 0x250"
+    },
+    {
+      "id": 341,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        340
+      ],
+      "type": "'t79:1",
+      "origin": "0x5e0: @!P0 BRA 0x250"
+    },
+    {
+      "id": 342,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb230"
+      ],
+      "type": "'t5:64",
+      "origin": "cb230"
+    },
+    {
+      "id": 343,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        342,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "0x5f0: ULDC.64 UR10, c[0x0][0x230]"
+    },
+    {
+      "id": 344,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        342,
+        63,
+        32
+      ],
+      "type": "i32",
+      "origin": "0x5f0: ULDC.64 UR10, c[0x0][0x230]"
+    },
+    {
+      "id": 345,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        382,
+        103
+      ],
+      "type": "'t80:64",
+      "origin": "block 0x5f0 R2:2"
+    },
+    {
+      "id": 346,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        345,
+        63,
+        32
+      ],
+      "type": "i32",
+      "origin": "block 0x5f0"
+    },
+    {
+      "id": 347,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        344,
+        346
+      ],
+      "type": "bool",
+      "origin": "0x600: ISETP.GE.AND P0, PT, R3, UR11, PT"
+    },
+    {
+      "id": 348,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        345,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "block 0x5f0"
+    },
+    {
+      "id": 349,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        343,
+        348
+      ],
+      "type": "bool",
+      "origin": "0x610: ISETP.GE.OR P0, PT, R2, UR10, P0"
+    },
+    {
+      "id": 350,
+      "operation": "or",
+      "width": 1,
+      "arguments": [
+        349,
+        347
+      ],
+      "type": "bool",
+      "origin": "0x610: ISETP.GE.OR P0, PT, R2, UR10, P0"
+    },
+    {
+      "id": 351,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        350
+      ],
+      "type": "'t81:1",
+      "origin": "0x620: @P0 EXIT"
+    },
+    {
+      "id": 352,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb210"
+      ],
+      "type": "ptr64<global, f32, 's1>",
+      "origin": "cb210"
+    },
+    {
+      "id": 353,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        352,
+        31,
+        0
+      ],
+      "type": "'t82:32",
+      "origin": "0x630: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "id": 354,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        352,
+        63,
+        32
+      ],
+      "type": "'t83:32",
+      "origin": "0x630: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "id": 355,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        345
+      ],
+      "type": "'t84:64",
+      "origin": "block 0x630 R2:2"
+    },
+    {
+      "id": 356,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        355,
+        63,
+        32
+      ],
+      "type": "i32",
+      "origin": "block 0x630"
+    },
+    {
+      "id": 357,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        342
+      ],
+      "type": "'t85:64",
+      "origin": "block 0x630 UR10:2"
+    },
+    {
+      "id": 358,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        357,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "block 0x630"
+    },
+    {
+      "id": 359,
+      "operation": "mul",
+      "width": 32,
+      "arguments": [
+        356,
+        358
+      ],
+      "type": "i32",
+      "origin": "0x640: IMAD R3, R3, UR10, R2"
+    },
+    {
+      "id": 360,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        355,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "block 0x630"
+    },
+    {
+      "id": 361,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        359,
+        360
+      ],
+      "type": "i32",
+      "origin": "0x640: IMAD R3, R3, UR10, R2"
+    },
+    {
+      "id": 362,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb228"
+      ],
+      "type": "'t4:64",
+      "origin": "cb228"
+    },
+    {
+      "id": 363,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        362,
+        31,
+        0
+      ],
+      "type": "f32",
+      "origin": "0x650: ULDC.64 UR4, c[0x0][0x228]"
+    },
+    {
+      "id": 364,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        362,
+        63,
+        32
+      ],
+      "type": "f32",
+      "origin": "0x650: ULDC.64 UR4, c[0x0][0x228]"
+    },
+    {
+      "id": 365,
+      "operation": "sext",
+      "width": 64,
+      "arguments": [
+        361
+      ],
+      "type": "i64",
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "id": 366,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        4
+      ],
+      "type": "i64",
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "id": 367,
+      "operation": "mul",
+      "width": 64,
+      "arguments": [
+        365,
+        366
+      ],
+      "type": "i64",
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "id": 368,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        367,
+        352
+      ],
+      "type": "ptr64<global, f32, 's1>",
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "id": 369,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        368,
+        31,
+        0
+      ],
+      "type": "'t86:32",
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "id": 370,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        368,
+        63,
+        32
+      ],
+      "type": "'t87:32",
+      "origin": "0x660: IMAD.WIDE R2, R3, 0x4, R4"
+    },
+    {
+      "id": 371,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "ram",
+        368
+      ],
+      "type": "f32",
+      "origin": "0x670: LDG.E R0, desc[UR8][R2.64]"
+    },
+    {
+      "id": 372,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        371,
+        364,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x680: FMUL R0, R0, UR5"
+    },
+    {
+      "id": 373,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t88:32",
+      "origin": "0x680: FMUL R0, R0, UR5"
+    },
+    {
+      "id": 374,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        372,
+        373
+      ],
+      "type": "f32",
+      "origin": "0x680: FMUL R0, R0, UR5"
+    },
+    {
+      "id": 375,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        392
+      ],
+      "type": "f32",
+      "origin": "block 0x630 R7:1"
+    },
+    {
+      "id": 376,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        375,
+        363,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x690: FFMA R7, R7, UR4, R0"
+    },
+    {
+      "id": 377,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t89:32",
+      "origin": "0x690: FFMA R7, R7, UR4, R0"
+    },
+    {
+      "id": 378,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        376,
+        377
+      ],
+      "type": "f32",
+      "origin": "0x690: FFMA R7, R7, UR4, R0"
+    },
+    {
+      "id": 379,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        378,
+        374,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x690: FFMA R7, R7, UR4, R0"
+    },
+    {
+      "id": 380,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t90:32",
+      "origin": "0x690: FFMA R7, R7, UR4, R0"
+    },
+    {
+      "id": 381,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        379,
+        380
+      ],
+      "type": "f32",
+      "origin": "0x690: FFMA R7, R7, UR4, R0"
+    },
+    {
+      "id": 382,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        14,
+        17
+      ],
+      "type": "'t91:64",
+      "origin": "block 0x0 R2:2"
+    },
+    {
+      "id": 383,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        393
+      ],
+      "type": "'t92:64",
+      "origin": "block 0x0 R4:2"
+    },
+    {
+      "id": 384,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        383,
+        63,
+        32
+      ],
+      "type": "'t93:32",
+      "origin": "block 0x0"
+    },
+    {
+      "id": 385,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        384,
+        1
+      ],
+      "type": "'t94:64",
+      "origin": "block 0x0 R4:2"
+    },
+    {
+      "id": 386,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        22,
+        31,
+        0
+      ],
+      "type": "'t95:32",
+      "origin": "block 0xc0"
+    },
+    {
+      "id": 387,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        55,
+        51
+      ],
+      "type": "'t96:64",
+      "origin": "block 0xc0 UR4:2"
+    },
+    {
+      "id": 388,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        108,
+        145
+      ],
+      "type": "'t97:64",
+      "origin": "block 0x250 UR4:2"
+    },
+    {
+      "id": 389,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        82,
+        30
+      ],
+      "type": "'t98:64",
+      "origin": "block 0xc0 R4:2"
+    },
+    {
+      "id": 390,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        277,
+        327
+      ],
+      "type": "'t99:64",
+      "origin": "block 0x250 R4:2"
+    },
+    {
+      "id": 391,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        124,
+        149
+      ],
+      "type": "ptr64<global, f32, 's3>",
+      "origin": "block 0x250 R14:2"
+    },
+    {
+      "id": 392,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        6,
+        339
+      ],
+      "type": "f32",
+      "origin": "block 0x5f0 R7:1"
+    },
+    {
+      "id": 393,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "entry.R4:2"
+      ],
+      "type": "'t7:64",
+      "origin": "entry.R4:2"
+    }
+  ]
+}

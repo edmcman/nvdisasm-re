@@ -1,0 +1,5989 @@
+{
+  "bounds_checked": false,
+  "inputs": {
+    "SR136:32": "i32",
+    "SR33:32": "i32",
+    "cb0:32": "i32",
+    "cb208:64": "'t0:64",
+    "cb210:64": "ptr64<global, f32, 's1>",
+    "cb218:64": "ptr64<global, f32, 's2>",
+    "cb220:32": "i32",
+    "cb28:32": "'t3:32",
+    "entry.R0:1:32": "f32",
+    "entry.R2:2:64": "'t4:64",
+    "entry.R4:2:64": "'t5:64"
+  },
+  "accesses": [
+    {
+      "constraint": "access_within",
+      "kind": "read",
+      "address": 24,
+      "value": 27,
+      "bytes": 4,
+      "guard": null,
+      "shape": "'s1",
+      "origin": "0xd0: LDG.E R3, desc[UR8][R2.64]",
+      "element": "f32"
+    },
+    {
+      "constraint": "access_within",
+      "kind": "write",
+      "address": 137,
+      "value": 141,
+      "bytes": 4,
+      "guard": null,
+      "shape": "'s2",
+      "origin": "0x3a0: STG.E desc[UR8][R2.64], R5",
+      "element": "f32"
+    }
+  ],
+  "residuals": [
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 4,
+      "origin": "0x30: ULDC.64 UR8, c[0x0][0x208]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 5,
+      "origin": "0x30: ULDC.64 UR8, c[0x0][0x208]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 15,
+      "origin": "0xb0: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 16,
+      "origin": "0xb0: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 22,
+      "origin": "block 0xc0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 23,
+      "origin": "block 0xc0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 25,
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 26,
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 41,
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 46,
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 70,
+      "origin": "block 0x1f0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 72,
+      "origin": "block 0x1f0"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 75,
+      "value": 76,
+      "origin": "0x210: @!P1 LDS R4, [R3]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 78,
+      "origin": "block 0x1f0"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 81,
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 86,
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 87,
+      "value": 88,
+      "origin": "0x230: @!P1 LDS R5, [R2]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 89,
+      "origin": "block 0x1f0"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 104,
+      "value": 105,
+      "origin": "0x2d0: LDS R0, [UR4]"
+    },
+    {
+      "kind": "representation",
+      "operation": "primitive",
+      "value": 108,
+      "origin": "0x2f0: MUFU.RSQ R3, R0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 116,
+      "origin": "block 0x350"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 138,
+      "origin": "0x390: LDC.64 R2, c[0x0][0x218]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 139,
+      "origin": "0x390: LDC.64 R2, c[0x0][0x218]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 141,
+      "origin": "block 0x390"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 149,
+      "origin": "block 0x9c0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 160,
+      "origin": "block 0x9f0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 174,
+      "origin": "block 0xa20"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 184,
+      "origin": "block 0xa50"
+    },
+    {
+      "kind": "representation",
+      "operation": "primitive",
+      "value": 196,
+      "origin": "0xa90: MUFU.RSQ R3, R0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 227,
+      "origin": "block 0xb00"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 229,
+      "origin": "block 0xb00"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 231,
+      "origin": "block 0xb00 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 237,
+      "origin": "block 0x1e0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 238,
+      "origin": "block 0x1e0"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 239,
+      "origin": "block 0x1f0 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 241,
+      "origin": "block 0x1e0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 242,
+      "origin": "block 0x1e0"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 243,
+      "origin": "block 0x1f0 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 245,
+      "origin": "block 0x2a0 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 247,
+      "origin": "block 0x340"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 248,
+      "origin": "block 0x340"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 250,
+      "origin": "block 0x350"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 251,
+      "origin": "block 0x350 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 254,
+      "origin": "block 0x320"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 255,
+      "origin": "block 0x320"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 256,
+      "origin": "block 0x9c0"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 257,
+      "origin": "block 0x9c0 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 258,
+      "origin": "block 0x9f0"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 259,
+      "origin": "block 0x9f0 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 260,
+      "origin": "block 0xa20"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 261,
+      "origin": "block 0xa20 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 262,
+      "origin": "block 0xa50"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 263,
+      "origin": "block 0xa50 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 264,
+      "origin": "block 0xa80 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 266,
+      "origin": "block 0x9c0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 267,
+      "origin": "block 0x9c0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 269,
+      "origin": "block 0x9f0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 270,
+      "origin": "block 0x9f0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 272,
+      "origin": "block 0xa20"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 273,
+      "origin": "block 0xa20"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 275,
+      "origin": "block 0xa50"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 276,
+      "origin": "block 0xa50"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 278,
+      "origin": "block 0xa80"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 279,
+      "origin": "block 0xa80 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 281,
+      "origin": "block 0x120"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 282,
+      "origin": "block 0x120 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 284,
+      "origin": "block 0x120"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 285,
+      "origin": "block 0x120"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 287,
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 289,
+      "origin": "block 0x2a0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 290,
+      "origin": "block 0x2a0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 292,
+      "origin": "block 0x320"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 293,
+      "origin": "block 0x320 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 295,
+      "origin": "block 0x0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 296,
+      "origin": "block 0x0"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 297,
+      "origin": "block 0xc0 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 299,
+      "origin": "block 0x0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 300,
+      "origin": "block 0x0"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 302,
+      "origin": "block 0x290"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 303,
+      "origin": "block 0x290"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 311,
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 316,
+      "origin": "block 0x9c0 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 318,
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 325,
+      "origin": "block 0x9f0 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 327,
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 331,
+      "origin": "block 0xa20 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 333,
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "primitive",
+      "value": 338,
+      "origin": "0xa90: MUFU.RSQ R3, R0"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 356,
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 358,
+      "origin": "block 0xa50 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 359,
+      "origin": "block 0xa80 R2:2"
+    },
+    {
+      "kind": "representation",
+      "operation": "concat",
+      "value": 360,
+      "origin": "block 0xa80 R4:2"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 58,
+      "value": 59,
+      "origin": "0x1b0: STS [R3], R0"
+    },
+    {
+      "kind": "memory_cell",
+      "space": "shared",
+      "address": 75,
+      "value": 93,
+      "origin": "0x250: @!P1 STS [R3], R4"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 8,
+      "origin": "block 0x0 R0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 13,
+      "origin": "block 0x80 R9:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 21,
+      "origin": "block 0xc0 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 28,
+      "origin": "block 0xc0 R6:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 30,
+      "origin": "block 0xc0 UR4:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 47,
+      "origin": "block 0x120 R9:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 62,
+      "origin": "block 0x1e0 UR5:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 64,
+      "origin": "block 0x1f0 R9:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 69,
+      "origin": "block 0x1f0 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 73,
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 77,
+      "origin": "block 0x1f0 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 79,
+      "origin": "0x210: @!P1 LDS R4, [R3]"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 90,
+      "origin": "0x230: @!P1 LDS R5, [R2]"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 94,
+      "origin": "0x240: @!P1 FADD R4, R4, R5"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 98,
+      "origin": "block 0x290 P0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 114,
+      "origin": "block 0x350 R0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 115,
+      "origin": "block 0x350 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 140,
+      "origin": "block 0x390 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 142,
+      "origin": "block 0x9c0 R0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 148,
+      "origin": "block 0x9c0 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 150,
+      "origin": "0x9d0: @!P0 MOV R2, R0"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 152,
+      "origin": "block 0x9f0 R0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 159,
+      "origin": "block 0x9f0 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 161,
+      "origin": "0xa00: @!P0 IMAD.MOV.U32 R2, RZ, RZ, 0x7fffffff"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 163,
+      "origin": "block 0xa20 R0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 173,
+      "origin": "block 0xa20 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 175,
+      "origin": "0xa30: @P0 FADD.FTZ R2, R0, 1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 177,
+      "origin": "block 0xa50 R0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 183,
+      "origin": "block 0xa50 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 185,
+      "origin": "0xa60: @!P0 MOV R2, R0"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 187,
+      "origin": "block 0xa80 R0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 226,
+      "origin": "block 0xb00 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 228,
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 233,
+      "origin": "block 0x80 UR4:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 234,
+      "origin": "block 0xc0 R9:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 235,
+      "origin": "block 0x1e0 R9:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 236,
+      "origin": "block 0x1e0 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 240,
+      "origin": "block 0x1e0 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 244,
+      "origin": "block 0x1f0 P0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 246,
+      "origin": "block 0x340 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 249,
+      "origin": "block 0x350 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 252,
+      "origin": "block 0x320 R0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 253,
+      "origin": "block 0x320 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 265,
+      "origin": "block 0x9c0 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 268,
+      "origin": "block 0x9f0 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 271,
+      "origin": "block 0xa20 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 274,
+      "origin": "block 0xa50 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 277,
+      "origin": "block 0xa80 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 280,
+      "origin": "block 0x120 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 283,
+      "origin": "block 0x120 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 286,
+      "origin": "block 0x1e0 P0:1"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 288,
+      "origin": "block 0x2a0 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 291,
+      "origin": "block 0x320 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 294,
+      "origin": "block 0x0 R2:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 298,
+      "origin": "block 0x0 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 301,
+      "origin": "block 0x290 R4:2"
+    },
+    {
+      "kind": "unresolved_join",
+      "value": 306,
+      "origin": "block 0xb00 R4:2"
+    }
+  ],
+  "unsupported": [
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x0: LDC R1, c[0x0][0x28]"
+    },
+    {
+      "effect": "sass_prim_bssy",
+      "origin": "0x40: BSSY B0, 0x130"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x80: LDC R6, c[0x0][RZ]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0xb0: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0xd0: LDG.E R3, desc[UR8][R2.64]"
+    },
+    {
+      "effect": "sass_memory_descriptor",
+      "origin": "0xd0: LDG.E R3, desc[UR8][R2.64]"
+    },
+    {
+      "effect": "sass_prim_bsync",
+      "origin": "0x120: BSYNC B0"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x1b0: STS [R3], R0"
+    },
+    {
+      "effect": "sass_prim_bar",
+      "origin": "0x1c0: BAR.SYNC.DEFER_BLOCKING 0x0"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x210: @!P1 LDS R4, [R3]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x230: @!P1 LDS R5, [R2]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x250: @!P1 STS [R3], R4"
+    },
+    {
+      "effect": "sass_prim_bar",
+      "origin": "0x260: BAR.SYNC.DEFER_BLOCKING 0x0"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x2d0: LDS R0, [UR4]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x390: LDC.64 R2, c[0x0][0x218]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x3a0: STG.E desc[UR8][R2.64], R5"
+    },
+    {
+      "effect": "sass_memory_descriptor",
+      "origin": "0x3a0: STG.E desc[UR8][R2.64], R5"
+    }
+  ],
+  "control": [
+    {
+      "block": 0,
+      "address": 112,
+      "kind": "goto",
+      "target": 288,
+      "fallthrough": 128,
+      "successors": [
+        288,
+        128
+      ],
+      "guard": 6,
+      "condition": null,
+      "origin": "0x70: @P0 BRA 0x120"
+    },
+    {
+      "block": 192,
+      "address": 272,
+      "kind": "goto",
+      "target": 192,
+      "fallthrough": 288,
+      "successors": [
+        192,
+        288
+      ],
+      "guard": 36,
+      "condition": null,
+      "origin": "0x110: @!P0 BRA 0xc0"
+    },
+    {
+      "block": 288,
+      "address": 464,
+      "kind": "goto",
+      "target": 656,
+      "fallthrough": 480,
+      "successors": [
+        656,
+        480
+      ],
+      "guard": 60,
+      "condition": null,
+      "origin": "0x1d0: @!P1 BRA 0x290"
+    },
+    {
+      "block": 496,
+      "address": 640,
+      "kind": "goto",
+      "target": 496,
+      "fallthrough": 656,
+      "successors": [
+        496,
+        656
+      ],
+      "guard": 96,
+      "condition": null,
+      "origin": "0x280: @P1 BRA 0x1f0"
+    },
+    {
+      "block": 656,
+      "address": 656,
+      "kind": "return",
+      "target": null,
+      "fallthrough": 672,
+      "successors": [
+        672
+      ],
+      "guard": 49,
+      "condition": null,
+      "origin": "0x290: @P0 EXIT"
+    },
+    {
+      "block": 672,
+      "address": 784,
+      "kind": "goto",
+      "target": 848,
+      "fallthrough": 800,
+      "successors": [
+        848,
+        800
+      ],
+      "guard": 111,
+      "condition": null,
+      "origin": "0x310: @!P0 BRA 0x350"
+    },
+    {
+      "block": 800,
+      "address": 816,
+      "kind": "goto",
+      "target": 2496,
+      "fallthrough": 832,
+      "successors": [
+        2496
+      ],
+      "guard": null,
+      "condition": null,
+      "origin": "0x330: CALL.REL.NOINC 0x3c0"
+    },
+    {
+      "block": 832,
+      "address": 832,
+      "kind": "goto",
+      "target": 912,
+      "fallthrough": 848,
+      "successors": [
+        912
+      ],
+      "guard": null,
+      "condition": null,
+      "origin": "0x340: BRA 0x390"
+    },
+    {
+      "block": 912,
+      "address": 944,
+      "kind": "return",
+      "target": null,
+      "fallthrough": 960,
+      "successors": [],
+      "guard": null,
+      "condition": null,
+      "origin": "0x3b0: EXIT"
+    },
+    {
+      "block": 2496,
+      "address": 2528,
+      "kind": "goto",
+      "target": 2816,
+      "fallthrough": 2544,
+      "successors": [
+        2816,
+        2544
+      ],
+      "guard": 309,
+      "condition": null,
+      "origin": "0x9e0: @!P0 BRA 0x500"
+    },
+    {
+      "block": 2544,
+      "address": 2576,
+      "kind": "goto",
+      "target": 2816,
+      "fallthrough": 2592,
+      "successors": [
+        2816,
+        2592
+      ],
+      "guard": 315,
+      "condition": null,
+      "origin": "0xa10: @!P0 BRA 0x500"
+    },
+    {
+      "block": 2592,
+      "address": 2624,
+      "kind": "goto",
+      "target": 2816,
+      "fallthrough": 2640,
+      "successors": [
+        2816,
+        2640
+      ],
+      "guard": 322,
+      "condition": null,
+      "origin": "0xa40: @P0 BRA 0x500"
+    },
+    {
+      "block": 2640,
+      "address": 2672,
+      "kind": "goto",
+      "target": 2816,
+      "fallthrough": 2688,
+      "successors": [
+        2816,
+        2688
+      ],
+      "guard": 330,
+      "condition": null,
+      "origin": "0xa70: @!P0 BRA 0x500"
+    },
+    {
+      "block": 2816,
+      "address": 2864,
+      "kind": "goto",
+      "target": 832,
+      "fallthrough": 2880,
+      "successors": [
+        832
+      ],
+      "guard": null,
+      "condition": null,
+      "origin": "0xb30: RET.REL.NODEC R2 0x0"
+    }
+  ],
+  "verified_returns": [
+    {
+      "origin": "0xb30: RET.REL.NODEC R2 0x0",
+      "return_target": 832,
+      "status": "proved"
+    }
+  ],
+  "call_contexts": {
+    "0": {
+      "original_address": 0,
+      "return_context": []
+    },
+    "16": {
+      "original_address": 16,
+      "return_context": []
+    },
+    "32": {
+      "original_address": 32,
+      "return_context": []
+    },
+    "48": {
+      "original_address": 48,
+      "return_context": []
+    },
+    "64": {
+      "original_address": 64,
+      "return_context": []
+    },
+    "80": {
+      "original_address": 80,
+      "return_context": []
+    },
+    "96": {
+      "original_address": 96,
+      "return_context": []
+    },
+    "112": {
+      "original_address": 112,
+      "return_context": []
+    },
+    "128": {
+      "original_address": 128,
+      "return_context": []
+    },
+    "144": {
+      "original_address": 144,
+      "return_context": []
+    },
+    "160": {
+      "original_address": 160,
+      "return_context": []
+    },
+    "176": {
+      "original_address": 176,
+      "return_context": []
+    },
+    "192": {
+      "original_address": 192,
+      "return_context": []
+    },
+    "208": {
+      "original_address": 208,
+      "return_context": []
+    },
+    "224": {
+      "original_address": 224,
+      "return_context": []
+    },
+    "240": {
+      "original_address": 240,
+      "return_context": []
+    },
+    "256": {
+      "original_address": 256,
+      "return_context": []
+    },
+    "272": {
+      "original_address": 272,
+      "return_context": []
+    },
+    "288": {
+      "original_address": 288,
+      "return_context": []
+    },
+    "304": {
+      "original_address": 304,
+      "return_context": []
+    },
+    "320": {
+      "original_address": 320,
+      "return_context": []
+    },
+    "336": {
+      "original_address": 336,
+      "return_context": []
+    },
+    "352": {
+      "original_address": 352,
+      "return_context": []
+    },
+    "368": {
+      "original_address": 368,
+      "return_context": []
+    },
+    "384": {
+      "original_address": 384,
+      "return_context": []
+    },
+    "400": {
+      "original_address": 400,
+      "return_context": []
+    },
+    "416": {
+      "original_address": 416,
+      "return_context": []
+    },
+    "432": {
+      "original_address": 432,
+      "return_context": []
+    },
+    "448": {
+      "original_address": 448,
+      "return_context": []
+    },
+    "464": {
+      "original_address": 464,
+      "return_context": []
+    },
+    "480": {
+      "original_address": 480,
+      "return_context": []
+    },
+    "496": {
+      "original_address": 496,
+      "return_context": []
+    },
+    "512": {
+      "original_address": 512,
+      "return_context": []
+    },
+    "528": {
+      "original_address": 528,
+      "return_context": []
+    },
+    "544": {
+      "original_address": 544,
+      "return_context": []
+    },
+    "560": {
+      "original_address": 560,
+      "return_context": []
+    },
+    "576": {
+      "original_address": 576,
+      "return_context": []
+    },
+    "592": {
+      "original_address": 592,
+      "return_context": []
+    },
+    "608": {
+      "original_address": 608,
+      "return_context": []
+    },
+    "624": {
+      "original_address": 624,
+      "return_context": []
+    },
+    "640": {
+      "original_address": 640,
+      "return_context": []
+    },
+    "656": {
+      "original_address": 656,
+      "return_context": []
+    },
+    "672": {
+      "original_address": 672,
+      "return_context": []
+    },
+    "688": {
+      "original_address": 688,
+      "return_context": []
+    },
+    "704": {
+      "original_address": 704,
+      "return_context": []
+    },
+    "720": {
+      "original_address": 720,
+      "return_context": []
+    },
+    "736": {
+      "original_address": 736,
+      "return_context": []
+    },
+    "752": {
+      "original_address": 752,
+      "return_context": []
+    },
+    "768": {
+      "original_address": 768,
+      "return_context": []
+    },
+    "784": {
+      "original_address": 784,
+      "return_context": []
+    },
+    "800": {
+      "original_address": 800,
+      "return_context": []
+    },
+    "816": {
+      "original_address": 816,
+      "return_context": []
+    },
+    "2496": {
+      "original_address": 960,
+      "return_context": [
+        832
+      ]
+    },
+    "2512": {
+      "original_address": 976,
+      "return_context": [
+        832
+      ]
+    },
+    "2528": {
+      "original_address": 992,
+      "return_context": [
+        832
+      ]
+    },
+    "2544": {
+      "original_address": 1008,
+      "return_context": [
+        832
+      ]
+    },
+    "2560": {
+      "original_address": 1024,
+      "return_context": [
+        832
+      ]
+    },
+    "2576": {
+      "original_address": 1040,
+      "return_context": [
+        832
+      ]
+    },
+    "2592": {
+      "original_address": 1056,
+      "return_context": [
+        832
+      ]
+    },
+    "2608": {
+      "original_address": 1072,
+      "return_context": [
+        832
+      ]
+    },
+    "2624": {
+      "original_address": 1088,
+      "return_context": [
+        832
+      ]
+    },
+    "2640": {
+      "original_address": 1104,
+      "return_context": [
+        832
+      ]
+    },
+    "2656": {
+      "original_address": 1120,
+      "return_context": [
+        832
+      ]
+    },
+    "2672": {
+      "original_address": 1136,
+      "return_context": [
+        832
+      ]
+    },
+    "2688": {
+      "original_address": 1152,
+      "return_context": [
+        832
+      ]
+    },
+    "2704": {
+      "original_address": 1168,
+      "return_context": [
+        832
+      ]
+    },
+    "2720": {
+      "original_address": 1184,
+      "return_context": [
+        832
+      ]
+    },
+    "2736": {
+      "original_address": 1200,
+      "return_context": [
+        832
+      ]
+    },
+    "2752": {
+      "original_address": 1216,
+      "return_context": [
+        832
+      ]
+    },
+    "2768": {
+      "original_address": 1232,
+      "return_context": [
+        832
+      ]
+    },
+    "2784": {
+      "original_address": 1248,
+      "return_context": [
+        832
+      ]
+    },
+    "2800": {
+      "original_address": 1264,
+      "return_context": [
+        832
+      ]
+    },
+    "2816": {
+      "original_address": 1280,
+      "return_context": [
+        832
+      ]
+    },
+    "2832": {
+      "original_address": 1296,
+      "return_context": [
+        832
+      ]
+    },
+    "2848": {
+      "original_address": 1312,
+      "return_context": [
+        832
+      ]
+    },
+    "2864": {
+      "original_address": 1328,
+      "return_context": [
+        832
+      ]
+    },
+    "832": {
+      "original_address": 832,
+      "return_context": []
+    },
+    "912": {
+      "original_address": 912,
+      "return_context": []
+    },
+    "928": {
+      "original_address": 928,
+      "return_context": []
+    },
+    "944": {
+      "original_address": 944,
+      "return_context": []
+    },
+    "848": {
+      "original_address": 848,
+      "return_context": []
+    },
+    "864": {
+      "original_address": 864,
+      "return_context": []
+    },
+    "880": {
+      "original_address": 880,
+      "return_context": []
+    },
+    "896": {
+      "original_address": 896,
+      "return_context": []
+    }
+  },
+  "integer_views": [
+    {
+      "value": 1,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "SR33"
+    },
+    {
+      "value": 6,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x50: ISETP.GE.AND P0, PT, R9, UR4, PT"
+    },
+    {
+      "value": 2,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x50: ISETP.GE.AND P0, PT, R9, UR4, PT"
+    },
+    {
+      "value": 1,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x50: ISETP.GE.AND P0, PT, R9, UR4, PT"
+    },
+    {
+      "value": 18,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "value": 17,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "value": 20,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "value": 19,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "value": 31,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0xf0: ISETP.GE.AND P0, PT, R7, UR4, PT"
+    },
+    {
+      "value": 2,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xf0: ISETP.GE.AND P0, PT, R7, UR4, PT"
+    },
+    {
+      "value": 357,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xf0: ISETP.GE.AND P0, PT, R7, UR4, PT"
+    },
+    {
+      "value": 38,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "SR136"
+    },
+    {
+      "value": 43,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "value": 41,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "value": 42,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "value": 45,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "value": 44,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "value": 49,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x170: ISETP.NE.AND P0, PT, R9, RZ, PT"
+    },
+    {
+      "value": 1,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x170: ISETP.NE.AND P0, PT, R9, RZ, PT"
+    },
+    {
+      "value": 48,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x170: ISETP.NE.AND P0, PT, R9, RZ, PT"
+    },
+    {
+      "value": 51,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x180: ISETP.NE.AND P1, PT, RZ, UR5, PT"
+    },
+    {
+      "value": 50,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x180: ISETP.NE.AND P1, PT, RZ, UR5, PT"
+    },
+    {
+      "value": 46,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x180: ISETP.NE.AND P1, PT, RZ, UR5, PT"
+    },
+    {
+      "value": 53,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x190: ULEA UR4, UR6, UR4, 0x18"
+    },
+    {
+      "value": 38,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x190: ULEA UR4, UR6, UR4, 0x18"
+    },
+    {
+      "value": 52,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x190: ULEA UR4, UR6, UR4, 0x18"
+    },
+    {
+      "value": 56,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1a0: LEA R3, R9, UR4, 0x2"
+    },
+    {
+      "value": 1,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1a0: LEA R3, R9, UR4, 0x2"
+    },
+    {
+      "value": 55,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1a0: LEA R3, R9, UR4, 0x2"
+    },
+    {
+      "value": 58,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x1b0: STS [R3], R0"
+    },
+    {
+      "value": 57,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1b0: STS [R3], R0"
+    },
+    {
+      "value": 65,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x1f0: ISETP.GE.AND P1, PT, R9, R0, PT"
+    },
+    {
+      "value": 63,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1f0: ISETP.GE.AND P1, PT, R9, R0, PT"
+    },
+    {
+      "value": 1,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1f0: ISETP.GE.AND P1, PT, R9, R0, PT"
+    },
+    {
+      "value": 68,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "value": 63,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "value": 67,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "value": 75,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x210: @!P1 LDS R4, [R3]"
+    },
+    {
+      "value": 70,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x210: @!P1 LDS R4, [R3]"
+    },
+    {
+      "value": 83,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "value": 81,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "value": 82,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "value": 85,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "value": 84,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "value": 87,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x230: @!P1 LDS R5, [R2]"
+    },
+    {
+      "value": 71,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x230: @!P1 LDS R5, [R2]"
+    },
+    {
+      "value": 96,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x270: ISETP.NE.AND P1, PT, R0, RZ, PT"
+    },
+    {
+      "value": 86,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x270: ISETP.NE.AND P1, PT, R0, RZ, PT"
+    },
+    {
+      "value": 95,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x270: ISETP.NE.AND P1, PT, R0, RZ, PT"
+    },
+    {
+      "value": 102,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2c0: ULEA UR4, UR5, UR4, 0x18"
+    },
+    {
+      "value": 38,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2c0: ULEA UR4, UR5, UR4, 0x18"
+    },
+    {
+      "value": 101,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2c0: ULEA UR4, UR5, UR4, 0x18"
+    },
+    {
+      "value": 104,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0x2d0: LDS R0, [UR4]"
+    },
+    {
+      "value": 103,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2d0: LDS R0, [UR4]"
+    },
+    {
+      "value": 110,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x300: ISETP.GT.U32.AND P0, PT, R2, 0x727fffff, PT"
+    },
+    {
+      "value": 109,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x300: ISETP.GT.U32.AND P0, PT, R2, 0x727fffff, PT"
+    },
+    {
+      "value": 107,
+      "as": "i32",
+      "storage": "f32",
+      "origin": "0x300: ISETP.GT.U32.AND P0, PT, R2, 0x727fffff, PT"
+    },
+    {
+      "value": 144,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "value": 105,
+      "as": "i32",
+      "storage": "f32",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "value": 143,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "value": 146,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "value": 307,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "value": 145,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "value": 308,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "value": 54,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x190: ULEA UR4, UR6, UR4, 0x18"
+    },
+    {
+      "value": 39,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x190: ULEA UR4, UR6, UR4, 0x18"
+    },
+    {
+      "value": 57,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1a0: LEA R3, R9, UR4, 0x2"
+    },
+    {
+      "value": 54,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x1a0: LEA R3, R9, UR4, 0x2"
+    },
+    {
+      "value": 71,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "value": 70,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "value": 103,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2c0: ULEA UR4, UR5, UR4, 0x18"
+    },
+    {
+      "value": 100,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2c0: ULEA UR4, UR5, UR4, 0x18"
+    },
+    {
+      "value": 107,
+      "as": "i32",
+      "storage": "f32",
+      "origin": "0x2e0: VIADD R2, R0, 0xf3000000"
+    },
+    {
+      "value": 105,
+      "as": "i32",
+      "storage": "f32",
+      "origin": "0x2e0: VIADD R2, R0, 0xf3000000"
+    },
+    {
+      "value": 106,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x2e0: VIADD R2, R0, 0xf3000000"
+    },
+    {
+      "value": 357,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xe0: IADD3 R7, R6, R7, RZ"
+    },
+    {
+      "value": 11,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xe0: IADD3 R7, R6, R7, RZ"
+    },
+    {
+      "value": 17,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xe0: IADD3 R7, R6, R7, RZ"
+    },
+    {
+      "value": 29,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xe0: IADD3 R7, R6, R7, RZ"
+    }
+  ],
+  "values": [
+    {
+      "id": 0,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb28"
+      ],
+      "type": "'t3:32",
+      "origin": "cb28"
+    },
+    {
+      "id": 1,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "SR33"
+      ],
+      "type": "i32",
+      "origin": "SR33"
+    },
+    {
+      "id": 2,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb220"
+      ],
+      "type": "i32",
+      "origin": "cb220"
+    },
+    {
+      "id": 3,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb208"
+      ],
+      "type": "'t0:64",
+      "origin": "cb208"
+    },
+    {
+      "id": 4,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        3,
+        31,
+        0
+      ],
+      "type": "'t6:32",
+      "origin": "0x30: ULDC.64 UR8, c[0x0][0x208]"
+    },
+    {
+      "id": 5,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        3,
+        63,
+        32
+      ],
+      "type": "'t7:32",
+      "origin": "0x30: ULDC.64 UR8, c[0x0][0x208]"
+    },
+    {
+      "id": 6,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        2,
+        1
+      ],
+      "type": "bool",
+      "origin": "0x50: ISETP.GE.AND P0, PT, R9, UR4, PT"
+    },
+    {
+      "id": 7,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "f32",
+      "origin": "0x60: @P0 MOV R0, RZ"
+    },
+    {
+      "id": 8,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        232
+      ],
+      "type": "'t8:32",
+      "origin": "block 0x0 R0:1"
+    },
+    {
+      "id": 9,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        6,
+        7,
+        232
+      ],
+      "type": "f32",
+      "origin": "0x60: @P0 MOV R0, RZ"
+    },
+    {
+      "id": 10,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        6
+      ],
+      "type": "'t9:1",
+      "origin": "0x60: @P0 MOV R0, RZ"
+    },
+    {
+      "id": 11,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb0"
+      ],
+      "type": "i32",
+      "origin": "cb0"
+    },
+    {
+      "id": 12,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "f32",
+      "origin": "0x90: HFMA2.MMA R0, -RZ, RZ, 0, 0"
+    },
+    {
+      "id": 13,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        1
+      ],
+      "type": "'t10:32",
+      "origin": "block 0x80 R9:1"
+    },
+    {
+      "id": 14,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb210"
+      ],
+      "type": "ptr64<global, f32, 's1>",
+      "origin": "cb210"
+    },
+    {
+      "id": 15,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        14,
+        31,
+        0
+      ],
+      "type": "'t11:32",
+      "origin": "0xb0: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "id": 16,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        14,
+        63,
+        32
+      ],
+      "type": "'t12:32",
+      "origin": "0xb0: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "id": 17,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        1,
+        357
+      ],
+      "type": "i32",
+      "origin": "block 0xc0 R7:1"
+    },
+    {
+      "id": 18,
+      "operation": "sext",
+      "width": 64,
+      "arguments": [
+        17
+      ],
+      "type": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "id": 19,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        4
+      ],
+      "type": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "id": 20,
+      "operation": "mul",
+      "width": 64,
+      "arguments": [
+        18,
+        19
+      ],
+      "type": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "id": 21,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        14,
+        21
+      ],
+      "type": "'t13:64",
+      "origin": "block 0xc0 R4:2"
+    },
+    {
+      "id": 22,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        14,
+        63,
+        32
+      ],
+      "type": "'t14:32",
+      "origin": "block 0xc0"
+    },
+    {
+      "id": 23,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        14,
+        31,
+        0
+      ],
+      "type": "'t15:32",
+      "origin": "block 0xc0"
+    },
+    {
+      "id": 24,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        20,
+        14
+      ],
+      "type": "ptr64<global, f32, 's1>",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "id": 25,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        24,
+        31,
+        0
+      ],
+      "type": "'t16:32",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "id": 26,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        24,
+        63,
+        32
+      ],
+      "type": "'t17:32",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R4"
+    },
+    {
+      "id": 27,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "ram",
+        24
+      ],
+      "type": "f32",
+      "origin": "0xd0: LDG.E R3, desc[UR8][R2.64]"
+    },
+    {
+      "id": 28,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        11,
+        28
+      ],
+      "type": "'t18:32",
+      "origin": "block 0xc0 R6:1"
+    },
+    {
+      "id": 29,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        11,
+        17
+      ],
+      "type": "i32",
+      "origin": "0xe0: IADD3 R7, R6, R7, RZ"
+    },
+    {
+      "id": 30,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        233,
+        30
+      ],
+      "type": "'t19:32",
+      "origin": "block 0xc0 UR4:1"
+    },
+    {
+      "id": 31,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        2,
+        357
+      ],
+      "type": "bool",
+      "origin": "0xf0: ISETP.GE.AND P0, PT, R7, UR4, PT"
+    },
+    {
+      "id": 32,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        12,
+        35
+      ],
+      "type": "f32",
+      "origin": "block 0xc0 R0:1"
+    },
+    {
+      "id": 33,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        27,
+        32,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x100: FADD R0, R3, R0"
+    },
+    {
+      "id": 34,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t20:32",
+      "origin": "0x100: FADD R0, R3, R0"
+    },
+    {
+      "id": 35,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        33,
+        34
+      ],
+      "type": "f32",
+      "origin": "0x100: FADD R0, R3, R0"
+    },
+    {
+      "id": 36,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        31
+      ],
+      "type": "bool",
+      "origin": "0x110: @!P0 BRA 0xc0"
+    },
+    {
+      "id": 37,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        36
+      ],
+      "type": "'t21:1",
+      "origin": "0x110: @!P0 BRA 0xc0"
+    },
+    {
+      "id": 38,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "SR136"
+      ],
+      "type": "i32",
+      "origin": "SR136"
+    },
+    {
+      "id": 39,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1024
+      ],
+      "type": "i32",
+      "origin": "0x150: UMOV UR4, 0x400"
+    },
+    {
+      "id": 40,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "'t22:32",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "id": 41,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        11,
+        40
+      ],
+      "type": "i64",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "id": 42,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        1
+      ],
+      "type": "i64",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "id": 43,
+      "operation": "shr",
+      "width": 64,
+      "arguments": [
+        41,
+        42
+      ],
+      "type": "i64",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "id": 44,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        32
+      ],
+      "type": "i64",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "id": 45,
+      "operation": "shr",
+      "width": 64,
+      "arguments": [
+        43,
+        44
+      ],
+      "type": "i64",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "id": 46,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        45,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "0x160: USHF.R.U32.HI UR5, URZ, 0x1, UR5"
+    },
+    {
+      "id": 47,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        1,
+        234
+      ],
+      "type": "'t23:32",
+      "origin": "block 0x120 R9:1"
+    },
+    {
+      "id": 48,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "i32",
+      "origin": "0x170: ISETP.NE.AND P0, PT, R9, RZ, PT"
+    },
+    {
+      "id": 49,
+      "operation": "ne",
+      "width": 1,
+      "arguments": [
+        1,
+        48
+      ],
+      "type": "bool",
+      "origin": "0x170: ISETP.NE.AND P0, PT, R9, RZ, PT"
+    },
+    {
+      "id": 50,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "i32",
+      "origin": "0x180: ISETP.NE.AND P1, PT, RZ, UR5, PT"
+    },
+    {
+      "id": 51,
+      "operation": "ne",
+      "width": 1,
+      "arguments": [
+        50,
+        46
+      ],
+      "type": "bool",
+      "origin": "0x180: ISETP.NE.AND P1, PT, RZ, UR5, PT"
+    },
+    {
+      "id": 52,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        24
+      ],
+      "type": "i32",
+      "origin": "0x190: ULEA UR4, UR6, UR4, 0x18"
+    },
+    {
+      "id": 53,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        38,
+        52
+      ],
+      "type": "i32",
+      "origin": "0x190: ULEA UR4, UR6, UR4, 0x18"
+    },
+    {
+      "id": 54,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        53,
+        39
+      ],
+      "type": "i32",
+      "origin": "0x190: ULEA UR4, UR6, UR4, 0x18"
+    },
+    {
+      "id": 55,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2
+      ],
+      "type": "i32",
+      "origin": "0x1a0: LEA R3, R9, UR4, 0x2"
+    },
+    {
+      "id": 56,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        1,
+        55
+      ],
+      "type": "i32",
+      "origin": "0x1a0: LEA R3, R9, UR4, 0x2"
+    },
+    {
+      "id": 57,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        56,
+        54
+      ],
+      "type": "i32",
+      "origin": "0x1a0: LEA R3, R9, UR4, 0x2"
+    },
+    {
+      "id": 58,
+      "operation": "zext",
+      "width": 64,
+      "arguments": [
+        57
+      ],
+      "type": "i64",
+      "origin": "0x1b0: STS [R3], R0"
+    },
+    {
+      "id": 59,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        9,
+        35
+      ],
+      "type": "f32",
+      "origin": "block 0x120 R0:1"
+    },
+    {
+      "id": 60,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        51
+      ],
+      "type": "bool",
+      "origin": "0x1d0: @!P1 BRA 0x290"
+    },
+    {
+      "id": 61,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        60
+      ],
+      "type": "'t24:1",
+      "origin": "0x1d0: @!P1 BRA 0x290"
+    },
+    {
+      "id": 62,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        46
+      ],
+      "type": "'t25:32",
+      "origin": "block 0x1e0 UR5:1"
+    },
+    {
+      "id": 63,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        46,
+        86
+      ],
+      "type": "i32",
+      "origin": "block 0x1f0 R0:1"
+    },
+    {
+      "id": 64,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        235,
+        64
+      ],
+      "type": "'t26:32",
+      "origin": "block 0x1f0 R9:1"
+    },
+    {
+      "id": 65,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        63,
+        1
+      ],
+      "type": "bool",
+      "origin": "0x1f0: ISETP.GE.AND P1, PT, R9, R0, PT"
+    },
+    {
+      "id": 66,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        65
+      ],
+      "type": "bool",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "id": 67,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2
+      ],
+      "type": "i32",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "id": 68,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        63,
+        67
+      ],
+      "type": "i32",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "id": 69,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        282,
+        239
+      ],
+      "type": "'t27:64",
+      "origin": "block 0x1f0 R2:2"
+    },
+    {
+      "id": 70,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        69,
+        63,
+        32
+      ],
+      "type": "i32",
+      "origin": "block 0x1f0"
+    },
+    {
+      "id": 71,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        68,
+        70
+      ],
+      "type": "i32",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "id": 72,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        69,
+        31,
+        0
+      ],
+      "type": "'t28:32",
+      "origin": "block 0x1f0"
+    },
+    {
+      "id": 73,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        66,
+        71,
+        72
+      ],
+      "type": "'t29:32",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "id": 74,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        66
+      ],
+      "type": "'t30:1",
+      "origin": "0x200: @!P1 LEA R2, R0, R3, 0x2"
+    },
+    {
+      "id": 75,
+      "operation": "zext",
+      "width": 64,
+      "arguments": [
+        70
+      ],
+      "type": "i64",
+      "origin": "0x210: @!P1 LDS R4, [R3]"
+    },
+    {
+      "id": 76,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        75
+      ],
+      "type": "f32",
+      "origin": "0x210: @!P1 LDS R4, [R3]"
+    },
+    {
+      "id": 77,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        240,
+        243
+      ],
+      "type": "'t31:64",
+      "origin": "block 0x1f0 R4:2"
+    },
+    {
+      "id": 78,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        77,
+        31,
+        0
+      ],
+      "type": "'t32:32",
+      "origin": "block 0x1f0"
+    },
+    {
+      "id": 79,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        66,
+        76,
+        78
+      ],
+      "type": "'t33:32",
+      "origin": "0x210: @!P1 LDS R4, [R3]"
+    },
+    {
+      "id": 80,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "'t34:32",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "id": 81,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        63,
+        80
+      ],
+      "type": "i64",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "id": 82,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        1
+      ],
+      "type": "i64",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "id": 83,
+      "operation": "shr",
+      "width": 64,
+      "arguments": [
+        81,
+        82
+      ],
+      "type": "i64",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "id": 84,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        32
+      ],
+      "type": "i64",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "id": 85,
+      "operation": "shr",
+      "width": 64,
+      "arguments": [
+        83,
+        84
+      ],
+      "type": "i64",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "id": 86,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        85,
+        31,
+        0
+      ],
+      "type": "i32",
+      "origin": "0x220: SHF.R.U32.HI R0, RZ, 0x1, R0"
+    },
+    {
+      "id": 87,
+      "operation": "zext",
+      "width": 64,
+      "arguments": [
+        71
+      ],
+      "type": "i64",
+      "origin": "0x230: @!P1 LDS R5, [R2]"
+    },
+    {
+      "id": 88,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        87
+      ],
+      "type": "f32",
+      "origin": "0x230: @!P1 LDS R5, [R2]"
+    },
+    {
+      "id": 89,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        77,
+        63,
+        32
+      ],
+      "type": "'t35:32",
+      "origin": "block 0x1f0"
+    },
+    {
+      "id": 90,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        66,
+        88,
+        89
+      ],
+      "type": "'t36:32",
+      "origin": "0x230: @!P1 LDS R5, [R2]"
+    },
+    {
+      "id": 91,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        76,
+        88,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x240: @!P1 FADD R4, R4, R5"
+    },
+    {
+      "id": 92,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t37:32",
+      "origin": "0x240: @!P1 FADD R4, R4, R5"
+    },
+    {
+      "id": 93,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        91,
+        92
+      ],
+      "type": "f32",
+      "origin": "0x240: @!P1 FADD R4, R4, R5"
+    },
+    {
+      "id": 94,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        66,
+        93,
+        79
+      ],
+      "type": "'t38:32",
+      "origin": "0x240: @!P1 FADD R4, R4, R5"
+    },
+    {
+      "id": 95,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "i32",
+      "origin": "0x270: ISETP.NE.AND P1, PT, R0, RZ, PT"
+    },
+    {
+      "id": 96,
+      "operation": "ne",
+      "width": 1,
+      "arguments": [
+        86,
+        95
+      ],
+      "type": "bool",
+      "origin": "0x270: ISETP.NE.AND P1, PT, R0, RZ, PT"
+    },
+    {
+      "id": 97,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        96
+      ],
+      "type": "'t39:1",
+      "origin": "0x280: @P1 BRA 0x1f0"
+    },
+    {
+      "id": 98,
+      "operation": "phi",
+      "width": 1,
+      "arguments": [
+        49,
+        244
+      ],
+      "type": "'t40:1",
+      "origin": "block 0x290 P0:1"
+    },
+    {
+      "id": 99,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        49
+      ],
+      "type": "'t41:1",
+      "origin": "0x290: @P0 EXIT"
+    },
+    {
+      "id": 100,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1024
+      ],
+      "type": "i32",
+      "origin": "0x2b0: UMOV UR4, 0x400"
+    },
+    {
+      "id": 101,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        24
+      ],
+      "type": "i32",
+      "origin": "0x2c0: ULEA UR4, UR5, UR4, 0x18"
+    },
+    {
+      "id": 102,
+      "operation": "shl",
+      "width": 32,
+      "arguments": [
+        38,
+        101
+      ],
+      "type": "i32",
+      "origin": "0x2c0: ULEA UR4, UR5, UR4, 0x18"
+    },
+    {
+      "id": 103,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        102,
+        100
+      ],
+      "type": "i32",
+      "origin": "0x2c0: ULEA UR4, UR5, UR4, 0x18"
+    },
+    {
+      "id": 104,
+      "operation": "zext",
+      "width": 64,
+      "arguments": [
+        103
+      ],
+      "type": "i64",
+      "origin": "0x2d0: LDS R0, [UR4]"
+    },
+    {
+      "id": 105,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "shared",
+        104
+      ],
+      "type": "f32",
+      "origin": "0x2d0: LDS R0, [UR4]"
+    },
+    {
+      "id": 106,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        4076863488
+      ],
+      "type": "i32",
+      "origin": "0x2e0: VIADD R2, R0, 0xf3000000"
+    },
+    {
+      "id": 107,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        105,
+        106
+      ],
+      "type": "f32",
+      "origin": "0x2e0: VIADD R2, R0, 0xf3000000"
+    },
+    {
+      "id": 108,
+      "operation": "primitive",
+      "width": 32,
+      "arguments": [
+        "mufu_rsq",
+        105
+      ],
+      "type": "f32",
+      "origin": "0x2f0: MUFU.RSQ R3, R0"
+    },
+    {
+      "id": 109,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1920991231
+      ],
+      "type": "i32",
+      "origin": "0x300: ISETP.GT.U32.AND P0, PT, R2, 0x727fffff, PT"
+    },
+    {
+      "id": 110,
+      "operation": "ult",
+      "width": 1,
+      "arguments": [
+        109,
+        107
+      ],
+      "type": "bool",
+      "origin": "0x300: ISETP.GT.U32.AND P0, PT, R2, 0x727fffff, PT"
+    },
+    {
+      "id": 111,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        110
+      ],
+      "type": "bool",
+      "origin": "0x310: @!P0 BRA 0x350"
+    },
+    {
+      "id": 112,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        111
+      ],
+      "type": "'t42:1",
+      "origin": "0x310: @!P0 BRA 0x350"
+    },
+    {
+      "id": 113,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        832
+      ],
+      "type": "'t43:32",
+      "origin": "0x320: MOV R4, 0x340"
+    },
+    {
+      "id": 114,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        105
+      ],
+      "type": "'t44:32",
+      "origin": "block 0x350 R0:1"
+    },
+    {
+      "id": 115,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        245
+      ],
+      "type": "'t45:64",
+      "origin": "block 0x350 R2:2"
+    },
+    {
+      "id": 116,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        245,
+        63,
+        32
+      ],
+      "type": "'t46:32",
+      "origin": "block 0x350"
+    },
+    {
+      "id": 117,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        105,
+        108,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x350: FMUL.FTZ R5, R0, R3"
+    },
+    {
+      "id": 118,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t47:32",
+      "origin": "0x350: FMUL.FTZ R5, R0, R3"
+    },
+    {
+      "id": 119,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        117,
+        118
+      ],
+      "type": "f32",
+      "origin": "0x350: FMUL.FTZ R5, R0, R3"
+    },
+    {
+      "id": 120,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1056964608
+      ],
+      "type": "f32",
+      "origin": "0x360: FMUL.FTZ R3, R3, 0.5"
+    },
+    {
+      "id": 121,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        108,
+        120,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x360: FMUL.FTZ R3, R3, 0.5"
+    },
+    {
+      "id": 122,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t48:32",
+      "origin": "0x360: FMUL.FTZ R3, R3, 0.5"
+    },
+    {
+      "id": 123,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        121,
+        122
+      ],
+      "type": "f32",
+      "origin": "0x360: FMUL.FTZ R3, R3, 0.5"
+    },
+    {
+      "id": 124,
+      "operation": "neg.f32",
+      "width": 32,
+      "arguments": [
+        119
+      ],
+      "type": "f32",
+      "origin": "0x370: FFMA R0, -R5, R5, R0"
+    },
+    {
+      "id": 125,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        124,
+        119,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x370: FFMA R0, -R5, R5, R0"
+    },
+    {
+      "id": 126,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t49:32",
+      "origin": "0x370: FFMA R0, -R5, R5, R0"
+    },
+    {
+      "id": 127,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        125,
+        126
+      ],
+      "type": "f32",
+      "origin": "0x370: FFMA R0, -R5, R5, R0"
+    },
+    {
+      "id": 128,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        127,
+        105,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x370: FFMA R0, -R5, R5, R0"
+    },
+    {
+      "id": 129,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t50:32",
+      "origin": "0x370: FFMA R0, -R5, R5, R0"
+    },
+    {
+      "id": 130,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        128,
+        129
+      ],
+      "type": "f32",
+      "origin": "0x370: FFMA R0, -R5, R5, R0"
+    },
+    {
+      "id": 131,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        130,
+        123,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x380: FFMA R5, R0, R3, R5"
+    },
+    {
+      "id": 132,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t51:32",
+      "origin": "0x380: FFMA R5, R0, R3, R5"
+    },
+    {
+      "id": 133,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        131,
+        132
+      ],
+      "type": "f32",
+      "origin": "0x380: FFMA R5, R0, R3, R5"
+    },
+    {
+      "id": 134,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        133,
+        119,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x380: FFMA R5, R0, R3, R5"
+    },
+    {
+      "id": 135,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t52:32",
+      "origin": "0x380: FFMA R5, R0, R3, R5"
+    },
+    {
+      "id": 136,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        134,
+        135
+      ],
+      "type": "f32",
+      "origin": "0x380: FFMA R5, R0, R3, R5"
+    },
+    {
+      "id": 137,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb218"
+      ],
+      "type": "ptr64<global, f32, 's2>",
+      "origin": "cb218"
+    },
+    {
+      "id": 138,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        137,
+        31,
+        0
+      ],
+      "type": "'t53:32",
+      "origin": "0x390: LDC.64 R2, c[0x0][0x218]"
+    },
+    {
+      "id": 139,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        137,
+        63,
+        32
+      ],
+      "type": "'t54:32",
+      "origin": "0x390: LDC.64 R2, c[0x0][0x218]"
+    },
+    {
+      "id": 140,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        306,
+        251
+      ],
+      "type": "'t55:64",
+      "origin": "block 0x390 R4:2"
+    },
+    {
+      "id": 141,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        140,
+        63,
+        32
+      ],
+      "type": "f32",
+      "origin": "block 0x390"
+    },
+    {
+      "id": 142,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        252
+      ],
+      "type": "'t56:32",
+      "origin": "block 0x9c0 R0:1"
+    },
+    {
+      "id": 143,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "i32",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "id": 144,
+      "operation": "and",
+      "width": 32,
+      "arguments": [
+        105,
+        143
+      ],
+      "type": "i32",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "id": 145,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "i32",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "id": 146,
+      "operation": "ne",
+      "width": 1,
+      "arguments": [
+        307,
+        145
+      ],
+      "type": "bool",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "id": 147,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        308
+      ],
+      "type": "bool",
+      "origin": "0x9d0: @!P0 MOV R2, R0"
+    },
+    {
+      "id": 148,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        253
+      ],
+      "type": "'t57:64",
+      "origin": "block 0x9c0 R2:2"
+    },
+    {
+      "id": 149,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        245,
+        31,
+        0
+      ],
+      "type": "'t58:32",
+      "origin": "block 0x9c0"
+    },
+    {
+      "id": 150,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        309,
+        105,
+        107
+      ],
+      "type": "'t59:32",
+      "origin": "0x9d0: @!P0 MOV R2, R0"
+    },
+    {
+      "id": 151,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        309
+      ],
+      "type": "'t60:1",
+      "origin": "0x9d0: @!P0 MOV R2, R0"
+    },
+    {
+      "id": 152,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        142
+      ],
+      "type": "'t61:32",
+      "origin": "block 0x9f0 R0:1"
+    },
+    {
+      "id": 153,
+      "operation": "fnan",
+      "width": 1,
+      "arguments": [
+        105
+      ],
+      "type": "bool",
+      "origin": "0x9f0: FSETP.GEU.FTZ.AND P0, PT, R0, RZ, PT"
+    },
+    {
+      "id": 154,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "f32",
+      "origin": "0x9f0: FSETP.GEU.FTZ.AND P0, PT, R0, RZ, PT"
+    },
+    {
+      "id": 155,
+      "operation": "fle",
+      "width": 1,
+      "arguments": [
+        154,
+        105
+      ],
+      "type": "bool",
+      "origin": "0x9f0: FSETP.GEU.FTZ.AND P0, PT, R0, RZ, PT"
+    },
+    {
+      "id": 156,
+      "operation": "or",
+      "width": 1,
+      "arguments": [
+        312,
+        313
+      ],
+      "type": "bool",
+      "origin": "0x9f0: FSETP.GEU.FTZ.AND P0, PT, R0, RZ, PT"
+    },
+    {
+      "id": 157,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        314
+      ],
+      "type": "bool",
+      "origin": "0xa00: @!P0 IMAD.MOV.U32 R2, RZ, RZ, 0x7fffffff"
+    },
+    {
+      "id": 158,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "f32",
+      "origin": "0xa00: @!P0 IMAD.MOV.U32 R2, RZ, RZ, 0x7fffffff"
+    },
+    {
+      "id": 159,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        257
+      ],
+      "type": "'t62:64",
+      "origin": "block 0x9f0 R2:2"
+    },
+    {
+      "id": 160,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        316,
+        31,
+        0
+      ],
+      "type": "'t63:32",
+      "origin": "block 0x9f0"
+    },
+    {
+      "id": 161,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        315,
+        158,
+        310
+      ],
+      "type": "'t64:32",
+      "origin": "0xa00: @!P0 IMAD.MOV.U32 R2, RZ, RZ, 0x7fffffff"
+    },
+    {
+      "id": 162,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        315
+      ],
+      "type": "'t65:1",
+      "origin": "0xa00: @!P0 IMAD.MOV.U32 R2, RZ, RZ, 0x7fffffff"
+    },
+    {
+      "id": 163,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        152
+      ],
+      "type": "'t66:32",
+      "origin": "block 0xa20 R0:1"
+    },
+    {
+      "id": 164,
+      "operation": "abs.f32",
+      "width": 32,
+      "arguments": [
+        105
+      ],
+      "type": "f32",
+      "origin": "0xa20: FSETP.GTU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 165,
+      "operation": "fnan",
+      "width": 1,
+      "arguments": [
+        319
+      ],
+      "type": "bool",
+      "origin": "0xa20: FSETP.GTU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 166,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2139095040
+      ],
+      "type": "f32",
+      "origin": "0xa20: FSETP.GTU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 167,
+      "operation": "flt",
+      "width": 1,
+      "arguments": [
+        166,
+        319
+      ],
+      "type": "bool",
+      "origin": "0xa20: FSETP.GTU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 168,
+      "operation": "or",
+      "width": 1,
+      "arguments": [
+        320,
+        321
+      ],
+      "type": "bool",
+      "origin": "0xa20: FSETP.GTU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 169,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1065353216
+      ],
+      "type": "f32",
+      "origin": "0xa30: @P0 FADD.FTZ R2, R0, 1"
+    },
+    {
+      "id": 170,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        105,
+        169,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0xa30: @P0 FADD.FTZ R2, R0, 1"
+    },
+    {
+      "id": 171,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t67:32",
+      "origin": "0xa30: @P0 FADD.FTZ R2, R0, 1"
+    },
+    {
+      "id": 172,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        323,
+        171
+      ],
+      "type": "f32",
+      "origin": "0xa30: @P0 FADD.FTZ R2, R0, 1"
+    },
+    {
+      "id": 173,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        259
+      ],
+      "type": "'t68:64",
+      "origin": "block 0xa20 R2:2"
+    },
+    {
+      "id": 174,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        325,
+        31,
+        0
+      ],
+      "type": "'t69:32",
+      "origin": "block 0xa20"
+    },
+    {
+      "id": 175,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        322,
+        324,
+        317
+      ],
+      "type": "'t70:32",
+      "origin": "0xa30: @P0 FADD.FTZ R2, R0, 1"
+    },
+    {
+      "id": 176,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        322
+      ],
+      "type": "'t71:1",
+      "origin": "0xa30: @P0 FADD.FTZ R2, R0, 1"
+    },
+    {
+      "id": 177,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        163
+      ],
+      "type": "'t72:32",
+      "origin": "block 0xa50 R0:1"
+    },
+    {
+      "id": 178,
+      "operation": "abs.f32",
+      "width": 32,
+      "arguments": [
+        105
+      ],
+      "type": "f32",
+      "origin": "0xa50: FSETP.NEU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 179,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2139095040
+      ],
+      "type": "f32",
+      "origin": "0xa50: FSETP.NEU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 180,
+      "operation": "feq",
+      "width": 1,
+      "arguments": [
+        319,
+        179
+      ],
+      "type": "bool",
+      "origin": "0xa50: FSETP.NEU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 181,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        328
+      ],
+      "type": "bool",
+      "origin": "0xa50: FSETP.NEU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 182,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        329
+      ],
+      "type": "bool",
+      "origin": "0xa60: @!P0 MOV R2, R0"
+    },
+    {
+      "id": 183,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        261
+      ],
+      "type": "'t73:64",
+      "origin": "block 0xa50 R2:2"
+    },
+    {
+      "id": 184,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        331,
+        31,
+        0
+      ],
+      "type": "'t74:32",
+      "origin": "block 0xa50"
+    },
+    {
+      "id": 185,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        330,
+        105,
+        326
+      ],
+      "type": "'t75:32",
+      "origin": "0xa60: @!P0 MOV R2, R0"
+    },
+    {
+      "id": 186,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        330
+      ],
+      "type": "'t76:1",
+      "origin": "0xa60: @!P0 MOV R2, R0"
+    },
+    {
+      "id": 187,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        177
+      ],
+      "type": "'t77:32",
+      "origin": "block 0xa80 R0:1"
+    },
+    {
+      "id": 188,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1602224128
+      ],
+      "type": "f32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 189,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        105,
+        188,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 190,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t78:32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 191,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        334,
+        190
+      ],
+      "type": "f32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 192,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "f32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 193,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        335,
+        192,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 194,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t79:32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 195,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        336,
+        194
+      ],
+      "type": "f32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 196,
+      "operation": "primitive",
+      "width": 32,
+      "arguments": [
+        "mufu_rsq",
+        337
+      ],
+      "type": "'t80:32",
+      "origin": "0xa90: MUFU.RSQ R3, R0"
+    },
+    {
+      "id": 197,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        337,
+        338,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xaa0: FMUL.FTZ R5, R0, R3"
+    },
+    {
+      "id": 198,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t81:32",
+      "origin": "0xaa0: FMUL.FTZ R5, R0, R3"
+    },
+    {
+      "id": 199,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        339,
+        198
+      ],
+      "type": "f32",
+      "origin": "0xaa0: FMUL.FTZ R5, R0, R3"
+    },
+    {
+      "id": 200,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        1056964608
+      ],
+      "type": "f32",
+      "origin": "0xab0: FMUL.FTZ R3, R3, 0.5"
+    },
+    {
+      "id": 201,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        338,
+        200,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xab0: FMUL.FTZ R3, R3, 0.5"
+    },
+    {
+      "id": 202,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t82:32",
+      "origin": "0xab0: FMUL.FTZ R3, R3, 0.5"
+    },
+    {
+      "id": 203,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        348,
+        202
+      ],
+      "type": "f32",
+      "origin": "0xab0: FMUL.FTZ R3, R3, 0.5"
+    },
+    {
+      "id": 204,
+      "operation": "neg.f32",
+      "width": 32,
+      "arguments": [
+        340
+      ],
+      "type": "f32",
+      "origin": "0xac0: FADD.FTZ R2, -R5, -RZ"
+    },
+    {
+      "id": 205,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "f32",
+      "origin": "0xac0: FADD.FTZ R2, -R5, -RZ"
+    },
+    {
+      "id": 206,
+      "operation": "neg.f32",
+      "width": 32,
+      "arguments": [
+        205
+      ],
+      "type": "f32",
+      "origin": "0xac0: FADD.FTZ R2, -R5, -RZ"
+    },
+    {
+      "id": 207,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        341,
+        206,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0xac0: FADD.FTZ R2, -R5, -RZ"
+    },
+    {
+      "id": 208,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t83:32",
+      "origin": "0xac0: FADD.FTZ R2, -R5, -RZ"
+    },
+    {
+      "id": 209,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        342,
+        208
+      ],
+      "type": "f32",
+      "origin": "0xac0: FADD.FTZ R2, -R5, -RZ"
+    },
+    {
+      "id": 210,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        340,
+        343,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xad0: FFMA R2, R5, R2, R0"
+    },
+    {
+      "id": 211,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t84:32",
+      "origin": "0xad0: FFMA R2, R5, R2, R0"
+    },
+    {
+      "id": 212,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        344,
+        211
+      ],
+      "type": "f32",
+      "origin": "0xad0: FFMA R2, R5, R2, R0"
+    },
+    {
+      "id": 213,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        345,
+        337,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0xad0: FFMA R2, R5, R2, R0"
+    },
+    {
+      "id": 214,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t85:32",
+      "origin": "0xad0: FFMA R2, R5, R2, R0"
+    },
+    {
+      "id": 215,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        346,
+        214
+      ],
+      "type": "f32",
+      "origin": "0xad0: FFMA R2, R5, R2, R0"
+    },
+    {
+      "id": 216,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        347,
+        349,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xae0: FFMA R2, R2, R3, R5"
+    },
+    {
+      "id": 217,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t86:32",
+      "origin": "0xae0: FFMA R2, R2, R3, R5"
+    },
+    {
+      "id": 218,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        350,
+        217
+      ],
+      "type": "f32",
+      "origin": "0xae0: FFMA R2, R2, R3, R5"
+    },
+    {
+      "id": 219,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        351,
+        340,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0xae0: FFMA R2, R2, R3, R5"
+    },
+    {
+      "id": 220,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t87:32",
+      "origin": "0xae0: FFMA R2, R2, R3, R5"
+    },
+    {
+      "id": 221,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        352,
+        220
+      ],
+      "type": "f32",
+      "origin": "0xae0: FFMA R2, R2, R3, R5"
+    },
+    {
+      "id": 222,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        796917760
+      ],
+      "type": "f32",
+      "origin": "0xaf0: FMUL.FTZ R2, R2, 2.3283064365386962891e-10"
+    },
+    {
+      "id": 223,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        353,
+        222,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xaf0: FMUL.FTZ R2, R2, 2.3283064365386962891e-10"
+    },
+    {
+      "id": 224,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t88:32",
+      "origin": "0xaf0: FMUL.FTZ R2, R2, 2.3283064365386962891e-10"
+    },
+    {
+      "id": 225,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        354,
+        224
+      ],
+      "type": "f32",
+      "origin": "0xaf0: FMUL.FTZ R2, R2, 2.3283064365386962891e-10"
+    },
+    {
+      "id": 226,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        316,
+        325,
+        331,
+        358,
+        359
+      ],
+      "type": "'t89:64",
+      "origin": "block 0xb00 R2:2"
+    },
+    {
+      "id": 227,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        226,
+        31,
+        0
+      ],
+      "type": "'t90:32",
+      "origin": "block 0xb00"
+    },
+    {
+      "id": 228,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        293,
+        293,
+        293,
+        293,
+        360
+      ],
+      "type": "'t91:64",
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "id": 229,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        228,
+        31,
+        0
+      ],
+      "type": "'t92:32",
+      "origin": "block 0xb00"
+    },
+    {
+      "id": 230,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        0
+      ],
+      "type": "'t93:32",
+      "origin": "0xb20: IMAD.MOV.U32 R3, RZ, RZ, 0x0"
+    },
+    {
+      "id": 231,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        230,
+        229
+      ],
+      "type": "'t94:64",
+      "origin": "block 0xb00 R2:2"
+    },
+    {
+      "id": 232,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "entry.R0:1"
+      ],
+      "type": "f32",
+      "origin": "entry.R0:1"
+    },
+    {
+      "id": 233,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        2
+      ],
+      "type": "'t95:32",
+      "origin": "block 0x80 UR4:1"
+    },
+    {
+      "id": 234,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        13,
+        234
+      ],
+      "type": "'t96:32",
+      "origin": "block 0xc0 R9:1"
+    },
+    {
+      "id": 235,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        47
+      ],
+      "type": "'t97:32",
+      "origin": "block 0x1e0 R9:1"
+    },
+    {
+      "id": 236,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        282
+      ],
+      "type": "'t98:64",
+      "origin": "block 0x1e0 R2:2"
+    },
+    {
+      "id": 237,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        282,
+        63,
+        32
+      ],
+      "type": "'t99:32",
+      "origin": "block 0x1e0"
+    },
+    {
+      "id": 238,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        282,
+        31,
+        0
+      ],
+      "type": "'t100:32",
+      "origin": "block 0x1e0"
+    },
+    {
+      "id": 239,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        70,
+        73
+      ],
+      "type": "'t101:64",
+      "origin": "block 0x1f0 R2:2"
+    },
+    {
+      "id": 240,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        283
+      ],
+      "type": "'t102:64",
+      "origin": "block 0x1e0 R4:2"
+    },
+    {
+      "id": 241,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        240,
+        63,
+        32
+      ],
+      "type": "'t103:32",
+      "origin": "block 0x1e0"
+    },
+    {
+      "id": 242,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        240,
+        31,
+        0
+      ],
+      "type": "'t104:32",
+      "origin": "block 0x1e0"
+    },
+    {
+      "id": 243,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        90,
+        94
+      ],
+      "type": "'t105:64",
+      "origin": "block 0x1f0 R4:2"
+    },
+    {
+      "id": 244,
+      "operation": "phi",
+      "width": 1,
+      "arguments": [
+        286,
+        244
+      ],
+      "type": "'t106:1",
+      "origin": "block 0x1f0 P0:1"
+    },
+    {
+      "id": 245,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        108,
+        107
+      ],
+      "type": "'t107:64",
+      "origin": "block 0x2a0 R2:2"
+    },
+    {
+      "id": 246,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        287
+      ],
+      "type": "'t108:64",
+      "origin": "block 0x340 R4:2"
+    },
+    {
+      "id": 247,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        306,
+        63,
+        32
+      ],
+      "type": "'t109:32",
+      "origin": "block 0x340"
+    },
+    {
+      "id": 248,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        306,
+        31,
+        0
+      ],
+      "type": "'t110:32",
+      "origin": "block 0x340"
+    },
+    {
+      "id": 249,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        288
+      ],
+      "type": "'t111:64",
+      "origin": "block 0x350 R4:2"
+    },
+    {
+      "id": 250,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        249,
+        31,
+        0
+      ],
+      "type": "'t112:32",
+      "origin": "block 0x350"
+    },
+    {
+      "id": 251,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        136,
+        250
+      ],
+      "type": "'t113:64",
+      "origin": "block 0x350 R4:2"
+    },
+    {
+      "id": 252,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        105
+      ],
+      "type": "'t114:32",
+      "origin": "block 0x320 R0:1"
+    },
+    {
+      "id": 253,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        245
+      ],
+      "type": "'t115:64",
+      "origin": "block 0x320 R2:2"
+    },
+    {
+      "id": 254,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        245,
+        63,
+        32
+      ],
+      "type": "'t116:32",
+      "origin": "block 0x320"
+    },
+    {
+      "id": 255,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        245,
+        31,
+        0
+      ],
+      "type": "'t117:32",
+      "origin": "block 0x320"
+    },
+    {
+      "id": 256,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        245,
+        63,
+        32
+      ],
+      "type": "'t118:32",
+      "origin": "block 0x9c0"
+    },
+    {
+      "id": 257,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        108,
+        310
+      ],
+      "type": "'t119:64",
+      "origin": "block 0x9c0 R2:2"
+    },
+    {
+      "id": 258,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        316,
+        63,
+        32
+      ],
+      "type": "'t120:32",
+      "origin": "block 0x9f0"
+    },
+    {
+      "id": 259,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        108,
+        317
+      ],
+      "type": "'t121:64",
+      "origin": "block 0x9f0 R2:2"
+    },
+    {
+      "id": 260,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        325,
+        63,
+        32
+      ],
+      "type": "'t122:32",
+      "origin": "block 0xa20"
+    },
+    {
+      "id": 261,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        108,
+        326
+      ],
+      "type": "'t123:64",
+      "origin": "block 0xa20 R2:2"
+    },
+    {
+      "id": 262,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        331,
+        63,
+        32
+      ],
+      "type": "'t124:32",
+      "origin": "block 0xa50"
+    },
+    {
+      "id": 263,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        108,
+        332
+      ],
+      "type": "'t125:64",
+      "origin": "block 0xa50 R2:2"
+    },
+    {
+      "id": 264,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        349,
+        355
+      ],
+      "type": "'t126:64",
+      "origin": "block 0xa80 R2:2"
+    },
+    {
+      "id": 265,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        293
+      ],
+      "type": "'t127:64",
+      "origin": "block 0x9c0 R4:2"
+    },
+    {
+      "id": 266,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        293,
+        63,
+        32
+      ],
+      "type": "'t128:32",
+      "origin": "block 0x9c0"
+    },
+    {
+      "id": 267,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        293,
+        31,
+        0
+      ],
+      "type": "'t129:32",
+      "origin": "block 0x9c0"
+    },
+    {
+      "id": 268,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        265
+      ],
+      "type": "'t130:64",
+      "origin": "block 0x9f0 R4:2"
+    },
+    {
+      "id": 269,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        293,
+        63,
+        32
+      ],
+      "type": "'t131:32",
+      "origin": "block 0x9f0"
+    },
+    {
+      "id": 270,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        293,
+        31,
+        0
+      ],
+      "type": "'t132:32",
+      "origin": "block 0x9f0"
+    },
+    {
+      "id": 271,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        268
+      ],
+      "type": "'t133:64",
+      "origin": "block 0xa20 R4:2"
+    },
+    {
+      "id": 272,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        293,
+        63,
+        32
+      ],
+      "type": "'t134:32",
+      "origin": "block 0xa20"
+    },
+    {
+      "id": 273,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        293,
+        31,
+        0
+      ],
+      "type": "'t135:32",
+      "origin": "block 0xa20"
+    },
+    {
+      "id": 274,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        271
+      ],
+      "type": "'t136:64",
+      "origin": "block 0xa50 R4:2"
+    },
+    {
+      "id": 275,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        293,
+        63,
+        32
+      ],
+      "type": "'t137:32",
+      "origin": "block 0xa50"
+    },
+    {
+      "id": 276,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        293,
+        31,
+        0
+      ],
+      "type": "'t138:32",
+      "origin": "block 0xa50"
+    },
+    {
+      "id": 277,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        274
+      ],
+      "type": "'t139:64",
+      "origin": "block 0xa80 R4:2"
+    },
+    {
+      "id": 278,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        293,
+        31,
+        0
+      ],
+      "type": "'t140:32",
+      "origin": "block 0xa80"
+    },
+    {
+      "id": 279,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        340,
+        113
+      ],
+      "type": "'t141:64",
+      "origin": "block 0xa80 R4:2"
+    },
+    {
+      "id": 280,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        304,
+        297
+      ],
+      "type": "'t142:64",
+      "origin": "block 0x120 R2:2"
+    },
+    {
+      "id": 281,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        280,
+        31,
+        0
+      ],
+      "type": "'t143:32",
+      "origin": "block 0x120"
+    },
+    {
+      "id": 282,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        57,
+        281
+      ],
+      "type": "'t144:64",
+      "origin": "block 0x120 R2:2"
+    },
+    {
+      "id": 283,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        305,
+        14
+      ],
+      "type": "'t145:64",
+      "origin": "block 0x120 R4:2"
+    },
+    {
+      "id": 284,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        283,
+        63,
+        32
+      ],
+      "type": "'t146:32",
+      "origin": "block 0x120"
+    },
+    {
+      "id": 285,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        283,
+        31,
+        0
+      ],
+      "type": "'t147:32",
+      "origin": "block 0x120"
+    },
+    {
+      "id": 286,
+      "operation": "phi",
+      "width": 1,
+      "arguments": [
+        49
+      ],
+      "type": "'t148:1",
+      "origin": "block 0x1e0 P0:1"
+    },
+    {
+      "id": 287,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        227,
+        229
+      ],
+      "type": "'t149:64",
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "id": 288,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        301
+      ],
+      "type": "'t150:64",
+      "origin": "block 0x2a0 R4:2"
+    },
+    {
+      "id": 289,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        288,
+        63,
+        32
+      ],
+      "type": "'t151:32",
+      "origin": "block 0x2a0"
+    },
+    {
+      "id": 290,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        288,
+        31,
+        0
+      ],
+      "type": "'t152:32",
+      "origin": "block 0x2a0"
+    },
+    {
+      "id": 291,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        288
+      ],
+      "type": "'t153:64",
+      "origin": "block 0x320 R4:2"
+    },
+    {
+      "id": 292,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        291,
+        63,
+        32
+      ],
+      "type": "'t154:32",
+      "origin": "block 0x320"
+    },
+    {
+      "id": 293,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        292,
+        113
+      ],
+      "type": "'t155:64",
+      "origin": "block 0x320 R4:2"
+    },
+    {
+      "id": 294,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        304
+      ],
+      "type": "'t156:64",
+      "origin": "block 0x0 R2:2"
+    },
+    {
+      "id": 295,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        304,
+        63,
+        32
+      ],
+      "type": "'t157:32",
+      "origin": "block 0x0"
+    },
+    {
+      "id": 296,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        304,
+        31,
+        0
+      ],
+      "type": "'t158:32",
+      "origin": "block 0x0"
+    },
+    {
+      "id": 297,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        27,
+        25
+      ],
+      "type": "'t159:64",
+      "origin": "block 0xc0 R2:2"
+    },
+    {
+      "id": 298,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        305
+      ],
+      "type": "'t160:64",
+      "origin": "block 0x0 R4:2"
+    },
+    {
+      "id": 299,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        305,
+        63,
+        32
+      ],
+      "type": "'t161:32",
+      "origin": "block 0x0"
+    },
+    {
+      "id": 300,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        305,
+        31,
+        0
+      ],
+      "type": "'t162:32",
+      "origin": "block 0x0"
+    },
+    {
+      "id": 301,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        283,
+        243
+      ],
+      "type": "'t163:64",
+      "origin": "block 0x290 R4:2"
+    },
+    {
+      "id": 302,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        301,
+        63,
+        32
+      ],
+      "type": "'t164:32",
+      "origin": "block 0x290"
+    },
+    {
+      "id": 303,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        301,
+        31,
+        0
+      ],
+      "type": "'t165:32",
+      "origin": "block 0x290"
+    },
+    {
+      "id": 304,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "entry.R2:2"
+      ],
+      "type": "'t4:64",
+      "origin": "entry.R2:2"
+    },
+    {
+      "id": 305,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "entry.R4:2"
+      ],
+      "type": "'t5:64",
+      "origin": "entry.R4:2"
+    },
+    {
+      "id": 306,
+      "operation": "phi",
+      "width": 64,
+      "arguments": [
+        311,
+        318,
+        327,
+        333,
+        356
+      ],
+      "type": "'t166:64",
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "id": 307,
+      "operation": "and",
+      "width": 32,
+      "arguments": [
+        105,
+        143
+      ],
+      "type": "i32",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "id": 308,
+      "operation": "ne",
+      "width": 1,
+      "arguments": [
+        307,
+        145
+      ],
+      "type": "bool",
+      "origin": "0x9c0: LOP3.LUT P0, RZ, R0, 0x7fffffff, RZ, 0xc0, !PT"
+    },
+    {
+      "id": 309,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        308
+      ],
+      "type": "bool",
+      "origin": "0x9d0: @!P0 MOV R2, R0"
+    },
+    {
+      "id": 310,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        309,
+        105,
+        107
+      ],
+      "type": "f32",
+      "origin": "0x9d0: @!P0 MOV R2, R0"
+    },
+    {
+      "id": 311,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        310,
+        113
+      ],
+      "type": "'t167:64",
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "id": 312,
+      "operation": "fnan",
+      "width": 1,
+      "arguments": [
+        105
+      ],
+      "type": "bool",
+      "origin": "0x9f0: FSETP.GEU.FTZ.AND P0, PT, R0, RZ, PT"
+    },
+    {
+      "id": 313,
+      "operation": "fle",
+      "width": 1,
+      "arguments": [
+        154,
+        105
+      ],
+      "type": "bool",
+      "origin": "0x9f0: FSETP.GEU.FTZ.AND P0, PT, R0, RZ, PT"
+    },
+    {
+      "id": 314,
+      "operation": "or",
+      "width": 1,
+      "arguments": [
+        312,
+        313
+      ],
+      "type": "bool",
+      "origin": "0x9f0: FSETP.GEU.FTZ.AND P0, PT, R0, RZ, PT"
+    },
+    {
+      "id": 315,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        314
+      ],
+      "type": "bool",
+      "origin": "0xa00: @!P0 IMAD.MOV.U32 R2, RZ, RZ, 0x7fffffff"
+    },
+    {
+      "id": 316,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        108,
+        310
+      ],
+      "type": "'t168:64",
+      "origin": "block 0x9c0 R2:2"
+    },
+    {
+      "id": 317,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        315,
+        158,
+        310
+      ],
+      "type": "f32",
+      "origin": "0xa00: @!P0 IMAD.MOV.U32 R2, RZ, RZ, 0x7fffffff"
+    },
+    {
+      "id": 318,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        317,
+        113
+      ],
+      "type": "'t169:64",
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "id": 319,
+      "operation": "abs.f32",
+      "width": 32,
+      "arguments": [
+        105
+      ],
+      "type": "f32",
+      "origin": "0xa20: FSETP.GTU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 320,
+      "operation": "fnan",
+      "width": 1,
+      "arguments": [
+        319
+      ],
+      "type": "bool",
+      "origin": "0xa20: FSETP.GTU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 321,
+      "operation": "flt",
+      "width": 1,
+      "arguments": [
+        166,
+        319
+      ],
+      "type": "bool",
+      "origin": "0xa20: FSETP.GTU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 322,
+      "operation": "or",
+      "width": 1,
+      "arguments": [
+        320,
+        321
+      ],
+      "type": "bool",
+      "origin": "0xa20: FSETP.GTU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 323,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        105,
+        169,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0xa30: @P0 FADD.FTZ R2, R0, 1"
+    },
+    {
+      "id": 324,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        323,
+        171
+      ],
+      "type": "f32",
+      "origin": "0xa30: @P0 FADD.FTZ R2, R0, 1"
+    },
+    {
+      "id": 325,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        108,
+        317
+      ],
+      "type": "'t170:64",
+      "origin": "block 0x9f0 R2:2"
+    },
+    {
+      "id": 326,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        322,
+        324,
+        317
+      ],
+      "type": "f32",
+      "origin": "0xa30: @P0 FADD.FTZ R2, R0, 1"
+    },
+    {
+      "id": 327,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        326,
+        113
+      ],
+      "type": "'t171:64",
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "id": 328,
+      "operation": "feq",
+      "width": 1,
+      "arguments": [
+        319,
+        179
+      ],
+      "type": "bool",
+      "origin": "0xa50: FSETP.NEU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 329,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        328
+      ],
+      "type": "bool",
+      "origin": "0xa50: FSETP.NEU.FTZ.AND P0, PT, |R0|, +INF , PT"
+    },
+    {
+      "id": 330,
+      "operation": "not",
+      "width": 1,
+      "arguments": [
+        329
+      ],
+      "type": "bool",
+      "origin": "0xa60: @!P0 MOV R2, R0"
+    },
+    {
+      "id": 331,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        108,
+        326
+      ],
+      "type": "'t172:64",
+      "origin": "block 0xa20 R2:2"
+    },
+    {
+      "id": 332,
+      "operation": "ite",
+      "width": 32,
+      "arguments": [
+        330,
+        105,
+        326
+      ],
+      "type": "f32",
+      "origin": "0xa60: @!P0 MOV R2, R0"
+    },
+    {
+      "id": 333,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        332,
+        113
+      ],
+      "type": "'t173:64",
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "id": 334,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        105,
+        188,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 335,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        334,
+        190
+      ],
+      "type": "f32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 336,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        335,
+        192,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 337,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        336,
+        194
+      ],
+      "type": "f32",
+      "origin": "0xa80: FFMA R0, R0, 1.84467440737095516160e+19, RZ"
+    },
+    {
+      "id": 338,
+      "operation": "primitive",
+      "width": 32,
+      "arguments": [
+        "mufu_rsq",
+        337
+      ],
+      "type": "f32",
+      "origin": "0xa90: MUFU.RSQ R3, R0"
+    },
+    {
+      "id": 339,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        337,
+        338,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xaa0: FMUL.FTZ R5, R0, R3"
+    },
+    {
+      "id": 340,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        339,
+        198
+      ],
+      "type": "f32",
+      "origin": "0xaa0: FMUL.FTZ R5, R0, R3"
+    },
+    {
+      "id": 341,
+      "operation": "neg.f32",
+      "width": 32,
+      "arguments": [
+        340
+      ],
+      "type": "f32",
+      "origin": "0xac0: FADD.FTZ R2, -R5, -RZ"
+    },
+    {
+      "id": 342,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        341,
+        206,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0xac0: FADD.FTZ R2, -R5, -RZ"
+    },
+    {
+      "id": 343,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        342,
+        208
+      ],
+      "type": "f32",
+      "origin": "0xac0: FADD.FTZ R2, -R5, -RZ"
+    },
+    {
+      "id": 344,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        340,
+        343,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xad0: FFMA R2, R5, R2, R0"
+    },
+    {
+      "id": 345,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        344,
+        211
+      ],
+      "type": "f32",
+      "origin": "0xad0: FFMA R2, R5, R2, R0"
+    },
+    {
+      "id": 346,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        345,
+        337,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0xad0: FFMA R2, R5, R2, R0"
+    },
+    {
+      "id": 347,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        346,
+        214
+      ],
+      "type": "f32",
+      "origin": "0xad0: FFMA R2, R5, R2, R0"
+    },
+    {
+      "id": 348,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        338,
+        200,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xab0: FMUL.FTZ R3, R3, 0.5"
+    },
+    {
+      "id": 349,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        348,
+        202
+      ],
+      "type": "f32",
+      "origin": "0xab0: FMUL.FTZ R3, R3, 0.5"
+    },
+    {
+      "id": 350,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        347,
+        349,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xae0: FFMA R2, R2, R3, R5"
+    },
+    {
+      "id": 351,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        350,
+        217
+      ],
+      "type": "f32",
+      "origin": "0xae0: FFMA R2, R2, R3, R5"
+    },
+    {
+      "id": 352,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        351,
+        340,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0xae0: FFMA R2, R2, R3, R5"
+    },
+    {
+      "id": 353,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        352,
+        220
+      ],
+      "type": "f32",
+      "origin": "0xae0: FFMA R2, R2, R3, R5"
+    },
+    {
+      "id": 354,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        353,
+        222,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0xaf0: FMUL.FTZ R2, R2, 2.3283064365386962891e-10"
+    },
+    {
+      "id": 355,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        354,
+        224
+      ],
+      "type": "f32",
+      "origin": "0xaf0: FMUL.FTZ R2, R2, 2.3283064365386962891e-10"
+    },
+    {
+      "id": 356,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        355,
+        113
+      ],
+      "type": "'t174:64",
+      "origin": "block 0xb00 R4:2"
+    },
+    {
+      "id": 357,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        11,
+        17
+      ],
+      "type": "i32",
+      "origin": "0xe0: IADD3 R7, R6, R7, RZ"
+    },
+    {
+      "id": 358,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        108,
+        332
+      ],
+      "type": "'t175:64",
+      "origin": "block 0xa50 R2:2"
+    },
+    {
+      "id": 359,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        349,
+        355
+      ],
+      "type": "'t176:64",
+      "origin": "block 0xa80 R2:2"
+    },
+    {
+      "id": 360,
+      "operation": "concat",
+      "width": 64,
+      "arguments": [
+        340,
+        113
+      ],
+      "type": "'t177:64",
+      "origin": "block 0xa80 R4:2"
+    }
+  ]
+}

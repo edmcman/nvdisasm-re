@@ -1,0 +1,2202 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tensor dimensions from SASS</title><style>
+:root{color-scheme:light;--ink:#19312d;--muted:#526860}*{box-sizing:border-box}body{margin:0;background:#f5f5ee;color:var(--ink);font:16px/1.6 system-ui,sans-serif}main{max-width:1120px;margin:auto;padding:48px 24px}h1{font-size:clamp(2rem,5vw,3.4rem);line-height:1.1;margin:12px 0 24px}h2{margin-top:40px}p{max-width:850px}code,pre{font-family:ui-monospace,monospace}code{font-size:.9em}table{width:100%;border-collapse:collapse;background:#fffef9}th,td{text-align:left;padding:18px;border-bottom:1px solid #d7dfd7;vertical-align:top}th{font-weight:550}thead{background:#e6ece3}td div+div{margin-top:10px}.table{overflow-x:auto}.recovered,.open{font-size:.8rem;display:block;color:#286b47}.open{color:#975d20}.note{border-left:3px solid #ae762b;padding:12px 20px;background:#fff0d9}.muted{color:var(--muted)}details{max-width:400px}summary{cursor:pointer}pre{white-space:pre-wrap;overflow-wrap:anywhere;font-size:.75rem;max-height:420px;overflow:auto}a{color:#175d45}@media(max-width:700px){th,td{padding:10px}th{overflow-wrap:anywhere;max-width:150px}}
+.rules pre{font-size:.9rem;max-height:none;background:#e6ece3;padding:14px 16px;border-radius:4px}.rules pre code{font-size:1em}
+</style></head><body><main>
+<p class="muted">Tensor shape analysis · 2026-11-06</p><h1>Tensor dimensions from SASS</h1>
+<p>28 of 28 pointer arguments have a complete dimension decomposition under the conditional integer model. All 12 kernel entries are listed below.</p>
+<p><a href="#constraint-rules">Constraint rules and worked examples</a></p>
+<p class="note">All recovered dimensions are conditional. Integer overflow, signed extensions and address wrapping still need a complete proof. These are dimensions sufficient to describe the observed accesses; original source rank and allocation size are not uniquely determined.</p>
+<div class="table"><table><thead><tr><th>Kernel</th><th>Tensor arguments</th><th>Details</th></tr></thead><tbody><tr><th scope="row">kc_asum_simple</th><td><div><code>input[N]</code> <span class="recovered">recovered, conditional</span></div><div><code>output[1]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb220:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0xd0: LDG.E R2, desc[UR6][R2.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;1&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x3f0: STG.E desc[UR6][R2.64], R7&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_axpy</th><td><div><code>y[N]</code> <span class="recovered">recovered, conditional</span></div><div><code>x[N]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb224:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 2,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0xf0: LDG.E R7, desc[UR4][R4.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x110: STG.E desc[UR4][R4.64], R7&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb224:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0xd0: LDG.E R2, desc[UR4][R2.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_dot_reduce</th><td><div><code>input[N]</code> <span class="recovered">recovered, conditional</span></div><div><code>output[1]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb220:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0xd0: LDG.E R3, desc[UR4][R2.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;1&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x200: STG.E desc[UR4][R2.64], R7&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_dot_partial</th><td><div><code>x[N]</code> <span class="recovered">recovered, conditional</span></div><div><code>y[N]</code> <span class="recovered">recovered, conditional</span></div><div><code>partial[grid.x]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb228:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 5,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x2e0: LDG.E R12, desc[UR4][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x3c0: LDG.E R10, desc[UR4][R10.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x410: LDG.E R14, desc[UR4][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x450: LDG.E R22, desc[UR4][R18.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x480: LDG.E R20, desc[UR4][R20.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb228:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 5,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x2d0: LDG.E R11, desc[UR4][R6.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x3f0: LDG.E R13, desc[UR4][R12.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x430: LDG.E R17, desc[UR4][R16.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x470: LDG.E R7, desc[UR4][R6.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x490: LDG.E R9, desc[UR4][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb220&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cbc:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x610: STG.E desc[UR4][R2.64], R9&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_gemv_n_simple</th><td><div><code>A[M,N]</code> <span class="recovered">recovered, conditional</span></div><div><code>x[N]</code> <span class="recovered">recovered, conditional</span></div><div><code>y[M]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb230:32&quot;,
+        &quot;cb234:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 29,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x210: LDG.E R16, desc[UR8][R10.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x250: LDG.E R18, desc[UR8][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x280: LDG.E R7, desc[UR8][R24.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2a0: LDG.E R20, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2f0: LDG.E R10, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x320: LDG.E R11, desc[UR8][R22.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x350: LDG.E R6, desc[UR8][R22.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x370: LDG.E R28, desc[UR8][R24.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x3b0: LDG.E R14, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x3e0: LDG.E R29, desc[UR8][R16.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x400: LDG.E R18, desc[UR8][R18.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x470: LDG.E R5, desc[UR8][R22.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x4b0: LDG.E R15, desc[UR8][R24.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x4f0: LDG.E R19, desc[UR8][R16.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x550: LDG.E R17, desc[UR8][R10.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x560: LDG.E R24, desc[UR8][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6a0: LDG.E R5, desc[UR8][R10.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6d0: LDG.E R20, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x700: LDG.E R18, desc[UR8][R26.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x740: LDG.E R22, desc[UR8][R22.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x770: LDG.E R6, desc[UR8][R6.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7a0: LDG.E R24, desc[UR8][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7d0: LDG.E R27, desc[UR8][R10.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7f0: LDG.E R23, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x920: LDG.E R10, desc[UR8][R10.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x940: LDG.E R17, desc[UR8][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x980: LDG.E R19, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9a0: LDG.E R21, desc[UR8][R6.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xb00: LDG.E R8, desc[UR8][R4.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x210: LDG.E R16, desc[UR8][R10.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x250: LDG.E R18, desc[UR8][R8.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x280: LDG.E R7, desc[UR8][R24.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2a0: LDG.E R20, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2f0: LDG.E R10, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x320: LDG.E R11, desc[UR8][R22.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x350: LDG.E R6, desc[UR8][R22.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x370: LDG.E R28, desc[UR8][R24.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x3b0: LDG.E R14, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x3e0: LDG.E R29, desc[UR8][R16.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x400: LDG.E R18, desc[UR8][R18.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x470: LDG.E R5, desc[UR8][R22.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x4b0: LDG.E R15, desc[UR8][R24.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x4f0: LDG.E R19, desc[UR8][R16.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x550: LDG.E R17, desc[UR8][R10.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x560: LDG.E R24, desc[UR8][R8.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6a0: LDG.E R5, desc[UR8][R10.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6d0: LDG.E R20, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x700: LDG.E R18, desc[UR8][R26.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x740: LDG.E R22, desc[UR8][R22.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x770: LDG.E R6, desc[UR8][R6.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7a0: LDG.E R24, desc[UR8][R8.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7d0: LDG.E R27, desc[UR8][R10.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7f0: LDG.E R23, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x920: LDG.E R10, desc[UR8][R10.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x940: LDG.E R17, desc[UR8][R8.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x980: LDG.E R19, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9a0: LDG.E R21, desc[UR8][R6.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xb00: LDG.E R8, desc[UR8][R4.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb234:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 29,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x230: LDG.E R17, desc[UR8][R12.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x260: LDG.E R19, desc[UR8][R12.64+0x4]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x290: LDG.E R26, desc[UR8][R12.64+0x8]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2b0: LDG.E R5, desc[UR8][R12.64+0xc]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2c0: LDG.E R21, desc[UR8][R12.64+0x10]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2e0: LDG.E R8, desc[UR8][R12.64+0x14]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x310: LDG.E R9, desc[UR8][R12.64+0x18]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x330: LDG.E R27, desc[UR8][R12.64+0x1c]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x420: LDG.E R7, desc[UR8][R12.64+0x20]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x450: LDG.E R26, desc[UR8][R12.64+0x24]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x460: LDG.E R20, desc[UR8][R12.64+0x28]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x4a0: LDG.E R21, desc[UR8][R12.64+0x2c]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x4e0: LDG.E R22, desc[UR8][R12.64+0x30]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x500: LDG.E R23, desc[UR8][R12.64+0x34]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x510: LDG.E R25, desc[UR8][R12.64+0x3c]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x540: LDG.E R6, desc[UR8][R12.64+0x38]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6b0: LDG.E R16, desc[UR8][R12.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6f0: LDG.E R19, desc[UR8][R12.64+0x4]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x720: LDG.E R17, desc[UR8][R12.64+0x8]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x750: LDG.E R21, desc[UR8][R12.64+0xc]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x780: LDG.E R25, desc[UR8][R12.64+0x10]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7b0: LDG.E R28, desc[UR8][R12.64+0x14]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7c0: LDG.E R26, desc[UR8][R12.64+0x18]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7e0: LDG.E R8, desc[UR8][R12.64+0x1c]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x910: LDG.E R16, desc[UR8][R12.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x950: LDG.E R5, desc[UR8][R12.64+0x4]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x970: LDG.E R18, desc[UR8][R12.64+0x8]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x990: LDG.E R20, desc[UR8][R12.64+0xc]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xb20: LDG.E R6, desc[UR8][R6.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb220&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb230:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 2,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0xbd0: LDG.E R0, desc[UR8][R2.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xc00: STG.E desc[UR8][R2.64], R29&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_nrm2_final</th><td><div><code>input[N]</code> <span class="recovered">recovered, conditional</span></div><div><code>output[1]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb220:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0xd0: LDG.E R3, desc[UR8][R2.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;1&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x3a0: STG.E desc[UR8][R2.64], R5&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_nrm2_partial</th><td><div><code>input[N]</code> <span class="recovered">recovered, conditional</span></div><div><code>output[grid.x]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb220:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x100: LDG.E R3, desc[UR8][R2.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cbc:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x320: STG.E desc[UR8][R2.64], R5&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_nrm2_unrolled</th><td><div><code>input[N]</code> <span class="recovered">recovered, conditional</span></div><div><code>output[grid.x]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb220:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x110: LDG.E R5, desc[UR6][R4.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cbc:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x4e0: STG.E desc[UR6][R2.64], R7&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_nrm2_with_imnmx</th><td><div><code>input[N]</code> <span class="recovered">recovered, conditional</span></div><div><code>output[grid.x]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb220:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x100: LDG.E R5, desc[UR6][R4.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cbc:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x4f0: STG.E desc[UR6][R2.64], R5&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_sgemm_naive</th><td><div><code>C[M,N]</code> <span class="recovered">recovered, conditional</span></div><div><code>A[M,K]</code> <span class="recovered">recovered, conditional</span></div><div><code>B[K,N]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb230:32&quot;,
+        &quot;cb234:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 2,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0xc30: LDG.E R0, desc[UR6][R2.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xc60: STG.E desc[UR6][R2.64], R11&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xc30: LDG.E R0, desc[UR6][R2.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xc60: STG.E desc[UR6][R2.64], R11&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb230:32&quot;,
+        &quot;cb238:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 29,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x280: LDG.E R24, desc[UR6][R20.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2a0: LDG.E R17, desc[UR6][R22.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2e0: LDG.E R14, desc[UR6][R26.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x310: LDG.E R18, desc[UR6][R18.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x320: LDG.E R10, desc[UR6][R28.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x370: LDG.E R20, desc[UR6][R28.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x390: LDG.E R26, desc[UR6][R22.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x3e0: LDG.E R8, desc[UR6][R22.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x410: LDG.E R28, desc[UR6][R24.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x450: LDG.E R29, desc[UR6][R16.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x460: LDG.E R25, desc[UR6][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x4e0: LDG.E R7, desc[UR6][R18.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x520: LDG.E R20, desc[UR6][R22.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x550: LDG.E R26, desc[UR6][R16.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x580: LDG.E R16, desc[UR6][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x5d0: LDG.E R22, desc[UR6][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6f0: LDG.E R22, desc[UR6][R20.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x720: LDG.E R10, desc[UR6][R18.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x760: LDG.E R23, desc[UR6][R20.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x790: LDG.E R14, desc[UR6][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7c0: LDG.E R9, desc[UR6][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7e0: LDG.E R27, desc[UR6][R16.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x810: LDG.E R8, desc[UR6][R18.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x850: LDG.E R11, desc[UR6][R20.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x970: LDG.E R20, desc[UR6][R20.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x990: LDG.E R18, desc[UR6][R16.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9d0: LDG.E R19, desc[UR6][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9f0: LDG.E R23, desc[UR6][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xb60: LDG.E R5, desc[UR6][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x280: LDG.E R24, desc[UR6][R20.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2a0: LDG.E R17, desc[UR6][R22.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2e0: LDG.E R14, desc[UR6][R26.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x310: LDG.E R18, desc[UR6][R18.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x320: LDG.E R10, desc[UR6][R28.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x370: LDG.E R20, desc[UR6][R28.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x390: LDG.E R26, desc[UR6][R22.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x3e0: LDG.E R8, desc[UR6][R22.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x410: LDG.E R28, desc[UR6][R24.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x450: LDG.E R29, desc[UR6][R16.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x460: LDG.E R25, desc[UR6][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x4e0: LDG.E R7, desc[UR6][R18.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x520: LDG.E R20, desc[UR6][R22.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x550: LDG.E R26, desc[UR6][R16.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x580: LDG.E R16, desc[UR6][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x5d0: LDG.E R22, desc[UR6][R8.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6f0: LDG.E R22, desc[UR6][R20.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x720: LDG.E R10, desc[UR6][R18.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x760: LDG.E R23, desc[UR6][R20.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x790: LDG.E R14, desc[UR6][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7c0: LDG.E R9, desc[UR6][R8.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7e0: LDG.E R27, desc[UR6][R16.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x810: LDG.E R8, desc[UR6][R18.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x850: LDG.E R11, desc[UR6][R20.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x970: LDG.E R20, desc[UR6][R20.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x990: LDG.E R18, desc[UR6][R16.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9d0: LDG.E R19, desc[UR6][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9f0: LDG.E R23, desc[UR6][R8.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xb60: LDG.E R5, desc[UR6][R8.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb220&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb238:32&quot;,
+        &quot;cb234:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 29,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x260: LDG.E R8, desc[UR6][R12.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x290: LDG.E R16, desc[UR6][R12.64+0x4]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2c0: LDG.E R15, desc[UR6][R12.64+0x8]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2f0: LDG.E R7, desc[UR6][R12.64+0x10]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x330: LDG.E R21, desc[UR6][R12.64+0x14]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x340: LDG.E R19, desc[UR6][R12.64+0xc]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x360: LDG.E R9, desc[UR6][R12.64+0x18]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x3d0: LDG.E R11, desc[UR6][R12.64+0x1c]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x400: LDG.E R27, desc[UR6][R12.64+0x20]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x490: LDG.E R24, desc[UR6][R12.64+0x24]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x4b0: LDG.E R10, desc[UR6][R12.64+0x28]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x500: LDG.E R21, desc[UR6][R12.64+0x2c]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x540: LDG.E R19, desc[UR6][R12.64+0x30]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x560: LDG.E R18, desc[UR6][R12.64+0x34]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x570: LDG.E R23, desc[UR6][R12.64+0x3c]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x5b0: LDG.E R11, desc[UR6][R12.64+0x38]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6e0: LDG.E R24, desc[UR6][R12.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x710: LDG.E R7, desc[UR6][R12.64+0x4]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x740: LDG.E R26, desc[UR6][R12.64+0x8]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x770: LDG.E R25, desc[UR6][R12.64+0xc]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7b0: LDG.E R28, desc[UR6][R12.64+0x10]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x800: LDG.E R29, desc[UR6][R12.64+0x18]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x820: LDG.E R16, desc[UR6][R12.64+0x14]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x840: LDG.E R22, desc[UR6][R12.64+0x1c]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x960: LDG.E R10, desc[UR6][R12.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9a0: LDG.E R7, desc[UR6][R12.64+0x4]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9c0: LDG.E R22, desc[UR6][R12.64+0x8]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9e0: LDG.E R24, desc[UR6][R12.64+0xc]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xb70: LDG.E R6, desc[UR6][R6.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x260: LDG.E R8, desc[UR6][R12.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x290: LDG.E R16, desc[UR6][R12.64+0x4]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2c0: LDG.E R15, desc[UR6][R12.64+0x8]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2f0: LDG.E R7, desc[UR6][R12.64+0x10]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x330: LDG.E R21, desc[UR6][R12.64+0x14]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x340: LDG.E R19, desc[UR6][R12.64+0xc]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x360: LDG.E R9, desc[UR6][R12.64+0x18]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x3d0: LDG.E R11, desc[UR6][R12.64+0x1c]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x400: LDG.E R27, desc[UR6][R12.64+0x20]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x490: LDG.E R24, desc[UR6][R12.64+0x24]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x4b0: LDG.E R10, desc[UR6][R12.64+0x28]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x500: LDG.E R21, desc[UR6][R12.64+0x2c]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x540: LDG.E R19, desc[UR6][R12.64+0x30]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x560: LDG.E R18, desc[UR6][R12.64+0x34]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x570: LDG.E R23, desc[UR6][R12.64+0x3c]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x5b0: LDG.E R11, desc[UR6][R12.64+0x38]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6e0: LDG.E R24, desc[UR6][R12.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x710: LDG.E R7, desc[UR6][R12.64+0x4]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x740: LDG.E R26, desc[UR6][R12.64+0x8]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x770: LDG.E R25, desc[UR6][R12.64+0xc]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x7b0: LDG.E R28, desc[UR6][R12.64+0x10]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x800: LDG.E R29, desc[UR6][R12.64+0x18]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x820: LDG.E R16, desc[UR6][R12.64+0x14]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x840: LDG.E R22, desc[UR6][R12.64+0x1c]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x960: LDG.E R10, desc[UR6][R12.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9a0: LDG.E R7, desc[UR6][R12.64+0x4]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9c0: LDG.E R22, desc[UR6][R12.64+0x8]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9e0: LDG.E R24, desc[UR6][R12.64+0xc]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xb70: LDG.E R6, desc[UR6][R6.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_sgemm_tiled</th><td><div><code>C[M,N]</code> <span class="recovered">recovered, conditional</span></div><div><code>A[M,K]</code> <span class="recovered">recovered, conditional</span></div><div><code>B[K,N]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb230:32&quot;,
+        &quot;cb234:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 2,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x670: LDG.E R0, desc[UR8][R2.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6a0: STG.E desc[UR8][R2.64], R7&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x670: LDG.E R0, desc[UR8][R2.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x6a0: STG.E desc[UR8][R2.64], R7&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb230:32&quot;,
+        &quot;cb238:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2e0: @!P0 LDG.E R27, desc[UR8][R4.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb220&quot;,
+      &quot;dimensions&quot;: [
+        &quot;cb238:32&quot;,
+        &quot;cb234:32&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 1,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x2c0: @!P1 LDG.E R29, desc[UR8][R14.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr><tr><th scope="row">kc_strsm_lower_8x8</th><td><div><code>L[8,8]</code> <span class="recovered">recovered, conditional</span></div><div><code>X[8,8]</code> <span class="recovered">recovered, conditional</span></div></td><td><details><summary>Evidence</summary><pre>{
+  &quot;arguments&quot;: [
+    {
+      &quot;buffer&quot;: &quot;cb210&quot;,
+      &quot;dimensions&quot;: [
+        &quot;8&quot;,
+        &quot;8&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 8,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0x820: LDG.E R16, desc[UR4][R6.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x840: LDG.E R18, desc[UR4][R6.64+0x20]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x870: LDG.E R20, desc[UR4][R6.64+0x40]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x8a0: LDG.E R22, desc[UR4][R6.64+0x60]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xa10: LDG.E R8, desc[UR4][R2.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xa70: LDG.E R8, desc[UR4][R2.64+0x20]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xa90: @P0 LDG.E R9, desc[UR4][R2.64+0x40]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xaf0: LDG.E R8, desc[UR4][R2.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x820: LDG.E R16, desc[UR4][R6.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x840: LDG.E R18, desc[UR4][R6.64+0x20]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x870: LDG.E R20, desc[UR4][R6.64+0x40]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x8a0: LDG.E R22, desc[UR4][R6.64+0x60]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xa10: LDG.E R8, desc[UR4][R2.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xa70: LDG.E R8, desc[UR4][R2.64+0x20]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xa90: @P0 LDG.E R9, desc[UR4][R2.64+0x40]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xaf0: LDG.E R8, desc[UR4][R2.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    },
+    {
+      &quot;buffer&quot;: &quot;cb218&quot;,
+      &quot;dimensions&quot;: [
+        &quot;8&quot;,
+        &quot;8&quot;
+      ],
+      &quot;dimensions_recovered&quot;: true,
+      &quot;accesses&quot;: 9,
+      &quot;coordinate_checks&quot;: [
+        {
+          &quot;origin&quot;: &quot;0xb0: LDG.E R15, desc[UR4][R4.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x850: LDG.E R14, desc[UR4][R8.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x860: LDG.E R17, desc[UR4][R8.64+0x4]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x880: LDG.E R19, desc[UR4][R8.64+0x8]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x890: LDG.E R21, desc[UR4][R8.64+0xc]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9f0: LDG.E R0, desc[UR4][R6.64]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xa60: LDG.E R0, desc[UR4][R6.64+0x4]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xa80: @P0 LDG.E R12, desc[UR4][R6.64+0x8]&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xbe0: STG.E desc[UR4][R4.64], R7&quot;,
+          &quot;dimension&quot;: 0,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xb0: LDG.E R15, desc[UR4][R4.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x850: LDG.E R14, desc[UR4][R8.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x860: LDG.E R17, desc[UR4][R8.64+0x4]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x880: LDG.E R19, desc[UR4][R8.64+0x8]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x890: LDG.E R21, desc[UR4][R8.64+0xc]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0x9f0: LDG.E R0, desc[UR4][R6.64]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xa60: LDG.E R0, desc[UR4][R6.64+0x4]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xa80: @P0 LDG.E R12, desc[UR4][R6.64+0x8]&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        },
+        {
+          &quot;origin&quot;: &quot;0xbe0: STG.E desc[UR4][R4.64], R7&quot;,
+          &quot;dimension&quot;: 1,
+          &quot;upper_bound_proven&quot;: true,
+          &quot;nonnegative_proven&quot;: true
+        }
+      ],
+      &quot;remaining_index&quot;: [],
+      &quot;integer_interpretation_proven&quot;: false
+    }
+  ],
+  &quot;residuals&quot;: [],
+  &quot;fixed_point_verified&quot;: true
+}</pre></details></td></tr></tbody></table></div>
+<p class="muted">M, N, K and argument names are presentation labels from the source fixtures. The analysis receives SASS and explicit input ranges, without those labels. Dimensions follow physical element-stride order. “?” marks an unresolved dimension or bound.</p>
+<h2>How the analysis works</h2><p>SASS → def/use and SSA → structural type unification → one equality/inequality fixed point → dimension constraints.</p>
+<p>Every edge uses the same parallel SSA assignment, guard intersection and predecessor join. A finite polynomial feature basis retains symbolic strides. Linear algebra derives equalities; Z3 projects linear inequalities. A generic interval/congruence analysis supplies scalar bounds. Loop headers widen until the analysis reaches a verified fixed point. There are no countdown, unroll-factor or tile recognizers in this path.</p>
+<p>Dimensions come from common coordinate bounds and algebraic stride decomposition. Unsupported operations remain unknown and incomplete results stay visible.</p>
+<p>The DOT kernel uses an approximate reciprocal to compute an integer quotient. Numerical constraints carry its error bound through the correction steps. Auxiliary loop counters retain relationships such as <code>index = start + 4 × stride × iterations</code>. These use common arithmetic rules, without kernel-name rules.</p>
+<p class="note">DOT additionally assumes the documented reciprocal error bound applies to its SM90 MUFU.RCP operation: at most one ulp, the spacing between neighboring floating-point values. The numerical model bounds the approximation; it does not reproduce the reciprocal’s exact bits.</p>
+<section id="constraint-rules" class="rules">
+<h2>Constraint rules</h2>
+<p>The analyzer starts with unknown argument types and relationships obtained from individual instructions. It propagates those relationships through branches and loops, then describes the bounded array accesses. Below, <code>i, j, c</code> are integer indices or counters; <code>M, N, s</code> are symbolic values that stay unchanged during a loop. They need not be literal constants. These rules use the conditional integer interpretation described above; they do not by themselves prove that machine arithmetic cannot overflow.</p>
+
+<h3>1. Connect loads to the operations that consume their values</h3>
+<p>A load from a pointer gives an initially unknown element type, written <code>α</code>. Consumers constrain that type. Type unification means making connected types agree.</p>
+<pre><code>x = load(p)       ⇒ p : pointer(global, α), x : α
+y = fadd.f32(x, z) ⇒ x, y, z : f32
+Together          ⇒ p : pointer(global, f32)</code></pre>
+<p>Copying or merging a value connects its type to the incoming values. This establishes argument roles and element types; it does not yet establish tensor dimensions.</p>
+
+<h3>2. Separate an address base from its integer offset</h3>
+<p>When addition combines a pointer and an integer offset, the result remains a pointer to the same element type. For a four-byte access, divide the byte offset by four to obtain an element index.</p>
+<pre><code>p : pointer(global, α), offset : integer
+address = p + offset ⇒ address : pointer(global, α)
+address = p + 4*i    ⇒ element index = i</code></pre>
+<p>An integer address calculation alone does not supply an array extent. Bounds on its index are still required.</p>
+
+<h3>3. Apply assignments simultaneously</h3>
+<p>Each definition has its own identity, even when the machine reuses a register. This is static single assignment, or SSA. At a control-flow edge, substitute all incoming definitions together.</p>
+<pre><code>Before: i + remaining = N
+Update: i′ = i + 3, remaining′ = remaining - 3
+After:  i′ + remaining′ = N</code></pre>
+<p>The same substitution tracks an address advancing by a symbolic stride: <code>address′ = address + 12*M</code> preserves <code>address = base + 4*M*i</code> when <code>i′ = i + 3</code>. No countdown-loop recognizer supplies that equation.</p>
+
+<h3>4. Restrict each branch using its comparison</h3>
+<p>Instructions reached only when a condition holds inherit that condition. A strict integer comparison becomes an inequality with a one-unit gap.</p>
+<pre><code>i &lt; N       ⇒ i - N ≤ -1
+0 ≤ i &lt; N   ⇒ i ≥ 0 and i - N ≤ -1
+j ≤ 7       ⇒ j &lt; 8
+i &lt; N and i ≥ N ⇒ unreachable path</code></pre>
+<p>Unsigned order comparisons also bound their operands between zero and the largest value of their word width. Signed comparisons use the signed interpretation. Thread and block index limits come from the stated SM90 launch conventions and explicit input ranges, not from a guessed tensor shape.</p>
+
+<h3>5. Keep assignments controlled by the same condition together</h3>
+<p>Split on the condition, apply all assignments for that outcome, then combine the outcomes. This retains relationships that separate intervals would lose.</p>
+<pre><code>if condition: y = x+1; z = 11-x
+else:         y = x;   z = 12-x
+Either way:   y+z = 12</code></pre>
+
+<h3>6. At a merge, retain only facts covering every incoming path</h3>
+<p>The analyzer keeps equalities common to the paths. For each tracked inequality expression, it keeps an upper bound large enough to cover both paths. Combining incoming paths this way is called a join.</p>
+<pre><code>Path A: x ≤ 3     Path B: x ≤ 7
+Merged: x ≤ 7
+
+Path A: x=2, y=8  Path B: x=7, y=3
+Merged: x+y=10; individual values are unknown</code></pre>
+
+<h3>7. Retain products needed for symbolic strides</h3>
+<p>A symbolic stride requires relationships involving products, such as <code>M*i</code>. The analyzer tracks a finite set of these polynomial expressions. Equality propagation uses their algebraic relationships; linear inequality solving bounds the tracked expressions.</p>
+<pre><code>x = y             ⇒ M*x = M*y
+x ≤ y and M ≥ 0   ⇒ M*x ≤ M*y
+x ≤ y and M &lt; 0   ⇒ multiplying would reverse the inequality</code></pre>
+<p>The implementation multiplies inequalities only after establishing a nonnegative factor and only when the resulting products fit its tracked expressions. It does not assume a symbolic matrix stride is positive merely because it is named <code>M</code>.</p>
+
+<h3>8. Use integer bounds and cancel proven positive factors</h3>
+<p>An integer cannot lie strictly between two consecutive integers. A factor known to be positive can be cancelled without reversing an inequality.</p>
+<pre><code>integer x ≤ 7/2                ⇒ x ≤ 3
+s*(c-h) &lt; 0 and s &gt; 0        ⇒ c &lt; h
+integer c, h and c &lt; h         ⇒ c ≤ h-1</code></pre>
+<p>The loop-count implementation first tries to establish the product inequality using its existing polynomial expressions, then applies this cancellation and integer rounding. An unknown sign does not justify cancellation.</p>
+
+<h3>9. Preserve the meaning of word operations</h3>
+<p>For a nonnegative integer <code>x</code>, a low-bit mask splits it into a quotient and remainder. For example, keeping two bits gives:</p>
+<pre><code>r = x &amp; 3; q = x &gt;&gt; 2
+x = 4*q + r, q ≥ 0, 0 ≤ r ≤ 3
+If 4 ≤ x ≤ 7: r = x-4</code></pre>
+<p>Complement and predicate extension have separate rules:</p>
+<pre><code>~x = -x-1 modulo 2^word_width
+one-bit true                 = 1
+zero-extend true to 32 bits   = 1
+sign-extend true to 32 bits   = -1 as a signed integer</code></pre>
+<p>These distinctions prevent a predicate from silently switching between <code>1</code> and <code>-1</code>. Integer bounds on a normalized expression must also respect intermediate wrapping: <code>(~d+n)+d</code> equals <code>n-1</code> modulo the word width, including when an intermediate value wraps.</p>
+
+<h3>10. Count loop iterations and verify that the result is preserved</h3>
+<p>For a loop with a dominating header—a loop entry that every path to its body passes through—the analyzer adds an auxiliary integer counter <code>c</code>. It is zero on entry and increases by one when execution returns to the header.</p>
+<pre><code>Loop entry: c = 0, i = start
+Loop step:  c′ = c+1, i′ = i+4*s
+Derived:    i = start+4*s*c</code></pre>
+<p>States are propagated until they stabilize. To make that process terminate, widening weakens bounds that keep growing: it uses the configured thresholds <code>-1, 0, 1</code> when applicable, otherwise drops the bound. The final fixed-point check verifies that every successor state includes the result of another transfer. Failure to stabilize or verify is not reported as a successful dimension proof.</p>
+
+<h3>11. Carry numerical error through reciprocal-based division</h3>
+<p>The compiler can implement integer division using floating-point conversion, an approximate reciprocal, multiplication, and integer correction steps. The analysis constrains these operations individually. It does not replace an approximate reciprocal with exact division.</p>
+<pre><code>ε = 2^-23
+Positive integer d converted to float f, rounding upward:
+    d ≤ f ≤ d*(1+ε)
+Approximate reciprocal of f:
+    target = 1/f, with a bounded floating-point error
+Unsigned multiply-high, for w-bit operands a and b:
+    result = floor(a*b / 2^w)</code></pre>
+<p>The reciprocal model assumes the documented one-ulp accuracy applies to the SM90 operation; an ulp is the spacing between neighboring floating-point values. It uses conservative bounds around the exact reciprocal, tracks the compiler's adjustments to the float encoding, and bounds conversion back to an integer. For example, an estimate used for <code>floor(10/3)</code> must be close enough for the integer correction steps to reach <code>3</code>.</p>
+<p>Under the required input conditions, these operation constraints establish the corrected quotient relationship <code>q*s ≤ numerator &lt; (q+1)*s</code>. A possibly zero divisor, unsupported rounding mode, exceptional floating-point range, or solver timeout supplies no such fact. Some floor and modular relationships are relaxed over real numbers, which can lose precision; successful integer bounds are rounded only when justified.</p>
+
+<h3>12. Turn bounded element indices into dimensions</h3>
+<p>Separate a total element index into a quotient and remainder for an extent <code>M</code>, then require bounds for every access. Dimensions below follow physical element-stride order: the first coordinate advances by one element.</p>
+<pre><code>address = base + 4*(i + M*j)
+0 ≤ i &lt; M and 0 ≤ j &lt; N
+⇒ a sufficient access shape is A[M,N]</code></pre>
+<p>Candidate extents come from the program's comparisons, constant coordinate ranges, and launch limits. A coefficient used as a stride helps choose the decomposition. The analyzer also checks the whole current index against each extent, removes candidates known to be larger than another sufficient candidate, and prefers a kernel comparison when the remaining bounds are incomparable. For example, a surviving <code>j ≤ 7</code> supplies extent <code>8</code> even when the launch-size expression is unrelated to that constant.</p>
+<p>A dimension is complete only when the remaining quotient is zero and every coordinate is both nonnegative and below its extent for every access. Ambiguity, a missing bound, or an unsupported operation remains unresolved. A sufficient access shape does not uniquely identify the original source rank or the allocation's capacity.</p>
+
+<h3>Worked example: all four DOT reads stay below N</h3>
+<p>Let <code>s &gt; 0</code> be the stride and <code>g</code> the initial index. The corrected quotient <code>q</code> describes the iterations remaining:</p>
+<pre><code>q*s ≤ N-g-1 &lt; (q+1)*s
+r = (q+1) % 4; h = (q+1) // 4
+q+1 = r+4*h</code></pre>
+<p>After the initial <code>r</code> scalar reads, let <code>c</code> count completed groups of four. The loop rules derive <code>index = g+s*r+4*s*c</code>. Combine the loop condition with the quotient bound:</p>
+<pre><code>index &lt; N ≤ g+s*(q+1) = g+s*(r+4*h)
+⇒ s*(c-h) &lt; 0
+⇒ c ≤ h-1
+⇒ index+3*s ≤ g+s*(r+4*h-1) = g+s*q ≤ N-1</code></pre>
+<p>This bounds the last read in the group and therefore the preceding three. The loop condition <code>index &lt; N</code> alone would bound only its first read. The equations are consequences of the common rules above, not a DOT-specific summary inserted into the analysis.</p>
+
+<p class="muted">Implementation: <a href="../research/tensor_shapes/infer_types.py">type constraints and SSA</a>, <a href="../research/tensor_shapes/common_constraints.py">arithmetic and control flow</a>, <a href="../research/tensor_shapes/constraint_state.py">assignment and join</a>, <a href="../research/tensor_shapes/numeric_relations.py">numerical constraints</a>, and <a href="../research/tensor_shapes/common_shapes.py">dimension decomposition</a>. The implementation bounds the number and degree of tracked expressions; the mathematical implications above are not a claim of complete inference for arbitrary programs.</p>
+</section>
+
+<h2>Validation</h2><p>91 tests; 0 failures, 0 errors, 0 skips. The suite covers type unification, SSA and local calls, shared-memory types, the common constraint solver, renamed parameters, varied loop increments, contradictory paths, missing/negative bounds, reciprocal arithmetic, GEMM, DOT, triangular solve, and concrete SASS addresses and scalar bounds.</p>
+<p><a href="../research/tensor_shapes/common_results/manifest.json">Exact results, contexts and source hashes</a> · <a href="shapes.md">Implementation notes</a> · <a href="../research/tensor_shapes/README.md">Run the analyzer</a></p>
+</main></body></html>

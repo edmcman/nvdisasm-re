@@ -1,0 +1,709 @@
+{
+  "bounds_checked": false,
+  "inputs": {
+    "SR33:32": "i32",
+    "SR37:32": "i32",
+    "cb0:32": "i32",
+    "cb208:64": "'t0:64",
+    "cb210:64": "ptr64<global, f32, 's1>",
+    "cb218:64": "ptr64<global, f32, 's2>",
+    "cb220:32": "f32",
+    "cb224:32": "i32",
+    "cb28:32": "'t3:32"
+  },
+  "accesses": [
+    {
+      "constraint": "access_within",
+      "kind": "read",
+      "address": 23,
+      "value": 26,
+      "bytes": 4,
+      "guard": null,
+      "shape": "'s2",
+      "origin": "0xd0: LDG.E R2, desc[UR4][R2.64]",
+      "element": "f32"
+    },
+    {
+      "constraint": "access_within",
+      "kind": "read",
+      "address": 29,
+      "value": 32,
+      "bytes": 4,
+      "guard": null,
+      "shape": "'s1",
+      "origin": "0xf0: LDG.E R7, desc[UR4][R4.64]",
+      "element": "f32"
+    },
+    {
+      "constraint": "access_within",
+      "kind": "write",
+      "address": 29,
+      "value": 38,
+      "bytes": 4,
+      "guard": null,
+      "shape": "'s1",
+      "origin": "0x110: STG.E desc[UR4][R4.64], R7",
+      "element": "f32"
+    }
+  ],
+  "residuals": [
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 10,
+      "origin": "0x80: LDC.64 R2, c[0x0][0x218]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 11,
+      "origin": "0x80: LDC.64 R2, c[0x0][0x218]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 13,
+      "origin": "0x90: ULDC.64 UR4, c[0x0][0x208]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 14,
+      "origin": "0x90: ULDC.64 UR4, c[0x0][0x208]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 17,
+      "origin": "0xb0: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 18,
+      "origin": "0xb0: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 24,
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 25,
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 30,
+      "origin": "0xe0: IMAD.WIDE R4, R7, 0x4, R4"
+    },
+    {
+      "kind": "representation",
+      "operation": "extract",
+      "value": 31,
+      "origin": "0xe0: IMAD.WIDE R4, R7, 0x4, R4"
+    }
+  ],
+  "unsupported": [
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x0: LDC R1, c[0x0][0x28]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x80: LDC.64 R2, c[0x0][0x218]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0xb0: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0xd0: LDG.E R2, desc[UR4][R2.64]"
+    },
+    {
+      "effect": "sass_memory_descriptor",
+      "origin": "0xd0: LDG.E R2, desc[UR4][R2.64]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0xf0: LDG.E R7, desc[UR4][R4.64]"
+    },
+    {
+      "effect": "sass_memory_descriptor",
+      "origin": "0xf0: LDG.E R7, desc[UR4][R4.64]"
+    },
+    {
+      "effect": "sass_memory_order",
+      "origin": "0x110: STG.E desc[UR4][R4.64], R7"
+    },
+    {
+      "effect": "sass_memory_descriptor",
+      "origin": "0x110: STG.E desc[UR4][R4.64], R7"
+    }
+  ],
+  "control": [
+    {
+      "block": 0,
+      "address": 112,
+      "kind": "return",
+      "target": null,
+      "fallthrough": 128,
+      "successors": [
+        128
+      ],
+      "guard": 7,
+      "condition": null,
+      "origin": "0x70: @P0 EXIT"
+    },
+    {
+      "block": 128,
+      "address": 288,
+      "kind": "return",
+      "target": null,
+      "fallthrough": 304,
+      "successors": [],
+      "guard": null,
+      "condition": null,
+      "origin": "0x120: EXIT"
+    }
+  ],
+  "verified_returns": [],
+  "call_contexts": {},
+  "integer_views": [
+    {
+      "value": 1,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "SR37"
+    },
+    {
+      "value": 3,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "SR33"
+    },
+    {
+      "value": 4,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x40: IMAD R7, R7, UR4, R0"
+    },
+    {
+      "value": 1,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x40: IMAD R7, R7, UR4, R0"
+    },
+    {
+      "value": 2,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x40: IMAD R7, R7, UR4, R0"
+    },
+    {
+      "value": 7,
+      "as": "bool",
+      "storage": "bool",
+      "origin": "0x60: ISETP.GE.AND P0, PT, R7, UR4, PT"
+    },
+    {
+      "value": 6,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x60: ISETP.GE.AND P0, PT, R7, UR4, PT"
+    },
+    {
+      "value": 5,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x60: ISETP.GE.AND P0, PT, R7, UR4, PT"
+    },
+    {
+      "value": 20,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "value": 19,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "value": 22,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "value": 21,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "value": 28,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0xe0: IMAD.WIDE R4, R7, 0x4, R4"
+    },
+    {
+      "value": 20,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0xe0: IMAD.WIDE R4, R7, 0x4, R4"
+    },
+    {
+      "value": 27,
+      "as": "i64",
+      "storage": "i64",
+      "origin": "0xe0: IMAD.WIDE R4, R7, 0x4, R4"
+    },
+    {
+      "value": 5,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x40: IMAD R7, R7, UR4, R0"
+    },
+    {
+      "value": 3,
+      "as": "i32",
+      "storage": "i32",
+      "origin": "0x40: IMAD R7, R7, UR4, R0"
+    }
+  ],
+  "values": [
+    {
+      "id": 0,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb28"
+      ],
+      "type": "'t3:32",
+      "origin": "cb28"
+    },
+    {
+      "id": 1,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "SR37"
+      ],
+      "type": "i32",
+      "origin": "SR37"
+    },
+    {
+      "id": 2,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb0"
+      ],
+      "type": "i32",
+      "origin": "cb0"
+    },
+    {
+      "id": 3,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "SR33"
+      ],
+      "type": "i32",
+      "origin": "SR33"
+    },
+    {
+      "id": 4,
+      "operation": "mul",
+      "width": 32,
+      "arguments": [
+        1,
+        2
+      ],
+      "type": "i32",
+      "origin": "0x40: IMAD R7, R7, UR4, R0"
+    },
+    {
+      "id": 5,
+      "operation": "add",
+      "width": 32,
+      "arguments": [
+        4,
+        3
+      ],
+      "type": "i32",
+      "origin": "0x40: IMAD R7, R7, UR4, R0"
+    },
+    {
+      "id": 6,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb224"
+      ],
+      "type": "i32",
+      "origin": "cb224"
+    },
+    {
+      "id": 7,
+      "operation": "sle",
+      "width": 1,
+      "arguments": [
+        6,
+        5
+      ],
+      "type": "bool",
+      "origin": "0x60: ISETP.GE.AND P0, PT, R7, UR4, PT"
+    },
+    {
+      "id": 8,
+      "operation": "guard",
+      "width": 1,
+      "arguments": [
+        7
+      ],
+      "type": "'t4:1",
+      "origin": "0x70: @P0 EXIT"
+    },
+    {
+      "id": 9,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb218"
+      ],
+      "type": "ptr64<global, f32, 's2>",
+      "origin": "cb218"
+    },
+    {
+      "id": 10,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        9,
+        31,
+        0
+      ],
+      "type": "'t5:32",
+      "origin": "0x80: LDC.64 R2, c[0x0][0x218]"
+    },
+    {
+      "id": 11,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        9,
+        63,
+        32
+      ],
+      "type": "'t6:32",
+      "origin": "0x80: LDC.64 R2, c[0x0][0x218]"
+    },
+    {
+      "id": 12,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb208"
+      ],
+      "type": "'t0:64",
+      "origin": "cb208"
+    },
+    {
+      "id": 13,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        12,
+        31,
+        0
+      ],
+      "type": "'t7:32",
+      "origin": "0x90: ULDC.64 UR4, c[0x0][0x208]"
+    },
+    {
+      "id": 14,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        12,
+        63,
+        32
+      ],
+      "type": "'t8:32",
+      "origin": "0x90: ULDC.64 UR4, c[0x0][0x208]"
+    },
+    {
+      "id": 15,
+      "operation": "input",
+      "width": 32,
+      "arguments": [
+        "cb220"
+      ],
+      "type": "f32",
+      "origin": "cb220"
+    },
+    {
+      "id": 16,
+      "operation": "input",
+      "width": 64,
+      "arguments": [
+        "cb210"
+      ],
+      "type": "ptr64<global, f32, 's1>",
+      "origin": "cb210"
+    },
+    {
+      "id": 17,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        16,
+        31,
+        0
+      ],
+      "type": "'t9:32",
+      "origin": "0xb0: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "id": 18,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        16,
+        63,
+        32
+      ],
+      "type": "'t10:32",
+      "origin": "0xb0: LDC.64 R4, c[0x0][0x210]"
+    },
+    {
+      "id": 19,
+      "operation": "phi",
+      "width": 32,
+      "arguments": [
+        5
+      ],
+      "type": "i32",
+      "origin": "block 0x80 R7:1"
+    },
+    {
+      "id": 20,
+      "operation": "sext",
+      "width": 64,
+      "arguments": [
+        19
+      ],
+      "type": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "id": 21,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        4
+      ],
+      "type": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "id": 22,
+      "operation": "mul",
+      "width": 64,
+      "arguments": [
+        20,
+        21
+      ],
+      "type": "i64",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "id": 23,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        22,
+        9
+      ],
+      "type": "ptr64<global, f32, 's2>",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "id": 24,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        23,
+        31,
+        0
+      ],
+      "type": "'t11:32",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "id": 25,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        23,
+        63,
+        32
+      ],
+      "type": "'t12:32",
+      "origin": "0xc0: IMAD.WIDE R2, R7, 0x4, R2"
+    },
+    {
+      "id": 26,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "ram",
+        23
+      ],
+      "type": "f32",
+      "origin": "0xd0: LDG.E R2, desc[UR4][R2.64]"
+    },
+    {
+      "id": 27,
+      "operation": "const",
+      "width": 64,
+      "arguments": [
+        4
+      ],
+      "type": "i64",
+      "origin": "0xe0: IMAD.WIDE R4, R7, 0x4, R4"
+    },
+    {
+      "id": 28,
+      "operation": "mul",
+      "width": 64,
+      "arguments": [
+        20,
+        27
+      ],
+      "type": "i64",
+      "origin": "0xe0: IMAD.WIDE R4, R7, 0x4, R4"
+    },
+    {
+      "id": 29,
+      "operation": "add",
+      "width": 64,
+      "arguments": [
+        28,
+        16
+      ],
+      "type": "ptr64<global, f32, 's1>",
+      "origin": "0xe0: IMAD.WIDE R4, R7, 0x4, R4"
+    },
+    {
+      "id": 30,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        29,
+        31,
+        0
+      ],
+      "type": "'t13:32",
+      "origin": "0xe0: IMAD.WIDE R4, R7, 0x4, R4"
+    },
+    {
+      "id": 31,
+      "operation": "extract",
+      "width": 32,
+      "arguments": [
+        29,
+        63,
+        32
+      ],
+      "type": "'t14:32",
+      "origin": "0xe0: IMAD.WIDE R4, R7, 0x4, R4"
+    },
+    {
+      "id": 32,
+      "operation": "load",
+      "width": 32,
+      "arguments": [
+        "ram",
+        29
+      ],
+      "type": "f32",
+      "origin": "0xf0: LDG.E R7, desc[UR4][R4.64]"
+    },
+    {
+      "id": 33,
+      "operation": "fmul",
+      "width": 32,
+      "arguments": [
+        26,
+        15,
+        "RN",
+        0
+      ],
+      "type": "f32",
+      "origin": "0x100: FFMA R7, R2, UR6, R7"
+    },
+    {
+      "id": 34,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t15:32",
+      "origin": "0x100: FFMA R7, R2, UR6, R7"
+    },
+    {
+      "id": 35,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        33,
+        34
+      ],
+      "type": "f32",
+      "origin": "0x100: FFMA R7, R2, UR6, R7"
+    },
+    {
+      "id": 36,
+      "operation": "fadd",
+      "width": 32,
+      "arguments": [
+        35,
+        32,
+        "RN"
+      ],
+      "type": "f32",
+      "origin": "0x100: FFMA R7, R2, UR6, R7"
+    },
+    {
+      "id": 37,
+      "operation": "const",
+      "width": 32,
+      "arguments": [
+        2147483647
+      ],
+      "type": "'t16:32",
+      "origin": "0x100: FFMA R7, R2, UR6, R7"
+    },
+    {
+      "id": 38,
+      "operation": "nanresult",
+      "width": 32,
+      "arguments": [
+        36,
+        37
+      ],
+      "type": "f32",
+      "origin": "0x100: FFMA R7, R2, UR6, R7"
+    }
+  ]
+}
