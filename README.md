@@ -149,9 +149,9 @@ The generator uses the committed `src/sass/md/data/` descriptions.
 Download `sass-extension.zip` from the [latest release](https://github.com/edmcman/nvdisasm-re/releases/latest)
 and follow the [Ghidra extension guide](docs/ghidra-extension.md) for supported versions, installation,
 updates, importing cubins, and coverage. The guide is self-contained: the release ships it inside the
-ZIP as `SASS/README.md`.
+ZIP as `README.md` at the archive root.
 
-To install a branch build, open the [languages workflow](https://github.com/edmcman/nvdisasm-re/actions/workflows/languages.yml) on GitHub and select a successful run for the branch and commit you want. Under **Artifacts**, download **sass-extension** and extract the outer archive to get `sass-extension.zip`. Select that inner ZIP in Ghidra's extension manager. Every branch push starts a build, including documentation-only pushes. A newer push to the same branch can cancel a build in progress, so superseded commits may have no artifact.
+To install a branch build, open the [languages workflow](https://github.com/edmcman/nvdisasm-re/actions/workflows/languages.yml) on GitHub and select a successful run for the branch and commit you want. Under **Artifacts**, download **sass-extension.zip** and select that ZIP directly in Ghidra's extension manager. Every branch push starts a build, including documentation-only pushes. A newer push to the same branch can cancel a build in progress, so superseded commits may have no artifact.
 
 To build and install from source instead:
 
